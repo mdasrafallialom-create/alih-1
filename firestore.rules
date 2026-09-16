@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper: Check if user is Super Admin
+    function isSuperAdmin() {
+      return request.auth != null && request.auth.token.email == 'mdasrafallialom@gmail.com';
+    }
+
+    // Helper: Check if user owns the restaurant
+    function isRestaurantOwner(restaurantId) {
+      let restaurant = get(/databases/$(database)/documents/restaurants/$(restaurantId)).data;
+      return request.auth != null && (
+        request.auth.token.email == restaurant.ownerEmail || 
+        request.auth.uid == restaurant.ownerId
+      );
+    }
+
+    // 1. Restaurants Collection
+    match /restaurants/{restaurantId} {
+      allow read: if true; // Public can see restaurant info
+      allow create: if request.auth != null; // Allow signed-in users to register
+      allow update: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+      allow delete: if isSuperAdmin();
+      
+      // Subcollections
+      match /menu/{itemId} {
+        allow read: if true; // Public can see menu
+        allow write: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+      }
+      
+      match /orders/{orderId} {
+        allow read: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+        allow create: if true; // Public can place orders
+        allow update: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+        allow delete: if isSuperAdmin();
+      }
+
+      match /settings/{docId} {
+        allow read: if true; // Public needs settings for branding
+        allow write: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+      }
+
+      match /categories/{categoryId} {
+        allow read: if true; // Public can see categories to filter menus
+        allow write: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+      }
+
+      match /keywords/{keywordId} {
+        allow read: if true;
+        allow write: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+      }
+
+      match /waiter_requests/{requestId} {
+        allow read: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+        allow create: if true; // Public can request help/waiter
+        allow update, delete: if isSuperAdmin() || isRestaurantOwner(restaurantId);
+      }
+    }
+
+    // 2. Global Collections
+    match /menuCardTemplates/{templateId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    match /platform_settings/{docId} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    match /support_requests/{requestId} {
+      allow read: if isSuperAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    match /audit_logs/{logId} {
+      allow read, write: if isSuperAdmin();
+    }
+  }
+}

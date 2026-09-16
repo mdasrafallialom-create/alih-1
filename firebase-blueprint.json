@@ -1,0 +1,83 @@
+{
+  "entities": {
+    "AdminSettings": {
+      "title": "Restaurant Settings",
+      "description": "Configuration and branding for an individual restaurant.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Restaurant ID" },
+        "ownerId": { "type": "string", "description": "UID of the restaurant owner" },
+        "brandName": { "type": "string", "maxLength": 50 },
+        "brandLocation": { "type": "string", "maxLength": 100 },
+        "subscriptionPlan": { "type": "string", "enum": ["basic", "pro", "elite"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "expired", "trial"] },
+        "createdAt": { "type": "number" },
+        "trialEndsAt": { "type": "number" },
+        "audioEnabled": { "type": "boolean" },
+        "autoAcceptOrders": { "type": "boolean" },
+        "securityPinRequired": { "type": "boolean" },
+        "showCustomerContact": { "type": "boolean" }
+      },
+      "required": ["id", "ownerId", "brandName", "subscriptionPlan", "subscriptionStatus"]
+    },
+    "MenuItem": {
+      "title": "Menu Item",
+      "description": "A dish offered by a restaurant.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "restaurantId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 500 },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "image": { "type": "string" },
+        "glbUrl": { "type": "string" }
+      },
+      "required": ["id", "restaurantId", "name", "price", "category"]
+    },
+    "Order": {
+      "title": "Customer Order",
+      "description": "An order placed by a customer at a restaurant.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "restaurantId": { "type": "string" },
+        "tableNumber": { "type": "string" },
+        "total": { "type": "number" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "paymentStatus": { "type": "string" }
+      },
+      "required": ["id", "restaurantId", "status", "timestamp"]
+    },
+    "SuperAdminSettings": {
+      "title": "Platform Settings",
+      "description": "Global settings and metrics for the SaaS platform.",
+      "type": "object",
+      "properties": {
+        "platformName": { "type": "string" },
+        "totalRevenue": { "type": "number" },
+        "totalRestaurants": { "type": "number" }
+      }
+    }
+  },
+  "firestore": {
+    "/restaurants/{restaurantId}": {
+      "schema": "AdminSettings",
+      "description": "Root settings for each restaurant."
+    },
+    "/restaurants/{restaurantId}/menu": {
+      "schema": "MenuItem",
+      "description": "Menu items for a specific restaurant."
+    },
+    "/restaurants/{restaurantId}/orders": {
+      "schema": "Order",
+      "description": "Orders for a specific restaurant."
+    },
+    "/platform/settings": {
+      "schema": "SuperAdminSettings",
+      "description": "Global platform configurations."
+    }
+  }
+}

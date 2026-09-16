@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Card Live Preview</title>
+  
+  <!-- Font imports -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Oswald:wght@400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@400;700&family=Alex+Brush&family=Great+Vibes&family=Syne:wght@700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Template Styles -->
+  <link rel="stylesheet" href="menu-card-template.css">
+</head>
+<body class="menu-card-body">
+
+  <!-- Cover / Hero block with editable cover/brand slots -->
+  <div class="menu-cover" id="menuCoverImage" style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80');">
+    <div class="menu-cover-overlay"></div>
+    
+    <div class="restaurant-brand" id="restaurantBrand">
+      <!-- Slot for logo or fallback text name -->
+      <img src="" id="restaurantLogoPreview" class="restaurant-logo" style="display: none;" alt="Restaurant Logo">
+      <h1 class="restaurant-brand-title" id="restaurantNamePreview">ROYAL FLAME KITCHEN</h1>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="menu-main-wrapper">
+    
+    <!-- Category buttons -->
+    <div class="menu-categories-nav" id="categoryNav">
+      <button class="menu-category-btn active" data-category="All">All Foods</button>
+      <button class="menu-category-btn" data-category="Pizza">Pizza</button>
+      <button class="menu-category-btn" data-category="Burger">Burger</button>
+      <button class="menu-category-btn" data-category="Drinks">Drinks</button>
+    </div>
+
+    <!-- Menu Items Container -->
+    <div class="menu-section-title-wrapper">
+      <h3 class="menu-section__title" id="currentCategoryTitle">All Foods</h3>
+    </div>
+    
+    <div class="menu-items-grid" id="menuItemsGrid">
+      <!-- Dynamic list items populate here -->
+      <div class="menu-item-card">
+        <div class="menu-item-image-wrapper">
+          <img class="menu-item-image" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=150&q=80" alt="Pizza">
+        </div>
+        <div class="menu-item-info">
+          <div class="menu-item-header">
+            <h4 class="menu-item-name">Truffle Burrata Pizza</h4>
+            <span class="menu-item-price">$24.50</span>
+          </div>
+          <p class="menu-item-description">Sourdough base with shaved black truffles, burrata and arugula.</p>
+          <button class="menu-item-3d-btn">View 3D</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact & Address blocks -->
+    <div class="menu-contact">
+      <div class="contact-info-block">
+        <h5>Call Us</h5>
+        <p id="phonePreview">123-456-7890</p>
+      </div>
+      <div class="contact-info-block">
+        <h5>Our Website</h5>
+        <p id="websitePreview">www.yourrestaurant.com</p>
+      </div>
+      <div class="contact-info-block">
+        <h5>Find Us</h5>
+        <p id="addressPreview">123 Anywhere St, Any City</p>
+      </div>
+    </div>
+
+    <!-- QR Code & Call Waiter section -->
+    <div class="menu-interactive-footer">
+      <div class="qr-code-holder">
+        <div id="qrCodeCanvas">
+          <!-- QRCode rendering element -->
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://ais-dev.run.app/menu?restaurantId=demo&table=4" width="120" height="120" alt="QR Link">
+        </div>
+        <span class="qr-code-caption" id="qrTableLabel">Table: 4</span>
+      </div>
+      
+      <div class="waiter-button-wrapper">
+        <button class="waiter-button" id="callWaiterBtn">Call Waiter</button>
+        <span style="font-size: 0.7rem; color: var(--color-text-secondary);">Direct Service Notification</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QR generation script ref (for master admin template downloads) -->
+  <script src="menu-card-template.js"></script>
+</body>
+</html>

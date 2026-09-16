@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Card Gallery - Professional Restaurant Templates</title>
+  <link rel="stylesheet" href="menu-card-gallery.css">
+  <!-- Google Fonts for Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- PAGE 1: MENU CARD GALLERY HEADER -->
+  <header class="gallery-header">
+    <div class="header-container">
+      <div class="brand-title">
+        <span class="brand-badge">PRO TEMPLATES</span>
+        <h1>Menu Card Gallery</h1>
+        <p>Select a professional menu card template for your restaurant studio</p>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search menu designs (e.g. Burger, Pizza, Dark, Cafe, Luxury)...">
+        <button id="clearSearch" class="clear-btn" style="display:none;">&times;</button>
+      </div>
+
+      <!-- CATEGORY FILTERS -->
+      <div class="filter-wrapper">
+        <div class="category-filters" id="categoryFilters">
+          <button class="filter-chip active" data-category="All">All</button>
+          <button class="filter-chip" data-category="Luxury">✨ Luxury</button>
+          <button class="filter-chip" data-category="Minimal">🌿 Minimal</button>
+          <button class="filter-chip" data-category="Cafe">☕ Cafe</button>
+          <button class="filter-chip" data-category="Fast Food">🍔 Fast Food</button>
+          <button class="filter-chip" data-category="Pizza">🍕 Pizza</button>
+          <button class="filter-chip" data-category="Burger">🍟 Burger</button>
+          <button class="filter-chip" data-category="Dark">🌙 Dark</button>
+          <button class="filter-chip" data-category="Light">☀️ Light</button>
+        </div>
+
+        <!-- PLAN FILTERS -->
+        <div class="plan-filters" id="planFilters">
+          <button class="plan-chip active" data-plan="All">All Plans</button>
+          <button class="plan-chip" data-plan="starter">Free / Starter</button>
+          <button class="plan-chip" data-plan="pro">⚡ Pro</button>
+          <button class="plan-chip" data-plan="premium">👑 Premium VIP</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN GALLERY CONTAINER -->
+  <main class="gallery-main">
+    <div class="gallery-info">
+      <span id="resultsCount">Showing 24 designs</span>
+    </div>
+
+    <!-- 3/4 COLUMN RESPONSIVE GRID -->
+    <div class="menu-card-grid" id="menuCardGrid">
+      <!-- Cards dynamically generated via JavaScript -->
+    </div>
+  </main>
+
+  <!-- DESIGN PREVIEW MODAL -->
+  <div class="preview-modal" id="previewModal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close Preview">&times;</button>
+      
+      <!-- PREVIOUS / NEXT NAVIGATION -->
+      <button class="nav-btn prev-btn" id="prevBtn" title="Previous Design">&#10094;</button>
+      <button class="nav-btn next-btn" id="nextBtn" title="Next Design">&#10095;</button>
+
+      <div class="modal-body">
+        <div class="preview-image-container">
+          <div id="modalCardPreview" class="modal-card-stage">
+            <!-- Rendered live HTML poster preview -->
+          </div>
+        </div>
+
+        <div class="preview-details">
+          <div class="tags-row">
+            <span class="badge-category" id="modalCategory">Fast Food</span>
+            <span class="badge-plan" id="modalPlan">PRO</span>
+          </div>
+
+          <h2 class="template-title" id="modalTitle">Premium Orange Menu</h2>
+          <p class="template-description" id="modalDesc">
+            High-converting professional restaurant poster layout with bold typography, custom food slots, and striking price tags.
+          </p>
+
+          <div class="modal-actions">
+            <button class="btn-use-design" id="modalUseBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              Use This Design
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="menu-card-gallery.js"></script>
+</body>
+</html>
