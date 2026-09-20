@@ -7,6 +7,7 @@ import {
   Youtube, 
   Facebook, 
   Instagram, 
+  Linkedin,
   Share2, 
   Sparkles,
   ShieldCheck,
@@ -40,11 +41,13 @@ interface FooterAndLocationProps {
   contactWhatsapp?: string;
   contactEmail?: string;
   hideMap?: boolean;
+  plan?: string;
   socialLinks?: {
     facebook?: string;
     youtube?: string;
     instagram?: string;
     tiktok?: string;
+    linkedin?: string;
   };
 }
 
@@ -64,6 +67,7 @@ export default function FooterAndLocation({
   contactWhatsapp,
   contactEmail,
   hideMap = false,
+  plan = 'basic',
   socialLinks
 }: FooterAndLocationProps) {
   const locationAddress = brandLocation || "Gulshan Market, Goneshtola, Dinajpur Sadar, Dinajpur-5200, Bangladesh";
@@ -72,6 +76,13 @@ export default function FooterAndLocation({
   const directDirectionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
   const emailAddress = (contactEmail || 'asrafali.com@gmail.com').trim();
   const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emailAddress)}`;
+
+  const formatSocialUrl = (url?: string, fallback: string = '#') => {
+    if (!url || !url.trim()) return fallback;
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    return `https://${trimmed}`;
+  };
 
   const whatsappNumber = (contactWhatsapp || contactPhone || '+880 1603317908').trim();
   const cleanWhatsappDigits = whatsappNumber.replace(/\D/g, '');
@@ -340,15 +351,46 @@ export default function FooterAndLocation({
             <p className="text-xs text-slate-400 leading-relaxed">
               Redefining luxury dining experiences in Bangladesh. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews.
             </p>
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <a href={socialLinks?.facebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-all shadow-sm" title="Facebook">
+            <div className="pt-2 flex flex-wrap items-center gap-2.5">
+              {/* Connected Social Media Platforms: LinkedIn, Facebook, YouTube, Instagram */}
+              <a 
+                href={formatSocialUrl(socialLinks?.linkedin, 'https://linkedin.com')} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#0A66C2] hover:bg-[#0A66C2]/15 hover:border-[#0A66C2]/50 transition-all shadow-sm" 
+                title="LinkedIn"
+              >
+                <Linkedin className="w-4 h-4" />
+              </a>
+
+              <a 
+                href={formatSocialUrl(socialLinks?.facebook, 'https://facebook.com')} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#1877F2] hover:bg-[#1877F2]/15 hover:border-[#1877F2]/50 transition-all shadow-sm" 
+                title="Facebook"
+              >
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href={socialLinks?.instagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-all shadow-sm" title="Instagram">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href={socialLinks?.youtube || "https://youtube.com"} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-all shadow-sm" title="YouTube">
+
+              <a 
+                href={formatSocialUrl(socialLinks?.youtube, 'https://youtube.com')} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#FF0000] hover:bg-[#FF0000]/15 hover:border-[#FF0000]/50 transition-all shadow-sm" 
+                title="YouTube"
+              >
                 <Youtube className="w-4 h-4" />
+              </a>
+
+              <a 
+                href={formatSocialUrl(socialLinks?.instagram, 'https://instagram.com')} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#E1306C] hover:bg-[#E1306C]/15 hover:border-[#E1306C]/50 transition-all shadow-sm" 
+                title="Instagram"
+              >
+                <Instagram className="w-4 h-4" />
               </a>
 
               <div className="w-px h-6 bg-slate-800 mx-1" />

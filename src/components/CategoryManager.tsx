@@ -82,7 +82,7 @@ export default function CategoryManager({ restaurantId, theme = 'light' }: Categ
       const sorted = [...list].sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
       setKeywords(sorted);
     }, (err) => {
-      console.error("Keywords subscription error", err);
+      console.warn("Keywords subscription warning:", err);
     });
 
     return () => unsubscribe();

@@ -12,7 +12,15 @@ import {
   Video,
   Play,
   ExternalLink,
-  CreditCard
+  CreditCard,
+  Instagram,
+  Facebook,
+  Youtube,
+  Linkedin,
+  Phone,
+  Mail,
+  MapPin,
+  MessageCircle
 } from 'lucide-react';
 import { PricingPlan, SubscriptionPlan } from '../types';
 import PaymentModal from './PaymentModal';
@@ -25,9 +33,34 @@ interface AboutAndPricingProps {
   lang?: string;
   brandName?: string;
   brandLocation?: string;
+  brandDescription?: string;
+  contactPhone?: string;
+  contactWhatsapp?: string;
+  contactEmail?: string;
+  socialLinks?: {
+    facebook?: string;
+    youtube?: string;
+    instagram?: string;
+    linkedin?: string;
+    tiktok?: string;
+  };
+  aboutUsTitle?: string;
+  aboutUsSubtitle?: string;
+  aboutUsText?: string;
+  aboutUsImage?: string;
   logoStyle?: string;
   logoColorPrimary?: string;
   logoColorSecondary?: string;
+  hidePricing?: boolean;
+  hideOutletCard?: boolean;
+  themePalette?: {
+    bg?: string;
+    cardBg?: string;
+    borderColor?: string;
+    textColor?: string;
+    mutedTextColor?: string;
+    accentColor?: string;
+  };
 }
 
 const AboutAndPricing: React.FC<AboutAndPricingProps> = ({ 
@@ -38,9 +71,21 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
   lang = 'en',
   brandName,
   brandLocation,
+  brandDescription,
+  contactPhone,
+  contactWhatsapp,
+  contactEmail,
+  socialLinks,
+  aboutUsTitle,
+  aboutUsSubtitle,
+  aboutUsText,
+  aboutUsImage,
   logoStyle,
   logoColorPrimary,
-  logoColorSecondary
+  logoColorSecondary,
+  hidePricing = false,
+  hideOutletCard = false,
+  themePalette
 }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<PricingPlan | null>(null);
 
@@ -123,6 +168,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
         'Active Dashboard',
         'Order History (7 Days)',
         'Menu Categories',
+        'Instagram Marketing Link',
         'Email Support'
       ]
     },
@@ -138,6 +184,9 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
         '25 Premium Themes & Designs',
         '500+ Menu Card Studio Access',
         'QR Code Management',
+        'Instagram Marketing Link',
+        'Facebook Marketing Link',
+        'YouTube Marketing Link',
         'Custom Domains',
         'Priority Support'
       ]
@@ -153,6 +202,10 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
         '50 Premium Themes & Designs',
         '1000+ Menu Card Studio Access',
         'QR Code Menu Management',
+        'Instagram Marketing Link',
+        'Facebook Marketing Link',
+        'YouTube Marketing Link',
+        'LinkedIn Marketing Link',
         'Financial Control',
         'AI Analytics Engine',
         '24/7 Priority Concierge'
@@ -217,98 +270,267 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
     }
   };
 
+  const featureItems = [
+    { 
+      icon: Smartphone, 
+      text: lang === 'bn' 
+        ? 'ইমারসিভ এআর মেনু: অর্ডার করার পূর্বে খাবার ত্রিমাত্রিক ৩ডি আকারে দেখুন।' 
+        : 'Immersive AR Menu: Visualize dishes in stunning 3D before ordering.' 
+    },
+    { 
+      icon: QrCode, 
+      text: lang === 'bn' 
+        ? 'স্মার্ট কিউআর ইন্টিগ্রেশন: যেকোনো টেবিল থেকে সরাসরি স্ক্যান, অর্ডার ও পে করুন।' 
+        : 'Seamless QR Integration: Scan, order, and pay instantly from any table.' 
+    },
+    { 
+      icon: Video, 
+      text: lang === 'bn' 
+        ? 'সিনেমাটিক এক্সপেরিয়েন্স: সিগনেচার খাবারের আকর্ষণীয় আল্ট্রা-এইচডি ভিডিও শোকেস।' 
+        : 'Cinematic Experience: High-quality video showcases of your signature dishes.' 
+    },
+    { 
+      icon: ShieldCheck, 
+      text: lang === 'bn' 
+        ? 'অ্যাডভান্সড কিচেন পাইপলাইন: কোনো প্রকার বিলম্ব ছাড়াই দ্রুত খাবার প্রস্তুতি ও পরিবেশন।' 
+        : 'Advanced Pipeline: Optimized kitchen management for zero delays.' 
+    }
+  ];
+
+  const formatUrl = (url?: string, fallback: string = '#') => {
+    if (!url || !url.trim()) return fallback;
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    return `https://${trimmed}`;
+  };
+
+  const rawPhone = contactPhone || '+880 1603317908';
+  const rawWhatsapp = contactWhatsapp || contactPhone || '+880 1340491041';
+  const rawEmail = contactEmail || 'atikulalomasif4@gmail.com';
+  const cleanWhatsapp = rawWhatsapp.replace(/[^0-9]/g, '');
+  const locationText = brandLocation || 'Hyderabad, Sindh, Pakistan';
+
+  const socialItemList = [
+    {
+      key: 'instagram',
+      label: 'Instagram',
+      icon: Instagram,
+      url: formatUrl(socialLinks?.instagram, 'https://instagram.com'),
+      color: 'hover:text-[#E1306C] hover:border-[#E1306C]/60 hover:bg-[#E1306C]/10',
+    },
+    {
+      key: 'youtube',
+      label: 'YouTube',
+      icon: Youtube,
+      url: formatUrl(socialLinks?.youtube, 'https://youtube.com'),
+      color: 'hover:text-[#FF0000] hover:border-[#FF0000]/60 hover:bg-[#FF0000]/10',
+    },
+    {
+      key: 'facebook',
+      label: 'Facebook',
+      icon: Facebook,
+      url: formatUrl(socialLinks?.facebook, 'https://facebook.com'),
+      color: 'hover:text-[#1877F2] hover:border-[#1877F2]/60 hover:bg-[#1877F2]/10',
+    },
+    {
+      key: 'linkedin',
+      label: 'LinkedIn',
+      icon: Linkedin,
+      url: formatUrl(socialLinks?.linkedin, 'https://linkedin.com'),
+      color: 'hover:text-[#0A66C2] hover:border-[#0A66C2]/60 hover:bg-[#0A66C2]/10',
+    }
+  ];
+
+  const bgColor = themePalette?.bg || (isDark ? 'bg-[#121324]' : 'bg-white');
+  const cardBgColor = themePalette?.cardBg || (isDark ? 'bg-[#15162B]' : 'bg-slate-50');
+  const borderColor = themePalette?.borderColor || (isDark ? 'border-[#C9A86A]/20' : 'border-slate-100');
+  const textColor = themePalette?.textColor || (isDark ? 'text-[#F4E7D3]' : 'text-slate-900');
+  const mutedColor = themePalette?.mutedTextColor || (isDark ? 'text-[#F4E7D3]/75' : 'text-slate-600');
+  const accentColor = themePalette?.accentColor || (isDark ? '#C9A86A' : '#0891b2');
+
+  const displayHeroImage = aboutUsImage || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1000&q=80';
+
   return (
-    <section id="about-pricing" className="py-24 px-4 bg-white border-t border-slate-100">
+    <section 
+      id={hidePricing ? "about" : "about-pricing"} 
+      className={`relative py-24 px-4 ${bgColor} border-t ${borderColor} transition-colors duration-300`}
+    >
+      {/* Invisible anchor for #story navigation */}
+      <div id="story" className="absolute -top-24 left-0 w-0 h-0 pointer-events-none" />
+
       <div className="max-w-full mx-auto px-4 sm:px-8 md:px-12 lg:px-16">
         {/* About Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-32">
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-16 items-center ${hidePricing ? 'mb-0' : 'mb-32'}`}>
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-amber-500/20">
               <Sparkles className="w-4 h-4" />
-              Restaurant Excellence
+              {aboutUsSubtitle || (lang === 'bn' ? 'রেস্টুরেন্ট এক্সিলেন্স' : 'Restaurant Excellence')}
             </div>
-            <h2 className="text-4xl font-display font-black mb-8 leading-tight text-slate-900">
-              The World's Most <span className="text-cyan-600">Luxurious</span> <br/> Digital Dining System
+            <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-display font-black mb-8 leading-tight ${textColor}`}>
+              {aboutUsTitle ? (
+                <span>{aboutUsTitle}</span>
+              ) : lang === 'bn' ? (
+                <>বিশ্বের সর্বাধুনিক <span style={{ color: accentColor }}>লাক্সারি</span> <br/>ডিজিটাল ডাইনিং প্ল্যাটফর্ম</>
+              ) : (
+                <>The World's Most <span style={{ color: accentColor }}>Luxurious</span> <br/> Digital Dining System</>
+              )}
             </h2>
             <div className="space-y-6">
-              {['facebook', 'instagram', 'youtube', 'tiktok'].map(s => {
-                const url = ""; // handled externally
-              })}
-              {[
-                { icon: Smartphone, text: 'Immersive AR Menu: Visualize dishes in stunning 3D before ordering.' },
-                { icon: QrCode, text: 'Seamless QR Integration: Scan, order, and pay instantly from any table.' },
-                { icon: Video, text: 'Cinematic Experience: High-quality video showcases of your signature dishes.' },
-                { icon: ShieldCheck, text: 'Advanced Pipeline: Optimized kitchen management for zero delays.' }
-              ].map((item, i) => (
+              {featureItems.map((item, i) => (
                 <div key={i} className="flex items-start gap-4">
-                  <div className="mt-1 p-2 rounded-xl bg-cyan-50 text-cyan-600">
+                  <div 
+                    className="mt-1 p-2.5 rounded-xl shrink-0"
+                    style={{ 
+                      backgroundColor: isDark ? 'rgba(201, 168, 106, 0.12)' : 'rgba(8, 145, 178, 0.1)',
+                      color: accentColor,
+                      border: `1px solid ${isDark ? 'rgba(201, 168, 106, 0.25)' : 'rgba(8, 145, 178, 0.2)'}`
+                    }}
+                  >
                     <item.icon className="w-4 h-4" />
                   </div>
-                  <p className="text-sm font-medium leading-relaxed text-slate-600">{item.text}</p>
+                  <p className={`text-sm font-medium leading-relaxed ${mutedColor}`}>{item.text}</p>
                 </div>
               ))}
             </div>
 
-            {/* Premium Dynamic Location Card (Auto-populated from Brand Identity Settings) */}
-            <div className="mt-10 p-6 rounded-3xl border transition-all duration-500 bg-slate-50 border-slate-100">
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500">
-                      <Sparkles className="w-4 h-4" />
+            {/* Premium Dynamic Location & Social Card (Auto-populated from Brand Identity Settings) */}
+            {!hideOutletCard && (
+              <div className={`mt-10 p-6 rounded-3xl border transition-all duration-500 ${cardBgColor} ${borderColor} shadow-lg space-y-4`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center"
+                        style={{ 
+                          backgroundColor: isDark ? 'rgba(201, 168, 106, 0.15)' : 'rgba(8, 145, 178, 0.1)',
+                          color: accentColor 
+                        }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <h4 className={`text-sm font-black uppercase tracking-wider ${textColor}`}>
+                        {lang === 'bn' ? 'আমাদের আউটলেট ও সোশ্যাল মিডিয়া' : 'Our Outlet & Socials'}
+                      </h4>
                     </div>
-                    <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                      {lang === 'bn' ? 'আমাদের আউটলেট ও ঠিকানা' : 'Our Outlet & Venue'}
-                    </h4>
+                    <p className="text-lg font-black mb-1" style={{ color: accentColor }}>
+                      {brandName || (lang === 'bn' ? 'আমাদের রেস্টুরেন্ট' : 'Our Restaurant Venue')}
+                    </p>
                   </div>
-                  <p className="text-lg font-black mb-1 text-cyan-700">
-                    {brandName || (lang === 'bn' ? 'আমাদের রেস্টুরেন্ট' : 'Our Restaurant Venue')}
-                  </p>
+                  {/* Dynamically Rendered Premium Brand Logo Monogram */}
+                  <div className="shrink-0">
+                    {renderLogo()}
+                  </div>
                 </div>
-                {/* Dynamically Rendered Premium Brand Logo Monogram */}
-                <div className="shrink-0">
-                  {renderLogo()}
+
+                <p className={`text-xs leading-relaxed font-medium ${mutedColor}`}>
+                  {aboutUsText || brandDescription || (lang === 'bn' 
+                    ? `আমরা আনন্দের সাথে জানাচ্ছি যে ${brandName || 'আমাদের রেস্টুরেন্ট'} অত্যন্ত সফলভাবে ${locationText} অবস্থিত। আমরা আপনাদের জন্য বিশ্বের সেরা ডিজিটাল ডাইনিং ও ত্রিমাত্রিক ৩ডি এআর মেনু নিয়ে এসেছি।`
+                    : `We are proudly established in ${locationText}. Welcome to ${brandName || 'our restaurant'}, where we pair world-class luxury dining with interactive 3D AR technology.`
+                  )}
+                </p>
+
+                {/* Direct Contact Details: Phone, WhatsApp, Email, Location */}
+                <div className="pt-2 border-t border-inherit/40 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span className={`truncate font-medium ${mutedColor}`}>{locationText}</span>
+                  </div>
+                  <a 
+                    href={`tel:${rawPhone.replace(/\s+/g, '')}`}
+                    className={`flex items-center gap-2 font-mono font-bold hover:underline transition-colors ${textColor}`}
+                  >
+                    <Phone className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>{rawPhone}</span>
+                  </a>
+                  <a 
+                    href={`https://wa.me/${cleanWhatsapp}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-2 font-mono font-bold text-emerald-500 hover:underline transition-colors`}
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{rawWhatsapp}</span>
+                  </a>
+                  <a 
+                    href={`mailto:${rawEmail}`}
+                    className={`flex items-center gap-2 truncate font-medium hover:underline transition-colors ${textColor}`}
+                  >
+                    <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span className="truncate">{rawEmail}</span>
+                  </a>
+                </div>
+
+                {/* Connected Social Media Icons: Instagram, YouTube, Facebook, LinkedIn */}
+                <div className="pt-3 border-t border-inherit/40 flex flex-wrap items-center justify-between gap-3">
+                  <span className={`text-[11px] font-bold uppercase tracking-wider ${textColor}`}>
+                    {lang === 'bn' ? 'সোশ্যাল মিডিয়ায় যুক্ত থাকুন:' : 'Follow & Connect:'}
+                  </span>
+                  <div className="flex items-center gap-2.5">
+                    {socialItemList.map(s => {
+                      return (
+                        <a
+                          key={s.key}
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={s.label}
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-200 shadow-sm ${
+                            isDark 
+                              ? 'bg-[#121324] border-[#C9A86A]/30 text-[#F4E7D3] hover:border-[#C9A86A]' 
+                              : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
+                          } ${s.color}`}
+                        >
+                          <s.icon className="w-4 h-4" />
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-              <p className="text-xs leading-relaxed font-medium text-slate-600">
-                {lang === 'bn' 
-                  ? `আমরা আনন্দের সাথে জানাচ্ছি যে ${brandName || 'আমাদের রেস্টুরেন্ট'} অত্যন্ত সফলভাবে ${brandLocation || 'আপনার এলাকায়'} অবস্থিত। আমরা আপনাদের জন্য বিশ্বের সেরা ডিজিটাল ডাইনিং ও ত্রিমাত্রিক ৩ডি এআর মেনু নিয়ে এসেছি।`
-                  : `We are proudly established in the premium hub of ${brandLocation || 'your region'}. Welcome to ${brandName || 'our restaurant'}, where we pair world-class luxury dining with interactive 3D AR technology.`
-                }
-              </p>
-            </div>
+            )}
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl"
+            className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border"
+            style={{ borderColor: isDark ? 'rgba(201, 168, 106, 0.3)' : 'rgba(226, 232, 240, 0.8)' }}
           >
             <img 
-              src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1000&q=80" 
+              src={displayHeroImage} 
               alt="Luxury Dining"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-10">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-10">
               <div className="flex items-center gap-4 text-white">
-                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-                  <Play className="w-6 h-6 fill-current" />
+                <div 
+                  className="w-14 h-14 rounded-full backdrop-blur-md flex items-center justify-center shadow-lg"
+                  style={{ 
+                    backgroundColor: isDark ? 'rgba(201, 168, 106, 0.3)' : 'rgba(255, 255, 255, 0.25)',
+                    border: `1px solid ${isDark ? '#C9A86A' : 'rgba(255, 255, 255, 0.4)'}`
+                  }}
+                >
+                  <Play className="w-6 h-6 fill-current text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Featured Story</p>
-                  <p className="text-xl font-bold">Experience the Future</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 text-amber-300">
+                    {aboutUsSubtitle || (lang === 'bn' ? 'ফিচার্ড স্টোরি' : 'Featured Story')}
+                  </p>
+                  <p className="text-xl font-bold">
+                    {aboutUsTitle || (lang === 'bn' ? 'ভবিষ্যতের ডাইনিং অভিজ্ঞতা' : 'Experience the Future')}
+                  </p>
                 </div>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Pricing Section: Only displayed when no specific plan has been selected */}
-        {!isPlanExplicitlySelected && (
+        {/* Pricing Section: Only displayed when hidePricing is false and no specific plan has been selected */}
+        {!hidePricing && !isPlanExplicitlySelected && (
           <div>
             <div className="text-center mb-16 relative">
               <h2 className="text-4xl font-display font-black mb-4 text-slate-900">

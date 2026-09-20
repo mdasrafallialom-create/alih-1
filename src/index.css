@@ -187,3 +187,26 @@ model-viewer {
     display: none !important;
   }
 }
+
+/* Continuous marquee slider animation for chef & artisan cards */
+@keyframes marquee-scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll-left 36s linear infinite;
+}
+
+.animate-marquee-track:hover,
+.marquee-container:hover .animate-marquee-track {
+  animation-play-state: paused !important;
+}
+

@@ -13,16 +13,16 @@ import FooterAndLocation from './components/FooterAndLocation';
 import HeroSlider from './components/HeroSlider';
 import { MenuItemCard } from './components/MenuItemCard';
 
-// Lazy load heavy components for high-speed initial rendering & optimal bundle code-splitting
-const ThreeDViewer = lazy(() => import('./components/ThreeDViewer'));
-const ManagerAuthModal = lazy(() => import('./components/ManagerAuthModal'));
-const RestaurantAdminPanel = lazy(() => import('./components/RestaurantAdmin/RestaurantAdminPanel'));
-const SuperAdminDashboard = lazy(() => import('./components/SuperAdminDashboard'));
-const CustomerOrderTracking = lazy(() => import('./components/CustomerOrderTracking'));
-const FoodDetailView = lazy(() => import('./components/FoodDetailView'));
-const AboutAndPricing = lazy(() => import('./components/AboutAndPricing'));
-const ChefSection = lazy(() => import('./components/ChefSection'));
-const WebAROSPortalLanding = lazy(() => import('./components/WebAROSPortalLanding'));
+import ThreeDViewer from './components/ThreeDViewer';
+import ManagerAuthModal from './components/ManagerAuthModal';
+import RestaurantAdminPanel from './components/RestaurantAdmin/RestaurantAdminPanel';
+import SuperAdminDashboard from './components/SuperAdminDashboard';
+import CustomerOrderTracking from './components/CustomerOrderTracking';
+import FoodDetailView from './components/FoodDetailView';
+import AboutAndPricing from './components/AboutAndPricing';
+import ChefSection from './components/ChefSection';
+import WebAROSPortalLanding from './components/WebAROSPortalLanding';
+import { LUXURY_THEMES } from './data/luxuryThemes';
 
 // High-speed lightweight spinner fallback
 const LazyFallback = () => (
@@ -111,6 +111,10 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'client' | 'admin' | 'superadmin'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      // Explicit Theme view requested via URL -> MUST force client mode to show theme!
+      if (params.get('theme') || params.get('standalone') === 'true' || params.get('preview') === 'true') {
+        return 'client';
+      }
       if (
         params.get('admin') === 'true' || 
         params.get('admin') === '5321' || 
@@ -139,8 +143,7 @@ export default function App() {
     }
   }, [viewMode]);
 
-  // ---------------------------------------------------------------------------
-  // 4 SECTIONS WORKFLOW:
+
   // 1: 'edit'  - Edit Section (Everything visible, including WebAR OS Portal & Theme Workshop)
   // 2: 'plan1' - Plan 1 ($15 Basic - buttons removed)
   // 3: 'plan2' - Plan 2 ($49 Pro - buttons removed)
@@ -188,15 +191,12 @@ export default function App() {
         window.dispatchEvent(new CustomEvent('admin-switch-tab', { detail: 'menu_studio' }));
       }, 100);
     } else if (section === 'plan1') {
-      setViewMode('client');
       setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: 'basic' }) : prev);
       setShowTopPlanPopup(true);
     } else if (section === 'plan2') {
-      setViewMode('client');
       setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: 'pro' }) : prev);
       setShowTopPlanPopup(true);
     } else if (section === 'plan3') {
-      setViewMode('client');
       setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: 'elite' }) : prev);
       setShowTopPlanPopup(true);
     }
@@ -397,7 +397,7 @@ export default function App() {
       const sorted = [...list].sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
       setDynamicKeywords(sorted);
     }, (err) => {
-      console.error("Keywords subscription error", err);
+      console.warn("Keywords subscription warning:", err);
     });
 
     return () => unsubscribe();
@@ -609,7 +609,7 @@ export default function App() {
       const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as MenuCategory[];
       setCategories(list);
     }, (err) => {
-      console.error("Categories subscription error", err);
+      console.warn("Categories subscription warning:", err);
     });
 
     return () => unsubscribe();
@@ -848,6 +848,48 @@ export default function App() {
     }
     return null;
   });
+
+  // Read URL params for standalone theme view or direct theme rendering
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const urlTheme = urlParams?.get('theme');
+  const isStandaloneThemeView = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
+  const effectiveThemeId = urlTheme || ((adminSettings as any)?.activeThemeId || 'velmora-dining');
+  const isCustomThemeActive = Boolean(urlTheme) || isStandaloneThemeView;
+
+  const selectedThemePreset = useMemo(() => {
+    return LUXURY_THEMES.find(t => t.id === effectiveThemeId) || LUXURY_THEMES[0];
+  }, [effectiveThemeId]);
+
+  // Dynamically set page document title based on selected theme & custom domain
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const customDomain = (adminSettings as any)?.customDomain;
+    const brandName = (adminSettings as any)?.brandName || (adminSettings as any)?.restaurantName;
+
+    if (isCustomThemeActive || urlTheme) {
+      if (customDomain && customDomain.trim().length > 0) {
+        document.title = `${customDomain} | ${selectedThemePreset.name}`;
+      } else if (brandName && brandName !== 'My Restaurant' && brandName !== 'sahinsh' && brandName !== 'Avernao') {
+        document.title = `${brandName} — ${selectedThemePreset.name}`;
+      } else {
+        document.title = `${selectedThemePreset.name} — ${selectedThemePreset.tagline || 'Luxury Restaurant'}`;
+      }
+    } else {
+      document.title = "Avernao — Luxury Restaurant Operating System";
+    }
+  }, [effectiveThemeId, isCustomThemeActive, urlTheme, adminSettings, selectedThemePreset]);
+
+  // State for standalone theme plan popup (disabled by default so theme renders clean and unobscured)
+  const [showStandalonePlanPopup, setShowStandalonePlanPopup] = useState<boolean>(false);
+
+  const handleDismissStandalonePlanPopup = () => {
+    if (typeof window !== 'undefined') {
+      const themeKey = urlTheme || 'velmora-dining';
+      sessionStorage.setItem(`theme_plan_popup_dismissed_${themeKey}`, 'true');
+    }
+    setShowStandalonePlanPopup(false);
+  };
 
   // Sync plan parameter from URL into adminSettings, maintaining Client view initially
   useEffect(() => {
@@ -1842,7 +1884,7 @@ export default function App() {
     <div 
       className={`min-h-screen flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-800 transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-[#faf6f0] text-slate-900') : themeConfig.textColor} ${lang === 'ar' ? 'font-arabic' : ''}`}
       style={{ 
-        backgroundColor: viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#faf6f0') : ((adminSettings as any)?.activeThemeId === 'lunavere' ? '#15162B' : (themeConfig.bgColor || '#ffffff')),
+        backgroundColor: viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#faf6f0') : ((adminSettings as any)?.activeThemeId === 'lunavere' ? '#F4E7D3' : (themeConfig.bgColor || '#ffffff')),
         backgroundImage: 'none'
       }}
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
@@ -2060,6 +2102,7 @@ export default function App() {
       {/* =======================================================================
           TOP BAR: BRANDING & QUICK ACCESS
           ======================================================================= */}
+      {(!isCustomThemeActive || viewMode === 'admin') && (
       <header 
         className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-[#faf6f0] border-slate-200/80 text-slate-900 shadow-sm') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
         style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#faf6f0') }}
@@ -2069,20 +2112,21 @@ export default function App() {
           {/* TOP LEFT: Back / Track Orders Buttons & Restaurant Branding (Client Mode) */}
           <div className="flex items-center gap-3.5 z-10">
             {viewMode === 'admin' && (
-              <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="flex items-center">
                 <motion.button
+                  type="button"
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent('admin-back-button'));
                   }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-3.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 rounded-xl transition-all cursor-pointer border border-cyan-500/20 shrink-0 font-bold text-xs shadow-sm"
-                  title={lang === 'bn' ? 'পিছনে যান / ব্যাক' : 'Go Back'}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e293b] hover:bg-[#334155] text-white font-bold text-xs shadow-md border border-slate-700/60 transition-all cursor-pointer select-none"
+                  title={lang === 'bn' ? 'পিছনে যান (ব্যাক)' : 'Back'}
                 >
-                  <ArrowLeft className="w-3.5 h-3.5 text-cyan-600" />
-                  <span>{lang === 'bn' ? 'ব্যাক' : lang === 'ar' ? 'رجوع' : 'Back'}</span>
+                  <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
                 </motion.button>
               </div>
             )}
@@ -2233,11 +2277,12 @@ export default function App() {
           </div>
         </div>
       </header>
+      )}
 
       {/* =======================================================================
           SMART DESKTOP CATEGORY NAV (Hides on Scroll Down)
           ======================================================================= */}
-      {viewMode === 'client' && (
+      {viewMode === 'client' && !isCustomThemeActive && (
         <nav
           ref={megaMenuRef}
           className={`sticky top-[56px] z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs no-print transition-all duration-300 transform-gpu ${
@@ -2535,36 +2580,109 @@ export default function App() {
       {/* =======================================================================
           MAIN WORKSPACE ROOT
           ======================================================================= */}
-      <main className={`flex-1 max-w-full mx-auto w-full ${viewMode === 'client' && ((adminSettings as any)?.activeThemeId === 'lunavere' || (adminSettings as any)?.activeThemeId === 'velmora-dining' || (adminSettings as any)?.activeThemeId === 'velmora') ? 'p-0' : 'px-4 sm:px-8 md:px-12 lg:px-16 py-6 pb-24'}`}>
+      <main className={`flex-1 max-w-full mx-auto w-full ${viewMode === 'client' && isCustomThemeActive ? 'p-0' : 'px-4 sm:px-8 md:px-12 lg:px-16 py-6 pb-24'}`}>
         
         {/* =====================================================================
             VIEW 1: CUSTOMER PORTAL & MULTI-CATEGORY MENU
             ===================================================================== */}
         {viewMode === 'client' && (
-          (adminSettings as any)?.activeThemeId === 'velmora-dining' || (adminSettings as any)?.activeThemeId === 'velmora' ? (
-            <VelmoraDiningTheme 
-              brandName={adminSettings?.brandName || 'VELMORA DINING'}
-              tagline={adminSettings?.tagline || 'Palatial Gastronomy & Fine Dining'}
-              dishes={menuItems || []}
-              onOrderDish={(dish) => {
-                handleAddToCart(dish as any);
-              }}
-              onOpenAdmin={enterAdminPanel}
-              settings={adminSettings || {}}
-              lang={lang}
-            />
-          ) : (adminSettings as any)?.activeThemeId === 'lunavere' ? (
-            <LunavereTheme 
-              brandName={adminSettings?.brandName || 'LUNAVERE'}
-              tagline={adminSettings?.tagline || 'Parisian Starlight Cafe'}
-              dishes={menuItems || []}
-              onOrderDish={(dish) => {
-                handleAddToCart(dish as any);
-              }}
-              onOpenAdmin={enterAdminPanel}
-              settings={adminSettings || {}}
-              lang={lang}
-            />
+          isCustomThemeActive ? (
+            <>
+              {/* Standalone Theme Back to Website Pill Button */}
+              <div className="fixed top-4 left-4 z-[999]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.location.href = window.location.pathname;
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e293b]/95 hover:bg-[#334155] text-white font-bold text-xs shadow-2xl border border-slate-700/60 backdrop-blur-md cursor-pointer transition-all active:scale-95 select-none"
+                  title={lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরুন' : 'Back to Website'}
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                </button>
+              </div>
+
+              {/* Standalone One-time Welcome/Plan Popup Modal */}
+              <AnimatePresence>
+                {showStandalonePlanPopup && (
+                  <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl p-6 space-y-5 text-left"
+                    >
+                      <div className="flex items-start justify-between border-b pb-4 border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg font-black text-xl">
+                            👑
+                          </div>
+                          <div>
+                            <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                              {urlParams?.get('plan') ? `$${urlParams?.get('plan')} Plan Theme` : '$15 / $49 / $99 Plan Theme'}
+                            </span>
+                            <h3 className="text-lg sm:text-xl font-display font-black text-slate-900 dark:text-white mt-1">
+                              {selectedThemePreset.name}
+                            </h3>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleDismissStandalonePlanPopup}
+                          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-all cursor-pointer"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                          Welcome to the live interactive theme view for {selectedThemePreset.name}.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200">
+                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> 3D AR Dish Integration</div>
+                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Multi-Language Engine</div>
+                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Responsive Mobile & Desktop</div>
+                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Instant Order Cart</div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handleDismissStandalonePlanPopup}
+                        className="w-full py-3 px-5 rounded-2xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>থিম দেখুন ও শুরু করুন (Continue to Theme)</span>
+                      </button>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+
+              {effectiveThemeId === 'lunavere' ? (
+                <LunavereTheme 
+                  brandName={(adminSettings as any)?.customDomain || adminSettings?.brandName || selectedThemePreset.name}
+                  tagline={selectedThemePreset.tagline || adminSettings?.tagline || 'Parisian Starlight Cafe'}
+                  dishes={menuItems || []}
+                  onOrderDish={(dish) => handleAddToCart(dish as any)}
+                  onOpenAdmin={enterAdminPanel}
+                  settings={adminSettings || {}}
+                  lang={lang}
+                />
+              ) : (
+                <VelmoraDiningTheme 
+                  brandName={(adminSettings as any)?.customDomain || adminSettings?.brandName || selectedThemePreset.name}
+                  tagline={selectedThemePreset.tagline || adminSettings?.tagline || 'Palatial Gastronomy & Fine Dining'}
+                  dishes={menuItems || []}
+                  onOrderDish={(dish) => handleAddToCart(dish as any)}
+                  onOpenAdmin={enterAdminPanel}
+                  settings={adminSettings || {}}
+                  lang={lang}
+                />
+              )}
+            </>
           ) : (
           <div className="space-y-8 animate-fade-in no-print">
             
@@ -2752,21 +2870,35 @@ export default function App() {
                   displayName: managerSession?.name || 'Restaurant Admin',
                   photoURL: customAvatarUrl || null
                 } as any)}
-                settings={adminSettings || {
-                  id: activeRestaurantId || '',
-                  ownerId: user?.uid || 'manager-owner',
-                  brandName: "My Restaurant",
-                  brandLocation: "",
-                  subscriptionPlan: 'basic',
-                  subscriptionStatus: 'trial',
-                  theme: 'light',
-                  audioEnabled: true,
-                  autoAcceptOrders: false,
-                  securityPinRequired: true,
-                  showCustomerContact: true,
-                  createdAt: Date.now(),
-                  trialEndsAt: Date.now() + 86400000,
-                  socialLinks: { facebook: '', youtube: '', instagram: '', tiktok: '' }
+                settings={{
+                  ...(adminSettings || {
+                    id: activeRestaurantId || '',
+                    ownerId: user?.uid || 'manager-owner',
+                    brandName: "My Restaurant",
+                    brandLocation: "",
+                    subscriptionPlan: 'basic',
+                    subscriptionStatus: 'trial',
+                    theme: 'light',
+                    audioEnabled: true,
+                    autoAcceptOrders: false,
+                    securityPinRequired: true,
+                    showCustomerContact: true,
+                    createdAt: Date.now(),
+                    trialEndsAt: Date.now() + 86400000,
+                    socialLinks: { facebook: '', youtube: '', instagram: '', tiktok: '' }
+                  }),
+                  subscriptionPlan: (() => {
+                    if (typeof window !== 'undefined') {
+                      const urlPlan = new URLSearchParams(window.location.search).get('plan')?.toLowerCase();
+                      if (urlPlan === '99' || urlPlan === 'elite' || urlPlan === 'enterprise') return 'elite';
+                      if (urlPlan === '49' || urlPlan === 'pro') return 'pro';
+                      if (urlPlan === '15' || urlPlan === 'basic') return 'basic';
+                    }
+                    if (activeWorkSection === 'plan3') return 'elite';
+                    if (activeWorkSection === 'plan2') return 'pro';
+                    if (activeWorkSection === 'plan1') return 'basic';
+                    return adminSettings?.subscriptionPlan || 'basic';
+                  })()
                 }}
                 orders={orders}
                 onLogout={handleManagerLogout}
@@ -3077,7 +3209,7 @@ export default function App() {
       {/* =======================================================================
           FOOTER & GOOGLE MAPS LOCATION SECTION (Customer view only)
           ======================================================================= */}
-      {viewMode === 'client' && (
+      {viewMode === 'client' && !isCustomThemeActive && (
         <>
           <Suspense fallback={<LazyFallback />}>
             <AboutAndPricing 
@@ -3086,6 +3218,15 @@ export default function App() {
               lang={lang}
               brandName={adminSettings?.brandName}
               brandLocation={adminSettings?.brandLocation}
+              brandDescription={adminSettings?.brandDescription || adminSettings?.aboutUsText}
+              contactPhone={adminSettings?.contactPhone}
+              contactWhatsapp={adminSettings?.contactWhatsapp}
+              contactEmail={adminSettings?.contactEmail}
+              socialLinks={adminSettings?.socialLinks}
+              aboutUsTitle={adminSettings?.aboutUsTitle}
+              aboutUsSubtitle={adminSettings?.aboutUsSubtitle}
+              aboutUsText={adminSettings?.aboutUsText}
+              aboutUsImage={adminSettings?.aboutUsImage}
               logoStyle={adminSettings?.logoStyle}
               logoColorPrimary={adminSettings?.logoColorPrimary}
               logoColorSecondary={adminSettings?.logoColorSecondary}

@@ -105,14 +105,27 @@ export interface AdminSettings {
     facebook: string;
     youtube: string;
     instagram: string;
-    tiktok: string;
+    tiktok?: string;
+    linkedin?: string;
   };
   contactPhone?: string;
   contactWhatsapp?: string;
   contactEmail?: string;
   showChefSection?: boolean;
+  themeShowChefSection?: boolean;
+  aboutUsTitle?: string;
+  aboutUsSubtitle?: string;
+  aboutUsText?: string;
+  aboutUsImage?: string;
+  aboutUsFeatures?: string[];
   chefProfile?: ChefProfile;
   chefProfiles?: ChefProfile[];
+  lunavereFooterSubtitle?: string;
+  lunavereFooterDesc?: string;
+  lunavereReservationTitle?: string;
+  lunavereReservationDesc?: string;
+  lunavereReserveBtnText?: string;
+  lunavereQrBtnText?: string;
 }
 
 export interface ChefProfile {

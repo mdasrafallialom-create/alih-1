@@ -15,6 +15,7 @@ import {
   Layers, 
   Paintbrush, 
   CheckCircle2, 
+  ArrowLeft,
   ArrowRight,
   Search,
   Filter,
@@ -211,6 +212,7 @@ export default function ThemeStoreManager({
   const currentThemeId = (settings as any).activeThemeId || 'velmora-dining';
   const [activeThemeId, setActiveThemeId] = useState<string>(currentThemeId);
   const [previewTheme, setPreviewTheme] = useState<ThemePreset | null>(null);
+  const [selectedPlanModalTheme, setSelectedPlanModalTheme] = useState<ThemePreset | null>(null);
   const [previewDeviceView, setPreviewDeviceView] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [likedThemeIds, setLikedThemeIds] = useState<string[]>(() => {
@@ -488,10 +490,13 @@ export default function ThemeStoreManager({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const savedPreviewId = localStorage.getItem('active_preview_theme_id') || localStorage.getItem('last_active_preview_theme_id') || currentThemeId || 'velmora-dining';
-        const found = THEME_PRESETS.find(t => t.id === savedPreviewId) || THEME_PRESETS.find(t => t.id === 'velmora-dining') || THEME_PRESETS[0];
-        if (found) {
-          handleOpenPreviewTheme(found);
+        const isPreviewOpen = localStorage.getItem('is_theme_preview_open') === 'true';
+        if (isPreviewOpen) {
+          const savedPreviewId = localStorage.getItem('active_preview_theme_id');
+          const found = THEME_PRESETS.find(t => t.id === savedPreviewId);
+          if (found) {
+            handleOpenPreviewTheme(found);
+          }
         }
       } catch {}
     }
@@ -584,7 +589,9 @@ export default function ThemeStoreManager({
     );
 
     try {
-      window.open(window.location.origin, '_blank');
+      const planVal = (preset as any).planPrice || (targetPlan === 'basic' ? 15 : targetPlan === 'pro' ? 49 : 99);
+      const themeUrl = `${window.location.origin}/?theme=${preset.id}&standalone=true&plan=${planVal}`;
+      window.open(themeUrl, '_blank');
     } catch (e) {
       console.error('Window open failed:', e);
     }
@@ -857,15 +864,15 @@ export default function ThemeStoreManager({
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         
         {/* Left Sidebar Filters (50 Luxury Themes List) */}
-        <div className={`w-full lg:w-64 shrink-0 rounded-2xl border p-4 space-y-4 transition-all ${
-          isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-800 shadow-sm'
+        <div className={`w-full sm:w-72 lg:w-80 shrink-0 rounded-2xl border p-4 space-y-4 transition-all ${
+          isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
         }`}>
           {/* 50 Luxury Themes Section */}
           <div>
             <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white pb-2.5 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Theme Selection List</span>
+                <span className="font-extrabold text-slate-900 dark:text-white">Theme Selection List</span>
               </div>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-bold">
                 {planFilteredThemes.length}
@@ -875,17 +882,37 @@ export default function ThemeStoreManager({
             <div className="mt-3 space-y-1 text-xs max-h-[720px] overflow-y-auto pr-1">
               <label
                 onClick={() => setSelectedThemeFilter('all')}
-                className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-2 rounded-lg transition-colors ${
-                  selectedThemeFilter === 'all' ? 'text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                className={`relative pl-3 pr-2.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
+                  selectedThemeFilter === 'all' 
+                    ? 'bg-blue-600 text-white font-black shadow-md border border-blue-700' 
+                    : isDark
+                      ? 'bg-slate-800/80 text-white font-black hover:bg-slate-700/80 hover:translate-x-1 border border-slate-700/50'
+                      : 'bg-slate-100/90 text-slate-950 font-black hover:bg-slate-200/90 hover:translate-x-1 border border-slate-200/80'
                 }`}
               >
+                {/* Left Active/Hover Animated Indicator Line */}
+                <span 
+                  className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full transition-all duration-300 ${
+                    selectedThemeFilter === 'all' 
+                      ? 'bg-white scale-y-100 opacity-100 shadow-sm' 
+                      : 'bg-blue-600 scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100'
+                  }`} 
+                />
                 <input
                   type="checkbox"
                   checked={selectedThemeFilter === 'all'}
                   onChange={() => setSelectedThemeFilter('all')}
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 shrink-0"
+                  className="rounded border-2 border-slate-500 text-blue-600 focus:ring-blue-500 w-4 h-4 shrink-0 cursor-pointer accent-blue-600"
                 />
-                <span className="truncate">All Available ({planFilteredThemes.length} Themes)</span>
+                <span className={`flex-1 min-w-0 text-xs font-black truncate ${
+                  selectedThemeFilter === 'all' 
+                    ? 'text-white' 
+                    : isDark 
+                      ? 'text-white' 
+                      : 'text-slate-950'
+                }`} style={{ color: selectedThemeFilter !== 'all' && !isDark ? '#000000' : undefined }}>
+                  All Available ({planFilteredThemes.length} Themes)
+                </span>
               </label>
 
               {planFilteredThemes.map((t) => {
@@ -895,18 +922,47 @@ export default function ThemeStoreManager({
                   <label
                     key={t.id}
                     onClick={() => setSelectedThemeFilter(t.id)}
-                    className={`flex items-center gap-2 cursor-pointer py-1 px-1.5 rounded-lg transition-colors ${
-                      isChecked ? 'text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-900/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    title={t.name}
+                    className={`relative pl-3 pr-2 py-2 rounded-xl transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
+                      isChecked 
+                        ? 'bg-blue-600 text-white font-black shadow-md border border-blue-700' 
+                        : isDark
+                          ? 'bg-slate-800/80 text-white font-black hover:bg-slate-700/80 hover:translate-x-1 border border-slate-700/50'
+                          : 'bg-slate-100/90 text-slate-950 font-black hover:bg-slate-200/90 hover:translate-x-1 border border-slate-200/80'
                     }`}
                   >
+                    {/* Left Active/Hover Animated Indicator Line */}
+                    <span 
+                      className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full transition-all duration-300 ${
+                        isChecked 
+                          ? 'bg-white scale-y-100 opacity-100 shadow-sm' 
+                          : 'bg-blue-600 scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100'
+                      }`} 
+                    />
                     <input
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => setSelectedThemeFilter(t.id)}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 shrink-0"
+                      className="rounded border-2 border-slate-500 text-blue-600 focus:ring-blue-500 w-4 h-4 shrink-0 cursor-pointer accent-blue-600"
                     />
-                    <span className="text-[10px] font-mono text-slate-400 w-5 shrink-0 text-right">{numStr}</span>
-                    <span className="truncate font-medium">{t.name}</span>
+                    <span className={`text-xs font-mono shrink-0 font-black ${
+                      isChecked 
+                        ? 'text-white' 
+                        : isDark 
+                          ? 'text-slate-200' 
+                          : 'text-slate-900'
+                    }`}>
+                      {numStr}
+                    </span>
+                    <span className={`flex-1 min-w-0 text-xs truncate font-black ${
+                      isChecked 
+                        ? 'text-white' 
+                        : isDark 
+                          ? 'text-white' 
+                          : 'text-slate-950'
+                    }`} style={{ color: !isChecked && !isDark ? '#000000' : undefined }}>
+                      {t.name}
+                    </span>
                   </label>
                 );
               })}
@@ -1059,22 +1115,37 @@ export default function ThemeStoreManager({
                       </div>
                     </div>
 
-                    {/* Action Button */}
-                    <div className="pt-1">
+                    {/* Action Buttons: Views (opens preview in new tab) + Apply Theme (activates theme for live site/domain) */}
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const themeUrl = `/?theme=${preset.id}&standalone=true&plan=${preset.planPrice}`;
+                          window.open(themeUrl, '_blank');
+                        }}
+                        className="flex-1 py-2 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                        title="Open theme view in new tab"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        <span>Views (ভিউজ)</span>
+                      </button>
+
                       {isSelected ? (
-                        <div className="w-full py-2 rounded-xl bg-[#e6fffa] dark:bg-emerald-950/60 text-[#00b894] dark:text-emerald-400 border border-[#b2f5ea] dark:border-emerald-800 text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs">
+                        <div className="flex-1 py-2 px-2.5 rounded-xl bg-[#e6fffa] dark:bg-emerald-950/60 text-[#00b894] dark:text-emerald-400 border border-[#b2f5ea] dark:border-emerald-800 text-xs font-bold flex items-center justify-center gap-1 shadow-2xs">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                           <span>Active</span>
                         </div>
                       ) : (
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleOpenPreviewTheme(preset);
+                            setSelectedPlanModalTheme(preset);
                           }}
-                          className="w-full py-2 rounded-xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                          className="flex-1 py-2 px-2.5 rounded-xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
                         >
-                          <span>Apply Theme</span>
+                          <span>Apply</span>
                         </button>
                       )}
                     </div>
@@ -1099,6 +1170,17 @@ export default function ThemeStoreManager({
               {/* Modal Top Control Header */}
               <div className="px-6 py-3.5 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between gap-4 shrink-0 text-white">
                 <div className="flex items-center gap-3">
+                  {/* Theme Preview Back Button to return to themes list */}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPreviewTheme(null)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e293b] hover:bg-[#334155] text-white font-bold text-xs shadow-md border border-slate-700/60 cursor-pointer transition-all active:scale-95 shrink-0"
+                    title={lang === 'bn' ? 'থিম স্টোরে ফিরে যান' : 'Back to Themes'}
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                  </button>
+
                   <span className="px-2.5 py-1 rounded-lg bg-orange-500 font-mono font-black text-xs text-white">
                     {(previewTheme as any).formattedSerial || '#01'}
                   </span>
@@ -1184,8 +1266,9 @@ export default function ThemeStoreManager({
                   }}
                 >
                   {/* ===================================================================== */}
-                  {/* 1. COMMON TOP HEADER BAR (Exact match to Screenshot - Security Header) */}
+                  {/* 1. COMMON TOP HEADER BAR (Only for default preview, omitted for custom themes) */}
                   {/* ===================================================================== */}
+                  {!(previewTheme.id === 'velmora-dining' || previewTheme.id === 'velmora' || previewTheme.id === 'lunavere') && (
                   <header ref={previewMegaMenuRef} className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/90 px-4 sm:px-8 py-3.5 flex flex-col gap-3 shadow-md transition-all duration-300">
                     {/* Top Row: Logo + Brand + Location & Admin Avatar */}
                     <div className="flex items-center justify-between">
@@ -1483,6 +1566,7 @@ export default function ThemeStoreManager({
                       )}
                     </AnimatePresence>
                   </header>
+                  )}
 
                   {previewTheme.id === 'velmora-dining' || previewTheme.id === 'velmora' ? (
                     <VelmoraDiningTheme 
@@ -2249,6 +2333,120 @@ export default function ThemeStoreManager({
                     <span>Apply This Theme</span>
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ======================================================================= */}
+      {/* PLAN CONFIRMATION POPUP MODAL (Triggers BEFORE applying/previewing theme) */}
+      {/* ======================================================================= */}
+      <AnimatePresence>
+        {selectedPlanModalTheme && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl p-6 space-y-5"
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between border-b pb-4 border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg ${
+                    selectedPlanModalTheme.planPrice === 15 ? 'bg-emerald-600' : selectedPlanModalTheme.planPrice === 49 ? 'bg-blue-600' : 'bg-amber-500 text-slate-950'
+                  }`}>
+                    <Crown className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-black px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                        {selectedPlanModalTheme.formattedSerial}
+                      </span>
+                      <span className={`text-xs font-black px-2.5 py-0.5 rounded-full text-white uppercase ${
+                        selectedPlanModalTheme.planPrice === 15 ? 'bg-emerald-600' : selectedPlanModalTheme.planPrice === 49 ? 'bg-blue-600' : 'bg-amber-600'
+                      }`}>
+                        ${selectedPlanModalTheme.planPrice} Plan Theme
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-display font-black text-slate-900 dark:text-white mt-1">
+                      {selectedPlanModalTheme.name}
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedPlanModalTheme(null)}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-all cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Plan Details & Features */}
+              <div className="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Subscription Tier:</span>
+                  <span className="text-sm font-black text-slate-900 dark:text-white">
+                    {selectedPlanModalTheme.planPrice === 15 ? '$15 Starter Plan (Themes #01 - #10)' : selectedPlanModalTheme.planPrice === 49 ? '$49 Pro Plan (Themes #11 - #25)' : '$99 Elite Plan (Themes #26 - #50)'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                  {selectedPlanModalTheme.tagline}
+                </p>
+
+                <div className="pt-2 border-t border-slate-200/80 dark:border-slate-700/80 space-y-1.5">
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">Theme Plan Features Included:</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+                    <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Premium Responsive Layout</div>
+                    <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> 3D AR Interactive Dish Views</div>
+                    <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Multi-Language & Currency</div>
+                    <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Custom Branding Engine</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2.5 pt-1">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      const themeUrl = `/?theme=${selectedPlanModalTheme.id}&standalone=true&plan=${selectedPlanModalTheme.planPrice}`;
+                      window.open(themeUrl, '_blank');
+                    }}
+                    className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>নতুন ট্যাবে দেখুন (Open in New Tab)</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      saveCustomThemeEdits();
+                      handleActivateTheme(selectedPlanModalTheme);
+                      const themeUrl = `/?theme=${selectedPlanModalTheme.id}&standalone=true&plan=${selectedPlanModalTheme.planPrice}`;
+                      window.open(themeUrl, '_blank');
+                      setSelectedPlanModalTheme(null);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-2xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>এই থিমটি এপ্লাই করুন (Apply Theme)</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => {
+                    const themeToPreview = selectedPlanModalTheme;
+                    setSelectedPlanModalTheme(null);
+                    handleOpenPreviewTheme(themeToPreview);
+                  }}
+                  className="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Eye className="w-4 h-4 text-blue-500" />
+                  <span>লাইভ ফুলস্ক্রিন প্রিভিউ দেখুন (Full Screen Preview)</span>
+                </button>
               </div>
             </motion.div>
           </div>

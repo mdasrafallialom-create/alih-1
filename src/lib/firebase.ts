@@ -1,6 +1,13 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { initializeFirestore, memoryLocalCache, getFirestore } from "firebase/firestore";
+import { initializeFirestore, memoryLocalCache, getFirestore, setLogLevel } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+
+// Silence non-fatal internal SDK connection retry warnings in iframe/sandboxed environments
+try {
+  setLogLevel('silent');
+} catch {
+  // Ignore if already set or unsupported
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaPHogZnCcP4pKETxcUOfE3BScwoCnPu0",
@@ -13,11 +20,12 @@ const firebaseConfig = {
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Use memoryLocalCache to prevent IndexedDB 'Database is closing/hidden' errors in iframes/webviews
+// Use memoryLocalCache and experimentalForceLongPolling to ensure reliable connectivity across iframes and proxies
 export const db = (() => {
   try {
     return initializeFirestore(app, {
-      localCache: memoryLocalCache()
+      localCache: memoryLocalCache(),
+      experimentalForceLongPolling: true,
     });
   } catch {
     return getFirestore(app);
