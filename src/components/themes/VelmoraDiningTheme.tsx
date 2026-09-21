@@ -7,12 +7,12 @@ import {
   Award, ChefHat, Utensils, Wine, Gem, Users, CheckCircle2
 } from 'lucide-react';
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
+import { CAFE_HERO_PRESETS } from '../../data/cafeHeroPresets';
 import FooterAndLocation from '../FooterAndLocation';
 import { KoppeeHeroHeader } from './KoppeeHeroHeader';
 import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
-import { TornPaperEdge } from './TornPaperEdge';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 
 interface FoodItem {
@@ -37,9 +37,185 @@ interface VelmoraDiningThemeProps {
   primaryColor?: string;
   onOrderDish?: (dish: FoodItem) => void;
   onOpenAdmin?: () => void;
+  onBack?: () => void;
   settings?: any;
   lang?: string;
+  themePresetId?: string;
 }
+
+export interface ThemePageConfig {
+  pageBgStyle: React.CSSProperties;
+  accentColor: string;
+  accentGradient: string;
+  cardBg: string;
+  cardBorderClass: string;
+  cardHoverGlowClass: string;
+  badgeBgClass: string;
+  repertoireTag: string;
+}
+
+export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
+  'lumivelle': {
+    pageBgStyle: {
+      backgroundColor: '#120a06',
+      backgroundImage: `linear-gradient(to bottom, rgba(18, 10, 6, 0.78), rgba(10, 6, 3, 0.88)), url('${roastedCoffeeBeansBg}')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#F59E0B',
+    accentGradient: 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-stone-950',
+    cardBg: 'bg-[#18120b]/90',
+    cardBorderClass: 'border-amber-500/25 hover:border-amber-400',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(245,158,11,0.25)]',
+    badgeBgClass: 'bg-amber-500 text-stone-950',
+    repertoireTag: '🔥 — HEARTHFIRE BAKERY & ROASTED BEANS —',
+  },
+  'garnivelle': {
+    pageBgStyle: {
+      backgroundColor: '#180812',
+      backgroundImage: `linear-gradient(to bottom, rgba(35, 12, 28, 0.85), rgba(18, 5, 15, 0.92)), url('https://images.unsplash.com/photo-1534778101976-62847782c213?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#F472B6',
+    accentGradient: 'bg-gradient-to-r from-pink-500 via-rose-400 to-pink-600 text-white',
+    cardBg: 'bg-[#230d1a]/90',
+    cardBorderClass: 'border-pink-400/30 hover:border-pink-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(244,114,182,0.3)]',
+    badgeBgClass: 'bg-pink-500 text-white',
+    repertoireTag: '🌸 — ROYAL PEARL TEA ROOM & ROSE LATTE —',
+  },
+  'couravelle': {
+    pageBgStyle: {
+      backgroundColor: '#1c1608',
+      backgroundImage: `linear-gradient(to bottom, rgba(28, 20, 8, 0.82), rgba(14, 10, 4, 0.9)), url('https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#FACC15',
+    accentGradient: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-stone-950',
+    cardBg: 'bg-[#1a1408]/90',
+    cardBorderClass: 'border-yellow-400/30 hover:border-yellow-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(250,204,21,0.25)]',
+    badgeBgClass: 'bg-yellow-400 text-stone-950',
+    repertoireTag: '🏛️ — FRENCH COURTYARD & TERRACE —',
+  },
+  'maison-virelle': {
+    pageBgStyle: {
+      backgroundColor: '#1a1006',
+      backgroundImage: `linear-gradient(to bottom, rgba(28, 16, 8, 0.82), rgba(16, 9, 4, 0.9)), url('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#F59E0B',
+    accentGradient: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-stone-950',
+    cardBg: 'bg-[#20140a]/90',
+    cardBorderClass: 'border-amber-400/30 hover:border-amber-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(245,158,11,0.25)]',
+    badgeBgClass: 'bg-amber-500 text-stone-950',
+    repertoireTag: '🥐 — ORGANIC SOURDOUGH & HONEY BREWS —',
+  },
+  'amberelle': {
+    pageBgStyle: {
+      backgroundColor: '#200c06',
+      backgroundImage: `linear-gradient(to bottom, rgba(32, 12, 6, 0.85), rgba(18, 6, 3, 0.92)), url('https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#EA580C',
+    accentGradient: 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 text-white',
+    cardBg: 'bg-[#240e08]/90',
+    cardBorderClass: 'border-orange-500/30 hover:border-orange-400',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(234,88,12,0.3)]',
+    badgeBgClass: 'bg-orange-600 text-white',
+    repertoireTag: '☕ — TUSCAN MAHOGANY ESPRESSO BAR —',
+  },
+  'harvessa': {
+    pageBgStyle: {
+      backgroundColor: '#0e0a1e',
+      backgroundImage: `linear-gradient(to bottom, rgba(20, 12, 38, 0.88), rgba(10, 5, 20, 0.94)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#F43F5E',
+    accentGradient: 'bg-gradient-to-r from-rose-500 via-pink-600 to-red-600 text-white',
+    cardBg: 'bg-[#18102a]/90',
+    cardBorderClass: 'border-rose-400/30 hover:border-rose-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(244,63,94,0.35)]',
+    badgeBgClass: 'bg-rose-500 text-white',
+    repertoireTag: '✨ — CHAMPAGNE ROSE & STARLIGHT NIGHT —',
+  },
+  'ivoria-dining': {
+    pageBgStyle: {
+      backgroundColor: '#1c1008',
+      backgroundImage: `linear-gradient(to bottom, rgba(28, 16, 10, 0.85), rgba(14, 8, 4, 0.92)), url('https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#D97706',
+    accentGradient: 'bg-gradient-to-r from-amber-600 via-orange-600 to-stone-800 text-white',
+    cardBg: 'bg-[#22130a]/90',
+    cardBorderClass: 'border-amber-500/30 hover:border-amber-400',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(217,119,6,0.3)]',
+    badgeBgClass: 'bg-amber-600 text-white',
+    repertoireTag: '🏔️ — ALPINE TIMBER FIREPLACE & HAZELNUT —',
+  },
+  'olivara': {
+    pageBgStyle: {
+      backgroundColor: '#061c12',
+      backgroundImage: `linear-gradient(to bottom, rgba(8, 32, 20, 0.88), rgba(4, 18, 10, 0.94)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#10B981',
+    accentGradient: 'bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-stone-950',
+    cardBg: 'bg-[#082216]/90',
+    cardBorderClass: 'border-emerald-400/30 hover:border-emerald-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]',
+    badgeBgClass: 'bg-emerald-500 text-stone-950',
+    repertoireTag: '🌿 — BOTANICAL GLASSHOUSE & ICED MATCHA —',
+  },
+  'embrelune': {
+    pageBgStyle: {
+      backgroundColor: '#041824',
+      backgroundImage: `linear-gradient(to bottom, rgba(6, 28, 40, 0.88), rgba(2, 14, 20, 0.94)), url('https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#06B6D4',
+    accentGradient: 'bg-gradient-to-r from-teal-400 via-cyan-500 to-teal-600 text-stone-950',
+    cardBg: 'bg-[#062030]/90',
+    cardBorderClass: 'border-teal-400/30 hover:border-teal-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+    badgeBgClass: 'bg-cyan-500 text-stone-950',
+    repertoireTag: '🧊 — CRYSTAL GLASS & NITRO COLD BREW —',
+  },
+  'crimsera': {
+    pageBgStyle: {
+      backgroundColor: '#240a10',
+      backgroundImage: `linear-gradient(to bottom, rgba(38, 10, 16, 0.88), rgba(20, 4, 8, 0.94)), url('https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#E11D48',
+    accentGradient: 'bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 text-white',
+    cardBg: 'bg-[#260a12]/90',
+    cardBorderClass: 'border-rose-400/30 hover:border-rose-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(225,29,72,0.35)]',
+    badgeBgClass: 'bg-rose-600 text-white',
+    repertoireTag: '🌅 — MEDITERRANEAN COASTAL SUNSET —',
+  }
+};
 
 export const VELMORA_PALETTE = {
   deepObsidian: '#090805',
@@ -191,8 +367,10 @@ export default function VelmoraDiningTheme({
   primaryColor = '#D4AF37',
   onOrderDish,
   onOpenAdmin,
+  onBack,
   settings,
-  lang = 'en'
+  lang = 'en',
+  themePresetId
 }: VelmoraDiningThemeProps) {
   // State
   const [activeSlide, setActiveSlide] = useState(0);
@@ -282,15 +460,14 @@ export default function VelmoraDiningTheme({
     }
   };
 
+  const activePresetId = themePresetId || settings?.activeThemeId || 'lumivelle';
+  const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['lumivelle'];
+
   return (
     <div 
       className="w-full min-h-screen text-[#FBF8EE] selection:bg-[#DA9F93]/30 selection:text-white outline-none"
       style={{
-        backgroundColor: '#120a06',
-        backgroundImage: `linear-gradient(to bottom, rgba(18, 10, 6, 0.72), rgba(10, 6, 3, 0.82)), url('${roastedCoffeeBeansBg}')`,
-        backgroundSize: 'cover',
-        backgroundAttachment: 'fixed',
-        backgroundPosition: 'center',
+        ...pageCfg.pageBgStyle,
         fontFamily: fontBody || "'Plus Jakarta Sans', sans-serif"
       }}
     >
@@ -303,15 +480,17 @@ export default function VelmoraDiningTheme({
           heroTitle={settings?.heroTitle || settings?.hero?.title}
           heroSubtitle={settings?.heroSubtitle || settings?.hero?.subtitle}
           heroBackgroundImage={settings?.heroBackgroundImage || settings?.hero?.backgroundImage}
-          heroSlides={settings?.heroSlides}
+          heroSlides={(themePresetId && CAFE_HERO_PRESETS[themePresetId]) || (settings?.activeThemeId && CAFE_HERO_PRESETS[settings.activeThemeId]) || settings?.heroSlides}
           onReserveClick={() => setReservationModalOpen(true)}
           onMenuClick={() => {
             const el = document.getElementById('tasting-menu');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
           onOpenAdmin={onOpenAdmin}
+          onBack={onBack}
           showAdminButton={settings?.showAdminButton !== false}
           lang={lang}
+          themePresetId={activePresetId}
         />
       </section>
 
@@ -331,6 +510,7 @@ export default function VelmoraDiningTheme({
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }}
         lang={lang}
+        themePresetId={activePresetId}
       />
 
       {/* ========================================================= */}
@@ -340,8 +520,8 @@ export default function VelmoraDiningTheme({
         
         {/* Section Heading */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="text-xs font-mono font-bold tracking-[0.3em] text-[#D4AF37] uppercase block">
-            — THE CULINARY REPERTOIRE —
+          <span className="text-xs font-mono font-bold tracking-[0.3em] uppercase block" style={{ color: pageCfg.accentColor }}>
+            {pageCfg.repertoireTag}
           </span>
           <h2 
             className="text-3xl sm:text-5xl font-bold tracking-tight text-[#FBF8EE]"
@@ -362,8 +542,8 @@ export default function VelmoraDiningTheme({
               onClick={() => setActiveCategory(cat.id)}
               className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
                 activeCategory === cat.id
-                  ? 'bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#090805] shadow-lg shadow-[#D4AF37]/25 scale-105'
-                  : 'bg-[#14120B] border border-[#D4AF37]/30 text-[#FBF8EE]/80 hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                  ? `${pageCfg.accentGradient} shadow-lg scale-105`
+                  : 'bg-[#14120B] border border-white/20 text-[#FBF8EE]/80 hover:border-white/50'
               }`}
             >
               {cat.label}
@@ -379,7 +559,7 @@ export default function VelmoraDiningTheme({
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="group bg-[#14120B] rounded-2xl border border-[#D4AF37]/25 overflow-hidden flex flex-col justify-between hover:border-[#D4AF37] transition-all duration-300 hover:shadow-2xl hover:shadow-[#D4AF37]/10"
+              className={`group ${pageCfg.cardBg} rounded-2xl border ${pageCfg.cardBorderClass} overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl ${pageCfg.cardHoverGlowClass}`}
             >
               {/* Dish Image */}
               <div className="relative h-56 overflow-hidden bg-black/40">
@@ -388,7 +568,7 @@ export default function VelmoraDiningTheme({
                   alt={dish.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#14120B] via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
@@ -399,7 +579,7 @@ export default function VelmoraDiningTheme({
                     </span>
                   )}
                   {dish.isPopular && (
-                    <span className="px-2.5 py-1 rounded-full bg-[#D4AF37] text-[#090805] text-[9px] font-bold uppercase tracking-wider shadow-md">
+                    <span className={`px-2.5 py-1 rounded-full ${pageCfg.badgeBgClass} text-[9px] font-bold uppercase tracking-wider shadow-md`}>
                       Signature
                     </span>
                   )}
@@ -418,12 +598,12 @@ export default function VelmoraDiningTheme({
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 
-                      className="font-bold text-lg text-[#FBF8EE] group-hover:text-[#D4AF37] transition-colors line-clamp-1"
+                      className="font-bold text-lg text-[#FBF8EE] transition-colors line-clamp-1"
                       style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
                     >
                       {dish.title}
                     </h3>
-                    <span className="font-mono font-bold text-base text-[#D4AF37] shrink-0">
+                    <span className="font-mono font-bold text-base shrink-0" style={{ color: pageCfg.accentColor }}>
                       ${typeof dish.price === 'number' ? dish.price.toFixed(2) : dish.price}
                     </span>
                   </div>
@@ -433,10 +613,10 @@ export default function VelmoraDiningTheme({
                 </div>
 
                 {/* Card Action Buttons */}
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#D4AF37]/15">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
                   <button
                     onClick={() => setSelectedDishDetail(dish)}
-                    className="py-2 rounded-xl bg-[#090805] border border-[#D4AF37]/30 text-[#FBF8EE] text-[11px] font-bold uppercase tracking-wider hover:border-[#D4AF37] transition-colors text-center"
+                    className="py-2 rounded-xl bg-black/40 border border-white/20 text-[#FBF8EE] text-[11px] font-bold uppercase tracking-wider hover:border-white/50 transition-colors text-center"
                   >
                     Details
                   </button>
@@ -444,7 +624,7 @@ export default function VelmoraDiningTheme({
                     onClick={() => {
                       if (onOrderDish) onOrderDish(dish);
                     }}
-                    className="py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#090805] text-[11px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-1"
+                    className={`py-2 rounded-xl ${pageCfg.accentGradient} text-[11px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-1`}
                   >
                     <ShoppingBag className="w-3 h-3" />
                     <span>Order</span>
@@ -563,6 +743,7 @@ export default function VelmoraDiningTheme({
       <KoppeeDeliverySection
         brandName={brandName || settings?.brandName || 'KOPPEE'}
         lang={lang}
+        themePresetId={activePresetId}
       />
 
       {/* ========================================================= */}
@@ -582,6 +763,7 @@ export default function VelmoraDiningTheme({
           socialLinks={settings?.socialLinks}
           showGoogleMap={settings?.showGoogleMap !== false}
           lang={lang}
+          themePresetId={activePresetId}
         />
       </section>
 

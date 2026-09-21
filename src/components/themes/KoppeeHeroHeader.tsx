@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Coffee, Calendar, Search, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
@@ -18,9 +18,208 @@ interface KoppeeHeroHeaderProps {
   onMenuClick?: () => void;
   onNavigate?: (sectionId: string) => void;
   onOpenAdmin?: () => void;
+  onBack?: () => void;
   showAdminButton?: boolean;
   lang?: string;
+  themePresetId?: string;
 }
+
+export interface ThemeHeroConfig {
+  accentColor: string;
+  accentTextClass: string;
+  accentBorderClass: string;
+  logoBadgeClass: string;
+  heroBadgeTag: string;
+  navHoverClass: string;
+  navActiveClass: string;
+  primaryBtnClass: string;
+  secondaryBtnClass: string;
+  imageFrameClass: string;
+  searchFocusClass: string;
+  bgGradientOverlay: string;
+  headerBg: string;
+  heroBgImage: string;
+}
+
+export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
+  'lumivelle': {
+    accentColor: '#F59E0B',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-500 via-amber-600 to-orange-800 text-stone-950 font-black border border-amber-300/40 shadow-lg shadow-amber-900/50',
+    heroBadgeTag: '🔥 HEARTHFIRE STONE OVEN & ROASTED BEANS',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-stone-950 font-black rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.45)] border border-amber-300/50',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-stone-900 text-amber-200 border border-amber-500/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-3xl shadow-[0_0_35px_rgba(217,119,6,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-amber-950/45 via-stone-950/65 to-black/85',
+    headerBg: 'bg-gradient-to-b from-stone-950/90 via-amber-950/40 to-transparent',
+    heroBgImage: roastedCoffeeBeansBg
+  },
+  'garnivelle': {
+    accentColor: '#F472B6',
+    accentTextClass: 'text-pink-300',
+    accentBorderClass: 'border-pink-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-pink-400 via-rose-500 to-pink-700 text-white font-black border border-pink-200/60 shadow-lg shadow-pink-900/50',
+    heroBadgeTag: '🌸 ROYAL PEARL TEA ROOM & ROSE LATTE',
+    navHoverClass: 'hover:text-pink-300',
+    navActiveClass: 'text-pink-400 border-b-2 border-pink-400',
+    primaryBtnClass: 'bg-gradient-to-r from-pink-500 via-rose-400 to-pink-600 hover:from-pink-600 hover:to-rose-500 text-white font-black rounded-full shadow-[0_0_25px_rgba(244,114,182,0.5)] border border-pink-200/50',
+    secondaryBtnClass: 'bg-stone-950/75 hover:bg-stone-900 text-pink-200 border border-pink-400/40 rounded-full backdrop-blur-md',
+    imageFrameClass: 'border-2 border-pink-300/60 rounded-[2.5rem] shadow-[0_0_40px_rgba(244,114,182,0.4)]',
+    searchFocusClass: 'focus:border-pink-400 focus:ring-pink-400',
+    bgGradientOverlay: 'from-pink-950/45 via-stone-950/75 to-black/90',
+    headerBg: 'bg-gradient-to-b from-pink-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=1600&auto=format&fit=crop'
+  },
+  'couravelle': {
+    accentColor: '#FACC15',
+    accentTextClass: 'text-yellow-300',
+    accentBorderClass: 'border-yellow-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-stone-950 font-black border border-yellow-100 shadow-xl shadow-amber-950/60',
+    heroBadgeTag: '🏛️ FRENCH PALACE COURTYARD & TERRACE',
+    navHoverClass: 'hover:text-yellow-300',
+    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
+    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-500 hover:to-amber-500 text-stone-950 font-black rounded-lg uppercase tracking-widest shadow-[0_0_25px_rgba(250,204,21,0.45)] border border-yellow-200/60',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-yellow-200 border border-yellow-400/50 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-yellow-400/60 rounded-t-[4rem] rounded-b-2xl shadow-[0_0_35px_rgba(250,204,21,0.35)]',
+    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
+    bgGradientOverlay: 'from-amber-950/35 via-stone-950/65 to-black/90',
+    headerBg: 'bg-gradient-to-b from-amber-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop'
+  },
+  'maison-virelle': {
+    accentColor: '#F59E0B',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-700 text-stone-950 font-black border border-amber-200 shadow-lg shadow-amber-950/50',
+    heroBadgeTag: '🥐 ORGANIC STONE OVEN BAKERY & HONEY BREWS',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-stone-950 font-black rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)] border border-amber-300/50',
+    secondaryBtnClass: 'bg-stone-900/80 hover:bg-stone-950 text-amber-100 border border-amber-400/40 rounded-2xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.3)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-amber-950/45 via-stone-950/65 to-black/90',
+    headerBg: 'bg-gradient-to-b from-amber-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&auto=format&fit=crop'
+  },
+  'amberelle': {
+    accentColor: '#EA580C',
+    accentTextClass: 'text-orange-400',
+    accentBorderClass: 'border-orange-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-orange-500 via-amber-600 to-stone-900 text-orange-100 font-black border border-orange-400/50 shadow-lg shadow-orange-950/60',
+    heroBadgeTag: '🇮🇹 TUSCAN OLIVE GROVE & ESPRESSO TRATTORIA',
+    navHoverClass: 'hover:text-orange-400',
+    navActiveClass: 'text-orange-500 border-b-2 border-orange-500',
+    primaryBtnClass: 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-700 hover:to-amber-700 text-white font-black rounded-full shadow-[0_0_25px_rgba(234,88,12,0.45)] border border-orange-300/40',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-orange-200 border border-orange-500/40 rounded-full backdrop-blur-md',
+    imageFrameClass: 'border-2 border-orange-500/60 rounded-t-[3.5rem] rounded-b-xl shadow-[0_0_35px_rgba(234,88,12,0.35)]',
+    searchFocusClass: 'focus:border-orange-500 focus:ring-orange-500',
+    bgGradientOverlay: 'from-orange-950/45 via-stone-950/75 to-black/90',
+    headerBg: 'bg-gradient-to-b from-orange-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1600&auto=format&fit=crop'
+  },
+  'harvessa': {
+    accentColor: '#F43F5E',
+    accentTextClass: 'text-rose-300',
+    accentBorderClass: 'border-rose-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-rose-500 via-red-600 to-indigo-950 text-white font-black border border-rose-300/60 shadow-xl shadow-rose-950/70',
+    heroBadgeTag: '✨ CHAMPAGNE ROSE & STARLIGHT NIGHT BREWS',
+    navHoverClass: 'hover:text-rose-300',
+    navActiveClass: 'text-rose-400 border-b-2 border-rose-400',
+    primaryBtnClass: 'bg-gradient-to-r from-rose-500 via-pink-600 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black rounded-xl shadow-[0_0_30px_rgba(244,63,94,0.5)] border border-rose-300/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-rose-200 border border-rose-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-rose-400/60 rounded-3xl shadow-[0_0_45px_rgba(244,63,94,0.4)]',
+    searchFocusClass: 'focus:border-rose-400 focus:ring-rose-400',
+    bgGradientOverlay: 'from-indigo-950/50 via-stone-950/75 to-black/95',
+    headerBg: 'bg-gradient-to-b from-indigo-950/85 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop'
+  },
+  'ivoria-dining': {
+    accentColor: '#EA580C',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-600 via-orange-700 to-stone-950 text-amber-100 font-black border border-amber-400/50 shadow-lg shadow-orange-950/60',
+    heroBadgeTag: '🏔️ ALPINE TIMBER CHALET & COZY FIREPLACE',
+    navHoverClass: 'hover:text-amber-400',
+    navActiveClass: 'text-amber-500 border-b-2 border-amber-500',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-600 via-orange-600 to-stone-800 hover:from-amber-700 hover:to-orange-700 text-white font-black rounded-lg shadow-[0_0_25px_rgba(234,88,12,0.4)] border border-orange-400/40',
+    secondaryBtnClass: 'bg-stone-900/80 hover:bg-stone-950 text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-600/60 rounded-2xl shadow-[0_0_35px_rgba(217,119,6,0.35)]',
+    searchFocusClass: 'focus:border-amber-500 focus:ring-amber-500',
+    bgGradientOverlay: 'from-amber-950/45 via-stone-950/70 to-black/90',
+    headerBg: 'bg-gradient-to-b from-amber-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  'olivara': {
+    accentColor: '#22C55E',
+    accentTextClass: 'text-emerald-400',
+    accentBorderClass: 'border-emerald-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-emerald-400 via-green-600 to-emerald-900 text-white font-black border border-emerald-300/50 shadow-lg shadow-emerald-950/60',
+    heroBadgeTag: '🌿 BOTANICAL GLASSHOUSE & ICED MATCHA BAR',
+    navHoverClass: 'hover:text-emerald-400',
+    navActiveClass: 'text-emerald-400 border-b-2 border-emerald-400',
+    primaryBtnClass: 'bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-600 text-stone-950 font-black rounded-full shadow-[0_0_25px_rgba(34,197,94,0.45)] border border-emerald-200/50',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-emerald-200 border border-emerald-500/40 rounded-full backdrop-blur-md',
+    imageFrameClass: 'border-2 border-emerald-400/60 rounded-3xl shadow-[0_0_35px_rgba(34,197,94,0.35)]',
+    searchFocusClass: 'focus:border-emerald-400 focus:ring-emerald-400',
+    bgGradientOverlay: 'from-emerald-950/40 via-stone-950/70 to-black/90',
+    headerBg: 'bg-gradient-to-b from-emerald-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop'
+  },
+  'embrelune': {
+    accentColor: '#14B8A6',
+    accentTextClass: 'text-teal-300',
+    accentBorderClass: 'border-teal-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-teal-400 via-cyan-600 to-slate-900 text-white font-black border border-teal-200/60 shadow-lg shadow-teal-950/60',
+    heroBadgeTag: '❄️ CRYSTAL GLASS TEAL & NITRO COLD BREW',
+    navHoverClass: 'hover:text-teal-300',
+    navActiveClass: 'text-teal-400 border-b-2 border-teal-400',
+    primaryBtnClass: 'bg-gradient-to-r from-teal-400 via-cyan-500 to-teal-600 hover:from-teal-500 hover:to-cyan-600 text-stone-950 font-black rounded-2xl shadow-[0_0_30px_rgba(20,184,166,0.5)] border border-teal-200/60',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-stone-900 text-teal-200 border border-teal-400/40 rounded-2xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-teal-300/60 rounded-3xl shadow-[0_0_45px_rgba(20,184,166,0.4)] backdrop-blur-md',
+    searchFocusClass: 'focus:border-teal-400 focus:ring-teal-400',
+    bgGradientOverlay: 'from-teal-950/40 via-stone-950/75 to-black/95',
+    headerBg: 'bg-gradient-to-b from-teal-950/85 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop'
+  },
+  'crimsera': {
+    accentColor: '#E11D48',
+    accentTextClass: 'text-rose-400',
+    accentBorderClass: 'border-rose-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-rose-500 via-red-600 to-amber-700 text-white font-black border border-rose-300/60 shadow-xl shadow-rose-950/70',
+    heroBadgeTag: '🌅 MEDITERRANEAN COASTAL SUNSET & FIG LATTE',
+    navHoverClass: 'hover:text-rose-400',
+    navActiveClass: 'text-rose-500 border-b-2 border-rose-500',
+    primaryBtnClass: 'bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-black rounded-full shadow-[0_0_30px_rgba(225,29,72,0.5)] border border-rose-300/50',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-stone-900 text-rose-200 border border-rose-500/40 rounded-full backdrop-blur-md',
+    imageFrameClass: 'border-2 border-rose-400/60 rounded-t-[4rem] rounded-b-2xl shadow-[0_0_40px_rgba(225,29,72,0.4)]',
+    searchFocusClass: 'focus:border-rose-400 focus:ring-rose-400',
+    bgGradientOverlay: 'from-rose-950/45 via-stone-950/75 to-black/95',
+    headerBg: 'bg-gradient-to-b from-rose-950/85 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  }
+};
+
+const DEFAULT_HERO_CONFIG: ThemeHeroConfig = {
+  accentColor: '#DA9F93',
+  accentTextClass: 'text-[#DA9F93]',
+  accentBorderClass: 'border-[#DA9F93]/40',
+  logoBadgeClass: 'bg-gradient-to-br from-[#DA9F93] to-[#a86e63] text-[#120a06] font-black border border-white/20 shadow-lg',
+  heroBadgeTag: '* CRAFTED WITH PASSION *',
+  navHoverClass: 'hover:text-[#DA9F93]',
+  navActiveClass: 'text-[#DA9F93] border-b-2 border-[#DA9F93]',
+  primaryBtnClass: 'bg-[#DA9F93] hover:bg-[#c6897e] text-[#120a06] font-black rounded-full shadow-xl',
+  secondaryBtnClass: 'bg-black/50 hover:bg-black/80 border border-[#DA9F93]/60 text-[#FBF8EE] font-black rounded-full backdrop-blur-sm',
+  imageFrameClass: 'border-2 border-[#DA9F93]/40 rounded-2xl shadow-2xl',
+  searchFocusClass: 'focus:border-[#DA9F93] focus:ring-[#DA9F93]',
+  bgGradientOverlay: 'from-black/40 via-transparent to-black/60',
+  headerBg: 'bg-gradient-to-b from-black/85 via-black/45 to-transparent',
+  heroBgImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop'
+};
 
 const COFFEE_BEANS_BG = roastedCoffeeBeansBg;
 
@@ -56,13 +255,16 @@ const KOPPEE_SLIDES = [
 
 export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   brandName = 'KOPPEE',
+  heroSlides,
   onOrderClick,
   onReserveClick,
   onMenuClick,
   onNavigate,
   onOpenAdmin,
+  onBack,
   showAdminButton = true,
-  lang = 'en'
+  lang = 'en',
+  themePresetId
 }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -70,6 +272,13 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpenMobile, setIsSearchOpenMobile] = useState(false);
   const [adminUnlockSuccess, setAdminUnlockSuccess] = useState(false);
+
+  const activePresetId = themePresetId || 'lumivelle';
+  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) ? THEME_HERO_CONFIGS[themePresetId] : DEFAULT_HERO_CONFIG;
+  const isClassicTheme = activePresetId === 'lumivelle' || activePresetId === 'couravelle';
+
+  const currentSlides = (heroSlides && heroSlides.length > 0) ? heroSlides : KOPPEE_SLIDES;
+  const slide = currentSlides[activeSlide] || currentSlides[0] || KOPPEE_SLIDES[0];
 
   // Check admin PIN logic
   const checkAdminPin = (input: string) => {
@@ -119,17 +328,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   // Auto slide cycle
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % KOPPEE_SLIDES.length);
+      setActiveSlide((prev) => (prev + 1) % currentSlides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentSlides.length]);
 
   const handlePrevSlide = () => {
-    setActiveSlide((prev) => (prev === 0 ? KOPPEE_SLIDES.length - 1 : prev - 1));
+    setActiveSlide((prev) => (prev === 0 ? currentSlides.length - 1 : prev - 1));
   };
 
   const handleNextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % KOPPEE_SLIDES.length);
+    setActiveSlide((prev) => (prev + 1) % currentSlides.length);
   };
 
   const scrollToSection = (id: string) => {
@@ -145,15 +354,33 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     }
   };
 
+  const getLogoInitials = (name: string): [string, string] => {
+    if (!name) return ["A", "S"];
+    const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+    const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
+    if (parts.length >= 2) {
+      return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
+    }
+    if (cleanName.length >= 2) {
+      return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
+    }
+    return ["A", "S"];
+  };
+
+  const [initial1, initial2] = getLogoInitials(brandName);
+
   return (
     <div className="relative w-full overflow-hidden bg-[#120a06] text-white font-sans selection:bg-[#DA9F93]/30">
       {/* ========================================================================= */}
       {/* 1. TOP HEADER NAVBAR (KOPPEE STYLE WITH SEARCH BAR) */}
       {/* ========================================================================= */}
-      <header className="absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between bg-gradient-to-b from-black/85 via-black/45 to-transparent">
-        {/* Brand Logo */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollToSection('hero')}>
-          <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-wider uppercase font-sans drop-shadow-md">
+      <header className={`absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between ${cfg.headerBg}`}>
+        {/* Brand Logo with 2-Letter Initials Badge */}
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+          <div className={`w-10 h-10 rounded-xl ${cfg.logoBadgeClass} text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
+            {initial1}{initial2}
+          </div>
+          <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-sans drop-shadow-md">
             {brandName || 'KOPPEE'}
           </span>
         </div>
@@ -164,21 +391,21 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             <button
               type="button"
               onClick={() => scrollToSection('hero')}
-              className="text-[#DA9F93] hover:text-[#e0a89c] transition-colors cursor-pointer py-1 border-b-2 border-[#DA9F93]"
+              className={`${cfg.navActiveClass} transition-colors cursor-pointer py-1`}
             >
               Home
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('about')}
-              className="text-white/90 hover:text-[#DA9F93] transition-colors cursor-pointer py-1"
+              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
             >
               About
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('services')}
-              className="text-white/90 hover:text-[#DA9F93] transition-colors cursor-pointer py-1"
+              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
             >
               Service
             </button>
@@ -189,7 +416,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 else if (onMenuClick) onMenuClick();
                 else scrollToSection('menu');
               }}
-              className="text-white/90 hover:text-[#DA9F93] transition-colors cursor-pointer py-1"
+              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
             >
               Menu
             </button>
@@ -199,7 +426,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
-                className="flex items-center gap-1 text-white/90 hover:text-[#DA9F93] transition-colors cursor-pointer py-1 focus:outline-none"
+                className={`flex items-center gap-1 text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
               >
                 <span>Pages</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
@@ -212,7 +439,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-48 bg-[#1e140d] border border-[#DA9F93]/30 rounded-lg shadow-2xl py-2 z-50 text-left"
+                    className={`absolute right-0 mt-2 w-48 bg-[#1e140d] border ${cfg.accentBorderClass} rounded-lg shadow-2xl py-2 z-50 text-left`}
                   >
                     <button
                       type="button"
@@ -221,21 +448,21 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         else scrollToSection('reservation');
                         setPagesDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] hover:text-[#DA9F93] transition-colors"
+                      className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
                     >
                       Reservation
                     </button>
                     <button
                       type="button"
                       onClick={() => scrollToSection('testimonials')}
-                      className="w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] hover:text-[#DA9F93] transition-colors"
+                      className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
                     >
                       Testimonials
                     </button>
                     <button
                       type="button"
                       onClick={() => scrollToSection('specials')}
-                      className="w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] hover:text-[#DA9F93] transition-colors"
+                      className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
                     >
                       Chef's Specials
                     </button>
@@ -247,7 +474,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             <button
               type="button"
               onClick={() => scrollToSection('contact')}
-              className="text-white/90 hover:text-[#DA9F93] transition-colors cursor-pointer py-1"
+              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
             >
               Contact
             </button>
@@ -257,7 +484,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           <div className="flex items-center gap-3">
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
               <div className="relative flex items-center group">
-                <Search className="w-4 h-4 text-[#DA9F93] absolute left-3 pointer-events-none group-focus-within:text-white transition-colors" />
+                <Search className={`w-4 h-4 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-white transition-colors`} />
                 <input
                   type="text"
                   value={searchTerm}
@@ -267,7 +494,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     checkAdminPin(val);
                   }}
                   placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা কোড (8520)...' : 'Search menu or enter PIN (8520)...'}
-                  className="w-44 lg:w-56 pl-9 pr-8 py-1.5 text-xs rounded-full bg-black/60 border border-[#DA9F93]/40 text-white placeholder-white/40 focus:outline-none focus:border-[#DA9F93] focus:ring-1 focus:ring-[#DA9F93] focus:w-60 transition-all duration-300 shadow-inner"
+                  className={`w-44 lg:w-56 pl-9 pr-8 py-1.5 text-xs rounded-full bg-black/60 border ${cfg.accentBorderClass} text-white placeholder-white/40 focus:outline-none ${cfg.searchFocusClass} focus:ring-1 focus:w-60 transition-all duration-300 shadow-inner`}
                 />
                 {searchTerm && (
                   <button
@@ -288,11 +515,11 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 onClick={() => {
                   if (onOpenAdmin) onOpenAdmin();
                 }}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06] font-extrabold text-xs shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none"
-                title={lang === 'bn' ? 'এডমিন প্যানেল খুলুন' : 'Open Admin Panel'}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${cfg.primaryBtnClass} text-xs font-extrabold shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none`}
+                title="Open Admin Panel"
               >
                 <ShieldCheck className="w-4 h-4 shrink-0" />
-                <span>{lang === 'bn' ? 'এডমিন' : 'Admin'}</span>
+                <span>Admin</span>
               </button>
             )}
           </div>
@@ -307,10 +534,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 if (onOpenAdmin) onOpenAdmin();
               }}
               className="px-2.5 py-1.5 text-[#DA9F93] hover:text-white transition-colors rounded-full bg-black/60 border border-[#DA9F93]/40 flex items-center gap-1 cursor-pointer shadow-sm active:scale-90 text-xs font-bold"
-              title={lang === 'bn' ? 'এডমিন প্যানেল' : 'Admin Panel'}
+              title="Admin Panel"
             >
               <ShieldCheck className="w-4 h-4 text-[#DA9F93]" />
-              <span className="text-[11px] font-extrabold">{lang === 'bn' ? 'এডমিন' : 'Admin'}</span>
+              <span className="text-[11px] font-extrabold">Admin</span>
             </button>
           )}
 
@@ -479,126 +706,248 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
       {/* ========================================================================= */}
       {/* 2. HERO SLIDER SECTION WITH ROASTED COFFEE BEANS & COFFEE CUPS ON TOP */}
       {/* ========================================================================= */}
-      <div id="hero" className="relative w-full min-h-[90vh] sm:min-h-screen flex flex-col justify-between items-center pt-24 sm:pt-28 pb-8 overflow-hidden">
+      <div id="hero" className="relative w-full min-h-[90vh] sm:min-h-screen flex flex-col justify-between items-center pt-24 sm:pt-28 pb-12 overflow-hidden">
         {/* Full Coffee Beans Background Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
-            src={COFFEE_BEANS_BG}
-            alt="Roasted Coffee Beans Background"
+            src={cfg.heroBgImage || COFFEE_BEANS_BG}
+            alt="Theme Hero Background"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.12]"
+            className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.12]"
           />
-          {/* Subtle Ambient Vignette - Keeps whole espresso beans vibrant and clearly visible */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_50%,_rgba(10,5,2,0.50)_100%)] pointer-events-none" />
+          {/* Subtle Ambient Vignette - Styled dynamically per theme */}
+          <div className={`absolute inset-0 bg-gradient-to-b ${cfg.bgGradientOverlay} pointer-events-none`} />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(10,5,2,0.60)_100%)] pointer-events-none" />
         </div>
 
-        {/* Center Content Overlay (Text + Coffee Cup Sitting On Beans) */}
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center justify-center my-auto space-y-3 sm:space-y-4">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`content-${activeSlide}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="flex flex-col items-center justify-center space-y-2 sm:space-y-3"
-            >
-              {/* Subtitle / Eyebrow */}
-              <span className="text-xl sm:text-3xl md:text-4xl font-serif text-[#DA9F93] tracking-wide font-normal drop-shadow-md">
-                {KOPPEE_SLIDES[activeSlide].subtitle}
-              </span>
-
-              {/* Main Title: COFFEE */}
-              <h1 className="text-5xl sm:text-7xl md:text-8xl font-black text-white tracking-tight uppercase leading-none font-sans drop-shadow-2xl">
-                {KOPPEE_SLIDES[activeSlide].title}
-              </h1>
-
-              {/* Tag / Badge: * SINCE 1950 * */}
-              <span className="text-xs sm:text-base md:text-lg font-bold tracking-[0.25em] text-[#F5DEB3] uppercase drop-shadow-md">
-                {KOPPEE_SLIDES[activeSlide].tag}
-              </span>
-
-              {/* Coffee Cup Display - Only the Cup itself with 100% Transparent Cutout */}
+        {/* HERO CONTENT AREA */}
+        {isClassicTheme ? (
+          /* CLASSIC KOPPEE CENTERED LAYOUT (UNTOUCHED FOR THEME 1 & THEME 3) */
+          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center justify-center my-auto space-y-3 sm:space-y-4">
+            <AnimatePresence mode="wait">
               <motion.div
-                key={`cup-${activeSlide}`}
-                initial={{ scale: 0.9, opacity: 0, y: 15 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.92, opacity: 0, y: -15 }}
-                transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="relative my-2 sm:my-3 flex flex-col items-center"
+                key={`content-${activeSlide}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="flex flex-col items-center justify-center space-y-2 sm:space-y-3"
               >
-                {/* Clean Floating Cup (Transparent PNG Cutout - No Box, No Frame, No Outside Beans) */}
-                <div className="relative w-56 sm:w-72 md:w-84 lg:w-96 max-w-[90vw] aspect-square flex items-center justify-center">
-                  {/* Real transparent PNG white coffee cup */}
-                  <img
-                    src={KOPPEE_SLIDES[activeSlide].cupImg}
-                    alt={KOPPEE_SLIDES[activeSlide].cupName}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.92)] select-none pointer-events-none transform hover:scale-105 transition-transform duration-500"
-                  />
-                  
-                  {/* Subtle realistic animated steam rising from the hot coffee */}
-                  <motion.div
-                    animate={{ y: [-4, -22, -4], opacity: [0.2, 0.55, 0.2], scale: [0.95, 1.1, 0.95] }}
-                    transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute top-6 w-32 h-24 bg-gradient-to-t from-white/25 via-white/10 to-transparent blur-xl pointer-events-none"
-                  />
+                {/* Theme Badge Tag */}
+                <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/70 border ${cfg.accentBorderClass} text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-lg backdrop-blur-md mb-1`}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{cfg.heroBadgeTag}</span>
                 </div>
 
-                {/* Cup Detail Badge */}
-                <div className="mt-1 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/70 border border-[#DA9F93]/35 shadow-2xl backdrop-blur-md">
-                  <Coffee className="w-4 h-4 text-[#DA9F93]" />
-                  <span className="text-xs sm:text-sm font-bold tracking-wider text-[#FBF8EE] uppercase">
-                    {KOPPEE_SLIDES[activeSlide].cupName}
-                  </span>
-                  <span className="text-xs sm:text-sm font-extrabold text-[#DA9F93]">
-                    {KOPPEE_SLIDES[activeSlide].price}
-                  </span>
+                {/* Subtitle / Eyebrow */}
+                <span className={`text-xl sm:text-2xl md:text-3xl font-serif ${cfg.accentTextClass} tracking-wide font-normal drop-shadow-md`}>
+                  {(slide as any).eyebrow || (slide as any).subtitle}
+                </span>
+
+                {/* Main Title */}
+                <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight uppercase leading-none font-sans drop-shadow-2xl max-w-4xl">
+                  {(slide as any).heading || (slide as any).title}
+                </h1>
+
+                {/* Tag / Description */}
+                {((slide as any).description || (slide as any).tag) && (
+                  <p className="text-xs sm:text-sm md:text-base text-[#FBF8EE]/90 max-w-2xl font-medium leading-relaxed drop-shadow">
+                    {(slide as any).description || (slide as any).tag}
+                  </p>
+                )}
+
+                {/* Floating Coffee Cup Display */}
+                <motion.div
+                  key={`media-${activeSlide}`}
+                  initial={{ scale: 0.92, opacity: 0, y: 15 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.94, opacity: 0, y: -15 }}
+                  transition={{ duration: 0.45, ease: 'easeOut' }}
+                  className="relative my-2 sm:my-3 flex flex-col items-center w-full"
+                >
+                  <div className="relative w-56 sm:w-72 md:w-84 lg:w-96 max-w-[90vw] aspect-square flex items-center justify-center">
+                    <img
+                      src={(slide as any).cupImg || whiteCupSideImg}
+                      alt={(slide as any).cupName || brandName}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.92)] select-none pointer-events-none transform hover:scale-105 transition-transform duration-500"
+                    />
+                    <motion.div
+                      animate={{ y: [-4, -22, -4], opacity: [0.2, 0.55, 0.2], scale: [0.95, 1.1, 0.95] }}
+                      transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute top-6 w-32 h-24 bg-gradient-to-t from-white/25 via-white/10 to-transparent blur-xl pointer-events-none"
+                    />
+                  </div>
+
+                  {/* Cup or Detail Badge if available */}
+                  {((slide as any).cupName || (slide as any).price) && (
+                    <div className={`mt-2 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/70 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`}>
+                      <Sparkles className={`w-4 h-4 ${cfg.accentTextClass}`} />
+                      {(slide as any).cupName && (
+                        <span className="text-xs sm:text-sm font-bold tracking-wider text-[#FBF8EE] uppercase">
+                          {(slide as any).cupName}
+                        </span>
+                      )}
+                      {(slide as any).price && (
+                        <span className={`text-xs sm:text-sm font-extrabold ${cfg.accentTextClass}`}>
+                          {(slide as any).price}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={onOrderClick || onMenuClick || (() => scrollToSection('tasting-menu'))}
+                    className={`px-7 py-3 ${cfg.primaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer`}
+                  >
+                    {(slide as any).primaryBtn || "Order Now"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onReserveClick || (() => scrollToSection('reservation'))}
+                    className={`px-7 py-3 ${cfg.secondaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer flex items-center gap-2`}
+                  >
+                    <Calendar className={`w-4 h-4 ${cfg.accentTextClass}`} />
+                    {(slide as any).secondaryBtn || "Book Table"}
+                  </button>
                 </div>
               </motion.div>
+            </AnimatePresence>
+          </div>
+        ) : (
+          /* 2-COLUMN LAYOUT FOR ALL OTHER THEMES (#2, #4, #5, #6, #7, #8, #9, #10) */
+          /* Text on Left, Animated Floating Coffee Visual on Right, NO Boxed Frame, NO Corner Arrows */
+          <div className="relative z-10 max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-12 my-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`split-${activeSlide}`}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.45, ease: 'easeOut' }}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+              >
+                {/* LEFT COLUMN: Text, Badges & Actions */}
+                <div className="lg:col-span-7 text-center lg:text-left flex flex-col items-center lg:items-start space-y-3 sm:space-y-4">
+                  {/* Theme Badge Tag */}
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/75 border ${cfg.accentBorderClass} text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-xl backdrop-blur-md`}>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{cfg.heroBadgeTag}</span>
+                  </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={onOrderClick || onMenuClick || (() => scrollToSection('tasting-menu'))}
-                  className="px-7 py-3 rounded-full bg-[#DA9F93] hover:bg-[#c6897e] text-[#120a06] font-black text-xs sm:text-sm uppercase tracking-wider shadow-xl transition-all active:scale-95 cursor-pointer"
-                >
-                  Order Now
-                </button>
-                <button
-                  type="button"
-                  onClick={onReserveClick || (() => scrollToSection('reservation'))}
-                  className="px-7 py-3 rounded-full bg-black/50 hover:bg-black/80 border border-[#DA9F93]/60 text-[#FBF8EE] font-black text-xs sm:text-sm uppercase tracking-wider shadow-xl transition-all active:scale-95 backdrop-blur-sm cursor-pointer flex items-center gap-2"
-                >
-                  <Calendar className="w-4 h-4 text-[#DA9F93]" />
-                  Book Table
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+                  {/* Subtitle / Eyebrow */}
+                  <span className={`text-xl sm:text-2xl md:text-3xl font-serif ${cfg.accentTextClass} tracking-wide font-normal drop-shadow-md block`}>
+                    {(slide as any).eyebrow || (slide as any).subtitle}
+                  </span>
 
-        {/* Left Slider Arrow (<) */}
-        <button
-          type="button"
-          onClick={handlePrevSlide}
-          className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 hover:bg-black/70 border border-white/30 text-white/90 hover:text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer shadow-xl active:scale-95"
-          aria-label="Previous Slide"
-        >
-          <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
-        </button>
+                  {/* Main Title */}
+                  <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase leading-none font-sans drop-shadow-2xl">
+                    {(slide as any).heading || (slide as any).title}
+                  </h1>
 
-        {/* Right Slider Arrow (>) */}
-        <button
-          type="button"
-          onClick={handleNextSlide}
-          className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 hover:bg-black/70 border border-white/30 text-white/90 hover:text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer shadow-xl active:scale-95"
-          aria-label="Next Slide"
-        >
-          <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
-        </button>
+                  {/* Description / Tagline */}
+                  {((slide as any).description || (slide as any).tag) && (
+                    <p className="text-sm sm:text-base text-[#FBF8EE]/90 max-w-xl font-medium leading-relaxed drop-shadow">
+                      {(slide as any).description || (slide as any).tag}
+                    </p>
+                  )}
+
+                  {/* Item / Price Badge if available */}
+                  {((slide as any).cupName || (slide as any).price) && (
+                    <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`}>
+                      <Sparkles className={`w-4 h-4 ${cfg.accentTextClass}`} />
+                      {(slide as any).cupName && (
+                        <span className="text-xs sm:text-sm font-bold tracking-wider text-[#FBF8EE] uppercase">
+                          {(slide as any).cupName}
+                        </span>
+                      )}
+                      {(slide as any).price && (
+                        <span className={`text-xs sm:text-sm font-extrabold ${cfg.accentTextClass}`}>
+                          {(slide as any).price}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2 w-full">
+                    <button
+                      type="button"
+                      onClick={onOrderClick || onMenuClick || (() => scrollToSection('tasting-menu'))}
+                      className={`px-8 py-3.5 ${cfg.primaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer`}
+                    >
+                      {(slide as any).primaryBtn || "Order Now"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onReserveClick || (() => scrollToSection('reservation'))}
+                      className={`px-8 py-3.5 ${cfg.secondaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer flex items-center gap-2`}
+                    >
+                      <Calendar className={`w-4 h-4 ${cfg.accentTextClass}`} />
+                      {(slide as any).secondaryBtn || "Book Table"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN: Floating Animated Coffee Element (No Boxed Photo Frame) */}
+                <div className="lg:col-span-5 flex items-center justify-center relative my-4 lg:my-0">
+                  <motion.div
+                    animate={{ y: [-8, 8, -8], rotate: [-1.5, 1.5, -1.5] }}
+                    transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="relative w-64 sm:w-80 lg:w-96 aspect-square flex items-center justify-center"
+                  >
+                    {/* Radial Ambient Backdrop Glow */}
+                    <div 
+                      className="absolute inset-0 rounded-full blur-3xl opacity-40 pointer-events-none scale-110" 
+                      style={{ backgroundColor: cfg.accentColor }}
+                    />
+
+                    {/* Floating Coffee Cup / Visual Asset */}
+                    <img
+                      src={(slide as any).cupImg || whiteCoffeeCupImg}
+                      alt={(slide as any).cupName || brandName}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.92)] select-none pointer-events-none transition-transform duration-500"
+                    />
+
+                    {/* Animated Rising Steam Effect */}
+                    <motion.div
+                      animate={{ y: [-6, -26, -6], opacity: [0.15, 0.65, 0.15], scale: [0.9, 1.15, 0.9] }}
+                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute top-4 w-36 h-28 bg-gradient-to-t from-white/30 via-white/10 to-transparent blur-2xl pointer-events-none"
+                    />
+                  </motion.div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Left & Right Slider Arrows ONLY rendered for Classic Themes */}
+        {isClassicTheme && (
+          <>
+            <button
+              type="button"
+              onClick={handlePrevSlide}
+              className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 hover:bg-black/70 border border-white/30 text-white/90 hover:text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer shadow-xl active:scale-95"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNextSlide}
+              className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 hover:bg-black/70 border border-white/30 text-white/90 hover:text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer shadow-xl active:scale-95"
+              aria-label="Next Slide"
+            >
+              <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+            </button>
+          </>
+        )}
 
         {/* Torn Paper Edge at the Bottom of the Coffee Beans Hero */}
         <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none select-none">

@@ -8,12 +8,12 @@ import {
   Linkedin, 
   Instagram, 
   ChevronUp, 
-  Navigation,
-  Truck,
-  Banknote
+  Navigation
 } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
+
+import { THEME_HERO_CONFIGS } from './KoppeeHeroHeader';
 
 interface KoppeeFooterSectionProps {
   brandName?: string;
@@ -35,6 +35,7 @@ interface KoppeeFooterSectionProps {
   showGoogleMap?: boolean;
   lang?: string;
   plan?: string;
+  themePresetId?: string;
 }
 
 export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
@@ -50,18 +51,58 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   socialLinks,
   showGoogleMap = true,
   lang = 'en',
-  plan = 'basic'
+  plan = 'basic',
+  themePresetId
 }) => {
-  const scrollToTop = () => {
+  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
+  const scrollToTop = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      if (document.documentElement) {
+        document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        document.documentElement.scrollTop = 0;
+      }
+      if (document.body) {
+        document.body.scrollTo({ top: 0, behavior: 'smooth' });
+        document.body.scrollTop = 0;
+      }
+      const scrollContainers = document.querySelectorAll('div, main, section, body, html');
+      scrollContainers.forEach((el) => {
+        if (el.scrollTop > 0) {
+          try {
+            el.scrollTo({ top: 0, behavior: 'smooth' });
+            el.scrollTop = 0;
+          } catch (err) {}
+        }
+      });
+    } catch (err) {}
   };
 
-  const displayPhone = contactWhatsapp || contactPhone;
+  const rawPhone = (contactWhatsapp || contactPhone || '').trim();
+  let displayPhone = '+1 (XXX) XXX-XXXX';
+  if (rawPhone && rawPhone !== '+880' && rawPhone !== '+1' && !rawPhone.includes('1340491041')) {
+    displayPhone = rawPhone;
+  }
 
-  const locationAddress = brandLocation || "";
-  const fullQuery = `${brandName || "KOPPEE"}, ${locationAddress || "New York, USA"}`;
+  const rawEmail = (contactEmail || '').trim();
+  let cleanEmail = 'xxxx@xxxx.com';
+  if (rawEmail && !rawEmail.includes('atikulalomasif4') && !rawEmail.includes('gmail.com')) {
+    cleanEmail = rawEmail;
+  }
 
-  const defaultDesc = brandDescription || "Redefining luxury dining experiences in Bangladesh. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews.";
+  const rawLocation = (brandLocation || '').trim();
+  let locationAddress = 'Location Not Set';
+  if (rawLocation && rawLocation !== 'Hyderabad, Sindh, Pakistan') {
+    locationAddress = rawLocation;
+  }
+
+  const fullQuery = `${brandName || ''}${locationAddress && locationAddress !== 'Location Not Set' ? `, ${locationAddress}` : ''}`;
+
+  const defaultDesc = brandDescription || "Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews.";
 
   const getLogoInitials = (name: string): [string, string] => {
     if (!name) return ["A", "S"];
@@ -82,9 +123,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   const directDirectionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullQuery)}`;
 
   const hasContactInfo = Boolean(
-    (brandLocation && brandLocation.trim()) ||
-    (displayPhone && displayPhone.trim()) ||
-    (contactEmail && contactEmail.trim())
+    (locationAddress && locationAddress.trim()) ||
+    (displayPhone && displayPhone.trim() && displayPhone.trim() !== '+880') ||
+    (cleanEmail && cleanEmail.trim())
   );
 
   return (
@@ -105,7 +146,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
       </div>
 
       {/* Embedded Google Maps Location Section */}
-      {showGoogleMap !== false && (
+      {showGoogleMap !== false && Boolean(locationAddress) && (
         <div id="google-map-location" className="relative z-10 w-full pt-10 pb-6">
           {/* Header Info Container (Clean Name + Location without box) */}
           <div className="w-full max-w-[1800px] mx-auto px-6 sm:px-10 md:px-12 lg:px-16 mb-4">
@@ -152,9 +193,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
 
       {/* Main Footer Grid Container */}
       <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 pt-12 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 xl:gap-16 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 lg:gap-12 xl:gap-16 text-left">
           
-          {/* Column 1: BRAND LOGO & DESCRIPTION (MATCHING USER SCREENSHOT) */}
+          {/* Column 1: BRAND LOGO & DESCRIPTION */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               {brandLogoUrl ? (
@@ -162,9 +203,8 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                   <img src={brandLogoUrl} alt={brandName} className="w-full h-full object-cover rounded-xl" />
                 </div>
               ) : (
-                <div className="w-12 h-12 rounded-2xl bg-[#1e140d] border-2 border-[#DA9F93] text-white flex items-center justify-center font-mono font-black text-lg tracking-wider shrink-0 shadow-xl">
-                  <span className="text-[#DA9F93]">{initial1}</span>
-                  <span className="text-amber-400">{initial2}</span>
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#DA9F93] to-[#a86e63] text-[#120a06] font-black text-base flex items-center justify-center shrink-0 shadow-xl border border-white/20 select-none uppercase">
+                  {initial1}{initial2}
                 </div>
               )}
               <h3 className="text-xl font-extrabold text-[#DA9F93] tracking-tight">
@@ -175,44 +215,30 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             <p className="text-xs text-white/75 leading-relaxed font-light">
               {defaultDesc}
             </p>
-
-            {/* Cash on Delivery Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#DA9F93]/15 border border-[#DA9F93]/30 text-[#DA9F93] text-xs font-bold">
-              <Banknote className="w-4 h-4 text-amber-400" />
-              <span>{lang === 'bn' ? 'ক্যাশ অন ডেলিভারি সুবিধা' : 'Cash on Delivery Available'}</span>
-            </div>
           </div>
 
           {/* Column 2: GET IN TOUCH */}
-          {hasContactInfo && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-black uppercase tracking-widest text-white border-b-2 border-[#DA9F93]/30 pb-2 inline-block">
-                GET IN TOUCH
-              </h3>
-              <div className="space-y-3 text-sm text-white/80">
-                {brandLocation && brandLocation.trim() !== '' && (
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-[#DA9F93] shrink-0 mt-0.5" />
-                    <span className="leading-snug">{brandLocation}</span>
-                  </div>
-                )}
-                {displayPhone && displayPhone.trim() !== '' && (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-[#DA9F93] shrink-0" />
-                    <span>{displayPhone}</span>
-                  </div>
-                )}
-                {contactEmail && contactEmail.trim() !== '' && (
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-[#DA9F93] shrink-0" />
-                    <span>{contactEmail}</span>
-                  </div>
-                )}
+          <div className="space-y-4">
+            <h3 className="text-lg font-black uppercase tracking-widest text-white border-b-2 border-[#DA9F93]/30 pb-2 inline-block">
+              GET IN TOUCH
+            </h3>
+            <div className="space-y-3 text-sm text-white/80">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-[#DA9F93] shrink-0 mt-0.5" />
+                <span className="leading-snug">{locationAddress}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-[#DA9F93] shrink-0" />
+                <span>{displayPhone}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-[#DA9F93] shrink-0" />
+                <span>{cleanEmail}</span>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Column 2: FOLLOW US */}
+          {/* Column 3: FOLLOW US */}
           <div className="space-y-4">
             <h3 className="text-lg font-black uppercase tracking-widest text-white border-b-2 border-[#DA9F93]/30 pb-2 inline-block">
               FOLLOW US
@@ -220,10 +246,10 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
               Connect with us on social media for daily brewing tips, new menu arrivals, and seasonal artisanal roast releases.
             </p>
-            {/* Social Icons Box Grid: Facebook, Instagram, YouTube, LinkedIn filtered by active plan */}
+            {/* Social Icons Box Grid: Facebook, Instagram, YouTube, LinkedIn */}
             <div className="flex items-center gap-2 pt-1 flex-wrap">
               <a
-                href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : 'https://linkedin.com'}
+                href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : '#'}
                 target="_blank"
                 rel="noreferrer"
                 className="w-10 h-10 border border-white/30 hover:border-[#0A66C2] text-white hover:text-[#0A66C2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
@@ -232,7 +258,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : 'https://facebook.com'}
+                href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : '#'}
                 target="_blank"
                 rel="noreferrer"
                 className="w-10 h-10 border border-white/30 hover:border-[#1877F2] text-white hover:text-[#1877F2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
@@ -241,7 +267,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : 'https://youtube.com'}
+                href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : '#'}
                 target="_blank"
                 rel="noreferrer"
                 className="w-10 h-10 border border-white/30 hover:border-[#FF0000] text-white hover:text-[#FF0000] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
@@ -250,7 +276,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 <Youtube className="w-4 h-4" />
               </a>
               <a
-                href={socialLinks?.instagram ? (socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://${socialLinks.instagram}`) : 'https://instagram.com'}
+                href={socialLinks?.instagram ? (socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://${socialLinks.instagram}`) : '#'}
                 target="_blank"
                 rel="noreferrer"
                 className="w-10 h-10 border border-white/30 hover:border-[#E1306C] text-white hover:text-[#E1306C] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
@@ -258,23 +284,6 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
               >
                 <Instagram className="w-4 h-4" />
               </a>
-            </div>
-          </div>
-
-          {/* Column 3: OPEN HOURS */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-black uppercase tracking-widest text-white border-b-2 border-[#DA9F93]/30 pb-2 inline-block">
-              OPEN HOURS
-            </h3>
-            <div className="space-y-3 text-sm text-white/80">
-              <div>
-                <span className="block font-bold text-white uppercase text-xs tracking-wider">MONDAY - FRIDAY</span>
-                <span className="text-xs text-white/70">{timingOpen} - {timingClose}</span>
-              </div>
-              <div>
-                <span className="block font-bold text-white uppercase text-xs tracking-wider">SATURDAY - SUNDAY</span>
-                <span className="text-xs text-white/70">2.00 PM - {timingClose}</span>
-              </div>
             </div>
           </div>
         </div>

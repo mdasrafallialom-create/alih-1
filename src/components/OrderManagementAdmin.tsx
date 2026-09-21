@@ -558,9 +558,9 @@ export default function OrderManagementAdmin({
     logoStyle: settings.logoStyle || 'crest',
     logoColorPrimary: settings.logoColorPrimary || '#94a3b8',
     logoColorSecondary: settings.logoColorSecondary || '#22d3ee',
-    contactPhone: settings.contactPhone || '+880 1603317908',
-    contactWhatsapp: settings.contactWhatsapp || settings.contactPhone || '+880 1603317908',
-    contactEmail: settings.contactEmail || 'asrafali.com@gmail.com',
+    contactPhone: settings.contactPhone || '',
+    contactWhatsapp: settings.contactWhatsapp || settings.contactPhone || '',
+    contactEmail: settings.contactEmail || '',
     heroImages: settings.heroImages || (settings.heroSlides ? settings.heroSlides.map(s => s.image) : ['', '', '']),
     heroSlides: settings.heroSlides || [],
     showGoogleMap: settings.showGoogleMap ?? true,
@@ -648,14 +648,14 @@ export default function OrderManagementAdmin({
   }, [selectedCountry, selectedState, selectedDistrict]);
 
   const [selectedPhonePrefix, setSelectedPhonePrefix] = useState(() => {
-    const phone = settings.contactPhone || '+880 1603317908';
+    const phone = settings.contactPhone || '';
     const sortedCountries = [...countriesWithCodes].sort((a, b) => b.prefix.length - a.prefix.length);
     const match = sortedCountries.find(c => phone.startsWith(c.prefix));
     return match ? match.prefix : '+880';
   });
 
   const [localPhoneSuffix, setLocalPhoneSuffix] = useState(() => {
-    const phone = settings.contactPhone || '+880 1603317908';
+    const phone = settings.contactPhone || '';
     const sortedCountries = [...countriesWithCodes].sort((a, b) => b.prefix.length - a.prefix.length);
     const match = sortedCountries.find(c => phone.startsWith(c.prefix));
     if (match) {
@@ -672,20 +672,20 @@ export default function OrderManagementAdmin({
   useEffect(() => {
     setLocalBrandSettings(prev => ({
       ...prev,
-      contactPhone: `${selectedPhonePrefix} ${localPhoneSuffix}`.trim()
+      contactPhone: localPhoneSuffix ? `${selectedPhonePrefix} ${localPhoneSuffix}`.trim() : ''
     }));
   }, [selectedPhonePrefix, localPhoneSuffix]);
 
   // WhatsApp Dial Prefix & Suffix State
   const [selectedWhatsappPrefix, setSelectedWhatsappPrefix] = useState(() => {
-    const phone = settings.contactWhatsapp || settings.contactPhone || '+880 1603317908';
+    const phone = settings.contactWhatsapp || settings.contactPhone || '';
     const sortedCountries = [...countriesWithCodes].sort((a, b) => b.prefix.length - a.prefix.length);
     const match = sortedCountries.find(c => phone.startsWith(c.prefix));
     return match ? match.prefix : '+880';
   });
 
   const [localWhatsappSuffix, setLocalWhatsappSuffix] = useState(() => {
-    const phone = settings.contactWhatsapp || settings.contactPhone || '+880 1603317908';
+    const phone = settings.contactWhatsapp || settings.contactPhone || '';
     const sortedCountries = [...countriesWithCodes].sort((a, b) => b.prefix.length - a.prefix.length);
     const match = sortedCountries.find(c => phone.startsWith(c.prefix));
     if (match) {
@@ -702,7 +702,7 @@ export default function OrderManagementAdmin({
   useEffect(() => {
     setLocalBrandSettings(prev => ({
       ...prev,
-      contactWhatsapp: `${selectedWhatsappPrefix} ${localWhatsappSuffix}`.trim()
+      contactWhatsapp: localWhatsappSuffix ? `${selectedWhatsappPrefix} ${localWhatsappSuffix}`.trim() : ''
     }));
   }, [selectedWhatsappPrefix, localWhatsappSuffix]);
 
@@ -2280,220 +2280,12 @@ export default function OrderManagementAdmin({
                             </div>
                           </div>
                         </div>
-
-                        {/* Combined Address Preview (Moved below the Logo Gallery per user request) */}
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Combined Address Preview</label>
-                          <div className={`w-full px-5 py-3.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#252525] text-cyan-400' : 'bg-cyan-50/50 text-cyan-700'} border border-cyan-500/20 flex items-center gap-2 shadow-inner`}>
-                            <Globe className="w-4 h-4 shrink-0 text-cyan-500 animate-pulse" />
-                            <span className="truncate">{localBrandSettings.brandLocation || (lang === 'bn' ? 'কোনো ঠিকানা সেট করা নেই' : 'No address set yet')}</span>
-                          </div>
-                        </div>
                       </div>
 
-                      {/* Right Column: Custom Search-select floating dropdown selector & Communication Channels */}
+                      {/* Right Column: Communication Channels */}
                       <div className="space-y-6">
                         <div className={`p-6 rounded-2xl border ${theme === 'dark' ? 'bg-[#252525] border-slate-800' : 'bg-slate-50 border-slate-100'} space-y-4`}>
-                        <div className="border-b border-inherit pb-2">
-                          <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                            {lang === 'bn' ? 'স্মার্ট লোকেশন সিলেক্টর (ড্রপডাউন ও টাইপ)' : 'Smart Location Selector (Dropdown & Type)'}
-                          </h4>
-                        </div>
-
-                        {/* 1. Country Selection */}
-                        <div className="space-y-1 relative" ref={countryInputRef}>
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Country</label>
-                          <div className="relative">
-                            <input 
-                              type="text" 
-                              value={selectedCountry}
-                              onFocus={() => {
-                                setIsCountryDropdownOpen(true);
-                                setIsStateDropdownOpen(false);
-                                setIsDistrictDropdownOpen(false);
-                              }}
-                              onChange={e => {
-                                setSelectedCountry(e.target.value);
-                                setSelectedState('');
-                                setSelectedDistrict('');
-                              }}
-                              onKeyDown={handleKeyDownSave}
-                              placeholder="Select or type country..."
-                              className={`w-full pr-10 pl-4 py-2.5 rounded-lg outline-none font-bold text-xs ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-white border-slate-200 text-slate-700'} border focus:border-blue-500 transition-colors`}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsCountryDropdownOpen(!isCountryDropdownOpen);
-                                setIsStateDropdownOpen(false);
-                                setIsDistrictDropdownOpen(false);
-                              }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                            >
-                              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                          </div>
-                          
-                          {/* Floating Dropdown List */}
-                          {isCountryDropdownOpen && (
-                            <div className={`absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl shadow-2xl border z-[110] py-1 ${theme === 'dark' ? 'bg-[#1e1e1e] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-800'}`}>
-                              {filteredCountries.length > 0 ? (
-                                filteredCountries.map(c => (
-                                  <button
-                                    key={c.code}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedCountry(c.name);
-                                      setSelectedState('');
-                                      setSelectedDistrict('');
-                                      setIsCountryDropdownOpen(false);
-                                    }}
-                                    className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all hover:bg-blue-500 hover:text-white flex items-center justify-between ${selectedCountry === c.name ? 'bg-blue-500/10 text-blue-500' : ''}`}
-                                  >
-                                    <span>{c.name}</span>
-                                    {selectedCountry === c.name && <Check className="w-3.5 h-3.5 text-blue-500" />}
-                                  </button>
-                                ))
-                              ) : (
-                                <div className="px-4 py-3 text-xs text-slate-400 italic">
-                                  {lang === 'bn' ? 'কোনো দেশ মেলেনি (টাইপ করুন)' : 'No countries found (type custom country)'}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* 2. State / Province Selection */}
-                        <div className="space-y-1 relative" ref={stateInputRef}>
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">State / Province</label>
-                          <div className="relative">
-                            <input 
-                              type="text" 
-                              value={selectedState}
-                              onFocus={() => {
-                                setIsStateDropdownOpen(true);
-                                setIsCountryDropdownOpen(false);
-                                setIsDistrictDropdownOpen(false);
-                              }}
-                              onChange={e => {
-                                setSelectedState(e.target.value);
-                                setSelectedDistrict('');
-                              }}
-                              onKeyDown={handleKeyDownSave}
-                              placeholder="Select or type state/province..."
-                              className={`w-full pr-10 pl-4 py-2.5 rounded-lg outline-none font-bold text-xs ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-white border-slate-200 text-slate-700'} border focus:border-blue-500 transition-colors`}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsStateDropdownOpen(!isStateDropdownOpen);
-                                setIsCountryDropdownOpen(false);
-                                setIsDistrictDropdownOpen(false);
-                              }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                            >
-                              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isStateDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                          </div>
-                          
-                          {/* Floating Dropdown List */}
-                          {isStateDropdownOpen && (
-                            <div className={`absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl shadow-2xl border z-[110] py-1 ${theme === 'dark' ? 'bg-[#1e1e1e] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-800'}`}>
-                              {filteredStates.length > 0 ? (
-                                filteredStates.map(s => (
-                                  <button
-                                    key={s.name}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedState(s.name);
-                                      setSelectedDistrict('');
-                                      setIsStateDropdownOpen(false);
-                                    }}
-                                    className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all hover:bg-blue-500 hover:text-white flex items-center justify-between ${selectedState === s.name ? 'bg-blue-500/10 text-blue-500' : ''}`}
-                                  >
-                                    <span>{s.name}</span>
-                                    {selectedState === s.name && <Check className="w-3.5 h-3.5 text-blue-500" />}
-                                  </button>
-                                ))
-                              ) : (
-                                <div className="px-4 py-3 text-xs text-slate-400 italic">
-                                  {selectedCountry 
-                                    ? (lang === 'bn' ? 'কোনো প্রদেশ মেলেনি (টাইপ করুন)' : 'No states found (type custom state)')
-                                    : (lang === 'bn' ? 'অনুগ্রহ করে প্রথমে দেশ নির্বাচন করুন' : 'Please select country first')
-                                  }
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* 3. District / City Selection */}
-                        <div className="space-y-1 relative" ref={districtInputRef}>
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">District / City</label>
-                          <div className="relative">
-                            <input 
-                              type="text" 
-                              value={selectedDistrict}
-                              onFocus={() => {
-                                setIsDistrictDropdownOpen(true);
-                                setIsCountryDropdownOpen(false);
-                                setIsStateDropdownOpen(false);
-                              }}
-                              onChange={e => {
-                                setSelectedDistrict(e.target.value);
-                              }}
-                              onKeyDown={handleKeyDownSave}
-                              placeholder="Select or type district/city..."
-                              className={`w-full pr-10 pl-4 py-2.5 rounded-lg outline-none font-bold text-xs ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-white border-slate-200 text-slate-700'} border focus:border-blue-500 transition-colors`}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsDistrictDropdownOpen(!isDistrictDropdownOpen);
-                                setIsCountryDropdownOpen(false);
-                                setIsStateDropdownOpen(false);
-                              }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                            >
-                              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDistrictDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                          </div>
-                          
-                          {/* Floating Dropdown List */}
-                          {isDistrictDropdownOpen && (
-                            <div className={`absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl shadow-2xl border z-[110] py-1 ${theme === 'dark' ? 'bg-[#1e1e1e] border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-800'}`}>
-                              {filteredDistricts.length > 0 ? (
-                                filteredDistricts.map(d => (
-                                  <button
-                                    key={d}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedDistrict(d);
-                                      setIsDistrictDropdownOpen(false);
-                                    }}
-                                    className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all hover:bg-blue-500 hover:text-white flex items-center justify-between ${selectedDistrict === d ? 'bg-blue-500/10 text-blue-500' : ''}`}
-                                  >
-                                    <span>{d}</span>
-                                    {selectedDistrict === d && <Check className="w-3.5 h-3.5 text-blue-500" />}
-                                  </button>
-                                ))
-                              ) : (
-                                <div className="px-4 py-3 text-xs text-slate-400 italic">
-                                  {selectedState
-                                    ? (lang === 'bn' ? 'কোনো শহর মেলেনি (টাইপ করুন)' : 'No cities found (type custom city)')
-                                    : (lang === 'bn' ? 'অনুগ্রহ করে প্রথমে রাজ্য সিলেক্ট করুন' : 'Please select state first')
-                                  }
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* COMMUNICATION & SUPPORT CHANNELS CARD */}
-                      <div className={`p-6 rounded-2xl border ${theme === 'dark' ? 'bg-[#252525] border-slate-800' : 'bg-slate-50 border-slate-100'} space-y-4`}>
-                        <div className="border-b border-inherit pb-2">
+                          <div className="border-b border-inherit pb-2">
                           <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
                             {lang === 'bn' ? 'যোগাযোগ ও সাপোর্ট ডিটেইলস' : 'Communication & Support Channels'}
@@ -3636,418 +3428,7 @@ export default function OrderManagementAdmin({
                     })()}
                   </div>
 
-                  {/* ================================================================= */}
-                  {/* ABOUT US SECTION CONTENT & STORY SETTINGS                         */}
-                  {/* ================================================================= */}
-                  <div className="p-8 space-y-6 border-b border-inherit">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-cyan-50 text-cyan-600'}`}>
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-black">
-                          {lang === 'bn' ? 'এবাউট সেকশন তথ্য ও কাস্টমাইজেশন (About Us Section)' : 'About Us Section Content & Story'}
-                        </h2>
-                        <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
-                          {lang === 'bn' 
-                            ? 'এখান থেকে আপনার ব্র্যান্ডের এবাউট সেকশনের শিরোনাম, সাব-টাইটেল, মূল গল্প এবং ছবি সেট করতে পারেন।' 
-                            : 'Customize your restaurant or coffee shop story, section heading, tagline, and feature photo.'}
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                      {/* About Title */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'এবাউট সেকশন শিরোনাম (Title)' : 'About Us Title'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.aboutUsTitle || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsTitle: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="e.g. SERVING FRESH & ORGANIC COFFEE SINCE 1950"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* About Subtitle */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'সাব-টাইটেল (Subtitle / Tagline)' : 'About Us Subtitle'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.aboutUsSubtitle || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsSubtitle: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="e.g. ABOUT US"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* About Image URL */}
-                      <div className="space-y-1.5 md:col-span-2">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'ছবি ইউআরএল (About Us Image URL)' : 'Feature Photo URL'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.aboutUsImage || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsImage: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="https://images.unsplash.com/..."
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* About Story Text */}
-                      <div className="space-y-1.5 md:col-span-2">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'ব্র্যান্ডের গল্প ও বিবরণ (About Us Story / Description)' : 'Brand Story & Description'}
-                        </label>
-                        <textarea
-                          rows={4}
-                          value={localBrandSettings.aboutUsText || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsText: e.target.value }))}
-                          placeholder="Write your restaurant heritage story..."
-                          className={`w-full px-4 py-2.5 rounded-xl font-medium text-xs leading-relaxed ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300 font-bold'} border outline-none resize-none`}
-                        />
-                      </div>
-
-                      {/* Contact Phone & WhatsApp */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'ফোন নম্বর (Contact Phone Number)' : 'Contact Phone Number'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.contactPhone || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, contactPhone: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="+880 1603317908"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'হোয়াটসঅ্যাপ নম্বর (WhatsApp Number)' : 'WhatsApp Number'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.contactWhatsapp || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, contactWhatsapp: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="+880 1340491041"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* Email & Location */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'ইমেইল অ্যাড্রেস (Contact Email)' : 'Contact Email'}
-                        </label>
-                        <input
-                          type="email"
-                          value={localBrandSettings.contactEmail || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, contactEmail: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="atikulalomasif4@gmail.com"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'লোকেশন ও আউটলেটের ঠিকানা (Location / Address)' : 'Outlet Location / Address'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.brandLocation || ''}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandLocation: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="Hyderabad, Sindh, Pakistan"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* Social Media Links (Instagram, YouTube, Facebook, LinkedIn) directly in the About Us Section */}
-                      <div className="space-y-3 md:col-span-2 pt-2 border-t border-inherit/40">
-                        <div className="flex items-center justify-between">
-                          <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                            {lang === 'bn' ? 'সোশ্যাল মিডিয়া প্রোফাইল লিংক (Social Links: Instagram, YouTube, Facebook, LinkedIn)' : 'Social Links (Instagram, YouTube, Facebook, LinkedIn)'}
-                          </label>
-                          <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                            {lang === 'bn' ? 'এবাউট সেকশনে প্রদর্শিত' : 'Displayed in About Section'}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                          {[
-                            { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/your-brand' },
-                            { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@your-channel' },
-                            { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/your-page' },
-                            { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/in/your-profile' }
-                          ].map(s => (
-                            <div key={s.key} className={`p-3 rounded-xl border ${theme === 'dark' ? 'bg-[#1a1a1a] border-slate-700' : 'bg-slate-50 border-slate-200'} space-y-1.5`}>
-                              <div className="flex items-center gap-2">
-                                <div className="p-1 rounded-md bg-amber-500/15 text-amber-500">
-                                  {getSocialIcon(s.key)}
-                                </div>
-                                <span className="text-xs font-black text-slate-800 dark:text-slate-100">{s.label}</span>
-                              </div>
-                              <input
-                                type="text"
-                                value={localBrandSettings.socialLinks[s.key as keyof typeof localBrandSettings.socialLinks] || ''}
-                                onChange={e => setLocalBrandSettings(prev => ({
-                                  ...prev,
-                                  socialLinks: { ...prev.socialLinks, [s.key]: e.target.value }
-                                }))}
-                                onKeyDown={handleKeyDownSave}
-                                placeholder={s.placeholder}
-                                className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-medium outline-none border ${theme === 'dark' ? 'bg-[#141414] border-slate-800 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lunavere Theme Footer & Reservation Settings Section */}
-                  <div className="p-8 space-y-6 border-t border-inherit">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-indigo-500/15 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>
-                          <Sparkles className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black">
-                              {lang === 'bn' ? 'লুনাভের থিম ফুটার ও কন্টেন্ট সেটিংস' : 'Theme Footer & Reservation Settings'}
-                            </h2>
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/15 text-indigo-500 border border-indigo-500/30">
-                              Theme #03
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500 font-medium max-w-2xl mt-0.5">
-                            {lang === 'bn' 
-                              ? 'আপনার ওয়েবসাইটের নিচের ফুটার ডিজাইনের সমস্ত লেখা (সাবটাইটেল, বিবরণ, ঠিকানা, ফোন নম্বর, টেবিল বুকিং টেক্সট ও বাটন) এখান থেকে সরাসরি পরিবর্তন করুন।' 
-                              : 'Customize all text fields of the bottom footer design (subtitle, description, address, phone, table booking title & button texts).'}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                          {lang === 'bn' ? '✓ ইমেইল ও সময় অপশন মুক্ত' : '✓ Clean White & No Email'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Notice Badge */}
-                    <div className={`p-3.5 rounded-xl text-xs font-medium ${theme === 'dark' ? 'bg-white/5 text-slate-300 border border-white/10' : 'bg-slate-100 text-slate-700 border border-slate-200'} flex items-start gap-2.5`}>
-                      <span className="text-indigo-400 font-bold">ℹ️</span>
-                      <span>
-                        {lang === 'bn'
-                          ? 'আপনার নির্দেশনামতে ফুটার থেকে ইমেইল অপশন ও সময়ের (Evening Hours) অংশ সরানো হয়েছে এবং সমস্ত লেখা ও বাটন আকর্ষণীয় হোয়াইট (White) কালারে সাজানো হয়েছে। নিচে যেকোনো লেখা এডিট করে "Save Changes" চাপলেই তা সাথে সাথে ফুটে উঠবে।'
-                          : 'As requested, the Email and Evening Hours sections have been removed from the footer, and all footer elements are rendered in clean white. You can customize any text below and click "Save Changes".'}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                      {/* Subtitle */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'ফুটার ব্র্যান্ড সাবটাইটেল (Tagline / Subtitle)' : 'Footer Brand Subtitle / Tagline'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.lunavereFooterSubtitle}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, lunavereFooterSubtitle: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="PARISIAN STARLIGHT CAFE"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* Contact Phone */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'যোগাযোগ ফোন নম্বর (Contact Phone)' : 'Contact Phone Number'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.contactPhone}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, contactPhone: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="+880 1603317908"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none font-mono`}
-                        />
-                      </div>
-
-                      {/* Footer Short Story / Description */}
-                      <div className="space-y-1.5 md:col-span-2">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'ব্র্যান্ডের সংক্ষিপ্ত পরিচিতি / গল্প (Footer Description)' : 'Footer Short Story / Description'}
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={localBrandSettings.lunavereFooterDesc}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, lunavereFooterDesc: e.target.value }))}
-                          placeholder="An intimate Parisian coffee house for slow evenings, delicate pastries, and beautifully brewed single-origin coffee."
-                          className={`w-full px-4 py-2.5 rounded-xl font-medium text-xs leading-relaxed ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300 font-bold'} border outline-none resize-none`}
-                        />
-                      </div>
-
-                      {/* Location / Address */}
-                      <div className="space-y-1.5 md:col-span-2">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'লোকেশন ও আউটলেট ঠিকানা (Location & Address)' : 'Location & Address'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.brandLocation}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandLocation: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="Hyderabad, Sindh, Pakistan"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* Reservation Title & Description */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'টেবিল বুকিং শিরোনাম (Reservation Card Title)' : 'Reservation Card Title'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.lunavereReservationTitle}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, lunavereReservationTitle: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="STARLIGHT TABLE"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'টেবিল বুকিং বিবরণ (Reservation Card Description)' : 'Reservation Card Description'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.lunavereReservationDesc}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, lunavereReservationDesc: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="Reservations are recommended for late evenings, terrace tables, and tasting flights."
-                          className={`w-full px-4 py-2.5 rounded-xl font-medium text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      {/* Buttons Text */}
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'টেবিল বুকিং বাটনের লেখা (Reserve Button Text)' : 'Reserve Button Text'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.lunavereReserveBtnText}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, lunavereReserveBtnText: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="RESERVE A TABLE"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                          {lang === 'bn' ? 'কিউআর ডিজিটাল মেনু বাটনের লেখা (QR Menu Button Text)' : 'QR Menu Button Text'}
-                        </label>
-                        <input
-                          type="text"
-                          value={localBrandSettings.lunavereQrBtnText}
-                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, lunavereQrBtnText: e.target.value }))}
-                          onKeyDown={handleKeyDownSave}
-                          placeholder="OPEN QR DIGITAL MENU"
-                          className={`w-full px-4 py-2.5 rounded-xl font-bold text-xs ${theme === 'dark' ? 'bg-[#1b1b1b] text-white border-slate-700' : 'bg-white text-slate-950 border-slate-300'} border outline-none`}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Live Footer Preview Box right inside settings */}
-                    <div className="pt-4 border-t border-inherit/40 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                          {lang === 'bn' ? 'সরাসরি ফুটার প্রিভিউ (Live White Footer Preview)' : 'Live White Footer Preview'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleSaveBrandSettings}
-                          className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer"
-                        >
-                          {isSaving ? 'Saving...' : 'Save Settings'}
-                        </button>
-                      </div>
-
-                      <div className="rounded-2xl bg-[#0f101d] text-white p-6 border border-white/20 shadow-xl space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-white text-xs">
-                                <Moon className="w-3.5 h-3.5" />
-                              </div>
-                              <div>
-                                <span className="font-bold text-sm text-white block">
-                                  {localBrandSettings.brandName || 'askul'}
-                                </span>
-                                <span className="text-[8px] font-mono tracking-widest text-white/80 uppercase block">
-                                  {localBrandSettings.lunavereFooterSubtitle}
-                                </span>
-                              </div>
-                            </div>
-                            <p className="text-[11px] text-white/80 font-light line-clamp-2">
-                              {localBrandSettings.lunavereFooterDesc}
-                            </p>
-                          </div>
-
-                          <div className="space-y-2">
-                            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-white block">
-                              LOCATION & ENQUIRIES
-                            </span>
-                            <div className="text-[11px] text-white/90 space-y-1.5">
-                              <div className="flex items-start gap-1.5">
-                                <MapPin className="w-3.5 h-3.5 text-white shrink-0 mt-0.5" />
-                                <span className="line-clamp-2">{localBrandSettings.brandLocation || 'Hyderabad, Sindh, Pakistan'}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <Phone className="w-3.5 h-3.5 text-white shrink-0" />
-                                <span className="font-mono">{localBrandSettings.contactPhone || '+880 1603317908'}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-white block">
-                              {localBrandSettings.lunavereReservationTitle}
-                            </span>
-                            <p className="text-[11px] text-white/80 font-light line-clamp-2">
-                              {localBrandSettings.lunavereReservationDesc}
-                            </p>
-                            <div className="space-y-1.5 pt-1">
-                              <div className="py-1.5 px-3 rounded-full bg-white text-[#0f101d] text-[10px] font-black uppercase text-center tracking-wider">
-                                {localBrandSettings.lunavereReserveBtnText}
-                              </div>
-                              <div className="py-1.5 px-3 rounded-full border border-white/60 text-white text-[10px] font-bold uppercase text-center tracking-wider">
-                                {localBrandSettings.lunavereQrBtnText}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Enterprise Live Update Deployment Section */}
                   <div className="p-8 space-y-6 border-t border-inherit">

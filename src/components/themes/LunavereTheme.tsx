@@ -32,6 +32,7 @@ interface LunavereThemeProps {
   primaryColor?: string;
   onOrderDish?: (dish: FoodItem) => void;
   onOpenAdmin?: () => void;
+  onBack?: () => void;
   settings?: any;
   lang?: string;
 }
@@ -122,6 +123,7 @@ export default function LunavereTheme({
   primaryColor,
   onOrderDish,
   onOpenAdmin,
+  onBack,
   settings,
   lang = 'en'
 }: LunavereThemeProps) {
@@ -265,7 +267,7 @@ export default function LunavereTheme({
               onClick={() => setReservationModalOpen(true)}
               className="px-5 py-2 rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
             >
-              {lang === 'bn' ? 'টেবিল বুক করুন' : 'Reserve Table'}
+              Reserve Table
             </button>
 
             {/* Admin Key Button if enabled */}
@@ -374,20 +376,20 @@ export default function LunavereTheme({
       {/* ========================================================= */}
       <section id="story" className="py-20 lg:py-28 px-6 sm:px-12 bg-[#F4E7D3] text-[#171522] scroll-mt-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left Column: Image with 3 Portafilters */}
+          {/* Left Column: Image with 3 Portafilters (latte art, ground coffee, coffee beans) */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-[#15162B] aspect-[4/5] sm:aspect-[3/4] max-w-lg mx-auto lg:max-w-none group">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-[#15162B] aspect-[3/4] max-w-md sm:max-w-lg mx-auto lg:max-w-none group border border-[#C9A86A]/30">
               <img 
                 src={portafilterTrioImg} 
                 alt="Parisian Portafilter Coffee Ritual" 
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
-              <div className="absolute bottom-6 left-6 text-left space-y-1">
+              <div className="absolute bottom-6 left-6 right-6 text-left space-y-1">
                 <span className="text-[10px] sm:text-xs font-mono tracking-[0.25em] text-[#C9A86A] uppercase font-bold block">
                   EST. RUE DE L'ÉTOILE
                 </span>
-                <span className="text-base sm:text-lg italic text-[#F4E7D3] font-serif block">
+                <span className="text-sm sm:text-base italic text-[#F4E7D3] font-serif block leading-tight">
                   Parisian night ambience
                 </span>
               </div>
@@ -936,7 +938,7 @@ export default function LunavereTheme({
               </p>
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
                 <a 
-                  href={settings?.socialLinks?.instagram ? (settings.socialLinks.instagram.startsWith('http') ? settings.socialLinks.instagram : `https://${settings.socialLinks.instagram}`) : 'https://instagram.com'} 
+                  href={settings?.socialLinks?.instagram ? (settings.socialLinks.instagram.startsWith('http') ? settings.socialLinks.instagram : `https://${settings.socialLinks.instagram}`) : '#'} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   title="Instagram"
@@ -945,7 +947,7 @@ export default function LunavereTheme({
                   <Instagram className="w-4 h-4" />
                 </a>
                 <a 
-                  href={settings?.socialLinks?.youtube ? (settings.socialLinks.youtube.startsWith('http') ? settings.socialLinks.youtube : `https://${settings.socialLinks.youtube}`) : 'https://youtube.com'} 
+                  href={settings?.socialLinks?.youtube ? (settings.socialLinks.youtube.startsWith('http') ? settings.socialLinks.youtube : `https://${settings.socialLinks.youtube}`) : '#'} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   title="YouTube"
@@ -954,7 +956,7 @@ export default function LunavereTheme({
                   <Youtube className="w-4 h-4" />
                 </a>
                 <a 
-                  href={settings?.socialLinks?.facebook ? (settings.socialLinks.facebook.startsWith('http') ? settings.socialLinks.facebook : `https://${settings.socialLinks.facebook}`) : 'https://facebook.com'} 
+                  href={settings?.socialLinks?.facebook ? (settings.socialLinks.facebook.startsWith('http') ? settings.socialLinks.facebook : `https://${settings.socialLinks.facebook}`) : '#'} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   title="Facebook"
@@ -974,26 +976,32 @@ export default function LunavereTheme({
               </div>
             </div>
 
-            {/* Col 2: Location & Enquiries (White styling, no email option) */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-mono font-bold tracking-widest uppercase text-white">
-                LOCATION & ENQUIRIES
-              </h4>
-              <div className="space-y-3 text-xs text-white/90">
-                <p className="flex items-start gap-2.5">
-                  <MapPin className="w-4 h-4 text-white shrink-0 mt-0.5" />
-                  <span className="leading-relaxed">
-                    {settings?.brandLocation || 'Hyderabad, Sindh, Pakistan'}
-                  </span>
-                </p>
-                <p className="flex items-center gap-2.5">
-                  <Phone className="w-4 h-4 text-white shrink-0" />
-                  <span className="font-mono">
-                    {settings?.contactPhone || '+880 1603317908'}
-                  </span>
-                </p>
+            {/* Col 2: Contact & Enquiries */}
+            {(settings?.brandLocation || settings?.contactPhone) && (
+              <div className="space-y-4">
+                <h4 className="text-xs font-mono font-bold tracking-widest uppercase text-white">
+                  {settings?.brandLocation ? 'LOCATION & ENQUIRIES' : 'CONTACT & ENQUIRIES'}
+                </h4>
+                <div className="space-y-3 text-xs text-white/90">
+                  {settings?.brandLocation && (
+                    <p className="flex items-start gap-2.5">
+                      <MapPin className="w-4 h-4 text-white shrink-0 mt-0.5" />
+                      <span className="leading-relaxed">
+                        {settings.brandLocation}
+                      </span>
+                    </p>
+                  )}
+                  {settings?.contactPhone && (
+                    <p className="flex items-center gap-2.5">
+                      <Phone className="w-4 h-4 text-white shrink-0" />
+                      <span className="font-mono">
+                        {settings.contactPhone}
+                      </span>
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Col 3: Starlight Table / Quick Actions (All White styling & configurable) */}
             <div className="space-y-4">

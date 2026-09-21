@@ -1,26 +1,30 @@
 import React from 'react';
 import { Truck, Banknote, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
-import { TornPaperEdge } from './TornPaperEdge';
+import { THEME_HERO_CONFIGS } from './KoppeeHeroHeader';
 
 interface KoppeeDeliverySectionProps {
   brandName?: string;
   lang?: string;
+  themePresetId?: string;
 }
 
 export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
   brandName = 'KOPPEE',
-  lang = 'en'
+  lang = 'en',
+  themePresetId
 }) => {
+  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
+
   return (
     <section id="delivery" className="relative w-full bg-[#FFFBF2] text-[#2c1e13] overflow-hidden">
-      {/* Torn paper divider at the top transition */}
-      <TornPaperEdge color="#FFFBF2" position="top" className="-mt-1" />
-
       <div className="w-full max-w-[1800px] mx-auto px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 py-14 sm:py-20">
         
         {/* Header */}
         <div className="text-center space-y-3 mb-12 max-w-3xl mx-auto">
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#DA9F93] block">
+          <span 
+            className="text-xs sm:text-sm font-bold uppercase tracking-widest block"
+            style={{ color: cfg.accentColor }}
+          >
             {lang === 'bn' ? 'ডেলিভারি ও ক্যাশ অন ডেলিভারি সিস্টেম' : 'DELIVERY & CASH ON DELIVERY SYSTEM'}
           </span>
           <h3 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#1e140d] leading-tight">
@@ -37,8 +41,11 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
         {/* 4 Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Card 1: Cash on Delivery */}
-          <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#DA9F93]/30 shadow-md hover:shadow-xl transition-all space-y-3 relative group hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center transition-transform group-hover:scale-110">
+          <div className={`p-6 sm:p-7 rounded-2xl bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl transition-all space-y-3 relative group hover:-translate-y-1`}>
+            <div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+              style={{ backgroundColor: `${cfg.accentColor}20`, color: cfg.accentColor }}
+            >
               <Banknote className="w-6 h-6" />
             </div>
             <h4 className="text-base sm:text-lg font-bold text-[#1e140d]">
@@ -47,15 +54,18 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             <p className="text-xs sm:text-sm text-[#3e2c1e]/75 leading-relaxed">
               {lang === 'bn' ? 'খাবার হাতে পাওয়ার পর নিশ্চিন্তে ক্যাশে বা বিকাশ/নগদে বিল পরিশোধের সুবিধা।' : 'Pay conveniently upon receiving your hot meal directly at home or at table.'}
             </p>
-            <div className="pt-2 flex items-center gap-1.5 text-[11px] font-bold text-amber-800">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+            <div className="pt-2 flex items-center gap-1.5 text-[11px] font-bold" style={{ color: cfg.accentColor }}>
+              <CheckCircle2 className="w-3.5 h-3.5" style={{ color: cfg.accentColor }} />
               <span>{lang === 'bn' ? '১০০% বিশ্বস্ত পেমেন্ট' : '100% Secure Payment'}</span>
             </div>
           </div>
 
           {/* Card 2: Doorstep Express Delivery */}
-          <div className="p-6 sm:p-7 rounded-2xl bg-white border border-[#DA9F93]/30 shadow-md hover:shadow-xl transition-all space-y-3 relative group hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-xl bg-[#DA9F93]/20 text-[#3e271a] flex items-center justify-center transition-transform group-hover:scale-110">
+          <div className={`p-6 sm:p-7 rounded-2xl bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl transition-all space-y-3 relative group hover:-translate-y-1`}>
+            <div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+              style={{ backgroundColor: `${cfg.accentColor}20`, color: cfg.accentColor }}
+            >
               <Truck className="w-6 h-6" />
             </div>
             <h4 className="text-base sm:text-lg font-bold text-[#1e140d]">

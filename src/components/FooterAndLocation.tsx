@@ -70,12 +70,12 @@ export default function FooterAndLocation({
   plan = 'basic',
   socialLinks
 }: FooterAndLocationProps) {
-  const locationAddress = brandLocation || "Gulshan Market, Goneshtola, Dinajpur Sadar, Dinajpur-5200, Bangladesh";
-  const query = `${brandName || "L'Aura Gourmet Dining"}, ${locationAddress}`;
+  const locationAddress = (brandLocation || "").trim();
+  const query = `${brandName || ""}${locationAddress ? `, ${locationAddress}` : ''}`;
   const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const directDirectionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  const emailAddress = (contactEmail || 'asrafali.com@gmail.com').trim();
-  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emailAddress)}`;
+  const emailAddress = (contactEmail || '').trim();
+  const gmailComposeUrl = emailAddress ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emailAddress)}` : '#';
 
   const formatSocialUrl = (url?: string, fallback: string = '#') => {
     if (!url || !url.trim()) return fallback;
@@ -84,9 +84,9 @@ export default function FooterAndLocation({
     return `https://${trimmed}`;
   };
 
-  const whatsappNumber = (contactWhatsapp || contactPhone || '+880 1603317908').trim();
+  const whatsappNumber = (contactWhatsapp || contactPhone || '').trim();
   const cleanWhatsappDigits = whatsappNumber.replace(/\D/g, '');
-  const whatsappChatUrl = `https://wa.me/${cleanWhatsappDigits}`;
+  const whatsappChatUrl = cleanWhatsappDigits ? `https://wa.me/${cleanWhatsappDigits}` : '#';
 
   const t = (en: string, bn: string, ar: string) => {
     if (lang === 'ar') return ar;
@@ -199,8 +199,8 @@ export default function FooterAndLocation({
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-display font-bold text-xs text-slate-900 truncate">{brandName || "L'Aura Gourmet Dining"}</p>
-                  <p className="text-[10px] text-slate-500 font-sans truncate">{brandLocation || "Dinajpur Sadar, Bangladesh"}</p>
+                  <p className="font-display font-bold text-xs text-slate-900 truncate">{brandName}</p>
+                  {brandLocation && <p className="text-[10px] text-slate-500 font-sans truncate">{brandLocation}</p>}
                 </div>
               </div>
 
@@ -226,76 +226,84 @@ export default function FooterAndLocation({
                 </h3>
 
                 {/* Address */}
-                <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
-                  <div className="p-2.5 rounded-xl bg-slate-100 text-slate-900 flex-shrink-0">
-                    <MapPin className="w-5 h-5" />
+                {brandLocation && (
+                  <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
+                    <div className="p-2.5 rounded-xl bg-slate-100 text-slate-900 flex-shrink-0">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="block font-display font-bold text-slate-900 mb-0.5">Address</span>
+                      <p className="text-slate-600 leading-relaxed text-xs">
+                        {brandLocation}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="block font-display font-bold text-slate-900 mb-0.5">Address</span>
-                    <p className="text-slate-600 leading-relaxed text-xs">
-                      {brandLocation || "Gulshan Market, Goneshtola, Dinajpur Sadar, Dinajpur-5200, Bangladesh"}
-                    </p>
-                  </div>
-                </div>
+                )}
 
                 {/* Phone Number */}
-                <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
-                  <div className="p-2.5 rounded-xl bg-slate-100 text-cyan-600 flex-shrink-0">
-                    <Phone className="w-5 h-5" />
+                {contactPhone && (
+                  <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
+                    <div className="p-2.5 rounded-xl bg-slate-100 text-cyan-600 flex-shrink-0">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="block font-display font-bold text-slate-900 mb-0.5">Contact Phone</span>
+                      <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="text-slate-700 hover:text-cyan-600 font-mono text-xs font-semibold">
+                        {contactPhone}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <span className="block font-display font-bold text-slate-900 mb-0.5">Contact Phone</span>
-                    <a href={`tel:${(contactPhone || '+880 1712-345678').replace(/\s+/g, '')}`} className="text-slate-700 hover:text-cyan-600 font-mono text-xs font-semibold">
-                      {contactPhone || '+880 1712-345678'}
-                    </a>
-                  </div>
-                </div>
+                )}
 
                 {/* WhatsApp Number */}
-                <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
-                  <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 flex-shrink-0">
-                    <MessageCircle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="block font-display font-bold text-slate-900">WhatsApp</span>
-                      <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700">Chat</span>
+                {whatsappNumber && (
+                  <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
+                    <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 flex-shrink-0">
+                      <MessageCircle className="w-5 h-5" />
                     </div>
-                    <a 
-                      href={whatsappChatUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      title={lang === 'bn' ? 'হোয়াটসঅ্যাপে মেসেজ পাঠান' : 'Click to chat on WhatsApp'}
-                      className="text-slate-700 hover:text-emerald-600 font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors group cursor-pointer"
-                    >
-                      <span className="group-hover:underline">{whatsappNumber}</span>
-                      <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                    </a>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="block font-display font-bold text-slate-900">WhatsApp</span>
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700">Chat</span>
+                      </div>
+                      <a 
+                        href={whatsappChatUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        title={lang === 'bn' ? 'হোয়াটসঅ্যাপে মেসেজ পাঠান' : 'Click to chat on WhatsApp'}
+                        className="text-slate-700 hover:text-emerald-600 font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors group cursor-pointer"
+                      >
+                        <span className="group-hover:underline">{whatsappNumber}</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Email Address */}
-                <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
-                  <div className="p-2.5 rounded-xl bg-slate-100 text-purple-600 flex-shrink-0">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="block font-display font-bold text-slate-900">Email Address</span>
-                      <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-700">Gmail</span>
+                {emailAddress && (
+                  <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
+                    <div className="p-2.5 rounded-xl bg-slate-100 text-purple-600 flex-shrink-0">
+                      <Mail className="w-5 h-5" />
                     </div>
-                    <a 
-                      href={gmailComposeUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      title={lang === 'bn' ? 'জিমেইলে সরাসরি মেসেজ পাঠান' : 'Click to send message via Gmail'}
-                      className="text-slate-700 hover:text-purple-600 font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors group cursor-pointer"
-                    >
-                      <span className="group-hover:underline">{emailAddress}</span>
-                      <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                    </a>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="block font-display font-bold text-slate-900">Email Address</span>
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-700">Gmail</span>
+                      </div>
+                      <a 
+                        href={gmailComposeUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        title={lang === 'bn' ? 'জিমেইলে সরাসরি মেসেজ পাঠান' : 'Click to send message via Gmail'}
+                        className="text-slate-700 hover:text-purple-600 font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors group cursor-pointer"
+                      >
+                        <span className="group-hover:underline">{emailAddress}</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Operating Hours */}
                 <div className="flex items-start gap-3.5 text-slate-700 text-xs sm:text-sm">
@@ -364,7 +372,7 @@ export default function FooterAndLocation({
               </a>
 
               <a 
-                href={formatSocialUrl(socialLinks?.facebook, 'https://facebook.com')} 
+                href={formatSocialUrl(socialLinks?.facebook, '#')} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#1877F2] hover:bg-[#1877F2]/15 hover:border-[#1877F2]/50 transition-all shadow-sm" 
@@ -374,7 +382,7 @@ export default function FooterAndLocation({
               </a>
 
               <a 
-                href={formatSocialUrl(socialLinks?.youtube, 'https://youtube.com')} 
+                href={formatSocialUrl(socialLinks?.youtube, '#')} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#FF0000] hover:bg-[#FF0000]/15 hover:border-[#FF0000]/50 transition-all shadow-sm" 
@@ -384,7 +392,7 @@ export default function FooterAndLocation({
               </a>
 
               <a 
-                href={formatSocialUrl(socialLinks?.instagram, 'https://instagram.com')} 
+                href={formatSocialUrl(socialLinks?.instagram, '#')} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#E1306C] hover:bg-[#E1306C]/15 hover:border-[#E1306C]/50 transition-all shadow-sm" 
@@ -462,55 +470,62 @@ export default function FooterAndLocation({
           </div>
 
           {/* CONTACT & ADMIN LOGIN COLUMN */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-display font-bold text-slate-200 uppercase tracking-wider">
-              Contact & Location
-            </h4>
-            <div className="text-xs text-slate-400 space-y-2.5">
-              <p className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span>{brandLocation || "Gulshan Market, Goneshtola, Dinajpur Sadar, Dinajpur-5200, Bangladesh"}</span>
-              </p>
+          {(brandLocation || contactPhone || whatsappNumber || emailAddress) && (
+            <div className="space-y-4">
+              <h4 className="text-sm font-display font-bold text-slate-200 uppercase tracking-wider">
+                Contact & Location
+              </h4>
+              <div className="text-xs text-slate-400 space-y-2.5">
+                {brandLocation && (
+                  <p className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+                    <span>{brandLocation}</span>
+                  </p>
+                )}
 
-              <p className="flex items-center gap-2 font-mono">
-                <Phone className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                <a href={`tel:${(contactPhone || '+880 1712-345678').replace(/\s+/g, '')}`} className="hover:text-cyan-300 transition-colors">
-                  {contactPhone || '+880 1712-345678'}
-                </a>
-              </p>
+                {contactPhone && (
+                  <p className="flex items-center gap-2 font-mono">
+                    <Phone className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                    <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="hover:text-cyan-300 transition-colors">
+                      {contactPhone}
+                    </a>
+                  </p>
+                )}
 
-              <p className="flex items-center gap-2 font-mono">
-                <MessageCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <a 
-                  href={whatsappChatUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  title={lang === 'bn' ? 'হোয়াটসঅ্যাপে সরাসরি মেসেজ পাঠান' : 'Chat on WhatsApp'}
-                  className="hover:text-emerald-300 transition-colors inline-flex items-center gap-1.5 hover:underline cursor-pointer"
-                >
-                  <span>{whatsappNumber}</span>
-                  <ExternalLink className="w-3 h-3 opacity-60" />
-                </a>
-              </p>
+                {whatsappNumber && (
+                  <p className="flex items-center gap-2 font-mono">
+                    <MessageCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <a 
+                      href={whatsappChatUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      title={lang === 'bn' ? 'হোয়াটসঅ্যাপে সরাসরি মেসেজ পাঠান' : 'Chat on WhatsApp'}
+                      className="hover:text-emerald-300 transition-colors inline-flex items-center gap-1.5 hover:underline cursor-pointer"
+                    >
+                      <span>{whatsappNumber}</span>
+                      <ExternalLink className="w-3 h-3 opacity-60" />
+                    </a>
+                  </p>
+                )}
 
-              <p className="flex items-center gap-2 font-mono">
-                <Mail className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                <a 
-                  href={gmailComposeUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  title={lang === 'bn' ? 'জিমেইলে সরাসরি মেসেজ পাঠান' : 'Click to send message via Gmail'}
-                  className="hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 hover:underline cursor-pointer"
-                >
-                  <span>{emailAddress}</span>
-                  <ExternalLink className="w-3 h-3 opacity-60" />
-                </a>
-              </p>
+                {emailAddress && (
+                  <p className="flex items-center gap-2 font-mono">
+                    <Mail className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                    <a 
+                      href={gmailComposeUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      title={lang === 'bn' ? 'জিমেইলে সরাসরি মেসেজ পাঠান' : 'Click to send message via Gmail'}
+                      className="hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 hover:underline cursor-pointer"
+                    >
+                      <span>{emailAddress}</span>
+                      <ExternalLink className="w-3 h-3 opacity-60" />
+                    </a>
+                  </p>
+                )}
+              </div>
             </div>
-
-            <div className="pt-2">
-            </div>
-          </div>
+          )}
 
         </div>
       </div>

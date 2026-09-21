@@ -304,39 +304,39 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
     return `https://${trimmed}`;
   };
 
-  const rawPhone = contactPhone || '+880 1603317908';
-  const rawWhatsapp = contactWhatsapp || contactPhone || '+880 1340491041';
-  const rawEmail = contactEmail || 'atikulalomasif4@gmail.com';
+  const rawPhone = contactPhone || '';
+  const rawWhatsapp = contactWhatsapp || contactPhone || '';
+  const rawEmail = contactEmail || '';
   const cleanWhatsapp = rawWhatsapp.replace(/[^0-9]/g, '');
-  const locationText = brandLocation || 'Hyderabad, Sindh, Pakistan';
+  const locationText = brandLocation || '';
 
   const socialItemList = [
     {
       key: 'instagram',
       label: 'Instagram',
       icon: Instagram,
-      url: formatUrl(socialLinks?.instagram, 'https://instagram.com'),
+      url: formatUrl(socialLinks?.instagram, '#'),
       color: 'hover:text-[#E1306C] hover:border-[#E1306C]/60 hover:bg-[#E1306C]/10',
     },
     {
       key: 'youtube',
       label: 'YouTube',
       icon: Youtube,
-      url: formatUrl(socialLinks?.youtube, 'https://youtube.com'),
+      url: formatUrl(socialLinks?.youtube, '#'),
       color: 'hover:text-[#FF0000] hover:border-[#FF0000]/60 hover:bg-[#FF0000]/10',
     },
     {
       key: 'facebook',
       label: 'Facebook',
       icon: Facebook,
-      url: formatUrl(socialLinks?.facebook, 'https://facebook.com'),
+      url: formatUrl(socialLinks?.facebook, '#'),
       color: 'hover:text-[#1877F2] hover:border-[#1877F2]/60 hover:bg-[#1877F2]/10',
     },
     {
       key: 'linkedin',
       label: 'LinkedIn',
       icon: Linkedin,
-      url: formatUrl(socialLinks?.linkedin, 'https://linkedin.com'),
+      url: formatUrl(socialLinks?.linkedin, '#'),
       color: 'hover:text-[#0A66C2] hover:border-[#0A66C2]/60 hover:bg-[#0A66C2]/10',
     }
   ];
@@ -397,101 +397,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
               ))}
             </div>
 
-            {/* Premium Dynamic Location & Social Card (Auto-populated from Brand Identity Settings) */}
-            {!hideOutletCard && (
-              <div className={`mt-10 p-6 rounded-3xl border transition-all duration-500 ${cardBgColor} ${borderColor} shadow-lg space-y-4`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center"
-                        style={{ 
-                          backgroundColor: isDark ? 'rgba(201, 168, 106, 0.15)' : 'rgba(8, 145, 178, 0.1)',
-                          color: accentColor 
-                        }}
-                      >
-                        <Sparkles className="w-4 h-4" />
-                      </div>
-                      <h4 className={`text-sm font-black uppercase tracking-wider ${textColor}`}>
-                        {lang === 'bn' ? 'আমাদের আউটলেট ও সোশ্যাল মিডিয়া' : 'Our Outlet & Socials'}
-                      </h4>
-                    </div>
-                    <p className="text-lg font-black mb-1" style={{ color: accentColor }}>
-                      {brandName || (lang === 'bn' ? 'আমাদের রেস্টুরেন্ট' : 'Our Restaurant Venue')}
-                    </p>
-                  </div>
-                  {/* Dynamically Rendered Premium Brand Logo Monogram */}
-                  <div className="shrink-0">
-                    {renderLogo()}
-                  </div>
-                </div>
 
-                <p className={`text-xs leading-relaxed font-medium ${mutedColor}`}>
-                  {aboutUsText || brandDescription || (lang === 'bn' 
-                    ? `আমরা আনন্দের সাথে জানাচ্ছি যে ${brandName || 'আমাদের রেস্টুরেন্ট'} অত্যন্ত সফলভাবে ${locationText} অবস্থিত। আমরা আপনাদের জন্য বিশ্বের সেরা ডিজিটাল ডাইনিং ও ত্রিমাত্রিক ৩ডি এআর মেনু নিয়ে এসেছি।`
-                    : `We are proudly established in ${locationText}. Welcome to ${brandName || 'our restaurant'}, where we pair world-class luxury dining with interactive 3D AR technology.`
-                  )}
-                </p>
-
-                {/* Direct Contact Details: Phone, WhatsApp, Email, Location */}
-                <div className="pt-2 border-t border-inherit/40 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span className={`truncate font-medium ${mutedColor}`}>{locationText}</span>
-                  </div>
-                  <a 
-                    href={`tel:${rawPhone.replace(/\s+/g, '')}`}
-                    className={`flex items-center gap-2 font-mono font-bold hover:underline transition-colors ${textColor}`}
-                  >
-                    <Phone className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>{rawPhone}</span>
-                  </a>
-                  <a 
-                    href={`https://wa.me/${cleanWhatsapp}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={`flex items-center gap-2 font-mono font-bold text-emerald-500 hover:underline transition-colors`}
-                  >
-                    <MessageCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>{rawWhatsapp}</span>
-                  </a>
-                  <a 
-                    href={`mailto:${rawEmail}`}
-                    className={`flex items-center gap-2 truncate font-medium hover:underline transition-colors ${textColor}`}
-                  >
-                    <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                    <span className="truncate">{rawEmail}</span>
-                  </a>
-                </div>
-
-                {/* Connected Social Media Icons: Instagram, YouTube, Facebook, LinkedIn */}
-                <div className="pt-3 border-t border-inherit/40 flex flex-wrap items-center justify-between gap-3">
-                  <span className={`text-[11px] font-bold uppercase tracking-wider ${textColor}`}>
-                    {lang === 'bn' ? 'সোশ্যাল মিডিয়ায় যুক্ত থাকুন:' : 'Follow & Connect:'}
-                  </span>
-                  <div className="flex items-center gap-2.5">
-                    {socialItemList.map(s => {
-                      return (
-                        <a
-                          key={s.key}
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={s.label}
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-200 shadow-sm ${
-                            isDark 
-                              ? 'bg-[#121324] border-[#C9A86A]/30 text-[#F4E7D3] hover:border-[#C9A86A]' 
-                              : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
-                          } ${s.color}`}
-                        >
-                          <s.icon className="w-4 h-4" />
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, x: 50 }}

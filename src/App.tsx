@@ -360,6 +360,25 @@ export default function App() {
 
   // One-click instant entry to Admin Panel
   const enterAdminPanel = () => {
+    // Save current active theme before entering admin so clicking back returns to this exact theme if inside a theme
+    if (typeof window !== 'undefined') {
+      try {
+        if (activeThemeId) {
+          localStorage.setItem('webar_last_entered_from_theme', activeThemeId);
+        } else {
+          localStorage.removeItem('webar_last_entered_from_theme');
+        }
+
+        if (effectiveThemeId) {
+          localStorage.setItem('webar_active_theme_id', effectiveThemeId);
+        }
+      } catch (e) {}
+    }
+
+    if (adminSettings && effectiveThemeId && (adminSettings as any).activeThemeId !== effectiveThemeId) {
+      setAdminSettings(prev => prev ? ({ ...prev, activeThemeId: effectiveThemeId }) : prev);
+    }
+
     if (!isAdminAuthenticated || !managerSession) {
       const existingSession = localStorage.getItem('webar_active_manager_session');
       if (existingSession) {
@@ -790,17 +809,6 @@ export default function App() {
     return () => window.removeEventListener('hashchange', checkSecret);
   }, []);
 
-  // Listen for back-navigation request to exit admin panel back to client view
-  useEffect(() => {
-    const handleExitAdmin = () => {
-      setViewMode('client');
-    };
-    window.addEventListener('exit-admin-panel', handleExitAdmin);
-    return () => {
-      window.removeEventListener('exit-admin-panel', handleExitAdmin);
-    };
-  }, []);
-
   // Admin System Settings
   const [adminSettings, setAdminSettings] = useState<AdminSettings | null>(() => {
     if (typeof window !== 'undefined') {
@@ -832,14 +840,14 @@ export default function App() {
           id: 'demo-restaurant',
           restaurantName: "L'Aura WebAR Restaurant",
           brandName: "sahinsh",
-          brandLocation: "PAKISTAN",
+          brandLocation: "",
           subscriptionPlan: enforcedPlan,
           subscriptionStatus: 'active',
           theme: 'light',
           audioEnabled: true,
           autoAcceptOrders: false,
           securityPinRequired: true,
-          whatsappNumber: '+923000000000',
+          whatsappNumber: '',
           currency: 'USD',
           taxRate: 5,
           customDomain: ''
@@ -849,12 +857,102 @@ export default function App() {
     return null;
   });
 
+  // Active Client Theme State (null = Main Portal View, string = Inside Theme View)
+  const [isExitingTheme, setIsExitingTheme] = useState<boolean>(false);
+  const [activeThemeId, setActiveThemeId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const themeFromUrl = urlParams.get('theme');
+      if (themeFromUrl) return themeFromUrl;
+    }
+    return null;
+  });
+
+  // Handle entering a specific theme
+  const handleEnterTheme = (themeId: string) => {
+    setIsExitingTheme(false);
+    setActiveThemeId(themeId);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('webar_last_entered_from_theme', themeId);
+        localStorage.setItem('webar_active_theme_id', themeId);
+        const url = new URL(window.location.href);
+        url.searchParams.set('theme', themeId);
+        window.history.replaceState({}, '', url.toString());
+      } catch (e) {}
+    }
+  };
+
+  // Handle exiting a theme view (Back button -> returns to main website portal)
+  const handleExitThemeView = () => {
+    setIsExitingTheme(true);
+    setActiveThemeId(null);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('webar_last_entered_from_theme');
+        localStorage.removeItem('webar_active_theme_id');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('theme');
+        url.searchParams.delete('standalone');
+        url.searchParams.delete('preview');
+        window.history.replaceState({}, '', url.pathname);
+      } catch (e) {}
+    }
+  };
+
+  // Sync state with browser forward/back buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const themeFromUrl = urlParams.get('theme');
+        if (themeFromUrl) {
+          setIsExitingTheme(false);
+          setActiveThemeId(themeFromUrl);
+        } else {
+          setIsExitingTheme(true);
+          setActiveThemeId(null);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Listen for back-navigation request to exit admin panel back to client view
+  useEffect(() => {
+    const handleExitAdmin = () => {
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const urlTheme = urlParams?.get('theme');
+      if (urlTheme) {
+        setIsExitingTheme(false);
+        setActiveThemeId(urlTheme);
+      } else {
+        setIsExitingTheme(true);
+        setActiveThemeId(null);
+        if (typeof window !== 'undefined') {
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('theme');
+            window.history.replaceState({}, '', url.toString());
+          } catch (e) {}
+        }
+      }
+
+      setViewMode('client');
+    };
+    window.addEventListener('exit-admin-panel', handleExitAdmin);
+    return () => {
+      window.removeEventListener('exit-admin-panel', handleExitAdmin);
+    };
+  }, []);
+
   // Read URL params for standalone theme view or direct theme rendering
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = urlParams?.get('theme');
   const isStandaloneThemeView = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
-  const effectiveThemeId = urlTheme || ((adminSettings as any)?.activeThemeId || 'velmora-dining');
-  const isCustomThemeActive = Boolean(urlTheme) || isStandaloneThemeView;
+  const effectiveThemeId = activeThemeId || urlTheme || 'velmora-dining';
+  const isCustomThemeActive = !isExitingTheme && (activeThemeId !== null ? Boolean(activeThemeId) : (Boolean(urlTheme) || isStandaloneThemeView));
 
   const selectedThemePreset = useMemo(() => {
     return LUXURY_THEMES.find(t => t.id === effectiveThemeId) || LUXURY_THEMES[0];
@@ -904,14 +1002,14 @@ export default function App() {
         setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: targetPlan }) : {
           restaurantName: "L'Aura WebAR Restaurant",
           brandName: "sahinsh",
-          brandLocation: "PAKISTAN",
+          brandLocation: "",
           subscriptionPlan: targetPlan,
           subscriptionStatus: 'active',
           theme: 'light',
           audioEnabled: true,
           autoAcceptOrders: false,
           securityPinRequired: true,
-          whatsappNumber: '+923000000000',
+          whatsappNumber: '',
           currency: 'USD',
           taxRate: 5,
           customDomain: ''
@@ -2146,9 +2244,11 @@ export default function App() {
                         {adminSettings?.brandName || "sahinsh"}
                       </h1>
                     </div>
-                    <span className="text-[10px] font-bold text-cyan-500 tracking-wider uppercase leading-none mt-1">
-                      {adminSettings?.brandLocation || "PAKISTAN"}
-                    </span>
+                    {adminSettings?.brandLocation && (
+                      <span className="text-[10px] font-bold text-cyan-500 tracking-wider uppercase leading-none mt-1">
+                        {adminSettings.brandLocation}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -2242,11 +2342,13 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                    <span className="text-[9px] font-mono font-bold text-cyan-600 tracking-widest uppercase leading-none mt-1">
-                      {adminSettings?.brandLocation || "PAKISTAN"}
-                    </span>
-                  </div>
+                  {adminSettings?.brandLocation && (
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                      <span className="text-[9px] font-mono font-bold text-cyan-600 tracking-widest uppercase leading-none mt-1">
+                        {adminSettings.brandLocation}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -2588,23 +2690,6 @@ export default function App() {
         {viewMode === 'client' && (
           isCustomThemeActive ? (
             <>
-              {/* Standalone Theme Back to Website Pill Button */}
-              <div className="fixed top-4 left-4 z-[999]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== 'undefined') {
-                      window.location.href = window.location.pathname;
-                    }
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e293b]/95 hover:bg-[#334155] text-white font-bold text-xs shadow-2xl border border-slate-700/60 backdrop-blur-md cursor-pointer transition-all active:scale-95 select-none"
-                  title={lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরুন' : 'Back to Website'}
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
-                </button>
-              </div>
-
               {/* Standalone One-time Welcome/Plan Popup Modal */}
               <AnimatePresence>
                 {showStandalonePlanPopup && (
@@ -2668,6 +2753,7 @@ export default function App() {
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
+                  onBack={handleExitThemeView}
                   settings={adminSettings || {}}
                   lang={lang}
                 />
@@ -2678,8 +2764,10 @@ export default function App() {
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
+                  onBack={handleExitThemeView}
                   settings={adminSettings || {}}
                   lang={lang}
+                  themePresetId={selectedThemePreset?.id}
                 />
               )}
             </>
@@ -2713,6 +2801,8 @@ export default function App() {
                   heroImages={adminSettings?.heroImages}
                   heroSlides={adminSettings?.heroSlides}
                 />
+
+
 
                 <div className="space-y-4">
                   <div id="main-menu-grid" className="scroll-mt-40">
@@ -2859,7 +2949,18 @@ export default function App() {
               <ManagerAuthModal 
                 initialPlan={initialPlan}
                 onLoginSuccess={handleManagerLoginSuccess}
-                onCancel={() => setViewMode('client')}
+                onCancel={() => {
+                  const lastTheme = typeof window !== 'undefined' ? (localStorage.getItem('webar_last_entered_from_theme') || localStorage.getItem('webar_active_theme_id')) : null;
+                  const targetTheme = lastTheme || (adminSettings as any)?.activeThemeId || 'velmora-dining';
+                  if (typeof window !== 'undefined') {
+                    try {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('theme', targetTheme);
+                      window.history.replaceState({}, '', url.toString());
+                    } catch (e) {}
+                  }
+                  setViewMode('client');
+                }}
               />
             ) : (
               <RestaurantAdminPanel
@@ -2902,7 +3003,18 @@ export default function App() {
                 }}
                 orders={orders}
                 onLogout={handleManagerLogout}
-                onExitAdmin={() => setViewMode('client')}
+                onExitAdmin={() => {
+                  const lastTheme = typeof window !== 'undefined' ? (localStorage.getItem('webar_last_entered_from_theme') || localStorage.getItem('webar_active_theme_id')) : null;
+                  const targetTheme = lastTheme || (adminSettings as any)?.activeThemeId || 'velmora-dining';
+                  if (typeof window !== 'undefined') {
+                    try {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('theme', targetTheme);
+                      window.history.replaceState({}, '', url.toString());
+                    } catch (e) {}
+                  }
+                  setViewMode('client');
+                }}
                 onUpdateSettings={handleUpdateAdminSettings}
                 lang={lang}
                 setLang={setLang}
@@ -3325,14 +3437,14 @@ export default function App() {
                   setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: targetPlan }) : {
                     restaurantName: "L'Aura WebAR Restaurant",
                     brandName: "sahinsh",
-                    brandLocation: "PAKISTAN",
+                    brandLocation: "",
                     subscriptionPlan: targetPlan,
                     subscriptionStatus: 'active',
                     theme: 'light',
                     audioEnabled: true,
                     autoAcceptOrders: false,
                     securityPinRequired: true,
-                    whatsappNumber: '+923000000000',
+                    whatsappNumber: '',
                     currency: 'USD',
                     taxRate: 5,
                     customDomain: ''

@@ -569,6 +569,12 @@ export default function ThemeStoreManager({
     const targetPlan: 'basic' | 'pro' | 'elite' = serialNumber <= 10 ? 'basic' : serialNumber <= 25 ? 'pro' : 'elite';
 
     setActiveThemeId(preset.id);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('webar_last_entered_from_theme', preset.id);
+        localStorage.setItem('webar_active_theme_id', preset.id);
+      } catch (e) {}
+    }
     onUpdateSettings({
       ...(settings as any),
       activeThemeId: preset.id,
@@ -719,9 +725,14 @@ export default function ThemeStoreManager({
       return fullTextPool.includes(term);
     });
 
-    const matchesThemeFilter = selectedThemeFilter === 'all' || t.id === selectedThemeFilter;
+    const matchesThemeFilter = rawQuery !== '' ? true : (selectedThemeFilter === 'all' || t.id === selectedThemeFilter);
 
     return matchesSearch && matchesThemeFilter;
+  });
+
+  const sidebarThemes = planFilteredThemes.filter((t) => {
+    if (!searchQuery.trim()) return true;
+    return filteredThemes.some(ft => ft.id === t.id);
   });
 
   return (
@@ -767,7 +778,13 @@ export default function ThemeStoreManager({
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSearchQuery(val);
+                if (val.trim()) {
+                  setSelectedThemeFilter('all');
+                }
+              }}
               placeholder="Search theme #01 - #50..."
               className={`w-full pl-9 pr-4 py-2 rounded-xl text-xs font-semibold outline-none border transition-all ${
                 isDark 
@@ -880,7 +897,7 @@ export default function ThemeStoreManager({
             </div>
 
             <div className="mt-3 space-y-1 text-xs max-h-[720px] overflow-y-auto pr-1">
-              <label
+              <div
                 onClick={() => setSelectedThemeFilter('all')}
                 className={`relative pl-3 pr-2.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
                   selectedThemeFilter === 'all' 
@@ -898,12 +915,6 @@ export default function ThemeStoreManager({
                       : 'bg-blue-600 scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100'
                   }`} 
                 />
-                <input
-                  type="checkbox"
-                  checked={selectedThemeFilter === 'all'}
-                  onChange={() => setSelectedThemeFilter('all')}
-                  className="rounded border-2 border-slate-500 text-blue-600 focus:ring-blue-500 w-4 h-4 shrink-0 cursor-pointer accent-blue-600"
-                />
                 <span className={`flex-1 min-w-0 text-xs font-black truncate ${
                   selectedThemeFilter === 'all' 
                     ? 'text-white' 
@@ -913,16 +924,17 @@ export default function ThemeStoreManager({
                 }`} style={{ color: selectedThemeFilter !== 'all' && !isDark ? '#000000' : undefined }}>
                   All Available ({planFilteredThemes.length} Themes)
                 </span>
-              </label>
+              </div>
 
-              {planFilteredThemes.map((t) => {
+              {sidebarThemes.map((t) => {
                 const isChecked = selectedThemeFilter === t.id;
                 const numStr = `${t.serialNumber}.`;
                 return (
-                  <label
+                  <div
                     key={t.id}
                     onClick={() => setSelectedThemeFilter(t.id)}
-                    title={t.name}
+                    onDoubleClick={() => handleOpenPreviewTheme(t)}
+                    title={`${t.name} — Single-click to select, Double-click to open theme`}
                     className={`relative pl-3 pr-2 py-2 rounded-xl transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
                       isChecked 
                         ? 'bg-blue-600 text-white font-black shadow-md border border-blue-700' 
@@ -938,12 +950,6 @@ export default function ThemeStoreManager({
                           ? 'bg-white scale-y-100 opacity-100 shadow-sm' 
                           : 'bg-blue-600 scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100'
                       }`} 
-                    />
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => setSelectedThemeFilter(t.id)}
-                      className="rounded border-2 border-slate-500 text-blue-600 focus:ring-blue-500 w-4 h-4 shrink-0 cursor-pointer accent-blue-600"
                     />
                     <span className={`text-xs font-mono shrink-0 font-black ${
                       isChecked 
@@ -963,7 +969,7 @@ export default function ThemeStoreManager({
                     }`} style={{ color: !isChecked && !isDark ? '#000000' : undefined }}>
                       {t.name}
                     </span>
-                  </label>
+                  </div>
                 );
               })}
             </div>
@@ -1128,7 +1134,7 @@ export default function ThemeStoreManager({
                         title="Open theme view in new tab"
                       >
                         <Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                        <span>Views (ভিউজ)</span>
+                        <span>Views</span>
                       </button>
 
                       {isSelected ? (
@@ -1175,10 +1181,10 @@ export default function ThemeStoreManager({
                     type="button"
                     onClick={() => handleOpenPreviewTheme(null)}
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e293b] hover:bg-[#334155] text-white font-bold text-xs shadow-md border border-slate-700/60 cursor-pointer transition-all active:scale-95 shrink-0"
-                    title={lang === 'bn' ? 'থিম স্টোরে ফিরে যান' : 'Back to Themes'}
+                    title="Back to Themes"
                   >
                     <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                    <span>Back</span>
                   </button>
 
                   <span className="px-2.5 py-1 rounded-lg bg-orange-500 font-mono font-black text-xs text-white">
@@ -1280,9 +1286,11 @@ export default function ThemeStoreManager({
                           <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight font-display">
                             {previewBrandName || brandName || 'SAHINSH'}
                           </h1>
-                          <p className="text-xs text-slate-500 font-bold tracking-wide">
-                            Pakistan
-                          </p>
+                          {settings?.brandLocation && (
+                            <p className="text-xs text-slate-500 font-bold tracking-wide">
+                              {settings.brandLocation}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -1568,28 +1576,7 @@ export default function ThemeStoreManager({
                   </header>
                   )}
 
-                  {previewTheme.id === 'velmora-dining' || previewTheme.id === 'velmora' ? (
-                    <VelmoraDiningTheme 
-                      brandName={previewBrandName || brandName || 'VELMORA DINING'}
-                      tagline={previewTagline || previewTheme.tagline}
-                      dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
-                      onOrderDish={(dish) => {
-                        setPreviewCartItems(prev => {
-                          const existing = prev.find(i => i.dish.id === dish.id);
-                          if (existing) {
-                            return prev.map(i => i.dish.id === dish.id ? { ...i, count: i.count + 1 } : i);
-                          }
-                          return [...prev, { dish, count: 1 }];
-                        });
-                        setIsPreviewCartOpen(true);
-                      }}
-                      onOpenAdmin={() => {
-                        if (onOpenStudio) onOpenStudio();
-                      }}
-                      settings={settings}
-                      lang={lang}
-                    />
-                  ) : previewTheme.id === 'lunavere' ? (
+                  {previewTheme.id === 'lunavere' ? (
                     <LunavereTheme 
                       brandName={previewBrandName || brandName || 'LUNAVERE'}
                       tagline={previewTagline || previewTheme.tagline}
@@ -1611,9 +1598,31 @@ export default function ThemeStoreManager({
                       lang={lang}
                     />
                   ) : (
-                    <>
+                    <VelmoraDiningTheme 
+                      brandName={previewBrandName || brandName || previewTheme.name}
+                      tagline={previewTagline || previewTheme.tagline}
+                      dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
+                      onOrderDish={(dish) => {
+                        setPreviewCartItems(prev => {
+                          const existing = prev.find(i => i.dish.id === dish.id);
+                          if (existing) {
+                            return prev.map(i => i.dish.id === dish.id ? { ...i, count: i.count + 1 } : i);
+                          }
+                          return [...prev, { dish, count: 1 }];
+                        });
+                        setIsPreviewCartOpen(true);
+                      }}
+                      onOpenAdmin={() => {
+                        if (onOpenStudio) onOpenStudio();
+                      }}
+                      settings={settings}
+                      lang={lang}
+                      themePresetId={previewTheme.id}
+                    />
+                  )}
 
-                  {/* ===================================================================== */}
+                  {false && (
+                    <>
                   {/* 2. DUAL ANIMATED THEME HERO SECTION (Coffee & Gourmet Dual Headers) */}
                   {/* ===================================================================== */}
                   <section 
@@ -2116,7 +2125,7 @@ export default function ThemeStoreManager({
                         </div>
 
                         <p className="text-xs text-slate-400 leading-relaxed">
-                          Restaurant Description Template (English) [Restaurant Name] is a gourmet restaurant located in Pakistan serving signature dishes and fresh home-style taste.
+                          {settings?.aboutUsText || `${brandName || 'Our restaurant'} is a gourmet dining venue serving signature dishes and fresh home-style taste.`}
                         </p>
 
                         <div className="flex items-center gap-2 pt-2">
@@ -2163,29 +2172,39 @@ export default function ThemeStoreManager({
                       </div>
 
                       {/* Column 4: Contact & Location */}
-                      <div className="space-y-3">
-                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                          Contact & Location
-                        </h4>
-                        <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-                          <li className="flex items-center gap-2 text-slate-300">
-                            <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
-                            <span>Pakistan</span>
-                          </li>
-                          <li className="flex items-center gap-2 text-slate-300">
-                            <Phone className="w-4 h-4 text-cyan-400 shrink-0" />
-                            <span>+880 140491041</span>
-                          </li>
-                          <li className="flex items-center gap-2 text-slate-300">
-                            <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                            <span>+880 1603317908</span>
-                          </li>
-                          <li className="flex items-center gap-2 text-slate-300">
-                            <Mail className="w-4 h-4 text-purple-400 shrink-0" />
-                            <span>asrafali.com@gmail.com</span>
-                          </li>
-                        </ul>
-                      </div>
+                      {(settings?.brandLocation || settings?.contactPhone || settings?.contactWhatsapp || settings?.contactEmail) && (
+                        <div className="space-y-3">
+                          <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                            Contact & Location
+                          </h4>
+                          <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
+                            {settings?.brandLocation && (
+                              <li className="flex items-center gap-2 text-slate-300">
+                                <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
+                                <span>{settings.brandLocation}</span>
+                              </li>
+                            )}
+                            {settings?.contactPhone && (
+                              <li className="flex items-center gap-2 text-slate-300">
+                                <Phone className="w-4 h-4 text-cyan-400 shrink-0" />
+                                <span>{settings.contactPhone}</span>
+                              </li>
+                            )}
+                            {settings?.contactWhatsapp && (
+                              <li className="flex items-center gap-2 text-slate-300">
+                                <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                <span>{settings.contactWhatsapp}</span>
+                              </li>
+                            )}
+                            {settings?.contactEmail && (
+                              <li className="flex items-center gap-2 text-slate-300">
+                                <Mail className="w-4 h-4 text-purple-400 shrink-0" />
+                                <span>{settings.contactEmail}</span>
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </footer>
                   </>
@@ -2306,34 +2325,6 @@ export default function ThemeStoreManager({
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* Bottom Fixed Action Footer Bar */}
-              <div className="px-6 py-4 bg-zinc-950 border-t border-zinc-800 flex items-center justify-between gap-4 shrink-0 text-white">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400 font-medium">
-                    Ready to deploy <strong className="text-white">{previewTheme.name}</strong> to live website?
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleOpenPreviewTheme(null)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:bg-zinc-800"
-                  >
-                    Close
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleActivateTheme(previewTheme);
-                      handleOpenPreviewTheme(null);
-                    }}
-                    className="px-6 py-2.5 rounded-xl bg-[#ff5722] hover:bg-[#f4511e] text-white text-xs font-black uppercase tracking-wider shadow-xl active:scale-95 flex items-center gap-2"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>Apply This Theme</span>
-                  </button>
-                </div>
-              </div>
             </motion.div>
           </div>
         )}
