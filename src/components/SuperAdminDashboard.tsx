@@ -18,11 +18,14 @@ import {
   Clock,
   ArrowRight,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Mail,
+  Phone,
+  MapPin
 } from 'lucide-react';
 import { AdminSettings, SuperAdminSettings, SupportRequest, AuditLog } from '../types';
 import { db, auth } from '../lib/firebase';
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, addDoc, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, setDoc, addDoc, limit } from 'firebase/firestore';
 
 interface SuperAdminDashboardProps {
   onLogout: () => void;
@@ -40,6 +43,10 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
     auth: 'online' | 'error';
     arSystem: 'online' | 'maintenance';
   }>({ database: 'online', auth: 'online', arSystem: 'online' });
+
+  const [platformNameInput, setPlatformNameInput] = useState('Avernao WebAR');
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     // Real-time Health Check Simulation (Verifying Firestore Connection)
@@ -102,13 +109,42 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
     // Sync platform stats
     const unsubscribe = onSnapshot(doc(db, "platform", "settings"), (snapshot) => {
       if (snapshot.exists()) {
-        setPlatformSettings(snapshot.data() as SuperAdminSettings);
+        const data = snapshot.data() as SuperAdminSettings;
+        setPlatformSettings(data);
+        if (data.platformName) {
+          setPlatformNameInput(data.platformName);
+        }
+      } else {
+        setPlatformSettings({
+          platformName: 'Avernao WebAR',
+          totalRevenue: 0,
+          totalRestaurants: 0,
+          activeSubscriptions: 0,
+          pendingSupportRequests: 0
+        });
       }
     }, (err) => {
       console.warn("Platform settings sync warning:", err);
     });
     return () => unsubscribe();
   }, []);
+
+  const handleSavePlatformSettings = async () => {
+    setIsSavingSettings(true);
+    try {
+      const docRef = doc(db, "platform", "settings");
+      await setDoc(docRef, {
+        platformName: platformNameInput.trim() || 'Avernao WebAR',
+        updatedAt: Date.now()
+      }, { merge: true });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      console.error("Failed to save platform settings", e);
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
 
   const stats = [
     { 
@@ -180,22 +216,31 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
   };
 
   const filteredRestaurants = restaurants.filter(r => 
-    r.brandName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.id.toLowerCase().includes(searchTerm.toLowerCase())
+    r.brandName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.ownerEmail && r.ownerEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.contactEmail && r.contactEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.contactPhone && r.contactPhone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.brandLocation && r.brandLocation.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full">
-        <div className="p-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-            <ShieldCheck className="w-6 h-6" />
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-30">
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <span className="text-sm font-black tracking-tight text-slate-900 block leading-tight">AVERNAO HQ</span>
+              <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">Master Control</span>
+            </div>
           </div>
-          <span className="text-xl font-black tracking-tighter text-slate-900">MASTER ADMIN</span>
         </div>
 
-        <nav className="flex-grow px-4 space-y-1">
+        <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
           {[
             { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
             { id: 'restaurants', icon: Store, label: 'Restaurants' },
@@ -219,12 +264,23 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 space-y-2">
+          <button 
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.href = '/';
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open Main Website
+          </button>
           <button 
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-500 hover:bg-rose-50 transition-all"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-50 transition-all"
           >
-            <XCircle className="w-5 h-5" />
+            <XCircle className="w-4 h-4" />
             Sign Out
           </button>
         </div>
@@ -404,54 +460,104 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
               <table className="w-full text-left">
                 <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
                   <tr>
-                    <th className="px-8 py-4">Restaurant</th>
-                    <th className="px-8 py-4">Status</th>
-                    <th className="px-8 py-4 text-center">Catalog Size</th>
-                    <th className="px-8 py-4">Plan</th>
-                    <th className="px-8 py-4">Revenue</th>
-                    <th className="px-8 py-4">Actions</th>
+                    <th className="px-6 py-4">Restaurant</th>
+                    <th className="px-6 py-4">Owner & Contact</th>
+                    <th className="px-6 py-4">Location</th>
+                    <th className="px-6 py-4">Plan & Status</th>
+                    <th className="px-6 py-4 text-center">Items</th>
+                    <th className="px-6 py-4">Revenue</th>
+                    <th className="px-6 py-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredRestaurants.map((restaurant) => (
                     <tr key={restaurant.id} className="hover:bg-slate-50/50 transition-all group">
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-black">
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-black shrink-0">
                             {restaurant.brandName.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-bold text-slate-900">{restaurant.brandName}</p>
-                            <p className="text-xs text-slate-500 font-medium">ID: {restaurant.id}</p>
+                            <p className="font-bold text-slate-900 text-sm">{restaurant.brandName}</p>
+                            <p className="text-[11px] text-slate-400 font-mono">ID: {restaurant.id}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6">
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          restaurant.subscriptionStatus === 'active' ? 'bg-emerald-100 text-emerald-600' :
-                          restaurant.subscriptionStatus === 'trial' ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'
-                        }`}>
-                          {restaurant.subscriptionStatus === 'active' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                          {restaurant.subscriptionStatus}
+                      <td className="px-6 py-6">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
+                            <Mail className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                            <span className="truncate max-w-[190px]" title={restaurant.ownerEmail || restaurant.contactEmail || 'No Email'}>
+                              {restaurant.ownerEmail || restaurant.contactEmail || 'Not specified'}
+                            </span>
+                          </div>
+                          {restaurant.contactPhone && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                              <Phone className="w-3 h-3 text-emerald-500 shrink-0" />
+                              <span>{restaurant.contactPhone}</span>
+                            </div>
+                          )}
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs">
-                          <Plus className="w-3 h-3 text-indigo-500" />
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium max-w-[180px]">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span className="truncate" title={restaurant.brandLocation || 'Global / Online'}>
+                            {restaurant.brandLocation || 'Global / Online'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="space-y-1.5">
+                          <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700">
+                            {restaurant.subscriptionPlan || 'basic'}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                              restaurant.subscriptionStatus === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                              restaurant.subscriptionStatus === 'trial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
+                            }`}>
+                              {restaurant.subscriptionStatus === 'active' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
+                              {restaurant.subscriptionStatus || 'trial'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-6 text-center">
+                        <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
                           {restaurant.menuItemCount || 0}
                         </div>
                       </td>
-                      <td className="px-8 py-6">
-                        <p className="text-sm font-bold text-slate-700 capitalize">{restaurant.subscriptionPlan}</p>
-                      </td>
-                      <td className="px-8 py-6">
+                      <td className="px-6 py-6">
                         <p className="text-sm font-bold text-slate-900">
-                          ${restaurant.subscriptionPlan === 'elite' ? '99.00' : restaurant.subscriptionPlan === 'pro' ? '49.00' : '0.00'}
+                          ${restaurant.subscriptionPlan === 'elite' ? '99.00' : restaurant.subscriptionPlan === 'pro' ? '49.00' : '15.00'}
                         </p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Month</p>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">/ Month</p>
                       </td>
-                      <td className="px-8 py-6">
-                        <div className="flex gap-2">
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-1.5">
+                          <button 
+                            onClick={() => {
+                              if (typeof window !== 'undefined') {
+                                window.location.href = `/?restaurantId=${restaurant.id}`;
+                              }
+                            }}
+                            className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                            title="Open Restaurant Customer Menu"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              if (typeof window !== 'undefined') {
+                                window.location.href = `/?r=${restaurant.id}&admin=5321`;
+                              }
+                            }}
+                            className="p-2 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-all"
+                            title="Open Restaurant Manager Console"
+                          >
+                            <Store className="w-4 h-4" />
+                          </button>
                           <button 
                             onClick={() => handleUpdateStatus(restaurant.id, restaurant.subscriptionStatus === 'active' ? 'expired' : 'active', restaurant.brandName)}
                             className={`p-2 rounded-lg transition-all ${restaurant.subscriptionStatus === 'active' ? 'text-rose-500 hover:bg-rose-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
@@ -485,6 +591,195 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
             </div>
           </div>
         )}
+        {/* Subscriptions Tab */}
+        {activeTab === 'subscriptions' && (
+          <div className="space-y-8">
+            {/* Top: 3 Subscription Packages Cards with 1M / 6M / 1Y Discounts */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-xl font-black text-slate-900">Platform Subscription Packages & Discounts</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    Standard pricing tiers configured across Avernao WebAR with 6-Month (17% off) and 1-Year (30% off) billing cycles.
+                  </p>
+                </div>
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-200">
+                  Active in Live Store
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Starter */}
+                <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                      Starter Plan
+                    </span>
+                    <span className="text-xs font-black text-slate-900">$15 / mo</span>
+                  </div>
+                  <h4 className="text-lg font-black text-slate-900">STARTER BASIC</h4>
+                  <div className="p-3 bg-slate-50 rounded-xl space-y-1.5 text-xs">
+                    <div className="flex justify-between text-slate-600">
+                      <span>1 Month:</span>
+                      <strong className="text-slate-900">$15/mo ($15 total)</strong>
+                    </div>
+                    <div className="flex justify-between text-indigo-600">
+                      <span>6 Months (-17%):</span>
+                      <strong>$13/mo ($78 total)</strong>
+                    </div>
+                    <div className="flex justify-between text-emerald-600">
+                      <span>1 Year (-30%):</span>
+                      <strong>$11/mo ($132 total)</strong>
+                    </div>
+                  </div>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <li>✓ 10 Premium Themes Included</li>
+                    <li>✓ 100+ Menu Card Studio Templates</li>
+                    <li>✓ 7-Day Order History</li>
+                  </ul>
+                </div>
+
+                {/* Professional */}
+                <div className="bg-white rounded-[2rem] p-6 border-2 border-orange-400 shadow-md space-y-4 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black px-3 py-0.5 uppercase tracking-widest rounded-bl-xl">
+                    Most Popular
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                      Professional
+                    </span>
+                    <span className="text-xs font-black text-slate-900">$49 / mo</span>
+                  </div>
+                  <h4 className="text-lg font-black text-slate-900">PROFESSIONAL PRO</h4>
+                  <div className="p-3 bg-slate-50 rounded-xl space-y-1.5 text-xs">
+                    <div className="flex justify-between text-slate-600">
+                      <span>1 Month:</span>
+                      <strong className="text-slate-900">$49/mo ($49 total)</strong>
+                    </div>
+                    <div className="flex justify-between text-indigo-600">
+                      <span>6 Months (-16%):</span>
+                      <strong>$41/mo ($246 total)</strong>
+                    </div>
+                    <div className="flex justify-between text-emerald-600">
+                      <span>1 Year (-26%):</span>
+                      <strong>$36/mo ($432 total)</strong>
+                    </div>
+                  </div>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <li>✓ 25 Premium Themes Included</li>
+                    <li>✓ 500+ Menu Card Studio Templates</li>
+                    <li>✓ Custom Domains & QR Analytics</li>
+                  </ul>
+                </div>
+
+                {/* Elite */}
+                <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-[2rem] p-6 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 bg-amber-400/20 text-amber-300 rounded-xl text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
+                      Enterprise VIP 👑
+                    </span>
+                    <span className="text-xs font-black text-amber-300">$99 / mo</span>
+                  </div>
+                  <h4 className="text-lg font-black text-white">ELITE LUXURY VIP</h4>
+                  <div className="p-3 bg-white/10 rounded-xl space-y-1.5 text-xs">
+                    <div className="flex justify-between text-slate-300">
+                      <span>1 Month:</span>
+                      <strong className="text-white">$99/mo ($99 total)</strong>
+                    </div>
+                    <div className="flex justify-between text-amber-300">
+                      <span>6 Months (-17%):</span>
+                      <strong>$82/mo ($492 total)</strong>
+                    </div>
+                    <div className="flex justify-between text-emerald-400">
+                      <span>1 Year (-30%):</span>
+                      <strong>$69/mo ($828 total)</strong>
+                    </div>
+                  </div>
+                  <ul className="text-xs text-slate-300 space-y-1.5 pt-2 border-t border-white/10">
+                    <li>✓ 50+ All Luxury Themes</li>
+                    <li>✓ 1000+ Unlimited Studio Designs</li>
+                    <li>✓ 24/7 Dedicated Concierge</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom: Active Subscriptions Registry */}
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+              <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-black text-slate-900">Active Tenant Subscriptions & Cycles</h3>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                    Live database view of all subscriber accounts
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-black">
+                    {restaurants.length} Total Subscribed
+                  </span>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                    <tr>
+                      <th className="px-6 py-4">Restaurant</th>
+                      <th className="px-6 py-4">Owner Email</th>
+                      <th className="px-6 py-4">Current Plan</th>
+                      <th className="px-6 py-4">Billing Status</th>
+                      <th className="px-6 py-4">MRR / Revenue</th>
+                      <th className="px-6 py-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {restaurants.map((res) => (
+                      <tr key={res.id} className="hover:bg-slate-50/50 transition-all">
+                        <td className="px-6 py-5">
+                          <p className="font-bold text-slate-900 text-sm">{res.brandName}</p>
+                          <p className="text-[11px] text-slate-400">{res.id}</p>
+                        </td>
+                        <td className="px-6 py-5 text-xs text-slate-600 font-medium">
+                          {res.ownerEmail || res.contactEmail || 'Unassigned'}
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
+                            res.subscriptionPlan === 'elite' ? 'bg-amber-100 text-amber-800' :
+                            res.subscriptionPlan === 'pro' ? 'bg-orange-100 text-orange-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {res.subscriptionPlan || 'basic'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            res.subscriptionStatus === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                            res.subscriptionStatus === 'trial' ? 'bg-amber-100 text-amber-700' :
+                            'bg-rose-100 text-rose-700'
+                          }`}>
+                            {res.subscriptionStatus || 'trial'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5 font-black text-slate-900 text-sm">
+                          ${res.subscriptionPlan === 'elite' ? '99.00' : res.subscriptionPlan === 'pro' ? '49.00' : '15.00'}
+                          <span className="text-[10px] text-slate-400 font-normal"> / mo</span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <button
+                            onClick={() => handleUpdateStatus(res.id, res.subscriptionStatus === 'active' ? 'expired' : 'active', res.brandName)}
+                            className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold hover:bg-slate-50 text-slate-700 cursor-pointer"
+                          >
+                            {res.subscriptionStatus === 'active' ? 'Set Expired' : 'Activate Plan'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Support Tab */}
         {activeTab === 'support' && (
           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-8">
@@ -567,8 +862,10 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Name</label>
                   <input 
                     type="text" 
-                    value={platformSettings?.platformName || 'L\'Aura WebAR'}
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-slate-900"
+                    value={platformNameInput}
+                    onChange={(e) => setPlatformNameInput(e.target.value)}
+                    placeholder="e.g. Avernao WebAR"
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
                   />
                 </div>
                 <div className="space-y-2">
@@ -576,7 +873,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
                   <input 
                     type="text" 
                     disabled
-                    value="v2.4.0-premium"
+                    value="v2.5.0-Avernao"
                     className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-slate-400 cursor-not-allowed"
                   />
                 </div>
@@ -601,10 +898,19 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100">
-                <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95">
-                  Save Global Settings
+              <div className="pt-4 border-t border-slate-100 flex items-center gap-4">
+                <button 
+                  onClick={handleSavePlatformSettings}
+                  disabled={isSavingSettings}
+                  className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isSavingSettings ? 'Saving...' : 'Save Global Settings'}
                 </button>
+                {saveSuccess && (
+                  <span className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" /> Platform name updated successfully!
+                  </span>
+                )}
               </div>
             </div>
           </div>

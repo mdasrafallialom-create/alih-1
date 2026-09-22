@@ -20,10 +20,14 @@ import {
   Phone,
   Mail,
   MapPin,
-  MessageCircle
+  MessageCircle,
+  Eye,
+  Percent,
+  Layers
 } from 'lucide-react';
-import { PricingPlan, SubscriptionPlan } from '../types';
+import { PricingPlan, SubscriptionPlan, BillingCycle } from '../types';
 import PaymentModal from './PaymentModal';
+import PlanDetailModal from './PlanDetailModal';
 
 interface AboutAndPricingProps {
   onPlanSelected?: (plan: SubscriptionPlan) => void;
@@ -88,6 +92,9 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
   themePalette
 }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<PricingPlan | null>(null);
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedPlanForDetail, setSelectedPlanForDetail] = useState<SubscriptionPlan>('pro');
 
   const t = (en: string, bn: string, ar: string) => {
     if (lang === 'ar') return ar;
@@ -435,18 +442,23 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
           </motion.div>
         </div>
 
-        {/* Pricing Section: Only displayed when hidePricing is false and no specific plan has been selected */}
-        {!hidePricing && !isPlanExplicitlySelected && (
+        {/* Pricing Section: Always displayed on the landing page when hidePricing is false */}
+        {!hidePricing && (
           <div>
-            <div className="text-center mb-16 relative">
-              <h2 className="text-4xl font-display font-black mb-4 text-slate-900">
-                {lang === 'bn' ? 'সাবস্ক্রিপশন প্ল্যানসমূহ' : 'Subscription Plans'}
+            <div className="text-center mb-10 relative">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-wider mb-4 border border-indigo-100">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Flexible Subscriptions & Instant Activation</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black mb-4 text-slate-900">
+                Choose Your Growth Plan
               </h2>
-              <p className="text-slate-500 font-medium">
-                {lang === 'bn' ? 'আপনার রেস্টুরেন্ট ব্যবসার জন্য উপযুক্ত প্ল্যানটি বেছে নিন।' : 'Choose the perfect plan for your business needs.'}
+              <p className="text-slate-500 font-medium max-w-2xl mx-auto text-sm sm:text-base">
+                Select from our transparent tiers tailored for your culinary brand with 1-Month, 6-Month, and 1-Year savings inside.
               </p>
             </div>
 
+            {/* 3 Pricing Cards */}
             <div className="grid gap-8 items-stretch grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto">
               {displayedPlans.map((plan) => {
                 const isCurrentActive = (currentPlan || 'basic') === plan.id;
@@ -458,9 +470,13 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
                   <motion.div 
                     key={plan.id}
                     whileHover={{ y: -8 }}
-                    className={`relative p-8 sm:p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-300 bg-white text-slate-900 border ${
+                    onClick={() => {
+                      setSelectedPlanForDetail(plan.id as SubscriptionPlan);
+                      setDetailModalOpen(true);
+                    }}
+                    className={`relative p-8 sm:p-10 rounded-[2.5rem] flex flex-col justify-between h-full transition-all duration-300 bg-white text-slate-900 border cursor-pointer hover:border-indigo-400 hover:shadow-2xl ${
                       isCurrentActive ? 'border-emerald-500 shadow-emerald-500/10' : 'border-slate-200/80'
-                    } shadow-xl`}
+                    } shadow-xl group`}
                   >
                     {/* Current Active Plan Badge */}
                     {isCurrentActive && (
@@ -479,7 +495,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
 
                     {/* Top Section: Icon, Name, Description */}
                     <div>
-                      <div className="mb-6">
+                      <div className="flex items-center justify-between mb-6">
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                           isStarter ? 'bg-blue-50 text-blue-600' :
                           isPro ? 'bg-blue-50 text-blue-600' :
@@ -489,9 +505,14 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
                           {isPro && <Star className="w-6 h-6 text-blue-600" />}
                           {isElite && <Crown className="w-6 h-6 text-amber-500" />}
                         </div>
+
+                        {/* View Details Hint */}
+                        <span className="text-[11px] font-bold text-indigo-600 group-hover:underline flex items-center gap-1">
+                          View Full Plan &rarr;
+                        </span>
                       </div>
 
-                      <h3 className="text-2xl sm:text-3xl font-display font-black mb-3 uppercase tracking-tight text-slate-900">
+                      <h3 className="text-2xl sm:text-3xl font-display font-black mb-3 uppercase tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
                         {plan.name}
                       </h3>
 
@@ -500,13 +521,20 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
                       </p>
 
                       {/* Price Block */}
-                      <div className="flex items-baseline gap-1.5 mb-8">
-                        <span className="text-5xl font-display font-black text-slate-900">
-                          ${plan.price}
-                        </span>
-                        <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                          / {plan.period}
-                        </span>
+                      <div className="mb-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl sm:text-5xl font-display font-black text-slate-900">
+                            ${plan.price}
+                          </span>
+                          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                            / Month
+                          </span>
+                        </div>
+
+                        <div className="text-xs font-bold text-slate-500 mt-2 flex items-center justify-between">
+                          <span>Starting from ${plan.price}/mo</span>
+                          <span className="text-emerald-600 font-black">Up to 30% Off Terms</span>
+                        </div>
                       </div>
 
                       {/* Features List */}
@@ -523,77 +551,38 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
                     </div>
 
                     {/* Bottom Action Section */}
-                    <div className="mt-auto pt-2">
-                      {isStarter ? (
-                        <div className="space-y-2">
-                          <a
-                            href={getPlanUrl(plan.id)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => {
-                              if (onPlanSelected) onPlanSelected(plan.id as SubscriptionPlan);
-                            }}
-                            className="w-full py-4 px-5 rounded-2xl bg-[#1a56db] hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all select-none"
-                          >
-                            <span>{lang === 'bn' ? 'নতুন ট্যাবে খুলুন ($১৫/মাস)' : 'OPEN IN NEW TAB ($15/MO)'}</span>
-                            <ExternalLink className="w-4 h-4 ml-0.5" />
-                          </a>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedPlanForPayment(plan)}
-                            className="w-full flex items-center justify-center gap-1.5 py-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] uppercase tracking-widest cursor-pointer transition-colors"
-                          >
-                            <CreditCard className="w-3.5 h-3.5" />
-                            <span>SUBSCRIBE DIRECT</span>
-                          </button>
-                        </div>
-                      ) : isPro ? (
-                        <div className="space-y-2">
-                          <a
-                            href={getPlanUrl(plan.id)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => {
-                              if (onPlanSelected) onPlanSelected(plan.id as SubscriptionPlan);
-                            }}
-                            className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs uppercase tracking-wider shadow-xl shadow-orange-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all select-none"
-                          >
-                            <span>{lang === 'bn' ? 'নতুন ট্যাবে খুলুন ($৪৯/মাস)' : 'OPEN IN NEW TAB ($49/MO)'}</span>
-                            <ExternalLink className="w-4 h-4 ml-0.5" />
-                          </a>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedPlanForPayment(plan)}
-                            className="w-full flex items-center justify-center gap-1.5 py-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] uppercase tracking-widest cursor-pointer transition-colors"
-                          >
-                            <CreditCard className="w-3.5 h-3.5" />
-                            <span>SUBSCRIBE DIRECT</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <a
-                            href={getPlanUrl(plan.id)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => {
-                              if (onPlanSelected) onPlanSelected(plan.id as SubscriptionPlan);
-                            }}
-                            className="w-full py-4 px-5 rounded-2xl bg-[#0c192c] hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all select-none"
-                          >
-                            <span>{lang === 'bn' ? 'নতুন ট্যাবে খুলুন ($৯৯/মাস)' : 'OPEN IN NEW TAB ($99/MO)'}</span>
-                            <ExternalLink className="w-4 h-4 ml-0.5" />
-                          </a>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedPlanForPayment(plan)}
-                            className="w-full flex items-center justify-center gap-1.5 py-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] uppercase tracking-widest cursor-pointer transition-colors"
-                          >
-                            <CreditCard className="w-3.5 h-3.5" />
-                            <span>SUBSCRIBE DIRECT</span>
-                          </button>
-                        </div>
-                      )}
+                    <div className="mt-auto pt-2 space-y-2.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPlanForDetail(plan.id as SubscriptionPlan);
+                          setDetailModalOpen(true);
+                        }}
+                        className={`w-full py-4 px-5 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all select-none ${
+                          isStarter ? 'bg-[#1a56db] hover:bg-blue-700 text-white shadow-blue-500/20' :
+                          isPro ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-orange-500/25' :
+                          'bg-[#0c192c] hover:bg-slate-800 text-white shadow-slate-900/20'
+                        }`}
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>EXPLORE PLAN & PRICING</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const directPricing: PricingPlan = {
+                            ...plan,
+                            price: plan.price,
+                            period: 'MONTH'
+                          };
+                          setSelectedPlanForPayment(directPricing);
+                        }}
+                        className="w-full flex items-center justify-center gap-1.5 py-1 text-slate-400 hover:text-slate-700 font-bold text-[10px] uppercase tracking-widest cursor-pointer transition-colors"
+                      >
+                        <CreditCard className="w-3.5 h-3.5" />
+                        <span>DIRECT CHECKOUT (${plan.price})</span>
+                      </button>
                     </div>
                   </motion.div>
                 );
@@ -602,6 +591,27 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
           </div>
         )}
       </div>
+
+      {/* Plan Detail & 3-Plan Comparison Popup Modal */}
+      {detailModalOpen && (
+        <PlanDetailModal
+          isOpen={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          initialPlanId={selectedPlanForDetail}
+          initialBillingCycle={billingCycle}
+          lang={lang}
+          isDark={isDark}
+          onSelectPlan={(planId, cycle) => {
+            if (onPlanSelected) onPlanSelected(planId);
+            setBillingCycle(cycle);
+            setDetailModalOpen(false);
+          }}
+          onOpenPayment={(planObj, cycle) => {
+            setDetailModalOpen(false);
+            setSelectedPlanForPayment(planObj);
+          }}
+        />
+      )}
 
       {selectedPlanForPayment && (
         <PaymentModal

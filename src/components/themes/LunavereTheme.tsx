@@ -210,22 +210,35 @@ export default function LunavereTheme({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-between gap-3">
           {/* Brand Logo & Name */}
-          <a href="#hero" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#C9A86A]/60 flex items-center justify-center text-[#96722d] shadow-sm group-hover:border-[#96722d] transition-colors shrink-0">
-              <Moon className="w-5 h-5 text-[#96722d]" />
-            </div>
-            <div>
-              <span 
-                className="text-lg sm:text-2xl font-normal tracking-wider text-[#171522] group-hover:text-[#96722d] transition-colors block leading-tight"
-                style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 hover:bg-white border border-[#C9A86A]/40 text-[#171522] text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer mr-1"
+                title={lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরে যান' : 'Back to Main Portal'}
               >
-                {brandName || 'LUNAVERE'}
-              </span>
-              <span className="text-[9px] font-mono tracking-[0.25em] text-[#96722d] uppercase block font-bold">
-                {tagline || 'Parisian Starlight Cafe'}
-              </span>
-            </div>
-          </a>
+                <ArrowLeft className="w-3.5 h-3.5 text-[#96722d]" />
+                <span className="hidden sm:inline">{lang === 'bn' ? 'হোম পেজ' : 'Home'}</span>
+              </button>
+            )}
+            <a href="#hero" className="flex items-center gap-3 group">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#C9A86A]/60 flex items-center justify-center text-[#96722d] shadow-sm group-hover:border-[#96722d] transition-colors shrink-0">
+                <Moon className="w-5 h-5 text-[#96722d]" />
+              </div>
+              <div>
+                <span 
+                  className="text-lg sm:text-2xl font-normal tracking-wider text-[#171522] group-hover:text-[#96722d] transition-colors block leading-tight"
+                  style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
+                >
+                  {brandName || 'LUNAVERE'}
+                </span>
+                <span className="text-[9px] font-mono tracking-[0.25em] text-[#96722d] uppercase block font-bold">
+                  {tagline || 'Parisian Starlight Cafe'}
+                </span>
+              </div>
+            </a>
+          </div>
 
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold tracking-widest uppercase text-[#171522]/80">
@@ -284,6 +297,15 @@ export default function LunavereTheme({
 
           {/* Mobile Menu Hamburger */}
           <div className="flex lg:hidden items-center gap-2">
+            {onBack && (
+              <button 
+                onClick={onBack}
+                className="p-1.5 rounded-full bg-white/80 border border-[#C9A86A]/40 text-[#171522] flex items-center justify-center cursor-pointer shadow-sm active:scale-90"
+                title={lang === 'bn' ? 'হোম পেজ' : 'Home'}
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-[#96722d]" />
+              </button>
+            )}
             <button 
               onClick={() => setReservationModalOpen(true)}
               className="px-3 py-1.5 rounded-full bg-[#171522] text-white text-[10px] font-black uppercase tracking-wider cursor-pointer shadow-sm"
@@ -309,6 +331,18 @@ export default function LunavereTheme({
               className="lg:hidden bg-[#F4E7D3] border-b border-[#C9A86A]/30 px-6 py-5 space-y-4 shadow-xl text-[#171522]"
             >
               <div className="flex flex-col space-y-3 text-sm font-semibold tracking-wider">
+                {onBack && (
+                  <button 
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onBack();
+                    }} 
+                    className="text-left text-[#96722d] font-bold flex items-center gap-2 pb-2 border-b border-[#C9A86A]/20"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-[#96722d]" />
+                    <span>{lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরে যান' : 'Back to Main Portal'}</span>
+                  </button>
+                )}
                 <button onClick={() => scrollToSection('menu')} className="text-left text-[#171522] hover:text-[#96722d]">
                   Menu
                 </button>

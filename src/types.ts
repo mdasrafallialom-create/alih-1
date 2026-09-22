@@ -1,13 +1,19 @@
 export type SubscriptionPlan = 'basic' | 'pro' | 'elite';
+export type BillingCycle = 'monthly' | 'biannual' | 'annual';
 
 export interface PricingPlan {
   id: SubscriptionPlan;
   name: string;
   price: number;
+  monthlyPrice?: number;
+  biannualPrice?: number;
+  annualPrice?: number;
   period: string;
   color: string;
   description: string;
   features: string[];
+  themeCount?: number;
+  menuTemplatesCount?: number;
   isPopular?: boolean;
 }
 

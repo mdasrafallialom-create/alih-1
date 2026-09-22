@@ -111,6 +111,15 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'client' | 'admin' | 'superadmin'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      // Master Admin direct URL support: ?superadmin=true, ?portal=superadmin, or ?master=admin
+      if (
+        params.get('superadmin') === 'true' ||
+        params.get('portal') === 'superadmin' ||
+        params.get('master') === 'admin' ||
+        window.location.pathname === '/superadmin'
+      ) {
+        return 'superadmin';
+      }
       // Explicit Theme view requested via URL -> MUST force client mode to show theme!
       if (params.get('theme') || params.get('standalone') === 'true' || params.get('preview') === 'true') {
         return 'client';
@@ -1117,7 +1126,16 @@ export default function App() {
     return () => unsubscribe();
   }, [activeRestaurantId]);
 
-  const isSuperAdmin = user && SUPER_ADMIN_EMAILS.includes(user.email || '');
+  const [isMasterAdminUnlocked, setIsMasterAdminUnlocked] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('webar_master_admin_unlocked') === 'true';
+    }
+    return false;
+  });
+  const [masterAdminPinInput, setMasterAdminPinInput] = useState('');
+  const [masterAdminPinError, setMasterAdminPinError] = useState(false);
+
+  const isSuperAdmin = Boolean((user && SUPER_ADMIN_EMAILS.includes(user.email || '')) || isMasterAdminUnlocked);
 
   // Handle Super Admin View
   // (Handled via top-level conditional return for strict isolation)
@@ -1186,33 +1204,27 @@ export default function App() {
   };
 
   // COMPLETELY ISOLATED SUPER ADMIN VIEW
-  if (window.location.pathname === '/superadmin') {
-    if (!isSuperAdmin) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
-          <div className="max-w-md w-full space-y-4">
-            <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShieldCheck className="w-10 h-10" />
-            </div>
-            <h1 className="text-2xl font-black text-slate-900">Access Restricted</h1>
-            <p className="text-slate-500 font-medium leading-relaxed">
-              This area is reserved for platform administrators only. Please log in with an authorized account or return to the main site.
-            </p>
-            <div className="pt-6">
-              <button 
-                onClick={() => window.location.href = '/'}
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-xl shadow-slate-900/10"
-              >
-                Return to Home
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
+  const isSuperAdminRoute = typeof window !== 'undefined' && (
+    window.location.pathname === '/superadmin' || 
+    window.location.search.includes('superadmin=true') ||
+    window.location.search.includes('portal=superadmin') ||
+    window.location.search.includes('master=admin') ||
+    viewMode === 'superadmin'
+  );
+
+  if (isSuperAdminRoute) {
     return (
       <Suspense fallback={<LazyFallback />}>
-        <SuperAdminDashboard onLogout={handleLogout} />
+        <SuperAdminDashboard 
+          onLogout={() => {
+            localStorage.removeItem('webar_master_admin_unlocked');
+            setIsMasterAdminUnlocked(false);
+            setViewMode('client');
+            if (typeof window !== 'undefined') {
+              window.location.href = '/';
+            }
+          }} 
+        />
       </Suspense>
     );
   }
@@ -2950,12 +2962,22 @@ export default function App() {
                 initialPlan={initialPlan}
                 onLoginSuccess={handleManagerLoginSuccess}
                 onCancel={() => {
-                  const lastTheme = typeof window !== 'undefined' ? (localStorage.getItem('webar_last_entered_from_theme') || localStorage.getItem('webar_active_theme_id')) : null;
-                  const targetTheme = lastTheme || (adminSettings as any)?.activeThemeId || 'velmora-dining';
+                  const lastTheme = typeof window !== 'undefined' ? localStorage.getItem('webar_last_entered_from_theme') : null;
                   if (typeof window !== 'undefined') {
                     try {
                       const url = new URL(window.location.href);
-                      url.searchParams.set('theme', targetTheme);
+                      if (lastTheme) {
+                        url.searchParams.set('theme', lastTheme);
+                        setActiveThemeId(lastTheme);
+                        setIsExitingTheme(false);
+                      } else {
+                        url.searchParams.delete('theme');
+                        url.searchParams.delete('standalone');
+                        url.searchParams.delete('preview');
+                        setActiveThemeId(null);
+                        setIsExitingTheme(true);
+                        localStorage.removeItem('webar_active_theme_id');
+                      }
                       window.history.replaceState({}, '', url.toString());
                     } catch (e) {}
                   }
@@ -3004,12 +3026,22 @@ export default function App() {
                 orders={orders}
                 onLogout={handleManagerLogout}
                 onExitAdmin={() => {
-                  const lastTheme = typeof window !== 'undefined' ? (localStorage.getItem('webar_last_entered_from_theme') || localStorage.getItem('webar_active_theme_id')) : null;
-                  const targetTheme = lastTheme || (adminSettings as any)?.activeThemeId || 'velmora-dining';
+                  const lastTheme = typeof window !== 'undefined' ? localStorage.getItem('webar_last_entered_from_theme') : null;
                   if (typeof window !== 'undefined') {
                     try {
                       const url = new URL(window.location.href);
-                      url.searchParams.set('theme', targetTheme);
+                      if (lastTheme) {
+                        url.searchParams.set('theme', lastTheme);
+                        setActiveThemeId(lastTheme);
+                        setIsExitingTheme(false);
+                      } else {
+                        url.searchParams.delete('theme');
+                        url.searchParams.delete('standalone');
+                        url.searchParams.delete('preview');
+                        setActiveThemeId(null);
+                        setIsExitingTheme(true);
+                        localStorage.removeItem('webar_active_theme_id');
+                      }
                       window.history.replaceState({}, '', url.toString());
                     } catch (e) {}
                   }

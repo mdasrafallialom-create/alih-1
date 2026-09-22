@@ -209,8 +209,30 @@ export default function ThemeStoreManager({
 }: ThemeStoreManagerProps) {
   const isDark = theme === 'dark';
   
-  const currentThemeId = (settings as any).activeThemeId || 'velmora-dining';
-  const [activeThemeId, setActiveThemeId] = useState<string>(currentThemeId);
+  const currentThemeId = (settings as any).activeThemeId || 'aurelisse';
+  const [activeThemeId, setActiveThemeId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const savedActive = localStorage.getItem('webar_active_theme_id');
+      if (savedActive) return savedActive;
+    }
+    return currentThemeId;
+  });
+  const [usedThemeIds, setUsedThemeIds] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('webar_used_theme_ids');
+        const parsed: string[] = saved ? JSON.parse(saved) : [];
+        const initialActive = localStorage.getItem('webar_active_theme_id') || currentThemeId;
+        if (initialActive && !parsed.includes(initialActive)) {
+          parsed.push(initialActive);
+        }
+        return parsed;
+      } catch {
+        return [currentThemeId];
+      }
+    }
+    return [currentThemeId];
+  });
   const [previewTheme, setPreviewTheme] = useState<ThemePreset | null>(null);
   const [selectedPlanModalTheme, setSelectedPlanModalTheme] = useState<ThemePreset | null>(null);
   const [previewDeviceView, setPreviewDeviceView] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -227,8 +249,11 @@ export default function ThemeStoreManager({
     return [];
   });
 
-  const handleToggleLike = (themeId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleToggleLike = (themeId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     setLikedThemeIds((prev) => {
       const isLiked = prev.includes(themeId);
       const updated = isLiked ? prev.filter((id) => id !== themeId) : [...prev, themeId];
@@ -263,8 +288,18 @@ export default function ThemeStoreManager({
   ];
 
   const COFFEE_THEME_IDS = [
-    'lumivelle', 'amberelle', 'maison-virelle', 'garnivelle', 'lunavere',
-    'couravelle', 'polivara', 'degustara', 'figavelle', 'ivoria-dining'
+    'velmora-dining',
+    'lunavere',
+    'opalune',
+    'couravelle',
+    'elvaris-atelier',
+    'silvarenne',
+    'zafrelle',
+    'marovelle',
+    'degustara',
+    'figavelle',
+    'lumivelle',
+    'amberelle'
   ];
 
   // Real user added dishes state (seeded with gourmet collection by default)
@@ -569,6 +604,15 @@ export default function ThemeStoreManager({
     const targetPlan: 'basic' | 'pro' | 'elite' = serialNumber <= 10 ? 'basic' : serialNumber <= 25 ? 'pro' : 'elite';
 
     setActiveThemeId(preset.id);
+    setUsedThemeIds((prev) => {
+      const updated = prev.includes(preset.id) ? prev : [...prev, preset.id];
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('webar_used_theme_ids', JSON.stringify(updated));
+        } catch (e) {}
+      }
+      return updated;
+    });
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('webar_last_entered_from_theme', preset.id);
@@ -628,8 +672,13 @@ export default function ThemeStoreManager({
     const serialNumber = idx + 1;
     const shapeLabel = VISUAL_SHAPES[(idx % (VISUAL_SHAPES.length - 1)) + 1];
     const isLiked = likedThemeIds.includes(t.id);
-    const baseLikes = 0;
-    const likesCount = baseLikes + (isLiked ? 1 : 0);
+    const baseLikes = 0; // All theme likes start at 0
+    const likesCount = isLiked ? 1 : 0;
+    // All themes are "NEW" by default. 
+    // When a theme is used/activated, its "NEW" tag automatically disappears.
+    // Viewing/previewing does NOT remove the "NEW" tag. Only applying/activating removes it.
+    const isUsed = activeThemeId === t.id || usedThemeIds.includes(t.id);
+    const isNew = !isUsed;
     const mockImages = PREVIEW_FOOD_IMAGES[idx % PREVIEW_FOOD_IMAGES.length];
     
     // Assign strict plan tier based on requested limits:
@@ -646,6 +695,7 @@ export default function ThemeStoreManager({
       shapeLabel,
       isLiked,
       likesCount,
+      isNew,
       mockImages,
       planPrice,
       planLabel
@@ -880,31 +930,29 @@ export default function ThemeStoreManager({
       {/* Main Layout: Left Sidebar Filters + Right Grid */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         
-        {/* Left Sidebar Filters (50 Luxury Themes List) */}
-        <div className={`w-full sm:w-72 lg:w-80 shrink-0 rounded-2xl border p-4 space-y-4 transition-all ${
-          isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-white border-slate-200 text-slate-900 shadow-sm'
-        }`}>
+        {/* Left Sidebar Filters (50 Luxury Themes List) - Seamless background with individual item boxes */}
+        <div className="w-full sm:w-72 lg:w-80 shrink-0 space-y-3 transition-all bg-transparent border-0 shadow-none">
           {/* 50 Luxury Themes Section */}
           <div>
-            <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white pb-2.5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white pb-2.5 border-b border-slate-300 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 <span className="font-extrabold text-slate-900 dark:text-white">Theme Selection List</span>
               </div>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-bold">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-extrabold">
                 {planFilteredThemes.length}
               </span>
             </div>
 
-            <div className="mt-3 space-y-1 text-xs max-h-[720px] overflow-y-auto pr-1">
+            <div className="mt-3 space-y-0.5 text-xs max-h-[720px] overflow-y-auto pr-1">
               <div
                 onClick={() => setSelectedThemeFilter('all')}
-                className={`relative pl-3 pr-2.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
+                className={`relative pl-3 pr-2.5 py-2 rounded-lg transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
                   selectedThemeFilter === 'all' 
-                    ? 'bg-blue-600 text-white font-black shadow-md border border-blue-700' 
+                    ? 'bg-blue-600 text-white font-black shadow-sm' 
                     : isDark
-                      ? 'bg-slate-800/80 text-white font-black hover:bg-slate-700/80 hover:translate-x-1 border border-slate-700/50'
-                      : 'bg-slate-100/90 text-slate-950 font-black hover:bg-slate-200/90 hover:translate-x-1 border border-slate-200/80'
+                      ? 'bg-transparent text-slate-300 font-bold hover:text-white hover:translate-x-1.5'
+                      : 'bg-transparent text-slate-800 font-bold hover:text-blue-600 hover:translate-x-1.5'
                 }`}
               >
                 {/* Left Active/Hover Animated Indicator Line */}
@@ -916,12 +964,8 @@ export default function ThemeStoreManager({
                   }`} 
                 />
                 <span className={`flex-1 min-w-0 text-xs font-black truncate ${
-                  selectedThemeFilter === 'all' 
-                    ? 'text-white' 
-                    : isDark 
-                      ? 'text-white' 
-                      : 'text-slate-950'
-                }`} style={{ color: selectedThemeFilter !== 'all' && !isDark ? '#000000' : undefined }}>
+                  selectedThemeFilter === 'all' ? 'text-white' : isDark ? 'text-white' : 'text-slate-900'
+                }`}>
                   All Available ({planFilteredThemes.length} Themes)
                 </span>
               </div>
@@ -935,12 +979,12 @@ export default function ThemeStoreManager({
                     onClick={() => setSelectedThemeFilter(t.id)}
                     onDoubleClick={() => handleOpenPreviewTheme(t)}
                     title={`${t.name} — Single-click to select, Double-click to open theme`}
-                    className={`relative pl-3 pr-2 py-2 rounded-xl transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
+                    className={`relative pl-3 pr-2 py-2 rounded-lg transition-all duration-200 flex items-center gap-2.5 cursor-pointer select-none group ${
                       isChecked 
-                        ? 'bg-blue-600 text-white font-black shadow-md border border-blue-700' 
+                        ? 'bg-blue-600 text-white font-black shadow-sm' 
                         : isDark
-                          ? 'bg-slate-800/80 text-white font-black hover:bg-slate-700/80 hover:translate-x-1 border border-slate-700/50'
-                          : 'bg-slate-100/90 text-slate-950 font-black hover:bg-slate-200/90 hover:translate-x-1 border border-slate-200/80'
+                          ? 'bg-transparent text-slate-300 font-bold hover:text-white hover:translate-x-1.5'
+                          : 'bg-transparent text-slate-800 font-bold hover:text-blue-600 hover:translate-x-1.5'
                     }`}
                   >
                     {/* Left Active/Hover Animated Indicator Line */}
@@ -951,22 +995,22 @@ export default function ThemeStoreManager({
                           : 'bg-blue-600 scale-y-0 opacity-0 group-hover:scale-y-100 group-hover:opacity-100'
                       }`} 
                     />
-                    <span className={`text-xs font-mono shrink-0 font-black ${
+                    <span className={`text-xs font-mono shrink-0 font-black transition-colors ${
                       isChecked 
                         ? 'text-white' 
                         : isDark 
-                          ? 'text-slate-200' 
-                          : 'text-slate-900'
+                          ? 'text-slate-400 group-hover:text-blue-400' 
+                          : 'text-slate-500 group-hover:text-blue-600'
                     }`}>
                       {numStr}
                     </span>
-                    <span className={`flex-1 min-w-0 text-xs truncate font-black ${
+                    <span className={`flex-1 min-w-0 text-xs truncate font-black transition-colors ${
                       isChecked 
                         ? 'text-white' 
                         : isDark 
-                          ? 'text-white' 
-                          : 'text-slate-950'
-                    }`} style={{ color: !isChecked && !isDark ? '#000000' : undefined }}>
+                          ? 'text-slate-200 group-hover:text-white' 
+                          : 'text-slate-900 group-hover:text-blue-600'
+                    }`}>
                       {t.name}
                     </span>
                   </div>
@@ -996,8 +1040,8 @@ export default function ThemeStoreManager({
             )}
           </div>
 
-          {/* Grid of Theme Cards matching reference screenshot */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+          {/* Grid of Theme Cards matching reference screenshot (Max 4 cards per row) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredThemes.map((preset) => {
               const isSelected = activeThemeId === preset.id;
 
@@ -1006,16 +1050,18 @@ export default function ThemeStoreManager({
                   key={preset.id}
                   whileHover={{ y: -4 }}
                   transition={{ duration: 0.15 }}
-                  onDoubleClick={() => handleOpenPreviewTheme(preset)}
-                  title="Double click to preview full screen"
-                  className={`rounded-2xl border overflow-hidden flex flex-col justify-between transition-all bg-white dark:bg-slate-900 select-none cursor-pointer ${
-                    isSelected
-                      ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-lg'
-                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'
-                  }`}
+                  className="flex flex-col justify-between select-none"
                 >
-                  {/* Top Preview Card Frame (Dark Theme Frame as seen in screenshot) */}
-                  <div className="p-3 bg-[#0d0e12] relative flex flex-col justify-between border-b border-slate-800 space-y-2">
+                  {/* Top Preview Card Frame (Dark Theme Frame as seen in screenshot 2 - separate box) */}
+                  <div 
+                    onClick={() => handleOpenPreviewTheme(preset)}
+                    className={`p-3 bg-[#0c0d10] relative flex flex-col justify-between rounded-[20px] border transition-all cursor-pointer space-y-2 shadow-sm hover:shadow-md ${
+                      isSelected
+                        ? 'border-emerald-500 ring-2 ring-emerald-500/20'
+                        : 'border-slate-800 hover:border-slate-700'
+                    }`}
+                    title="Click to preview theme"
+                  >
                     {/* Pill Badges Row */}
                     <div className="flex items-center justify-between gap-1 z-10">
                       <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
@@ -1044,13 +1090,13 @@ export default function ThemeStoreManager({
                     </div>
 
                     {/* Hero Banner Box inside preview */}
-                    <div className="relative h-24 rounded-xl overflow-hidden border border-white/10 group cursor-pointer" onClick={() => handleOpenPreviewTheme(preset)}>
+                    <div className="relative h-28 rounded-xl overflow-hidden border border-white/10 group">
                       <img 
                         src={preset.mockImages.hero} 
                         alt={preset.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 flex flex-col justify-end">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-2.5 flex flex-col justify-end">
                         <span className="text-[8px] font-black text-amber-400 uppercase tracking-widest block">
                           {preset.mockImages.tag}
                         </span>
@@ -1074,71 +1120,86 @@ export default function ThemeStoreManager({
                     </div>
                   </div>
 
-                  {/* Bottom Info Section matching screenshot */}
-                  <div className="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
-                    <div>
-                      {/* Theme Name + Serial Number (#01 to #50) */}
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
-                          {preset.name}
-                        </h3>
-                        <span className="px-1.5 py-0.5 text-[10px] font-extrabold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shrink-0">
-                          {preset.formattedSerial}
-                        </span>
-                      </div>
-
-                      {/* Subtitle / Visual Shape label */}
-                      <div className="flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-400 font-medium truncate mt-0.5">
-                        <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span className="truncate">{preset.shapeLabel}</span>
-                      </div>
-
-                      {/* Likes count, NEW tag & Industry */}
-                      <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px]">
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={(e) => handleToggleLike(preset.id, e)}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer active:scale-90 border select-none ${
-                              preset.isLiked
-                                ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-800 font-bold shadow-xs'
-                                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 font-bold shadow-2xs'
-                            }`}
-                            title={preset.isLiked ? 'Unlike theme' : 'Like theme'}
-                          >
-                            <ThumbsUp className={`w-3.5 h-3.5 transition-transform ${preset.isLiked ? 'fill-current text-blue-600 dark:text-blue-400 scale-110' : 'text-slate-500'}`} />
-                            <span className="font-bold text-xs">{preset.likesCount}</span>
-                          </button>
-                          {preset.isNew && (
-                            <span className="bg-orange-500 text-white font-black text-[8px] px-1.5 py-0.5 rounded uppercase tracking-wider">
-                              NEW
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[100px]">
-                          {preset.categoryLabel.split('&')[0]}
-                        </span>
-                      </div>
+                  {/* Bottom Info Section (Clean standalone text layout below preview box, matching reference screenshot 1 & 2) */}
+                  <div 
+                    onClick={(e) => e.stopPropagation()} 
+                    onDoubleClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                    className="pt-3 space-y-1.5 text-slate-900 bg-transparent"
+                  >
+                    {/* Theme Name + Serial Number (#01 to #50) */}
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-extrabold text-slate-900 text-sm sm:text-base truncate">
+                        {preset.name}
+                      </h3>
+                      <span className="px-1.5 py-0.5 text-[10px] font-black text-slate-600 bg-slate-100 border border-slate-300 rounded shrink-0">
+                        {preset.formattedSerial}
+                      </span>
                     </div>
 
-                    {/* Action Buttons: Views (opens preview in new tab) + Apply Theme (activates theme for live site/domain) */}
-                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const themeUrl = `/?theme=${preset.id}&standalone=true&plan=${preset.planPrice}`;
-                          window.open(themeUrl, '_blank');
-                        }}
-                        className="flex-1 py-2 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
-                        title="Open theme view in new tab"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                        <span>Views</span>
-                      </button>
+                    {/* Subtitle / Visual Shape label */}
+                    <div className="flex items-center gap-1.5 text-xs text-[#c2410c] font-bold truncate">
+                      <Sparkles className="w-3.5 h-3.5 text-[#ea580c] shrink-0" />
+                      <span className="truncate">{preset.shapeLabel}</span>
+                    </div>
 
+                    {/* Likes count, NEW badge & Category label */}
+                    <div className="flex items-center justify-between gap-2 text-xs pt-1">
+                      {/* Left: Like button & NEW tag (Clean inline icon & count matching screenshot) */}
+                      <div className="flex items-center gap-2">
+                        <motion.button
+                          type="button"
+                          whileTap={{ scale: 0.85 }}
+                          onClick={(e) => handleToggleLike(preset.id, e)}
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}
+                          className={`flex items-center gap-1.5 transition-colors cursor-pointer select-none py-0.5 group/like ${
+                            preset.isLiked
+                              ? 'text-blue-600 font-black'
+                              : 'text-slate-800 hover:text-blue-600 font-bold'
+                          }`}
+                          title={preset.isLiked ? 'Unlike theme' : 'Like theme'}
+                        >
+                          <motion.div
+                            key={preset.isLiked ? 'liked' : 'unliked'}
+                            initial={false}
+                            animate={{ scale: preset.isLiked ? [1, 1.45, 0.9, 1] : [1, 0.85, 1] }}
+                            transition={{ duration: 0.35, ease: 'easeOut' }}
+                            className="flex items-center justify-center"
+                          >
+                            <ThumbsUp className={`w-4 h-4 transition-transform duration-200 group-hover/like:scale-110 ${preset.isLiked ? 'fill-blue-600 text-blue-600' : 'text-slate-800'}`} />
+                          </motion.div>
+                          <motion.span 
+                            key={`${preset.id}-${preset.likesCount}`}
+                            initial={{ scale: 1.3, opacity: 0.7 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className="font-bold text-xs"
+                          >
+                            {preset.likesCount}
+                          </motion.span>
+                        </motion.button>
+                        {preset.isNew && (
+                          <span className="bg-[#ff8f00] text-white font-black text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider">
+                            NEW
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Right: Category label */}
+                      <span className="font-bold text-slate-700 truncate max-w-[130px] text-xs">
+                        {preset.categoryLabel.split('&')[0]}
+                      </span>
+                    </div>
+
+                    {/* Horizontal Divider Line matching screenshot 2 */}
+                    <div className="w-full border-b border-black my-2" />
+
+                    {/* Action Buttons Row BELOW the line: Right-aligned Active or Apply Theme */}
+                    <div className="flex items-center justify-end pt-1">
                       {isSelected ? (
-                        <div className="flex-1 py-2 px-2.5 rounded-xl bg-[#e6fffa] dark:bg-emerald-950/60 text-[#00b894] dark:text-emerald-400 border border-[#b2f5ea] dark:border-emerald-800 text-xs font-bold flex items-center justify-center gap-1 shadow-2xs">
+                        <div className="py-1.5 px-4 rounded-xl bg-[#e6fffa] text-[#00b894] border border-[#a7f3d0] text-xs font-black flex items-center justify-center gap-1.5 shadow-2xs">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                           <span>Active</span>
                         </div>
@@ -1149,9 +1210,9 @@ export default function ThemeStoreManager({
                             e.stopPropagation();
                             setSelectedPlanModalTheme(preset);
                           }}
-                          className="flex-1 py-2 px-2.5 rounded-xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                          className="py-1.5 px-5 rounded-xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-extrabold text-xs transition-all shadow-xs active:scale-95 flex items-center justify-center cursor-pointer"
                         >
-                          <span>Apply</span>
+                          <span>Apply Theme</span>
                         </button>
                       )}
                     </div>

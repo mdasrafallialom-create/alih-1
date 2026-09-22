@@ -14,6 +14,7 @@ import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
+import coffeeHeroBg from '../../assets/images/coffee_hero_bg_1790056147017.jpg';
 
 interface FoodItem {
   id: string;
@@ -55,6 +56,22 @@ export interface ThemePageConfig {
 }
 
 export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
+  'velmora-dining': {
+    pageBgStyle: {
+      backgroundColor: '#120a06',
+      backgroundImage: `linear-gradient(to bottom, rgba(18, 10, 6, 0.85), rgba(10, 6, 3, 0.94)), url('${coffeeHeroBg}')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#d4a373',
+    accentGradient: 'bg-gradient-to-r from-[#d4a373] via-[#c89666] to-[#b37d4e] text-[#1a0f08]',
+    cardBg: 'bg-[#180e07]/90',
+    cardBorderClass: 'border-[#d4a373]/25 hover:border-[#d4a373]',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(212,163,115,0.3)]',
+    badgeBgClass: 'bg-[#c89666] text-[#1a0f08]',
+    repertoireTag: '☕ — ARTISAN HAND-ROASTED SPECIALTY COFFEE —',
+  },
   'lumivelle': {
     pageBgStyle: {
       backgroundColor: '#120a06',
@@ -460,8 +477,8 @@ export default function VelmoraDiningTheme({
     }
   };
 
-  const activePresetId = themePresetId || settings?.activeThemeId || 'lumivelle';
-  const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['lumivelle'];
+  const activePresetId = themePresetId || settings?.activeThemeId || 'velmora-dining';
+  const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['velmora-dining'] || THEME_PAGE_CONFIGS['lumivelle'];
 
   return (
     <div 

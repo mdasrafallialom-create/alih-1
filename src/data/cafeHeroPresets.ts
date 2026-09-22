@@ -11,6 +11,149 @@ export interface CafeHeroSlide {
 }
 
 export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
+  'velmora-dining': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'START YOUR DAY',
+      heading: 'WITH COFFEE',
+      description: 'Experience the rich aroma of artisanal hand-roasted Arabica beans, crafted with passion to awaken your senses every morning.',
+      primaryBtn: 'Shop Now',
+      secondaryBtn: 'Explore Blends',
+      img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu'
+    }
+  ],
+  'orivelle-house': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'HAUTE NOIR GASTRONOMY',
+      heading: '24K GOLD & VELVET NOIR',
+      description: 'Indulge in private sommelier pairings, imperial caviar courses, and opulent dining under crystal chandeliers.',
+      primaryBtn: 'Reserve Salon',
+      secondaryBtn: 'View Tasting Menu',
+      img: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation'
+    }
+  ],
+  'lunavere': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'PARISIAN STARLIGHT CAFE',
+      heading: 'LUNAVERE NIGHTS & COFFEE',
+      description: 'An intimate Parisian coffee house for slow evenings, delicate pastries, and beautifully brewed single-origin coffee.',
+      primaryBtn: 'Explore Night Cafe',
+      secondaryBtn: 'Book Table',
+      img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu'
+    }
+  ],
+  'aurelisse': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'ROYAL MONARCH BANQUETS',
+      heading: 'IMPERIAL PURPLE & GOLD',
+      description: 'Monarch-grade banquets featuring dry-aged prime chops, gold-leaf canapés, and sovereign vintage reserves.',
+      primaryBtn: 'Book Royal Feast',
+      secondaryBtn: 'View Imperial Menu',
+      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation'
+    }
+  ],
+  'palatiora': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'WARM MAHOGANY CELLAR',
+      heading: 'VINTAGE ROAST & PRIME STEAKS',
+      description: 'Dark espresso roasts, slow siphon brews, and dry-aged wagyu served within our heritage brick and timber cellar.',
+      primaryBtn: 'Explore Cellar Menu',
+      secondaryBtn: 'Reserve Wine Table',
+      img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu'
+    }
+  ],
+  'opalune': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'MINIMALIST WHITE GRANITE',
+      heading: 'NITRO COLD BREW ATRIUM',
+      description: 'Clean architectural lines, chilled quartz coffee bars, and nitrogen-infused slow-drip single-origin extractions.',
+      primaryBtn: 'Discover Nitro Bar',
+      secondaryBtn: 'Order Ahead',
+      img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu'
+    }
+  ],
+  'emberion': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'JAPANESE ROBATA CHARCOAL',
+      heading: 'EMBER SMOKE & ROAST',
+      description: 'Fiery binchotan charcoal grills paired with smoky roasted teas, Kyoto cold drips, and sizzling A5 Wagyu skewers.',
+      primaryBtn: 'Explore Robata Menu',
+      secondaryBtn: 'Book Counter Seat',
+      img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation'
+    }
+  ],
+  'ivorelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'FRENCH ALABASTER CHATEAU',
+      heading: 'SILK IVORY & CHAMPAGNE',
+      description: 'Silky smooth alabaster architecture with champagne breakfasts, brioche French toast, and delicate cafe au lait.',
+      primaryBtn: 'View Chateau Menu',
+      secondaryBtn: 'Book Morning Salon',
+      img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu'
+    }
+  ],
+  'caravelle-dining': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CELESTIAL SKYLINE ROOFTOP',
+      heading: 'SAPPHIRE NIGHT & COCKTAILS',
+      description: 'Glittering high-altitude views with liquid nitrogen espresso martinis, blue curaçao blends, and starlight dining.',
+      primaryBtn: 'Book Rooftop Table',
+      secondaryBtn: 'Explore Drinks',
+      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation'
+    }
+  ],
+  'elvaris-atelier': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'BORDEAUX WINE ATELIER',
+      heading: 'CRIMSON CELLARS & CUISINE',
+      description: 'Deep velvet red bistro with oak barrel aged coffees, grand cru pairings, and artisanal charcuterie boards.',
+      primaryBtn: 'Explore Atelier',
+      secondaryBtn: 'Book Wine Tasting',
+      img: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation'
+    }
+  ],
+  'silvarenne': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'HIGH-FASHION TITANIUM BISTRO',
+      heading: 'PRECISION ESPRESSO & MONO',
+      description: 'Polished silver and titanium espresso machines delivering single-origin extractions with geometric culinary craft.',
+      primaryBtn: 'Order Modern Espresso',
+      secondaryBtn: 'Explore Concept',
+      img: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu'
+    }
+  ],
   'lumivelle': [
     {
       id: 1,

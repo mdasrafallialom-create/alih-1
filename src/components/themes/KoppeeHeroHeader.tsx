@@ -3,9 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
+import coffeeHeroBg from '../../assets/images/coffee_hero_bg_1790056147017.jpg';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
+import { HeroAnimatedElement } from './HeroAnimatedElement';
+import { BotanicalCoffeeLeaves } from './BotanicalCoffeeLeaves';
 
 interface KoppeeHeroHeaderProps {
   brandName?: string;
@@ -42,6 +45,210 @@ export interface ThemeHeroConfig {
 }
 
 export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
+  // #01 Velmora Dining (Artisan Coffee Theme matching user's requested coffee bean background & sculpted cup)
+  'velmora-dining': {
+    accentColor: '#d4a373',
+    accentTextClass: 'text-[#d4a373]',
+    accentBorderClass: 'border-[#d4a373]/50',
+    logoBadgeClass: 'bg-gradient-to-br from-[#c89666] via-[#b37d4e] to-[#4a2810] text-[#fff8f0] font-black border border-[#f3d5b5]/40 shadow-lg shadow-black/70',
+    heroBadgeTag: '☕ ARTISAN HAND-ROASTED SPECIALTY COFFEE',
+    navHoverClass: 'hover:text-[#d4a373]',
+    navActiveClass: 'text-[#d4a373] border-b-2 border-[#d4a373]',
+    primaryBtnClass: 'bg-[#c89666] hover:bg-[#b58253] text-[#1a0f08] font-black rounded-lg shadow-[0_0_25px_rgba(200,150,102,0.5)] border border-[#f3d5b5]/40',
+    secondaryBtnClass: 'bg-black/70 hover:bg-black/90 text-[#f5ebe0] border border-[#d4a373]/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-[#d4a373]/50 rounded-2xl shadow-2xl',
+    searchFocusClass: 'focus:border-[#d4a373] focus:ring-[#d4a373]',
+    bgGradientOverlay: 'from-[#120a06]/70 via-[#180e07]/80 to-[#0d0704]/95',
+    headerBg: 'bg-gradient-to-b from-black/90 via-black/50 to-transparent',
+    heroBgImage: coffeeHeroBg
+  },
+  // #02 Orivelle House (Haute Noir Gastronomy & 24k Gold)
+  'orivelle-house': {
+    accentColor: '#e5c158',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-300 via-yellow-500 to-amber-700 text-stone-950 font-black border border-amber-200 shadow-xl shadow-black/80',
+    heroBadgeTag: '👑 24K GOLD LEAF & PRIVATE SOMMELIER',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:to-yellow-600 text-stone-950 font-black rounded-lg shadow-[0_0_30px_rgba(229,193,88,0.5)] border border-yellow-200/50',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-amber-200 border border-amber-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_35px_rgba(229,193,88,0.4)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-black/75 via-stone-950/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-black/90 via-black/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop'
+  },
+  // #03 Lunavere (Parisian Starlight Cafe)
+  'lunavere': {
+    accentColor: '#C9A86A',
+    accentTextClass: 'text-[#C9A86A]',
+    accentBorderClass: 'border-[#C9A86A]/50',
+    logoBadgeClass: 'bg-gradient-to-br from-[#9A7BB5] via-[#7B5999] to-[#15162B] text-white font-black border border-purple-300/40 shadow-xl',
+    heroBadgeTag: '✨ PARISIAN STARLIGHT NIGHT CAFE',
+    navHoverClass: 'hover:text-[#C9A86A]',
+    navActiveClass: 'text-[#C9A86A] border-b-2 border-[#C9A86A]',
+    primaryBtnClass: 'bg-gradient-to-r from-[#C9A86A] to-[#a8864b] hover:from-[#d6b77b] hover:to-[#b89456] text-[#120a06] font-black rounded-xl shadow-[0_0_25px_rgba(201,168,106,0.45)] border border-[#f3e5ab]/40',
+    secondaryBtnClass: 'bg-[#15162B]/85 hover:bg-[#1c1d38] text-[#F4E7D3] border border-[#9A7BB5]/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-[#C9A86A]/50 rounded-2xl shadow-[0_0_35px_rgba(154,123,181,0.35)]',
+    searchFocusClass: 'focus:border-[#C9A86A] focus:ring-[#C9A86A]',
+    bgGradientOverlay: 'from-[#15162B]/80 via-[#1c1d38]/85 to-[#0b0c16]/95',
+    headerBg: 'bg-gradient-to-b from-[#15162B]/95 via-[#15162B]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop'
+  },
+  // #04 Aurelisse (Imperial Monarch Velvet & Caviar)
+  'aurelisse': {
+    accentColor: '#a855f7',
+    accentTextClass: 'text-purple-300',
+    accentBorderClass: 'border-purple-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-purple-500 via-indigo-600 to-purple-900 text-white font-black border border-purple-300/50 shadow-xl',
+    heroBadgeTag: '⚜️ ROYAL MONARCH DINING & CAVIAR',
+    navHoverClass: 'hover:text-purple-300',
+    navActiveClass: 'text-purple-400 border-b-2 border-purple-400',
+    primaryBtnClass: 'bg-gradient-to-r from-purple-500 via-fuchsia-600 to-amber-500 hover:from-purple-600 hover:to-amber-600 text-white font-black rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-purple-200/40',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-purple-200 border border-purple-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-purple-400/60 rounded-3xl shadow-[0_0_40px_rgba(168,85,247,0.4)]',
+    searchFocusClass: 'focus:border-purple-400 focus:ring-purple-400',
+    bgGradientOverlay: 'from-purple-950/75 via-stone-950/85 to-black/95',
+    headerBg: 'bg-gradient-to-b from-purple-950/90 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #05 Palatiora (Heritage Cellar & Dry-Aged Wagyu)
+  'palatiora': {
+    accentColor: '#f59e0b',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-600 via-stone-800 to-stone-950 text-amber-100 font-black border border-amber-400/50 shadow-xl',
+    heroBadgeTag: '🍷 DRY-AGED WAGYU & VINTAGE CELLAR',
+    navHoverClass: 'hover:text-amber-400',
+    navActiveClass: 'text-amber-500 border-b-2 border-amber-500',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-700 hover:from-amber-600 hover:to-orange-800 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(245,158,11,0.45)] border border-amber-300/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(245,158,11,0.35)]',
+    searchFocusClass: 'focus:border-amber-500 focus:ring-amber-500',
+    bgGradientOverlay: 'from-stone-950/75 via-amber-950/65 to-black/95',
+    headerBg: 'bg-gradient-to-b from-stone-950/90 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop'
+  },
+  // #06 Opalune (Modern White Granite & Nitro Cold Brew)
+  'opalune': {
+    accentColor: '#0d9488',
+    accentTextClass: 'text-teal-300',
+    accentBorderClass: 'border-teal-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-teal-400 via-cyan-600 to-slate-900 text-white font-black border border-teal-200/50 shadow-xl',
+    heroBadgeTag: '💎 MODERN WHITE GRANITE & COLD BREW',
+    navHoverClass: 'hover:text-teal-300',
+    navActiveClass: 'text-teal-400 border-b-2 border-teal-400',
+    primaryBtnClass: 'bg-gradient-to-r from-teal-400 via-cyan-500 to-teal-600 hover:from-teal-500 hover:to-cyan-600 text-stone-950 font-black rounded-xl shadow-[0_0_30px_rgba(13,148,136,0.5)] border border-teal-200/50',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-stone-900 text-teal-200 border border-teal-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-teal-400/60 rounded-2xl shadow-[0_0_35px_rgba(13,148,136,0.35)]',
+    searchFocusClass: 'focus:border-teal-400 focus:ring-teal-400',
+    bgGradientOverlay: 'from-slate-950/75 via-teal-950/65 to-black/95',
+    headerBg: 'bg-gradient-to-b from-slate-950/90 via-teal-950/40 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop'
+  },
+  // #07 Emberion (Robata Charcoal & Flame Embers)
+  'emberion': {
+    accentColor: '#ea580c',
+    accentTextClass: 'text-orange-400',
+    accentBorderClass: 'border-orange-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-orange-500 via-red-600 to-stone-950 text-white font-black border border-orange-300/50 shadow-xl shadow-orange-950/70',
+    heroBadgeTag: '🔥 FIERY COPPER & ROBATA SMOKE',
+    navHoverClass: 'hover:text-orange-400',
+    navActiveClass: 'text-orange-500 border-b-2 border-orange-500',
+    primaryBtnClass: 'bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 hover:from-orange-700 hover:to-red-700 text-white font-black rounded-lg shadow-[0_0_30px_rgba(234,88,12,0.5)] border border-orange-300/40',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-orange-200 border border-orange-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-orange-500/60 rounded-2xl shadow-[0_0_40px_rgba(234,88,12,0.4)]',
+    searchFocusClass: 'focus:border-orange-500 focus:ring-orange-500',
+    bgGradientOverlay: 'from-orange-950/65 via-stone-950/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-orange-950/90 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop'
+  },
+  // #08 Couravelle (French Palace Courtyard & Terrace)
+  'couravelle': {
+    accentColor: '#b45309',
+    accentTextClass: 'text-yellow-400',
+    accentBorderClass: 'border-yellow-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-stone-950 font-black border border-yellow-100 shadow-xl',
+    heroBadgeTag: '🏛️ FRENCH PALACE COURTYARD & TERRACE',
+    navHoverClass: 'hover:text-yellow-300',
+    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
+    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-500 hover:to-amber-500 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(250,204,21,0.45)] border border-yellow-200/60',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-yellow-200 border border-yellow-400/50 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-yellow-400/60 rounded-2xl shadow-[0_0_35px_rgba(250,204,21,0.35)]',
+    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
+    bgGradientOverlay: 'from-amber-950/55 via-stone-950/75 to-black/90',
+    headerBg: 'bg-gradient-to-b from-amber-950/80 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop'
+  },
+  // #09 Ivorelle (Silk Alabaster Chateau & Champagne)
+  'ivorelle': {
+    accentColor: '#ca8a04',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-300 via-yellow-400 to-stone-800 text-stone-950 font-black border border-amber-200 shadow-xl',
+    heroBadgeTag: '🥂 CHATEAU VINTAGE & CHAMPAGNE',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:to-yellow-600 text-stone-950 font-black rounded-xl shadow-[0_0_25px_rgba(202,138,4,0.45)] border border-yellow-200/50',
+    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-amber-200 border border-amber-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_35px_rgba(202,138,4,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-stone-950/70 via-stone-900/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-stone-950/90 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&auto=format&fit=crop'
+  },
+  // #10 Caravelle Dining (Celestial Sapphire Skyline)
+  'caravelle-dining': {
+    accentColor: '#38bdf8',
+    accentTextClass: 'text-sky-300',
+    accentBorderClass: 'border-sky-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-sky-400 via-blue-600 to-indigo-950 text-white font-black border border-sky-300/50 shadow-xl',
+    heroBadgeTag: '🌌 CELESTIAL SAPPHIRE ROOFTOP',
+    navHoverClass: 'hover:text-sky-300',
+    navActiveClass: 'text-sky-400 border-b-2 border-sky-400',
+    primaryBtnClass: 'bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 hover:from-sky-500 hover:to-blue-600 text-stone-950 font-black rounded-xl shadow-[0_0_30px_rgba(56,189,248,0.5)] border border-sky-200/50',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-sky-200 border border-sky-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-sky-400/60 rounded-2xl shadow-[0_0_40px_rgba(56,189,248,0.4)]',
+    searchFocusClass: 'focus:border-sky-400 focus:ring-sky-400',
+    bgGradientOverlay: 'from-slate-950/75 via-indigo-950/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-slate-950/90 via-indigo-950/40 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  },
+  // #11 Elvaris Atelier (Grand Cru Bordeaux & Oak Casks)
+  'elvaris-atelier': {
+    accentColor: '#e11d48',
+    accentTextClass: 'text-rose-400',
+    accentBorderClass: 'border-rose-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-rose-500 via-red-600 to-amber-700 text-white font-black border border-rose-300/60 shadow-xl',
+    heroBadgeTag: '🍇 GRAND CRU BORDEAUX & CELLAR',
+    navHoverClass: 'hover:text-rose-400',
+    navActiveClass: 'text-rose-500 border-b-2 border-rose-500',
+    primaryBtnClass: 'bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-black rounded-lg shadow-[0_0_30px_rgba(225,29,72,0.5)] border border-rose-300/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-rose-200 border border-rose-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-rose-400/60 rounded-2xl shadow-[0_0_40px_rgba(225,29,72,0.4)]',
+    searchFocusClass: 'focus:border-rose-400 focus:ring-rose-400',
+    bgGradientOverlay: 'from-rose-950/65 via-stone-950/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-rose-950/85 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&auto=format&fit=crop'
+  },
+  // #12 Silvarenne (Polished Titanium Obsidian & Espresso)
+  'silvarenne': {
+    accentColor: '#e4e4e7',
+    accentTextClass: 'text-zinc-200',
+    accentBorderClass: 'border-zinc-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-zinc-300 via-zinc-500 to-zinc-900 text-stone-950 font-black border border-white/60 shadow-xl',
+    heroBadgeTag: '⚡ POLISHED TITANIUM & ESPRESSO',
+    navHoverClass: 'hover:text-white',
+    navActiveClass: 'text-white border-b-2 border-white',
+    primaryBtnClass: 'bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-400 hover:from-white hover:to-zinc-200 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(228,228,231,0.5)] border border-white/60',
+    secondaryBtnClass: 'bg-zinc-950/85 hover:bg-black text-zinc-100 border border-zinc-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-zinc-400/60 rounded-2xl shadow-[0_0_35px_rgba(228,228,231,0.35)]',
+    searchFocusClass: 'focus:border-zinc-300 focus:ring-zinc-300',
+    bgGradientOverlay: 'from-zinc-950/75 via-black/85 to-black/95',
+    headerBg: 'bg-gradient-to-b from-black/90 via-black/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop'
+  },
   'lumivelle': {
     accentColor: '#F59E0B',
     accentTextClass: 'text-amber-400',
@@ -73,22 +280,6 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     bgGradientOverlay: 'from-pink-950/45 via-stone-950/75 to-black/90',
     headerBg: 'bg-gradient-to-b from-pink-950/80 via-stone-950/50 to-transparent',
     heroBgImage: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=1600&auto=format&fit=crop'
-  },
-  'couravelle': {
-    accentColor: '#FACC15',
-    accentTextClass: 'text-yellow-300',
-    accentBorderClass: 'border-yellow-400/50',
-    logoBadgeClass: 'bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-stone-950 font-black border border-yellow-100 shadow-xl shadow-amber-950/60',
-    heroBadgeTag: '🏛️ FRENCH PALACE COURTYARD & TERRACE',
-    navHoverClass: 'hover:text-yellow-300',
-    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
-    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-500 hover:to-amber-500 text-stone-950 font-black rounded-lg uppercase tracking-widest shadow-[0_0_25px_rgba(250,204,21,0.45)] border border-yellow-200/60',
-    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-yellow-200 border border-yellow-400/50 rounded-lg backdrop-blur-md',
-    imageFrameClass: 'border-2 border-yellow-400/60 rounded-t-[4rem] rounded-b-2xl shadow-[0_0_35px_rgba(250,204,21,0.35)]',
-    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
-    bgGradientOverlay: 'from-amber-950/35 via-stone-950/65 to-black/90',
-    headerBg: 'bg-gradient-to-b from-amber-950/80 via-stone-950/50 to-transparent',
-    heroBgImage: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop'
   },
   'maison-virelle': {
     accentColor: '#F59E0B',
@@ -273,9 +464,9 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const [isSearchOpenMobile, setIsSearchOpenMobile] = useState(false);
   const [adminUnlockSuccess, setAdminUnlockSuccess] = useState(false);
 
-  const activePresetId = themePresetId || 'lumivelle';
-  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) ? THEME_HERO_CONFIGS[themePresetId] : DEFAULT_HERO_CONFIG;
-  const isClassicTheme = activePresetId === 'lumivelle' || activePresetId === 'couravelle';
+  const activePresetId = themePresetId || 'velmora-dining';
+  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) ? THEME_HERO_CONFIGS[themePresetId] : (THEME_HERO_CONFIGS['velmora-dining'] || DEFAULT_HERO_CONFIG);
+  const isClassicTheme = false;
 
   const currentSlides = (heroSlides && heroSlides.length > 0) ? heroSlides : KOPPEE_SLIDES;
   const slide = currentSlides[activeSlide] || currentSlides[0] || KOPPEE_SLIDES[0];
@@ -325,13 +516,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     setIsSearchOpenMobile(false);
   };
 
-  // Auto slide cycle
+  // Auto slide cycle - Disabled for single-slide and modern 2-column themes to prevent jumping
   useEffect(() => {
+    if (!isClassicTheme || currentSlides.length <= 1) return;
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % currentSlides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [currentSlides.length]);
+  }, [currentSlides.length, isClassicTheme]);
 
   const handlePrevSlide = () => {
     setActiveSlide((prev) => (prev === 0 ? currentSlides.length - 1 : prev - 1));
@@ -375,14 +567,27 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
       {/* 1. TOP HEADER NAVBAR (KOPPEE STYLE WITH SEARCH BAR) */}
       {/* ========================================================================= */}
       <header className={`absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between ${cfg.headerBg}`}>
-        {/* Brand Logo with 2-Letter Initials Badge */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
-          <div className={`w-10 h-10 rounded-xl ${cfg.logoBadgeClass} text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
-            {initial1}{initial2}
+        {/* Brand Logo with 2-Letter Initials Badge & Home Portal Back Button */}
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 text-white/90 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer mr-1 select-none"
+              title={lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরে যান' : 'Back to Main Portal'}
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">{lang === 'bn' ? 'হোম পেজ' : 'Home Portal'}</span>
+            </button>
+          )}
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+            <div className={`w-10 h-10 rounded-xl ${cfg.logoBadgeClass} text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
+              {initial1}{initial2}
+            </div>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-sans drop-shadow-md">
+              {brandName || 'KOPPEE'}
+            </span>
           </div>
-          <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-sans drop-shadow-md">
-            {brandName || 'KOPPEE'}
-          </span>
         </div>
 
         {/* Desktop Navigation Menu & Search Bar */}
@@ -525,8 +730,20 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           </div>
         </div>
 
-        {/* Mobile Header Controls: Admin Button + Search Icon + Hamburger */}
+        {/* Mobile Header Controls: Back Button + Admin Button + Search Icon + Hamburger */}
         <div className="md:hidden flex items-center gap-2">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-2 py-1.5 text-white/90 hover:text-white rounded-full bg-black/60 border border-white/20 flex items-center gap-1 cursor-pointer shadow-sm active:scale-90 text-xs font-bold"
+              title={lang === 'bn' ? 'হোম পেজ' : 'Home Portal'}
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[10px] font-bold">{lang === 'bn' ? 'হোম' : 'Home'}</span>
+            </button>
+          )}
+
           {showAdminButton !== false && (
             <button
               type="button"
@@ -634,6 +851,20 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               />
             </form>
 
+            {onBack && (
+              <button
+                type="button"
+                onClick={() => {
+                  onBack();
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-2 text-amber-400 py-2.5 text-base font-bold border-b border-white/10"
+              >
+                <ArrowLeft className="w-4 h-4 text-amber-400" />
+                <span>{lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরে যান' : 'Back to Main Portal'}</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => scrollToSection('hero')}
@@ -707,7 +938,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
       {/* 2. HERO SLIDER SECTION WITH ROASTED COFFEE BEANS & COFFEE CUPS ON TOP */}
       {/* ========================================================================= */}
       <div id="hero" className="relative w-full min-h-[90vh] sm:min-h-screen flex flex-col justify-between items-center pt-24 sm:pt-28 pb-12 overflow-hidden">
-        {/* Full Coffee Beans Background Layer */}
+        {/* Full Theme Background Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             src={cfg.heroBgImage || COFFEE_BEANS_BG}
@@ -715,6 +946,12 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.12]"
           />
+          {/* Botanical Coffee Leaves in Bottom-Left Corner for Coffee Theme #01 */}
+          {activePresetId === 'velmora-dining' && (
+            <div className="absolute bottom-0 left-0 z-10 pointer-events-none">
+              <BotanicalCoffeeLeaves className="w-56 sm:w-72 md:w-84 h-auto opacity-45 drop-shadow-lg" color="#f5ebe0" />
+            </div>
+          )}
           {/* Subtle Ambient Vignette - Styled dynamically per theme */}
           <div className={`absolute inset-0 bg-gradient-to-b ${cfg.bgGradientOverlay} pointer-events-none`} />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(10,5,2,0.60)_100%)] pointer-events-none" />
@@ -821,7 +1058,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         ) : (
           /* 2-COLUMN LAYOUT FOR ALL OTHER THEMES (#2, #4, #5, #6, #7, #8, #9, #10) */
           /* Text on Left, Animated Floating Coffee Visual on Right, NO Boxed Frame, NO Corner Arrows */
-          <div className="relative z-10 max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-12 my-auto">
+          <div className="relative z-10 max-w-[1550px] mx-auto w-full px-6 sm:px-10 lg:px-16 xl:px-20 my-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`split-${activeSlide}`}
@@ -829,10 +1066,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center w-full"
               >
-                {/* LEFT COLUMN: Text, Badges & Actions */}
-                <div className="lg:col-span-7 text-center lg:text-left flex flex-col items-center lg:items-start space-y-3 sm:space-y-4">
+                {/* LEFT COLUMN: Text, Badges & Actions (Pushed to the Left) */}
+                <div className="lg:col-span-6 xl:col-span-6 text-center lg:text-left flex flex-col items-center lg:items-start space-y-3.5 sm:space-y-4 lg:pr-8">
                   {/* Theme Badge Tag */}
                   <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/75 border ${cfg.accentBorderClass} text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-xl backdrop-blur-md`}>
                     <Sparkles className="w-3.5 h-3.5" />
@@ -880,7 +1117,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       onClick={onOrderClick || onMenuClick || (() => scrollToSection('tasting-menu'))}
                       className={`px-8 py-3.5 ${cfg.primaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer`}
                     >
-                      {(slide as any).primaryBtn || "Order Now"}
+                      {(slide as any).primaryBtn || "Shop Now"}
                     </button>
                     <button
                       type="button"
@@ -888,39 +1125,19 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       className={`px-8 py-3.5 ${cfg.secondaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer flex items-center gap-2`}
                     >
                       <Calendar className={`w-4 h-4 ${cfg.accentTextClass}`} />
-                      {(slide as any).secondaryBtn || "Book Table"}
+                      {(slide as any).secondaryBtn || "Explore Blends"}
                     </button>
                   </div>
                 </div>
 
-                {/* RIGHT COLUMN: Floating Animated Coffee Element (No Boxed Photo Frame) */}
-                <div className="lg:col-span-5 flex items-center justify-center relative my-4 lg:my-0">
-                  <motion.div
-                    animate={{ y: [-8, 8, -8], rotate: [-1.5, 1.5, -1.5] }}
-                    transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-                    className="relative w-64 sm:w-80 lg:w-96 aspect-square flex items-center justify-center"
-                  >
-                    {/* Radial Ambient Backdrop Glow */}
-                    <div 
-                      className="absolute inset-0 rounded-full blur-3xl opacity-40 pointer-events-none scale-110" 
-                      style={{ backgroundColor: cfg.accentColor }}
-                    />
-
-                    {/* Floating Coffee Cup / Visual Asset */}
-                    <img
-                      src={(slide as any).cupImg || whiteCoffeeCupImg}
-                      alt={(slide as any).cupName || brandName}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.92)] select-none pointer-events-none transition-transform duration-500"
-                    />
-
-                    {/* Animated Rising Steam Effect */}
-                    <motion.div
-                      animate={{ y: [-6, -26, -6], opacity: [0.15, 0.65, 0.15], scale: [0.9, 1.15, 0.9] }}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute top-4 w-36 h-28 bg-gradient-to-t from-white/30 via-white/10 to-transparent blur-2xl pointer-events-none"
-                    />
-                  </motion.div>
+                {/* RIGHT COLUMN: Theme-Specific Animated Visual Element (Pushed to the Right) */}
+                <div className="lg:col-span-6 xl:col-span-6 flex items-center justify-center lg:justify-end relative my-4 lg:my-0 lg:translate-x-6 xl:translate-x-12">
+                  <HeroAnimatedElement
+                    themeId={activePresetId}
+                    accentColor={cfg.accentColor}
+                    cupImg={(slide as any).cupImg}
+                    cupName={(slide as any).cupName}
+                  />
                 </div>
               </motion.div>
             </AnimatePresence>
