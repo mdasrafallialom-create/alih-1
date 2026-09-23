@@ -8,7 +8,8 @@ import {
   Linkedin, 
   Instagram, 
   ChevronUp, 
-  Navigation
+  Navigation,
+  Lock
 } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
@@ -36,6 +37,8 @@ interface KoppeeFooterSectionProps {
   lang?: string;
   plan?: string;
   themePresetId?: string;
+  onOpenAdmin?: () => void;
+  previewDeviceView?: 'desktop' | 'tablet' | 'mobile';
 }
 
 export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
@@ -52,8 +55,22 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   showGoogleMap = true,
   lang = 'en',
   plan = 'basic',
-  themePresetId
+  themePresetId,
+  onOpenAdmin,
+  previewDeviceView
 }) => {
+  const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isTablet = previewDeviceView === 'tablet' || (!previewDeviceView && windowWidth >= 640 && windowWidth < 1024);
+  const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
+  const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
+
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   const scrollToTop = (e?: React.MouseEvent) => {
     if (e) {
@@ -130,10 +147,14 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
 
   return (
     <footer className="relative w-full bg-[#120a06] text-white font-sans overflow-hidden">
-      {/* Torn Paper Edge Transition at Top of Footer */}
-      <div className="relative -mt-8 sm:-mt-12 z-20">
-        <TornPaperEdge color="#120a06" position="top" />
-      </div>
+      {/* Torn Paper Edge Transition at Top of Footer: Only on Desktop */}
+      {isDesktop ? (
+        <div className="relative -mt-8 sm:-mt-12 z-20 hidden lg:block">
+          <TornPaperEdge color="#120a06" position="top" />
+        </div>
+      ) : (
+        <div className="w-full h-px bg-white/10" />
+      )}
 
       {/* Coffee Beans Texture Overlay */}
       <div className="absolute inset-0 z-0 opacity-25 pointer-events-none">
@@ -192,8 +213,16 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
       )}
 
       {/* Main Footer Grid Container */}
-      <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 pt-12 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 lg:gap-12 xl:gap-16 text-left">
+      <div className={`relative z-10 w-full max-w-[1800px] mx-auto ${
+        isMobile ? 'px-4 pt-8 pb-12' : 'px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 pt-12 pb-16'
+      }`}>
+        <div className={`grid gap-8 md:gap-10 lg:gap-12 xl:gap-16 text-left ${
+          isMobile 
+            ? 'grid-cols-1 space-y-2' 
+            : isTablet 
+            ? 'grid-cols-1 sm:grid-cols-3' 
+            : 'grid-cols-1 md:grid-cols-3'
+        }`}>
           
           {/* Column 1: BRAND LOGO & DESCRIPTION */}
           <div className="space-y-4">
@@ -295,8 +324,18 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
           <p>
             Copyright © <span className="text-[#DA9F93] font-bold">{brandName}</span>. All Rights Reserved.
           </p>
-          <p className="text-[11px] text-white/40">
-            Designed by <span className="text-[#DA9F93]">Heart Coding</span>
+          <p className="text-[11px] text-white/40 flex items-center justify-center sm:justify-start gap-1.5">
+            <span>Designed by <span className="text-[#DA9F93]">Heart Coding</span></span>
+            {onOpenAdmin && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="inline-flex items-center text-white/30 hover:text-[#DA9F93] transition-colors p-1 rounded hover:bg-white/5 cursor-pointer ml-1"
+                title={lang === 'bn' ? 'স্টাফ / এডমিন এক্সেস (PIN: 8520)' : 'Staff / Admin Portal Access (PIN: 8520)'}
+              >
+                <Lock className="w-3 h-3" />
+              </button>
+            )}
           </p>
         </div>
 

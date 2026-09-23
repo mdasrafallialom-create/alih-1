@@ -6,21 +6,36 @@ interface KoppeeDeliverySectionProps {
   brandName?: string;
   lang?: string;
   themePresetId?: string;
+  previewDeviceView?: 'desktop' | 'tablet' | 'mobile';
 }
 
 export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
   brandName = 'KOPPEE',
   lang = 'en',
-  themePresetId
+  themePresetId,
+  previewDeviceView
 }) => {
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
 
+  const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isTablet = previewDeviceView === 'tablet' || (!previewDeviceView && windowWidth >= 640 && windowWidth < 1024);
+  const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
+
   return (
     <section id="delivery" className="relative w-full bg-[#FFFBF2] text-[#2c1e13] overflow-hidden">
-      <div className="w-full max-w-[1800px] mx-auto px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 py-14 sm:py-20">
+      <div className={`w-full max-w-[1800px] mx-auto ${
+        isMobile ? 'px-4 py-8 sm:py-10' : isTablet ? 'px-6 sm:px-8 py-10 sm:py-12' : 'px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 py-14 sm:py-20'
+      }`}>
         
         {/* Header */}
-        <div className="text-center space-y-3 mb-12 max-w-3xl mx-auto">
+        <div className="text-center space-y-2.5 sm:space-y-3 mb-8 sm:mb-12 max-w-3xl mx-auto px-2">
           <span 
             className="text-xs sm:text-sm font-bold uppercase tracking-widest block"
             style={{ color: cfg.accentColor }}
@@ -38,8 +53,14 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
           </p>
         </div>
 
-        {/* 4 Feature Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 4 Feature Cards - 1-column on Mobile, 2x2 on Tablet, 4 across on Desktop */}
+        <div className={`grid gap-4 sm:gap-6 ${
+          isMobile 
+            ? 'grid-cols-1' 
+            : isTablet 
+            ? 'grid-cols-2' 
+            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+        }`}>
           {/* Card 1: Cash on Delivery */}
           <div className={`p-6 sm:p-7 rounded-2xl bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl transition-all space-y-3 relative group hover:-translate-y-1`}>
             <div 

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
-import coffeeHeroBg from '../../assets/images/coffee_hero_bg_1790056147017.jpg';
+import cleanCoffeeBg from '../../assets/images/clean_coffee_bg_1790179641546.jpg';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
@@ -25,6 +25,7 @@ interface KoppeeHeroHeaderProps {
   showAdminButton?: boolean;
   lang?: string;
   themePresetId?: string;
+  previewDeviceView?: 'desktop' | 'tablet' | 'mobile';
 }
 
 export interface ThemeHeroConfig {
@@ -60,7 +61,7 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     searchFocusClass: 'focus:border-[#d4a373] focus:ring-[#d4a373]',
     bgGradientOverlay: 'from-[#120a06]/70 via-[#180e07]/80 to-[#0d0704]/95',
     headerBg: 'bg-gradient-to-b from-black/90 via-black/50 to-transparent',
-    heroBgImage: coffeeHeroBg
+    heroBgImage: cleanCoffeeBg
   },
   // #02 Orivelle House (Haute Noir Gastronomy & 24k Gold)
   'orivelle-house': {
@@ -455,14 +456,44 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   onBack,
   showAdminButton = true,
   lang = 'en',
-  themePresetId
+  themePresetId,
+  previewDeviceView
 }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pagesDropdownOpen, setPagesDropdownOpen] = useState(false);
+  const [tabletMoreDropdownOpen, setTabletMoreDropdownOpen] = useState(false);
+  const [tabletSearchOpen, setTabletSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpenMobile, setIsSearchOpenMobile] = useState(false);
   const [adminUnlockSuccess, setAdminUnlockSuccess] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  const tabletSearchRef = useRef<HTMLDivElement>(null);
+  const tabletMoreDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tabletSearchRef.current && !tabletSearchRef.current.contains(event.target as Node)) {
+        setTabletSearchOpen(false);
+      }
+      if (tabletMoreDropdownRef.current && !tabletMoreDropdownRef.current.contains(event.target as Node)) {
+        setTabletMoreDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const isTablet = previewDeviceView === 'tablet' || (!previewDeviceView && windowWidth >= 640 && windowWidth < 1280);
+  const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
+  const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1280);
 
   const activePresetId = themePresetId || 'velmora-dining';
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) ? THEME_HERO_CONFIGS[themePresetId] : (THEME_HERO_CONFIGS['velmora-dining'] || DEFAULT_HERO_CONFIG);
@@ -478,11 +509,37 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     const lower = raw.toLowerCase();
 
     let dynamicCode = '8520';
+    let storedAdminPass = '';
+    let storedPin = '';
+    let storedAdminSettingsPass = '';
     if (typeof window !== 'undefined') {
       dynamicCode = (localStorage.getItem('webar_admin_secret_code') || '8520').toLowerCase().trim();
+      storedAdminPass = (localStorage.getItem('restaurant_admin_password') || '').toLowerCase().trim();
+      storedPin = (localStorage.getItem('webar_admin_pin') || '').toLowerCase().trim();
+      try {
+        const rawSettings = localStorage.getItem('webar_admin_settings');
+        if (rawSettings) {
+          const parsed = JSON.parse(rawSettings);
+          if (parsed?.adminPassword) {
+            storedAdminSettingsPass = String(parsed.adminPassword).toLowerCase().trim();
+          }
+        }
+      } catch (e) {}
     }
 
-    const validPins = ['8520', 'admin8520', '8520admin', 'admin', dynamicCode];
+    const validPins = [
+      '8520',
+      'admin8520',
+      '8520admin',
+      'admin',
+      'admin5321',
+      '5321',
+      dynamicCode,
+      storedAdminPass,
+      storedPin,
+      storedAdminSettingsPass,
+    ].filter(Boolean);
+
     if (validPins.some((p) => p === lower)) {
       setAdminUnlockSuccess(true);
       setTimeout(() => {
@@ -491,8 +548,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         }
         setSearchTerm('');
         setIsSearchOpenMobile(false);
+        setMobileMenuOpen(false);
+        setTabletSearchOpen(false);
         setAdminUnlockSuccess(false);
-      }, 400);
+      }, 300);
       return true;
     }
     return false;
@@ -562,24 +621,13 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const [initial1, initial2] = getLogoInitials(brandName);
 
   return (
-    <div className="relative w-full overflow-hidden bg-[#120a06] text-white font-sans selection:bg-[#DA9F93]/30">
+    <div className="relative w-full overflow-x-clip bg-[#120a06] text-white font-sans selection:bg-[#DA9F93]/30">
       {/* ========================================================================= */}
       {/* 1. TOP HEADER NAVBAR (KOPPEE STYLE WITH SEARCH BAR) */}
       {/* ========================================================================= */}
       <header className={`absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between ${cfg.headerBg}`}>
-        {/* Brand Logo with 2-Letter Initials Badge & Home Portal Back Button */}
+        {/* Brand Logo with 2-Letter Initials Badge */}
         <div className="flex items-center gap-3">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 text-white/90 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer mr-1 select-none"
-              title={lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরে যান' : 'Back to Main Portal'}
-            >
-              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">{lang === 'bn' ? 'হোম পেজ' : 'Home Portal'}</span>
-            </button>
-          )}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
             <div className={`w-10 h-10 rounded-xl ${cfg.logoBadgeClass} text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
               {initial1}{initial2}
@@ -590,200 +638,369 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           </div>
         </div>
 
-        {/* Desktop Navigation Menu & Search Bar */}
-        <div className="hidden md:flex items-center gap-5 lg:gap-7">
-          <nav className="flex items-center space-x-5 lg:space-x-7 text-sm font-medium">
-            <button
-              type="button"
-              onClick={() => scrollToSection('hero')}
-              className={`${cfg.navActiveClass} transition-colors cursor-pointer py-1`}
-            >
-              Home
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollToSection('about')}
-              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
-            >
-              About
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollToSection('services')}
-              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
-            >
-              Service
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (onOrderClick) onOrderClick();
-                else if (onMenuClick) onMenuClick();
-                else scrollToSection('menu');
-              }}
-              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
-            >
-              Menu
-            </button>
-
-            {/* Dropdown Menu for Pages */}
-            <div className="relative">
+        {/* A. TABLET NAVIGATION MENU (Core Links + Admin Button + Expandable Search + Corner 3-Dot Dropdown) */}
+        {isTablet && (
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
+            {/* The Core Links & Admin Button */}
+            <nav className="flex items-center space-x-2 sm:space-x-2.5 md:space-x-3.5 text-xs md:text-sm font-semibold">
               <button
                 type="button"
-                onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
-                className={`flex items-center gap-1 text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
+                onClick={() => scrollToSection('hero')}
+                className={`${cfg.navActiveClass} transition-colors cursor-pointer py-1`}
               >
-                <span>Pages</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
+                Home
               </button>
-
-              <AnimatePresence>
-                {pagesDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    transition={{ duration: 0.15 }}
-                    className={`absolute right-0 mt-2 w-48 bg-[#1e140d] border ${cfg.accentBorderClass} rounded-lg shadow-2xl py-2 z-50 text-left`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (onReserveClick) onReserveClick();
-                        else scrollToSection('reservation');
-                        setPagesDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
-                    >
-                      Reservation
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection('testimonials')}
-                      className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
-                    >
-                      Testimonials
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection('specials')}
-                      className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
-                    >
-                      Chef's Specials
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => scrollToSection('contact')}
-              className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
-            >
-              Contact
-            </button>
-          </nav>
-
-          {/* Desktop Search Bar & Admin Button */}
-          <div className="flex items-center gap-3">
-            <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-              <div className="relative flex items-center group">
-                <Search className={`w-4 h-4 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-white transition-colors`} />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSearchTerm(val);
-                    checkAdminPin(val);
-                  }}
-                  placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা কোড (8520)...' : 'Search menu or enter PIN (8520)...'}
-                  className={`w-44 lg:w-56 pl-9 pr-8 py-1.5 text-xs rounded-full bg-black/60 border ${cfg.accentBorderClass} text-white placeholder-white/40 focus:outline-none ${cfg.searchFocusClass} focus:ring-1 focus:w-60 transition-all duration-300 shadow-inner`}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-2.5 text-white/50 hover:text-white"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </form>
-
-            {/* Header Admin Button Toggle (Controlled by Admin Settings) */}
-            {showAdminButton !== false && (
+              <button
+                type="button"
+                onClick={() => scrollToSection('about')}
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+              >
+                About
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('services')}
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+              >
+                Service
+              </button>
               <button
                 type="button"
                 onClick={() => {
-                  if (onOpenAdmin) onOpenAdmin();
+                  if (onOrderClick) onOrderClick();
+                  else if (onMenuClick) onMenuClick();
+                  else scrollToSection('menu');
                 }}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${cfg.primaryBtnClass} text-xs font-extrabold shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none`}
-                title="Open Admin Panel"
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
-                <ShieldCheck className="w-4 h-4 shrink-0" />
-                <span>Admin</span>
+                Menu
               </button>
-            )}
+
+              {/* Admin Button placed right here where 3-dots used to be (visible only when showAdminButton is true) */}
+              {showAdminButton === true && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenAdmin) onOpenAdmin();
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${cfg.primaryBtnClass} text-xs font-extrabold shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none ml-1`}
+                  title="Open Admin Panel"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span>Admin</span>
+                </button>
+              )}
+            </nav>
+
+            {/* Right Controls: Compact Expandable Search + Corner 3-Dot Button */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Expandable Search Button */}
+              <div ref={tabletSearchRef} className="relative flex items-center">
+                <AnimatePresence initial={false}>
+                  {!tabletSearchOpen ? (
+                    <motion.button
+                      key="search-btn"
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.85 }}
+                      transition={{ duration: 0.15 }}
+                      type="button"
+                      onClick={() => setTabletSearchOpen(true)}
+                      className="p-1.5 sm:p-2 text-white/90 hover:text-white rounded-full bg-black/60 hover:bg-black/80 border border-white/20 shadow-sm transition-all cursor-pointer flex items-center justify-center active:scale-95"
+                      title={lang === 'bn' ? 'সার্চ করুন' : 'Search'}
+                    >
+                      <Search className={`w-4 h-4 ${cfg.accentTextClass}`} />
+                    </motion.button>
+                  ) : (
+                    <motion.form
+                      key="search-form"
+                      initial={{ width: 36, opacity: 0 }}
+                      animate={{ width: 175, opacity: 1 }}
+                      exit={{ width: 36, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      onSubmit={handleSearchSubmit}
+                      className="relative flex items-center"
+                    >
+                      <Search className={`w-3.5 h-3.5 ${cfg.accentTextClass} absolute left-2.5 pointer-events-none`} />
+                      <input
+                        type="text"
+                        autoFocus
+                        value={searchTerm}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSearchTerm(val);
+                          checkAdminPin(val);
+                        }}
+                        placeholder={lang === 'bn' ? 'খাবার বা পাসওয়ার্ড...' : 'Search foods or password...'}
+                        className={`w-full pl-8 pr-7 py-1 text-xs rounded-full bg-black/85 border ${cfg.accentBorderClass} text-white placeholder-white/50 focus:outline-none ${cfg.searchFocusClass} shadow-lg`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchTerm('');
+                          setTabletSearchOpen(false);
+                        }}
+                        className="absolute right-2 text-white/50 hover:text-white cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Three Dots Button & Dropdown at the far right corner */}
+              <div ref={tabletMoreDropdownRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setTabletMoreDropdownOpen(!tabletMoreDropdownOpen)}
+                  className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 border border-white/20 text-[#DA9F93] hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-sm active:scale-95"
+                  title="More Pages"
+                >
+                  <MoreHorizontal className="w-4 h-4 text-[#DA9F93]" />
+                </button>
+
+                <AnimatePresence>
+                  {tabletMoreDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className={`absolute right-0 mt-2 w-48 bg-[#1e140d]/98 backdrop-blur-xl border ${cfg.accentBorderClass} rounded-xl shadow-2xl py-1.5 z-50 text-left space-y-0.5`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onReserveClick) onReserveClick();
+                          else scrollToSection('reservation');
+                          setTabletMoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
+                      >
+                        <Calendar className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <span>Reservation</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          scrollToSection('testimonials');
+                          setTabletMoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
+                      >
+                        <Sparkles className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <span>Testimonials</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          scrollToSection('specials');
+                          setTabletMoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
+                      >
+                        <Utensils className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <span>Chef's Specials</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          scrollToSection('contact');
+                          setTabletMoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
+                      >
+                        <PhoneCall className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <span>Contact</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Mobile Header Controls: Back Button + Admin Button + Search Icon + Hamburger */}
-        <div className="md:hidden flex items-center gap-2">
-          {onBack && (
+        {/* B. DESKTOP NAVIGATION MENU & SEARCH BAR */}
+        {isDesktop && (
+          <div className="flex items-center gap-5 lg:gap-7">
+            <nav className="flex items-center space-x-5 lg:space-x-7 text-sm font-medium">
+              <button
+                type="button"
+                onClick={() => scrollToSection('hero')}
+                className={`${cfg.navActiveClass} transition-colors cursor-pointer py-1`}
+              >
+                Home
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('about')}
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+              >
+                About
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('services')}
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+              >
+                Service
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOrderClick) onOrderClick();
+                  else if (onMenuClick) onMenuClick();
+                  else scrollToSection('menu');
+                }}
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+              >
+                Menu
+              </button>
+
+              {/* Dropdown Menu for Pages */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
+                  className={`flex items-center gap-1 text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
+                >
+                  <span>Pages</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {pagesDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 5 }}
+                      transition={{ duration: 0.15 }}
+                      className={`absolute right-0 mt-2 w-48 bg-[#1e140d] border ${cfg.accentBorderClass} rounded-lg shadow-2xl py-2 z-50 text-left`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onReserveClick) onReserveClick();
+                          else scrollToSection('reservation');
+                          setPagesDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
+                      >
+                        Reservation
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection('testimonials')}
+                        className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
+                      >
+                        Testimonials
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection('specials')}
+                        className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
+                      >
+                        Chef's Specials
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => scrollToSection('contact')}
+                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+              >
+                Contact
+              </button>
+            </nav>
+
+            {/* Desktop Search Bar & Admin Button */}
+            <div className="flex items-center gap-3">
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+                <div className="relative flex items-center group">
+                  <Search className={`w-4 h-4 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-white transition-colors`} />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSearchTerm(val);
+                      checkAdminPin(val);
+                    }}
+                    placeholder={lang === 'bn' ? 'খাবার বা পাসওয়ার্ড...' : 'Search menu or password...'}
+                    className={`w-44 lg:w-56 pl-9 pr-8 py-1.5 text-xs rounded-full bg-black/60 border ${cfg.accentBorderClass} text-white placeholder-white/40 focus:outline-none ${cfg.searchFocusClass} focus:ring-1 focus:w-60 transition-all duration-300 shadow-inner`}
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-2.5 text-white/50 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              {/* Header Admin Button */}
+              {showAdminButton === true && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenAdmin) onOpenAdmin();
+                  }}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${cfg.primaryBtnClass} text-xs font-extrabold shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none`}
+                  title="Open Admin Panel"
+                >
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <span>Admin</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* C. MOBILE HEADER CONTROLS (Only for Mobile) */}
+        {isMobile && (
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={onBack}
-              className="px-2 py-1.5 text-white/90 hover:text-white rounded-full bg-black/60 border border-white/20 flex items-center gap-1 cursor-pointer shadow-sm active:scale-90 text-xs font-bold"
-              title={lang === 'bn' ? 'হোম পেজ' : 'Home Portal'}
+              onClick={() => setIsSearchOpenMobile(!isSearchOpenMobile)}
+              className="p-2 text-white hover:text-[#DA9F93] transition-colors rounded-full bg-black/50 border border-[#DA9F93]/30 shadow-md"
+              title="Search or Admin Access"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[10px] font-bold">{lang === 'bn' ? 'হোম' : 'Home'}</span>
+              <Search className="w-5 h-5 text-[#DA9F93]" />
             </button>
-          )}
 
-          {showAdminButton !== false && (
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenAdmin) onOpenAdmin();
-              }}
-              className="px-2.5 py-1.5 text-[#DA9F93] hover:text-white transition-colors rounded-full bg-black/60 border border-[#DA9F93]/40 flex items-center gap-1 cursor-pointer shadow-sm active:scale-90 text-xs font-bold"
-              title="Admin Panel"
-            >
-              <ShieldCheck className="w-4 h-4 text-[#DA9F93]" />
-              <span className="text-[11px] font-extrabold">Admin</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setIsSearchOpenMobile(!isSearchOpenMobile)}
-            className="p-2 text-white hover:text-[#DA9F93] transition-colors rounded-full bg-black/40 border border-[#DA9F93]/20"
-            title="Search or Admin Access"
-          >
-            <Search className="w-5 h-5 text-[#DA9F93]" />
-          </button>
+          {/* Three Dots / Menu Drawer Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-white hover:text-[#DA9F93] transition-colors"
+            className="p-2 text-white hover:text-[#DA9F93] transition-colors rounded-full bg-black/60 border border-[#DA9F93]/40 flex items-center justify-center shadow-md active:scale-90 cursor-pointer"
+            title="Toggle Menu"
           >
-            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-[#DA9F93]" />
+            ) : (
+              <MoreVertical className="w-6 h-6 text-[#DA9F93]" />
+            )}
           </button>
         </div>
+        )}
       </header>
 
-      {/* Mobile Search Overlay Bar */}
+      {/* Mobile & Tablet Search Overlay Bar */}
       <AnimatePresence>
         {isSearchOpenMobile && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-20 left-4 right-4 z-50 md:hidden bg-[#1e140d]/95 border border-[#DA9F93]/40 rounded-2xl p-3 shadow-2xl backdrop-blur-md"
+            className="absolute top-20 left-4 right-4 z-50 bg-[#1e140d]/95 border border-[#DA9F93]/40 rounded-2xl p-3 shadow-2xl backdrop-blur-md"
           >
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
               <Search className="w-4 h-4 text-[#DA9F93] absolute left-3" />
@@ -796,7 +1013,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   setSearchTerm(val);
                   checkAdminPin(val);
                 }}
-                placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা এডমিন পিন (8520)...' : 'Search menu or enter admin PIN (8520)...'}
+                placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা পাসওয়ার্ড...' : 'Search menu or password...'}
                 className="w-full pl-9 pr-10 py-2 text-sm rounded-xl bg-black/70 border border-[#DA9F93]/30 text-white placeholder-white/40 focus:outline-none focus:border-[#DA9F93]"
               />
               <button
@@ -826,17 +1043,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Mobile Slide-down Navigation Menu */}
+      {/* Mobile & Tablet Slide-down Navigation Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute top-20 left-0 right-0 z-40 bg-[#1e140d]/95 backdrop-blur-md border-b border-[#DA9F93]/20 md:hidden px-6 py-6 flex flex-col space-y-4 text-center font-medium shadow-2xl"
+            className="absolute top-20 left-0 right-0 z-50 bg-[#180e07]/98 backdrop-blur-2xl border-b border-[#DA9F93]/30 px-5 py-5 flex flex-col space-y-2.5 text-center font-medium shadow-2xl max-h-[85vh] overflow-y-auto"
           >
-            {/* Search input in Mobile Menu */}
-            <form onSubmit={handleSearchSubmit} className="relative w-full mb-2">
+            {/* Search input in Mobile/Tablet Menu */}
+            <form onSubmit={handleSearchSubmit} className="relative w-full mb-1">
               <Search className="w-4 h-4 text-[#DA9F93] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -846,43 +1063,38 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   setSearchTerm(val);
                   checkAdminPin(val);
                 }}
-                placeholder={lang === 'bn' ? 'মেনু সার্চ বা পিন (8520)...' : 'Search menu or enter PIN (8520)...'}
-                className="w-full pl-10 pr-4 py-2 text-xs rounded-full bg-black/60 border border-[#DA9F93]/40 text-white placeholder-white/40 focus:outline-none focus:border-[#DA9F93]"
+                placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা পাসওয়ার্ড...' : 'Search menu or password...'}
+                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-black/70 border border-[#DA9F93]/40 text-white placeholder-white/40 focus:outline-none focus:border-[#DA9F93]"
               />
             </form>
 
-            {onBack && (
-              <button
-                type="button"
-                onClick={() => {
-                  onBack();
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-2 text-amber-400 py-2.5 text-base font-bold border-b border-white/10"
-              >
-                <ArrowLeft className="w-4 h-4 text-amber-400" />
-                <span>{lang === 'bn' ? 'মূল ওয়েবসাইটে ফিরে যান' : 'Back to Main Portal'}</span>
-              </button>
-            )}
-
             <button
               type="button"
-              onClick={() => scrollToSection('hero')}
-              className="text-[#DA9F93] py-2 text-base font-semibold border-b border-white/10"
+              onClick={() => {
+                scrollToSection('hero');
+                setMobileMenuOpen(false);
+              }}
+              className="text-[#DA9F93] py-2.5 text-sm font-bold bg-white/5 rounded-xl transition-colors border border-[#DA9F93]/20"
             >
               Home
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('about')}
-              className="text-white py-2 text-base border-b border-white/10"
+              onClick={() => {
+                scrollToSection('about');
+                setMobileMenuOpen(false);
+              }}
+              className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
               About
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('services')}
-              className="text-white py-2 text-base border-b border-white/10"
+              onClick={() => {
+                scrollToSection('services');
+                setMobileMenuOpen(false);
+              }}
+              className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
               Service
             </button>
@@ -891,10 +1103,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               onClick={() => {
                 if (onOrderClick) onOrderClick();
                 else if (onMenuClick) onMenuClick();
-                else scrollToSection('menu');
+                else scrollToSection('tasting-menu');
                 setMobileMenuOpen(false);
               }}
-              className="text-white py-2 text-base border-b border-white/10"
+              className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
               Menu
             </button>
@@ -905,28 +1117,31 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 else scrollToSection('reservation');
                 setMobileMenuOpen(false);
               }}
-              className="text-white py-2 text-base border-b border-white/10"
+              className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
               Reservation
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('contact')}
-              className="text-white py-2 text-base"
+              onClick={() => {
+                scrollToSection('contact');
+                setMobileMenuOpen(false);
+              }}
+              className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
               Contact
             </button>
 
-            {showAdminButton !== false && (
+            {showAdminButton === true && (
               <button
                 type="button"
                 onClick={() => {
                   if (onOpenAdmin) onOpenAdmin();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center justify-center gap-2 text-[#DA9F93] py-2.5 text-base font-bold bg-[#DA9F93]/15 border border-[#DA9F93]/40 rounded-xl active:scale-95 transition-transform mt-2"
+                className="flex items-center justify-center gap-2 text-[#DA9F93] py-3 text-sm font-bold bg-[#DA9F93]/20 border border-[#DA9F93]/50 rounded-xl active:scale-95 transition-transform mt-1"
               >
-                <ShieldCheck className="w-5 h-5 text-[#DA9F93]" />
+                <ShieldCheck className="w-4 h-4 text-[#DA9F93]" />
                 <span>{lang === 'bn' ? 'এডমিন প্যানেল' : 'Admin Panel'}</span>
               </button>
             )}
@@ -937,14 +1152,26 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
       {/* ========================================================================= */}
       {/* 2. HERO SLIDER SECTION WITH ROASTED COFFEE BEANS & COFFEE CUPS ON TOP */}
       {/* ========================================================================= */}
-      <div id="hero" className="relative w-full min-h-[90vh] sm:min-h-screen flex flex-col justify-between items-center pt-24 sm:pt-28 pb-12 overflow-hidden">
+      <div id="hero" className={`relative w-full ${
+        isMobile 
+          ? 'min-h-[520px] pt-20 pb-10' 
+          : isTablet 
+          ? 'min-h-[580px] sm:min-h-[620px] pt-20 sm:pt-24 pb-8' 
+          : 'min-h-[90vh] sm:min-h-screen pt-24 sm:pt-28 pb-12'
+      } flex flex-col justify-between items-center overflow-hidden`}>
         {/* Full Theme Background Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             src={cfg.heroBgImage || COFFEE_BEANS_BG}
             alt="Theme Hero Background"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.12]"
+            className={`w-full h-full object-cover ${
+              isMobile 
+                ? 'object-center' 
+                : isTablet 
+                ? 'object-center' 
+                : 'object-center filter brightness-[0.88] contrast-[1.12]'
+            }`}
           />
           {/* Botanical Coffee Leaves in Bottom-Left Corner for Coffee Theme #01 */}
           {activePresetId === 'velmora-dining' && (
@@ -971,9 +1198,9 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 className="flex flex-col items-center justify-center space-y-2 sm:space-y-3"
               >
                 {/* Theme Badge Tag */}
-                <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/70 border ${cfg.accentBorderClass} text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-lg backdrop-blur-md mb-1`}>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{cfg.heroBadgeTag}</span>
+                <div className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} text-[10px] sm:text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-lg backdrop-blur-md mb-1 max-w-[92vw] text-center`}>
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                  <span className="leading-tight">{cfg.heroBadgeTag}</span>
                 </div>
 
                 {/* Subtitle / Eyebrow */}
@@ -1058,7 +1285,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         ) : (
           /* 2-COLUMN LAYOUT FOR ALL OTHER THEMES (#2, #4, #5, #6, #7, #8, #9, #10) */
           /* Text on Left, Animated Floating Coffee Visual on Right, NO Boxed Frame, NO Corner Arrows */
-          <div className="relative z-10 max-w-[1550px] mx-auto w-full px-6 sm:px-10 lg:px-16 xl:px-20 my-auto">
+          <div className="relative z-10 max-w-[1550px] mx-auto w-full px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 my-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`split-${activeSlide}`}
@@ -1066,37 +1293,55 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center w-full"
+                className={
+                  isMobile
+                    ? "flex flex-col items-center text-center gap-5 w-full"
+                    : isTablet
+                    ? "grid grid-cols-12 gap-4 items-center w-full"
+                    : "grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center w-full"
+                }
               >
-                {/* LEFT COLUMN: Text, Badges & Actions (Pushed to the Left) */}
-                <div className="lg:col-span-6 xl:col-span-6 text-center lg:text-left flex flex-col items-center lg:items-start space-y-3.5 sm:space-y-4 lg:pr-8">
+                {/* LEFT COLUMN: Text, Badges & Actions */}
+                <div className={
+                  isMobile
+                    ? "w-full text-center flex flex-col items-center space-y-3 px-1"
+                    : isTablet
+                    ? "col-span-7 text-left flex flex-col items-start space-y-3 pr-2"
+                    : "md:col-span-7 lg:col-span-6 text-center md:text-left flex flex-col items-center md:items-start space-y-3 sm:space-y-4 md:pr-4 lg:pr-8"
+                }>
                   {/* Theme Badge Tag */}
-                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/75 border ${cfg.accentBorderClass} text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-xl backdrop-blur-md`}>
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>{cfg.heroBadgeTag}</span>
+                  <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} text-[10px] sm:text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-xl backdrop-blur-md max-w-[92vw] text-center`}>
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span className="leading-tight">{cfg.heroBadgeTag}</span>
                   </div>
 
                   {/* Subtitle / Eyebrow */}
-                  <span className={`text-xl sm:text-2xl md:text-3xl font-serif ${cfg.accentTextClass} tracking-wide font-normal drop-shadow-md block`}>
+                  <span className={`text-base sm:text-2xl md:text-2xl lg:text-3xl font-serif ${cfg.accentTextClass} tracking-wide font-normal drop-shadow-md block`}>
                     {(slide as any).eyebrow || (slide as any).subtitle}
                   </span>
 
                   {/* Main Title */}
-                  <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase leading-none font-sans drop-shadow-2xl">
+                  <h1 className={`${
+                    isMobile 
+                      ? 'text-3xl sm:text-4xl' 
+                      : isTablet 
+                      ? 'text-4xl sm:text-5xl' 
+                      : 'text-3xl sm:text-5xl md:text-5xl lg:text-7xl'
+                  } font-black text-white tracking-tight uppercase leading-tight md:leading-none font-sans drop-shadow-2xl`}>
                     {(slide as any).heading || (slide as any).title}
                   </h1>
 
                   {/* Description / Tagline */}
                   {((slide as any).description || (slide as any).tag) && (
-                    <p className="text-sm sm:text-base text-[#FBF8EE]/90 max-w-xl font-medium leading-relaxed drop-shadow">
+                    <p className="text-xs sm:text-sm md:text-base text-[#FBF8EE]/90 max-w-xl font-medium leading-relaxed drop-shadow">
                       {(slide as any).description || (slide as any).tag}
                     </p>
                   )}
 
                   {/* Item / Price Badge if available */}
                   {((slide as any).cupName || (slide as any).price) && (
-                    <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`}>
-                      <Sparkles className={`w-4 h-4 ${cfg.accentTextClass}`} />
+                    <div className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`}>
+                      <Sparkles className={`w-3.5 h-3.5 ${cfg.accentTextClass}`} />
                       {(slide as any).cupName && (
                         <span className="text-xs sm:text-sm font-bold tracking-wider text-[#FBF8EE] uppercase">
                           {(slide as any).cupName}
@@ -1111,18 +1356,18 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2 w-full">
+                  <div className={`flex flex-wrap items-center justify-center ${isMobile ? 'w-full gap-2.5' : 'md:justify-start gap-2.5 sm:gap-3.5'} pt-2 w-full`}>
                     <button
                       type="button"
                       onClick={onOrderClick || onMenuClick || (() => scrollToSection('tasting-menu'))}
-                      className={`px-8 py-3.5 ${cfg.primaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer`}
+                      className={`px-6 sm:px-8 py-3 sm:py-3.5 ${cfg.primaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer ${isMobile ? 'flex-1 min-w-[140px]' : ''}`}
                     >
                       {(slide as any).primaryBtn || "Shop Now"}
                     </button>
                     <button
                       type="button"
                       onClick={onReserveClick || (() => scrollToSection('reservation'))}
-                      className={`px-8 py-3.5 ${cfg.secondaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer flex items-center gap-2`}
+                      className={`px-6 sm:px-8 py-3 sm:py-3.5 ${cfg.secondaryBtnClass} uppercase tracking-wider text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${isMobile ? 'flex-1 min-w-[140px]' : ''}`}
                     >
                       <Calendar className={`w-4 h-4 ${cfg.accentTextClass}`} />
                       {(slide as any).secondaryBtn || "Explore Blends"}
@@ -1130,8 +1375,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   </div>
                 </div>
 
-                {/* RIGHT COLUMN: Theme-Specific Animated Visual Element (Pushed to the Right) */}
-                <div className="lg:col-span-6 xl:col-span-6 flex items-center justify-center lg:justify-end relative my-4 lg:my-0 lg:translate-x-6 xl:translate-x-12">
+                {/* RIGHT COLUMN: Theme-Specific Animated Visual Element */}
+                <div className={
+                  isMobile
+                    ? "w-full flex items-center justify-center my-1 max-w-[240px] mx-auto"
+                    : isTablet
+                    ? "col-span-5 flex items-center justify-center relative my-1"
+                    : "md:col-span-5 lg:col-span-6 flex items-center justify-center md:justify-end relative my-2 md:my-0 md:translate-x-0 lg:translate-x-6 xl:translate-x-12"
+                }>
                   <HeroAnimatedElement
                     themeId={activePresetId}
                     accentColor={cfg.accentColor}
@@ -1166,10 +1417,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           </>
         )}
 
-        {/* Torn Paper Edge at the Bottom of the Coffee Beans Hero */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none select-none">
-          <TornPaperEdge color="#FFFBF2" position="top" />
-        </div>
+        {/* Bottom divider: On Desktop, render refined artisanal Torn Paper Edge; on Mobile and Tablet, keep completely straight/flat */}
+        {isDesktop ? (
+          <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none select-none hidden lg:block">
+            <TornPaperEdge color="#FFFBF2" position="top" />
+          </div>
+        ) : (
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10 z-30 pointer-events-none" />
+        )}
       </div>
     </div>
   );

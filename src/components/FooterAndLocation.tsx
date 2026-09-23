@@ -466,6 +466,16 @@ export default function FooterAndLocation({
                 <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Terms & Conditions</span>
               </li>
+              {onAdminAccess && (
+                <li 
+                  onClick={onAdminAccess}
+                  className="hover:text-cyan-400 text-slate-500 transition-colors cursor-pointer flex items-center gap-1.5 pt-1"
+                  title={lang === 'bn' ? 'স্টাফ / এডমিন এক্সেস (PIN: 8520)' : 'Staff Admin Access (PIN: 8520)'}
+                >
+                  <Lock className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Staff Portal</span>
+                </li>
+              )}
             </ul>
           </div>
 

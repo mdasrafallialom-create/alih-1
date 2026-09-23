@@ -613,12 +613,6 @@ export default function ThemeStoreManager({
       }
       return updated;
     });
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('webar_last_entered_from_theme', preset.id);
-        localStorage.setItem('webar_active_theme_id', preset.id);
-      } catch (e) {}
-    }
     onUpdateSettings({
       ...(settings as any),
       activeThemeId: preset.id,
@@ -634,8 +628,8 @@ export default function ThemeStoreManager({
 
     setSuccessToast(
       lang === 'bn' 
-        ? `"${preset.name}" থিমটি সক্রিয় করা হয়েছে! নতুন ট্যাবে থিমটি অন হচ্ছে...` 
-        : `Theme "${preset.name}" deployed! Opening active theme tab...`
+        ? `"${preset.name}" থিমটি সক্রিয় হয়েছে! নতুন ট্যাবে থিমটি ওপেন হচ্ছে...` 
+        : `Theme "${preset.name}" deployed! Opening in new tab...`
     );
 
     try {
@@ -1319,14 +1313,15 @@ export default function ThemeStoreManager({
               {/* Scrollable Website Canvas */}
               <div className="flex-1 overflow-y-auto bg-slate-950 p-0 flex justify-center scroll-smooth min-h-0">
                 <div 
-                  className={`transition-all duration-300 w-full flex flex-col min-h-full ${
+                  className={`transition-all duration-300 w-full flex flex-col min-h-full relative ${
                     previewDeviceView === 'mobile' 
-                      ? 'max-w-md my-4 rounded-2xl shadow-2xl border border-slate-800 overflow-hidden' 
+                      ? 'max-w-md my-4 rounded-2xl shadow-2xl border border-slate-800 overflow-x-clip' 
                       : previewDeviceView === 'tablet' 
-                      ? 'max-w-3xl my-4 rounded-2xl shadow-2xl border border-slate-800 overflow-hidden' 
+                      ? 'max-w-3xl my-4 rounded-2xl shadow-2xl border border-slate-800 overflow-x-clip' 
                       : 'w-full max-w-none rounded-none'
                   }`}
                   style={{ 
+                    transform: previewDeviceView !== 'desktop' ? 'translateZ(0)' : undefined,
                     backgroundColor: previewTheme.surfaceColor,
                     color: previewTheme.textColor,
                     fontFamily: previewTheme.fontBody
@@ -1356,7 +1351,7 @@ export default function ThemeStoreManager({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {settings?.showAdminButton !== false && (
+                        {settings?.showAdminButton === true && (
                           <button
                             type="button"
                             onClick={() => {
@@ -1679,6 +1674,7 @@ export default function ThemeStoreManager({
                       settings={settings}
                       lang={lang}
                       themePresetId={previewTheme.id}
+                      previewDeviceView={previewDeviceView}
                     />
                   )}
 

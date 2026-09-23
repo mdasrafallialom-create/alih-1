@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Crown, Sparkles, Star, Clock, MapPin, Phone, Calendar, 
-  ChevronLeft, ChevronRight, Play, Pause, ShoppingBag, ArrowUpRight, 
+  ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, 
   Menu, X, Heart, Shield, QrCode, Check, Compass, Search, Bell,
   Award, ChefHat, Utensils, Wine, Gem, Users, CheckCircle2
 } from 'lucide-react';
@@ -14,7 +14,7 @@ import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
-import coffeeHeroBg from '../../assets/images/coffee_hero_bg_1790056147017.jpg';
+import cleanCoffeeBg from '../../assets/images/clean_coffee_bg_1790179641546.jpg';
 
 interface FoodItem {
   id: string;
@@ -42,6 +42,7 @@ interface VelmoraDiningThemeProps {
   settings?: any;
   lang?: string;
   themePresetId?: string;
+  previewDeviceView?: 'desktop' | 'tablet' | 'mobile';
 }
 
 export interface ThemePageConfig {
@@ -59,7 +60,7 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
   'velmora-dining': {
     pageBgStyle: {
       backgroundColor: '#120a06',
-      backgroundImage: `linear-gradient(to bottom, rgba(18, 10, 6, 0.85), rgba(10, 6, 3, 0.94)), url('${coffeeHeroBg}')`,
+      backgroundImage: `linear-gradient(to bottom, rgba(18, 10, 6, 0.85), rgba(10, 6, 3, 0.94)), url('${cleanCoffeeBg}')`,
       backgroundSize: 'cover',
       backgroundAttachment: 'fixed',
       backgroundPosition: 'center',
@@ -387,7 +388,8 @@ export default function VelmoraDiningTheme({
   onBack,
   settings,
   lang = 'en',
-  themePresetId
+  themePresetId,
+  previewDeviceView
 }: VelmoraDiningThemeProps) {
   // State
   const [activeSlide, setActiveSlide] = useState(0);
@@ -397,6 +399,17 @@ export default function VelmoraDiningTheme({
   const [showQrMenuModal, setShowQrMenuModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedDishDetail, setSelectedDishDetail] = useState<FoodItem | null>(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isTablet = previewDeviceView === 'tablet' || (!previewDeviceView && windowWidth >= 640 && windowWidth < 1024);
+  const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
+  const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
   
   // Reservation Modal
   const [reservationModalOpen, setReservationModalOpen] = useState(false);
@@ -482,9 +495,11 @@ export default function VelmoraDiningTheme({
 
   return (
     <div 
-      className="w-full min-h-screen text-[#FBF8EE] selection:bg-[#DA9F93]/30 selection:text-white outline-none"
+      className="w-full min-h-screen text-[#FBF8EE] selection:bg-[#DA9F93]/30 selection:text-white outline-none relative"
       style={{
         ...pageCfg.pageBgStyle,
+        backgroundAttachment: (previewDeviceView || isTablet || isMobile) ? 'scroll' : (pageCfg.pageBgStyle.backgroundAttachment || 'scroll'),
+        backgroundSize: 'cover',
         fontFamily: fontBody || "'Plus Jakarta Sans', sans-serif"
       }}
     >
@@ -504,10 +519,10 @@ export default function VelmoraDiningTheme({
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
           onOpenAdmin={onOpenAdmin}
-          onBack={onBack}
-          showAdminButton={settings?.showAdminButton !== false}
+          showAdminButton={settings?.showAdminButton === true}
           lang={lang}
           themePresetId={activePresetId}
+          previewDeviceView={previewDeviceView}
         />
       </section>
 
@@ -528,6 +543,7 @@ export default function VelmoraDiningTheme({
         }}
         lang={lang}
         themePresetId={activePresetId}
+        previewDeviceView={previewDeviceView}
       />
 
       {/* ========================================================= */}
@@ -538,26 +554,26 @@ export default function VelmoraDiningTheme({
         {/* Section Heading */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <span className="text-xs font-mono font-bold tracking-[0.3em] uppercase block" style={{ color: pageCfg.accentColor }}>
-            {pageCfg.repertoireTag}
+            {settings?.menuSectionTagline || pageCfg.repertoireTag}
           </span>
           <h2 
             className="text-3xl sm:text-5xl font-bold tracking-tight text-[#FBF8EE]"
             style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
           >
-            Haute Cuisine & Tasting Courses
+            {settings?.menuSectionTitle || 'Haute Cuisine & Tasting Courses'}
           </h2>
           <p className="text-sm text-[#FBF8EE]/70 font-light">
-            Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.
+            {settings?.menuSectionSubtitle || 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.'}
           </p>
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+        <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 sm:pb-0 scrollbar-none flex-nowrap sm:flex-wrap max-w-full">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 ${
                 activeCategory === cat.id
                   ? `${pageCfg.accentGradient} shadow-lg scale-105`
                   : 'bg-[#14120B] border border-white/20 text-[#FBF8EE]/80 hover:border-white/50'
@@ -569,7 +585,13 @@ export default function VelmoraDiningTheme({
         </div>
 
         {/* Food Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className={`grid gap-5 sm:gap-6 lg:gap-8 ${
+          isMobile 
+            ? 'grid-cols-1' 
+            : isTablet 
+            ? 'grid-cols-2' 
+            : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+        }`}>
           {filteredDishes.map((dish) => (
             <motion.div
               key={dish.id}
@@ -615,7 +637,7 @@ export default function VelmoraDiningTheme({
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 
-                      className="font-bold text-lg text-[#FBF8EE] transition-colors line-clamp-1"
+                      className="font-bold text-base sm:text-lg text-[#FBF8EE] transition-colors line-clamp-2 min-h-[3rem] leading-snug break-words"
                       style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
                     >
                       {dish.title}
@@ -761,6 +783,7 @@ export default function VelmoraDiningTheme({
         brandName={brandName || settings?.brandName || 'KOPPEE'}
         lang={lang}
         themePresetId={activePresetId}
+        previewDeviceView={previewDeviceView}
       />
 
       {/* ========================================================= */}
@@ -781,6 +804,8 @@ export default function VelmoraDiningTheme({
           showGoogleMap={settings?.showGoogleMap !== false}
           lang={lang}
           themePresetId={activePresetId}
+          onOpenAdmin={onOpenAdmin}
+          previewDeviceView={previewDeviceView}
         />
       </section>
 
@@ -1072,6 +1097,31 @@ export default function VelmoraDiningTheme({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Corner Floating Scroll To Top Button (Always Present in Tablet & Mobile view, pinned to device corner) */}
+      <div className={
+        previewDeviceView 
+          ? "sticky bottom-5 flex justify-end px-5 pointer-events-none z-50 -mt-16 w-full" 
+          : "fixed bottom-5 right-5 z-50"
+      }>
+        <button
+          type="button"
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            const heroEl = document.getElementById('hero');
+            if (heroEl) {
+              heroEl.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+          className="w-11 h-11 bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06] flex items-center justify-center rounded-xl transition-transform active:scale-90 cursor-pointer shadow-2xl border border-white/20 pointer-events-auto"
+          title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-6 h-6 stroke-[2.5]" />
+        </button>
+      </div>
 
     </div>
   );

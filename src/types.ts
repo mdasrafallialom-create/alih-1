@@ -132,6 +132,9 @@ export interface AdminSettings {
   lunavereReservationDesc?: string;
   lunavereReserveBtnText?: string;
   lunavereQrBtnText?: string;
+  menuSectionTagline?: string;
+  menuSectionTitle?: string;
+  menuSectionSubtitle?: string;
 }
 
 export interface ChefProfile {

@@ -258,6 +258,14 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
   const isPro = initialPlanId === 'pro';
   const isElite = initialPlanId === 'elite';
 
+  // Lock background page scroll when plan modal is open
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[150] flex items-center justify-center p-0 overflow-hidden bg-slate-950">

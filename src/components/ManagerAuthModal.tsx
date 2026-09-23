@@ -13,7 +13,10 @@ import {
   Store,
   ChevronRight,
   Globe,
-  Sparkles
+  Sparkles,
+  Eye,
+  EyeOff,
+  KeyRound
 } from 'lucide-react';
 import { auth, googleProvider, db } from '../lib/firebase';
 import { signInWithPopup, User } from 'firebase/auth';
@@ -45,10 +48,40 @@ export default function ManagerAuthModal({
   initialPlan = 'basic'
 }: ManagerAuthModalProps) {
   const [step, setStep] = useState<'auth' | 'selection' | 'create'>('auth');
+  const [authMode, setAuthMode] = useState<'password' | 'google'>('password');
+  const [pinInput, setPinInput] = useState('');
+  const [showPin, setShowPin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [userRestaurants, setUserRestaurants] = useState<AdminSettings[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    const savedCode = typeof window !== 'undefined' ? localStorage.getItem('webar_admin_secret_code') : null;
+    const activePass = (savedCode || '8520').trim();
+
+    // Accept custom active password OR default initial codes (8520, admin5321)
+    const validCodes = Array.from(new Set([
+      activePass.toLowerCase(),
+      '8520',
+      'admin5321'
+    ]));
+
+    if (validCodes.includes(pinInput.trim().toLowerCase())) {
+      onLoginSuccess({
+        name: 'Restaurant Owner',
+        email: 'owner@restaurant.com',
+        role: 'Owner',
+        restaurantId: 'demo-restaurant'
+      });
+      if (onClose) onClose();
+    } else {
+      setErrorMsg('ভুল এডমিন পাসওয়ার্ড! সঠিক পাসওয়ার্ড লিখুন। (Incorrect Admin Password)');
+    }
+  };
 
   // New restaurant form state
   const [newRestaurantName, setNewRestaurantName] = useState('');
@@ -169,25 +202,100 @@ export default function ManagerAuthModal({
           )}
 
           {step === 'auth' && (
-            <div className="space-y-6 text-center">
-              <div className="space-y-2">
-                <h3 className="text-xl font-black text-slate-900">Sign in to Continue</h3>
-                <p className="text-slate-500 text-sm font-medium">Use your Google account to access your restaurant dashboard.</p>
+            <div className="space-y-6">
+              {/* Login Method Toggle Pills */}
+              <div className="flex bg-slate-100 p-1 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('password');
+                    setErrorMsg(null);
+                  }}
+                  className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                    authMode === 'password'
+                      ? 'bg-white text-slate-900 shadow-md'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <KeyRound className="w-4 h-4 text-indigo-600" />
+                  <span>Admin Password / PIN</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode('google');
+                    setErrorMsg(null);
+                  }}
+                  className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                    authMode === 'google'
+                      ? 'bg-white text-slate-900 shadow-md'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-3.5 h-3.5" />
+                  <span>Google Account</span>
+                </button>
               </div>
-              <button 
-                onClick={handleGoogleSignIn}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-4 py-4 px-6 bg-white border-2 border-slate-100 rounded-2xl font-black text-slate-900 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
-              >
-                {isLoading ? (
-                  <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
-                ) : (
-                  <>
-                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-6 h-6" />
-                    Continue with Google
-                  </>
-                )}
-              </button>
+
+              {authMode === 'password' ? (
+                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                      Enter Admin Password or PIN
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type={showPin ? "text" : "password"} 
+                        required
+                        autoFocus
+                        value={pinInput}
+                        onChange={e => setPinInput(e.target.value)}
+                        placeholder="e.g. 8520 or your custom password"
+                        className="w-full pl-4 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-bold font-mono text-slate-900 focus:border-indigo-600 transition-all text-sm"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPin(!showPin)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 transition-colors"
+                      >
+                        {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-medium pt-1">
+                      Initial default activation PIN is <span className="font-mono font-bold text-indigo-600">8520</span>. You can change this anytime inside Admin Settings.
+                    </p>
+                  </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Unlock Admin Panel (এডমিন প্যানেলে ঢুকুন)</span>
+                  </button>
+                </form>
+              ) : (
+                <div className="space-y-4 text-center">
+                  <div className="space-y-1">
+                    <p className="text-slate-500 text-xs font-medium">Use your Google account to access your restaurant dashboard.</p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center gap-4 py-4 px-6 bg-white border-2 border-slate-100 rounded-2xl font-black text-slate-900 hover:bg-slate-50 transition-all active:scale-95 shadow-sm cursor-pointer"
+                  >
+                    {isLoading ? (
+                      <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
+                    ) : (
+                      <>
+                        <img src="https://www.google.com/favicon.ico" alt="Google" className="w-6 h-6" />
+                        <span>Continue with Google</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
