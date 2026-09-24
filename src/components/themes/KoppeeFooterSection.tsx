@@ -275,41 +275,47 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
               Connect with us on social media for daily brewing tips, new menu arrivals, and seasonal artisanal roast releases.
             </p>
-            {/* Social Icons Box Grid: Facebook, Instagram, YouTube, LinkedIn */}
+            {/* Social Icons Box Grid Filtered strictly by plan: Basic=$15 [1 link], Pro=$49 [3 links], Elite=$99 [4 links] */}
             <div className="flex items-center gap-2 pt-1 flex-wrap">
-              <a
-                href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : '#'}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 border border-white/30 hover:border-[#0A66C2] text-white hover:text-[#0A66C2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                title="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : '#'}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 border border-white/30 hover:border-[#1877F2] text-white hover:text-[#1877F2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                title="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : '#'}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 border border-white/30 hover:border-[#FF0000] text-white hover:text-[#FF0000] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                title="YouTube"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
+              {plan === 'elite' && (
+                <a
+                  href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 border border-white/30 hover:border-[#0A66C2] text-white hover:text-[#0A66C2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                  title="LinkedIn ($99 Elite)"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
+              {(plan === 'pro' || plan === 'elite') && (
+                <a
+                  href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 border border-white/30 hover:border-[#1877F2] text-white hover:text-[#1877F2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                  title="Facebook ($49 Pro / $99 Elite)"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
+              {(plan === 'pro' || plan === 'elite') && (
+                <a
+                  href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 border border-white/30 hover:border-[#FF0000] text-white hover:text-[#FF0000] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                  title="YouTube ($49 Pro / $99 Elite)"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+              )}
               <a
                 href={socialLinks?.instagram ? (socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://${socialLinks.instagram}`) : '#'}
                 target="_blank"
                 rel="noreferrer"
                 className="w-10 h-10 border border-white/30 hover:border-[#E1306C] text-white hover:text-[#E1306C] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                title="Instagram"
+                title="Instagram ($15 Basic / $49 Pro / $99 Elite)"
               >
                 <Instagram className="w-4 h-4" />
               </a>

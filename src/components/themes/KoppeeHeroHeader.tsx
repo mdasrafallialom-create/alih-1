@@ -415,7 +415,7 @@ const DEFAULT_HERO_CONFIG: ThemeHeroConfig = {
 
 const COFFEE_BEANS_BG = roastedCoffeeBeansBg;
 
-const KOPPEE_SLIDES = [
+export const KOPPEE_SLIDES = [
   {
     id: 1,
     subtitle: 'We Have Been Serving',
@@ -447,6 +447,7 @@ const KOPPEE_SLIDES = [
 
 export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   brandName = 'KOPPEE',
+  heroBackgroundImage,
   heroSlides,
   onOrderClick,
   onReserveClick,
@@ -1162,7 +1163,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         {/* Full Theme Background Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
-            src={cfg.heroBgImage || COFFEE_BEANS_BG}
+            src={heroBackgroundImage || cfg.heroBgImage || COFFEE_BEANS_BG}
             alt="Theme Hero Background"
             referrerPolicy="no-referrer"
             className={`w-full h-full object-cover ${
@@ -1285,7 +1286,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         ) : (
           /* 2-COLUMN LAYOUT FOR ALL OTHER THEMES (#2, #4, #5, #6, #7, #8, #9, #10) */
           /* Text on Left, Animated Floating Coffee Visual on Right, NO Boxed Frame, NO Corner Arrows */
-          <div className="relative z-10 max-w-[1550px] mx-auto w-full px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 my-auto">
+          <div className="relative z-10 max-w-[1800px] mx-auto w-full px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 my-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`split-${activeSlide}`}

@@ -871,11 +871,11 @@ export default function App() {
   const [activeThemeId, setActiveThemeId] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const isStandalone = urlParams.get('standalone') === 'true' || urlParams.get('preview') === 'true';
-      if (isStandalone) {
-        const themeFromUrl = urlParams.get('theme');
-        if (themeFromUrl) return themeFromUrl;
-      }
+      const themeFromUrl = urlParams.get('theme');
+      if (themeFromUrl) return themeFromUrl;
+
+      const savedTheme = localStorage.getItem('webar_active_theme_id') || localStorage.getItem('webar_last_entered_from_theme');
+      if (savedTheme) return savedTheme;
     }
     return null;
   });
@@ -917,9 +917,8 @@ export default function App() {
     const handlePopState = () => {
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
-        const isStandalone = urlParams.get('standalone') === 'true' || urlParams.get('preview') === 'true';
         const themeFromUrl = urlParams.get('theme');
-        if (isStandalone && themeFromUrl) {
+        if (themeFromUrl) {
           setIsExitingTheme(false);
           setActiveThemeId(themeFromUrl);
         } else {
@@ -936,9 +935,8 @@ export default function App() {
   useEffect(() => {
     const handleExitAdmin = () => {
       const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const urlTheme = urlParams?.get('theme');
-      const isStandalone = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
-      if (isStandalone && urlTheme) {
+      const urlTheme = urlParams?.get('theme') || activeThemeId;
+      if (urlTheme) {
         setIsExitingTheme(false);
         setActiveThemeId(urlTheme);
       } else {
@@ -964,32 +962,29 @@ export default function App() {
     return () => {
       window.removeEventListener('exit-admin-panel', handleExitAdmin);
     };
-  }, []);
+  }, [activeThemeId]);
 
-  // Standalone theme view is ONLY active if explicitly requested via URL with standalone=true or preview=true
+  // Standalone theme view is active if requested via URL or stored activeThemeId
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = urlParams?.get('theme');
-  const isStandaloneThemeView = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
   const effectiveThemeId = urlTheme || activeThemeId || 'velmora-dining';
   
-  // Custom theme ONLY renders when opened as a standalone theme in a new tab (standalone=true)
-  // The main platform website must NEVER be overwritten by a theme!
-  const isCustomThemeActive = isStandaloneThemeView && Boolean(urlTheme);
+  // Custom theme renders when urlTheme or activeThemeId is set and viewMode is client
+  const isCustomThemeActive = Boolean(urlTheme || activeThemeId) && viewMode === 'client';
 
-  // If in main platform view (not standalone), clean up any lingering theme query params or localStorage
+  // Keep theme URL param and localStorage persisted on refresh
   useEffect(() => {
-    if (typeof window !== 'undefined' && !isStandaloneThemeView) {
+    if (typeof window !== 'undefined' && isCustomThemeActive && effectiveThemeId) {
       try {
+        localStorage.setItem('webar_active_theme_id', effectiveThemeId);
         const url = new URL(window.location.href);
-        if (url.searchParams.has('theme')) {
-          url.searchParams.delete('theme');
+        if (url.searchParams.get('theme') !== effectiveThemeId) {
+          url.searchParams.set('theme', effectiveThemeId);
           window.history.replaceState({}, '', url.toString());
         }
-        localStorage.removeItem('webar_active_theme_id');
-        localStorage.removeItem('webar_last_entered_from_theme');
       } catch (e) {}
     }
-  }, [isStandaloneThemeView]);
+  }, [effectiveThemeId, isCustomThemeActive]);
 
   const selectedThemePreset = useMemo(() => {
     return LUXURY_THEMES.find(t => t.id === effectiveThemeId) || LUXURY_THEMES[0];
@@ -2796,6 +2791,7 @@ export default function App() {
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
+                  onBack={handleExitThemeView}
                   settings={adminSettings || {}}
                   lang={lang}
                 />
@@ -2806,6 +2802,7 @@ export default function App() {
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
+                  onBack={handleExitThemeView}
                   settings={adminSettings || {}}
                   lang={lang}
                   themePresetId={selectedThemePreset?.id}
@@ -2841,6 +2838,7 @@ export default function App() {
                   brandName={adminSettings?.brandName}
                   heroImages={adminSettings?.heroImages}
                   heroSlides={adminSettings?.heroSlides}
+                  plan={adminSettings?.subscriptionPlan || 'basic'}
                 />
 
 
@@ -2994,7 +2992,7 @@ export default function App() {
                   if (typeof window !== 'undefined') {
                     try {
                       const url = new URL(window.location.href);
-                      if (isStandaloneThemeView && urlTheme) {
+                      if (isCustomThemeActive && urlTheme) {
                         url.searchParams.set('theme', urlTheme);
                         url.searchParams.set('standalone', 'true');
                       } else {
@@ -3058,7 +3056,7 @@ export default function App() {
                   if (typeof window !== 'undefined') {
                     try {
                       const url = new URL(window.location.href);
-                      if (isStandaloneThemeView && urlTheme) {
+                      if (isCustomThemeActive && urlTheme) {
                         url.searchParams.set('theme', urlTheme);
                         url.searchParams.set('standalone', 'true');
                       } else {
@@ -3435,6 +3433,7 @@ export default function App() {
             onLogin={handleGoogleLogin}
             onLogout={() => auth.signOut()}
             lang={lang}
+            plan={adminSettings?.subscriptionPlan || 'basic'}
             hideMap={adminSettings?.showGoogleMap === false}
             onAdminAccess={managerSession ? () => setViewMode('admin') : undefined}
             brandName={adminSettings?.brandName}

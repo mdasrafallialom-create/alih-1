@@ -360,43 +360,50 @@ export default function FooterAndLocation({
               Redefining luxury dining experiences in Bangladesh. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews.
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              {/* Connected Social Media Platforms: LinkedIn, Facebook, YouTube, Instagram */}
-              <a 
-                href={formatSocialUrl(socialLinks?.linkedin, 'https://linkedin.com')} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#0A66C2] hover:bg-[#0A66C2]/15 hover:border-[#0A66C2]/50 transition-all shadow-sm" 
-                title="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
+              {/* Connected Social Media Platforms (Filtered strictly by plan: Basic=$15 [1 link], Pro=$49 [3 links], Elite=$99 [4 links]) */}
+              {plan === 'elite' && (
+                <a 
+                  href={formatSocialUrl(socialLinks?.linkedin, 'https://linkedin.com')} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#0A66C2] hover:bg-[#0A66C2]/15 hover:border-[#0A66C2]/50 transition-all shadow-sm" 
+                  title="LinkedIn ($99 Elite Plan)"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
 
-              <a 
-                href={formatSocialUrl(socialLinks?.facebook, '#')} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#1877F2] hover:bg-[#1877F2]/15 hover:border-[#1877F2]/50 transition-all shadow-sm" 
-                title="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
+              {(plan === 'pro' || plan === 'elite') && (
+                <a 
+                  href={formatSocialUrl(socialLinks?.facebook, '#')} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#1877F2] hover:bg-[#1877F2]/15 hover:border-[#1877F2]/50 transition-all shadow-sm" 
+                  title="Facebook ($49 Pro / $99 Elite Plan)"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
 
-              <a 
-                href={formatSocialUrl(socialLinks?.youtube, '#')} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#FF0000] hover:bg-[#FF0000]/15 hover:border-[#FF0000]/50 transition-all shadow-sm" 
-                title="YouTube"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
+              {(plan === 'pro' || plan === 'elite') && (
+                <a 
+                  href={formatSocialUrl(socialLinks?.youtube, '#')} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#FF0000] hover:bg-[#FF0000]/15 hover:border-[#FF0000]/50 transition-all shadow-sm" 
+                  title="YouTube ($49 Pro / $99 Elite Plan)"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+              )}
 
+              {/* Instagram is allowed across all plans ($15 Basic, $49 Pro, $99 Elite) */}
               <a 
                 href={formatSocialUrl(socialLinks?.instagram, '#')} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-[#E1306C] hover:bg-[#E1306C]/15 hover:border-[#E1306C]/50 transition-all shadow-sm" 
-                title="Instagram"
+                title="Instagram ($15 Basic / $49 Pro / $99 Elite Plan)"
               >
                 <Instagram className="w-4 h-4" />
               </a>

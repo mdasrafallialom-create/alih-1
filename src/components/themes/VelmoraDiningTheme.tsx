@@ -9,7 +9,7 @@ import {
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
 import { CAFE_HERO_PRESETS } from '../../data/cafeHeroPresets';
 import FooterAndLocation from '../FooterAndLocation';
-import { KoppeeHeroHeader } from './KoppeeHeroHeader';
+import { KoppeeHeroHeader, THEME_HERO_CONFIGS, KOPPEE_SLIDES } from './KoppeeHeroHeader';
 import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
@@ -232,6 +232,150 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
     cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(225,29,72,0.35)]',
     badgeBgClass: 'bg-rose-600 text-white',
     repertoireTag: '🌅 — MEDITERRANEAN COASTAL SUNSET —',
+  },
+  'orivelle-house': {
+    pageBgStyle: {
+      backgroundColor: '#0a0a0a',
+      backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 10, 0.92), rgba(18, 18, 18, 0.97)), url('https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#e5c158',
+    accentGradient: 'bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 text-stone-950 font-black',
+    cardBg: 'bg-[#141414]/95 backdrop-blur-md',
+    cardBorderClass: 'border-amber-400/40 hover:border-amber-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_35px_rgba(229,193,88,0.4)]',
+    badgeBgClass: 'bg-gradient-to-r from-amber-300 to-yellow-500 text-stone-950 font-black',
+    repertoireTag: '👑 — 24K GOLD LEAF & PRIVATE SOMMELIER HAUTE CUISINE —',
+  },
+  'lunavere': {
+    pageBgStyle: {
+      backgroundColor: '#15162B',
+      backgroundImage: `linear-gradient(to bottom, rgba(21, 22, 43, 0.88), rgba(11, 12, 22, 0.95)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#C9A86A',
+    accentGradient: 'bg-gradient-to-r from-[#C9A86A] via-[#d6b77b] to-[#a8864b] text-[#120a06]',
+    cardBg: 'bg-[#1c1d38]/90 backdrop-blur-md',
+    cardBorderClass: 'border-[#9A7BB5]/40 hover:border-[#C9A86A]',
+    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(154,123,181,0.35)]',
+    badgeBgClass: 'bg-gradient-to-r from-[#9A7BB5] to-[#7B5999] text-white',
+    repertoireTag: '✨ — PARISIAN STARLIGHT NIGHT CAFE & SIPHON BREW —',
+  },
+  'aurelisse': {
+    pageBgStyle: {
+      backgroundColor: '#1e1b4b',
+      backgroundImage: `linear-gradient(to bottom, rgba(30, 27, 75, 0.90), rgba(15, 12, 45, 0.96)), url('https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#a855f7',
+    accentGradient: 'bg-gradient-to-r from-purple-500 via-fuchsia-500 to-amber-500 text-white',
+    cardBg: 'bg-[#2e1065]/85 backdrop-blur-md',
+    cardBorderClass: 'border-purple-400/40 hover:border-amber-400',
+    cardHoverGlowClass: 'hover:shadow-[0_0_35px_rgba(168,85,247,0.4)]',
+    badgeBgClass: 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white',
+    repertoireTag: '⚜️ — IMPERIAL MONARCH VELVET BANQUET & CAVIAR —',
+  },
+  'palatiora': {
+    pageBgStyle: {
+      backgroundColor: '#1c1917',
+      backgroundImage: `linear-gradient(to bottom, rgba(28, 25, 23, 0.88), rgba(15, 13, 12, 0.95)), url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#f59e0b',
+    accentGradient: 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-700 text-stone-950',
+    cardBg: 'bg-[#292524]/90',
+    cardBorderClass: 'border-amber-500/35 hover:border-amber-400',
+    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(245,158,11,0.35)]',
+    badgeBgClass: 'bg-amber-500 text-stone-950',
+    repertoireTag: '🍷 — VINTAGE CELLAR & AGED STEAKHOUSE LOUNGE —',
+  },
+  'celestique': {
+    pageBgStyle: {
+      backgroundColor: '#0a1128',
+      backgroundImage: `linear-gradient(to bottom, rgba(10, 17, 40, 0.90), rgba(5, 8, 20, 0.96)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#38bdf8',
+    accentGradient: 'bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-600 text-stone-950',
+    cardBg: 'bg-[#0f172a]/90 backdrop-blur-md',
+    cardBorderClass: 'border-sky-400/40 hover:border-sky-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_35px_rgba(56,189,248,0.4)]',
+    badgeBgClass: 'bg-sky-400 text-stone-950 font-bold',
+    repertoireTag: '🌌 — CELESTIAL SAPPHIRE ROOFTOP & SKY LOUNGE —',
+  },
+  'caravelle-dining': {
+    pageBgStyle: {
+      backgroundColor: '#081220',
+      backgroundImage: `linear-gradient(to bottom, rgba(8, 18, 32, 0.90), rgba(4, 9, 16, 0.96)), url('https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#38bdf8',
+    accentGradient: 'bg-gradient-to-r from-sky-400 via-blue-600 to-indigo-600 text-white',
+    cardBg: 'bg-[#0a1628]/90',
+    cardBorderClass: 'border-sky-400/35 hover:border-sky-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(56,189,248,0.35)]',
+    badgeBgClass: 'bg-sky-500 text-white',
+    repertoireTag: '🛥️ — ROYAL NAVY & PEARL OCEAN CUISINE —',
+  },
+  'elvaris-atelier': {
+    pageBgStyle: {
+      backgroundColor: '#1c080d',
+      backgroundImage: `linear-gradient(to bottom, rgba(28, 8, 13, 0.90), rgba(14, 4, 6, 0.96)), url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#e11d48',
+    accentGradient: 'bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 text-white',
+    cardBg: 'bg-[#230a10]/90',
+    cardBorderClass: 'border-rose-400/35 hover:border-rose-300',
+    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(225,29,72,0.35)]',
+    badgeBgClass: 'bg-rose-600 text-white',
+    repertoireTag: '🍇 — GRAND CRU BORDEAUX & OAK CASKS —',
+  },
+  'silvarenne': {
+    pageBgStyle: {
+      backgroundColor: '#121215',
+      backgroundImage: `linear-gradient(to bottom, rgba(18, 18, 21, 0.92), rgba(10, 10, 12, 0.97)), url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#e4e4e7',
+    accentGradient: 'bg-gradient-to-r from-zinc-200 via-stone-300 to-zinc-400 text-stone-950 font-black',
+    cardBg: 'bg-[#18181c]/95',
+    cardBorderClass: 'border-zinc-400/40 hover:border-white',
+    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(228,228,231,0.3)]',
+    badgeBgClass: 'bg-zinc-200 text-stone-950 font-bold',
+    repertoireTag: '⚙️ — POLISHED TITANIUM OBSIDIAN & ESPRESSO —',
+  },
+  'solvence-chateau': {
+    pageBgStyle: {
+      backgroundColor: '#120d0a',
+      backgroundImage: `linear-gradient(to bottom, rgba(18, 13, 10, 0.90), rgba(10, 7, 5, 0.96)), url('https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop')`,
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#d97706',
+    accentGradient: 'bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 text-white',
+    cardBg: 'bg-[#1a130e]/90',
+    cardBorderClass: 'border-amber-500/35 hover:border-amber-400',
+    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(217,119,6,0.35)]',
+    badgeBgClass: 'bg-amber-600 text-white',
+    repertoireTag: '🏰 — FRENCH CHATEAU & TRUFFLE CELLAR —',
   }
 };
 
@@ -376,6 +520,69 @@ export const DEFAULT_VELMORA_DISHES: FoodItem[] = [
   }
 ];
 
+const ORIVELLE_NOIR_DISHES: FoodItem[] = [
+  { 
+    id: 'or-1', 
+    title: 'Oscietra Caviar & 24k Gold Blinis', 
+    price: 110.00, 
+    calories: '210 kcal', 
+    desc: 'Grand Reserve Oscietra sturgeon caviar served on warm buckwheat blinis with 24k edible gold leaf and crème fraîche.', 
+    img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop', 
+    category: 'caviar', 
+    isPopular: true 
+  },
+  { 
+    id: 'or-2', 
+    title: 'Pan-Seared Wild Hokkaido Scallops', 
+    price: 58.00, 
+    calories: '290 kcal', 
+    desc: 'Colossal wild scallops, cauliflower silk purée, Jamón Ibérico crisp and white truffle oil emulsion.', 
+    img: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&auto=format&fit=crop', 
+    category: 'seafood', 
+    isChefSpecial: true 
+  },
+  { 
+    id: 'or-3', 
+    title: 'A5 Miyazaki Wagyu Ribeye & Bone Marrow', 
+    price: 145.00, 
+    calories: '680 kcal', 
+    desc: 'Miyazaki A5 Wagyu tenderloin with roasted bone marrow, black Périgord truffle jus and smoked Maldon salt.', 
+    img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop', 
+    category: 'steaks', 
+    isPopular: true 
+  },
+  { 
+    id: 'or-4', 
+    title: 'Black Périgord Truffle Tagliolini', 
+    price: 54.00, 
+    calories: '490 kcal', 
+    desc: '30-yolk fresh hand-rolled pasta tossed in 36-month aged Parmigiano-Reggiano emulsion and shaved black truffles.', 
+    img: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=600&auto=format&fit=crop', 
+    category: 'pasta', 
+    isVegetarian: true, 
+    isChefSpecial: true 
+  },
+  { 
+    id: 'or-5', 
+    title: 'Château Smoked Barbary Duck Breast', 
+    price: 62.00, 
+    calories: '510 kcal', 
+    desc: 'Dry-aged duck breast smoked over French grapevine woods with sour cherry glaze and parsnip mousseline.', 
+    img: 'https://images.unsplash.com/photo-1514944298352-78d123e4299b?w=600&auto=format&fit=crop', 
+    category: 'steaks' 
+  },
+  { 
+    id: 'or-6', 
+    title: '24k Gold Flake Valrhona Chocolate Sphere', 
+    price: 32.00, 
+    calories: '380 kcal', 
+    desc: '70% Guanaja dark chocolate molten sphere served with Madagascar Bourbon vanilla anglaise and edible 24k gold flakes.', 
+    img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop', 
+    category: 'desserts', 
+    isPopular: true 
+  }
+];
+
 export default function VelmoraDiningTheme({
   brandName = 'VELMORA DINING',
   tagline = 'Palatial Gastronomy & Fine Dining',
@@ -452,9 +659,23 @@ export default function VelmoraDiningTheme({
     return () => clearInterval(interval);
   }, [isPlaying]);
 
-  const effectiveDishes = (dishes && dishes.length > 0) ? dishes : DEFAULT_VELMORA_DISHES;
+  const activePresetId = themePresetId || settings?.activeThemeId || 'velmora-dining';
+  const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['velmora-dining'] || THEME_PAGE_CONFIGS['lumivelle'];
 
-  const categories = [
+  const effectiveDishes = (dishes && dishes.length > 0) 
+    ? dishes 
+    : activePresetId === 'orivelle-house' 
+    ? ORIVELLE_NOIR_DISHES 
+    : DEFAULT_VELMORA_DISHES;
+
+  const categories = activePresetId === 'orivelle-house' ? [
+    { id: 'all', label: 'Noir Repertoire' },
+    { id: 'caviar', label: '24K Caviar & Starters' },
+    { id: 'seafood', label: 'Oceanic Crustacean' },
+    { id: 'steaks', label: 'A5 Wagyu & Reserve' },
+    { id: 'pasta', label: 'Handmade Truffle Pasta' },
+    { id: 'desserts', label: 'Haute Patisserie' },
+  ] : [
     { id: 'all', label: 'Full Gastronomy' },
     { id: 'caviar', label: 'Caviar & Starters' },
     { id: 'seafood', label: 'Oceanic & Crustacean' },
@@ -462,6 +683,14 @@ export default function VelmoraDiningTheme({
     { id: 'pasta', label: 'Handmade Pasta' },
     { id: 'desserts', label: 'Palatial Desserts' },
   ];
+
+  const defaultMenuTitle = activePresetId === 'orivelle-house'
+    ? 'Orivelle Haute Gastronomy & Private Cellar'
+    : 'Haute Cuisine & Tasting Courses';
+
+  const defaultMenuSubtitle = activePresetId === 'orivelle-house'
+    ? 'An exclusive repertoire of haute gastronomy, 24k gold leaf infusions, and private cellar reserves.'
+    : 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.';
 
   const filteredDishes = activeCategory === 'all' 
     ? effectiveDishes 
@@ -490,8 +719,31 @@ export default function VelmoraDiningTheme({
     }
   };
 
-  const activePresetId = themePresetId || settings?.activeThemeId || 'velmora-dining';
-  const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['velmora-dining'] || THEME_PAGE_CONFIGS['lumivelle'];
+  // Read theme-specific edits if they exist for activePresetId ONLY
+  const themeEdits = typeof window !== 'undefined' ? (() => {
+    try {
+      const raw = localStorage.getItem(`theme_edits_${activePresetId}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  })() : null;
+
+  const activeHeroBgImage = 
+    themeEdits?.heroBackgroundImage ||
+    settings?.themeSettings?.[activePresetId]?.heroBackgroundImage ||
+    THEME_HERO_CONFIGS[activePresetId]?.heroBgImage ||
+    cleanCoffeeBg;
+
+  const activeHeroSlides = 
+    themeEdits?.heroSlides ||
+    settings?.themeSettings?.[activePresetId]?.heroSlides ||
+    CAFE_HERO_PRESETS[activePresetId] ||
+    KOPPEE_SLIDES;
+
+  const activeAboutUsImage = 
+    themeEdits?.aboutUsImage ||
+    settings?.themeSettings?.[activePresetId]?.aboutUsImage ||
+    THEME_HERO_CONFIGS[activePresetId]?.heroBgImage ||
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop';
 
   return (
     <div 
@@ -508,11 +760,11 @@ export default function VelmoraDiningTheme({
       {/* ========================================================= */}
       <section id="hero">
         <KoppeeHeroHeader
-          brandName={brandName || settings?.brandName || 'KOPPEE'}
-          heroTitle={settings?.heroTitle || settings?.hero?.title}
-          heroSubtitle={settings?.heroSubtitle || settings?.hero?.subtitle}
-          heroBackgroundImage={settings?.heroBackgroundImage || settings?.hero?.backgroundImage}
-          heroSlides={(themePresetId && CAFE_HERO_PRESETS[themePresetId]) || (settings?.activeThemeId && CAFE_HERO_PRESETS[settings.activeThemeId]) || settings?.heroSlides}
+          brandName={brandName || themeEdits?.brandName || settings?.themeSettings?.[activePresetId]?.brandName || settings?.brandName || 'KOPPEE'}
+          heroTitle={themeEdits?.heroTitle || settings?.themeSettings?.[activePresetId]?.heroTitle || settings?.heroTitle || settings?.hero?.title}
+          heroSubtitle={themeEdits?.heroSubtitle || settings?.themeSettings?.[activePresetId]?.heroSubtitle || settings?.heroSubtitle || settings?.hero?.subtitle}
+          heroBackgroundImage={activeHeroBgImage}
+          heroSlides={activeHeroSlides}
           onReserveClick={() => setReservationModalOpen(true)}
           onMenuClick={() => {
             const el = document.getElementById('tasting-menu');
@@ -530,12 +782,12 @@ export default function VelmoraDiningTheme({
       {/* 2. KOPPEE ABOUT US SECTION WITH TORN PAPER DIVIDER */}
       {/* ========================================================= */}
       <KoppeeAboutSection
-        brandName={brandName || settings?.brandName || 'KOPPEE'}
-        aboutUsTitle={settings?.aboutUsTitle || settings?.hero?.title}
-        aboutUsSubtitle={settings?.aboutUsSubtitle || 'ABOUT US'}
-        aboutUsText={settings?.aboutUsText || settings?.brandStory}
-        aboutUsImage={settings?.aboutUsImage || settings?.hero?.backgroundImage}
-        aboutUsFeatures={settings?.aboutUsFeatures}
+        brandName={brandName || themeEdits?.brandName || settings?.themeSettings?.[activePresetId]?.brandName || settings?.brandName || 'KOPPEE'}
+        aboutUsTitle={themeEdits?.aboutUsTitle || settings?.themeSettings?.[activePresetId]?.aboutUsTitle || settings?.aboutUsTitle || settings?.hero?.title}
+        aboutUsSubtitle={themeEdits?.aboutUsSubtitle || settings?.themeSettings?.[activePresetId]?.aboutUsSubtitle || settings?.aboutUsSubtitle || 'ABOUT US'}
+        aboutUsText={themeEdits?.aboutUsText || settings?.themeSettings?.[activePresetId]?.aboutUsText || settings?.aboutUsText || settings?.brandStory}
+        aboutUsImage={activeAboutUsImage}
+        aboutUsFeatures={themeEdits?.aboutUsFeatures || settings?.themeSettings?.[activePresetId]?.aboutUsFeatures || settings?.aboutUsFeatures}
         onReserveClick={() => setReservationModalOpen(true)}
         onMenuClick={() => {
           const el = document.getElementById('tasting-menu');
@@ -549,7 +801,7 @@ export default function VelmoraDiningTheme({
       {/* ========================================================= */}
       {/* 3. TASTING MENU & GOURMET CULINARY SHOWCASE */}
       {/* ========================================================= */}
-      <section id="tasting-menu" className="py-20 sm:py-28 px-4 sm:px-8 max-w-7xl mx-auto space-y-12">
+      <section id="tasting-menu" className="py-20 sm:py-28 px-4 sm:px-8 md:px-12 lg:px-16 w-full max-w-[1800px] mx-auto space-y-12">
         
         {/* Section Heading */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
@@ -560,10 +812,10 @@ export default function VelmoraDiningTheme({
             className="text-3xl sm:text-5xl font-bold tracking-tight text-[#FBF8EE]"
             style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
           >
-            {settings?.menuSectionTitle || 'Haute Cuisine & Tasting Courses'}
+            {settings?.menuSectionTitle || defaultMenuTitle}
           </h2>
           <p className="text-sm text-[#FBF8EE]/70 font-light">
-            {settings?.menuSectionSubtitle || 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.'}
+            {settings?.menuSectionSubtitle || defaultMenuSubtitle}
           </p>
         </div>
 
@@ -680,7 +932,7 @@ export default function VelmoraDiningTheme({
       {/* ========================================================= */}
       {isChefSectionVisible && (
         <section id="chefs" className="py-16 sm:py-24 bg-[#FFFBF2] border-y border-[#DA9F93]/30 scroll-mt-20 overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-4">
+          <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 space-y-4">
             
             <div className="text-center space-y-3">
               <span className="text-xs font-mono font-bold tracking-[0.3em] text-[#B8860B] uppercase flex items-center justify-center gap-2">

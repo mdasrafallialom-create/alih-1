@@ -208,7 +208,7 @@ export default function LunavereTheme({
       <header 
         className="absolute top-0 left-0 right-0 z-30 w-full transition-all duration-300 bg-[#F4E7D3]/90 backdrop-blur-md border-b border-[#C9A86A]/25 py-4"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-between gap-3">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-between gap-3">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3">
             <a href="#hero" className="flex items-center gap-3 group">
@@ -377,7 +377,7 @@ export default function LunavereTheme({
       {/* 3. OUR PHILOSOPHY & STORY SECTION */}
       {/* ========================================================= */}
       <section id="story" className="py-20 lg:py-28 px-6 sm:px-12 bg-[#F4E7D3] text-[#171522] scroll-mt-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="w-full max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Image with 3 Portafilters (latte art, ground coffee, coffee beans) */}
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-[#15162B] aspect-[3/4] max-w-md sm:max-w-lg mx-auto lg:max-w-none group border border-[#C9A86A]/30">
@@ -434,7 +434,7 @@ export default function LunavereTheme({
       {/* 3. SIGNATURE COFFEE SECTION */}
       {/* ========================================================= */}
       <section className="py-20 px-6 sm:px-12 bg-[#F4E7D3] text-[#171522]">
-        <div className="max-w-7xl mx-auto space-y-12">
+        <div className="w-full max-w-[1800px] mx-auto space-y-12">
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-[#B77B83]">
@@ -509,7 +509,7 @@ export default function LunavereTheme({
       {/* 5. FEATURED MENU SECTION */}
       {/* ========================================================= */}
       <section id="menu" className="py-20 px-6 sm:px-12 bg-[#F4E7D3] text-[#171522]">
-        <div className="max-w-7xl mx-auto space-y-10">
+        <div className="w-full max-w-[1800px] mx-auto space-y-10">
           {/* Header */}
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[#C9A86A]/30 pb-8">
             <div className="space-y-2">
@@ -629,7 +629,7 @@ export default function LunavereTheme({
       {/* 7. DESSERT AND PASTRY SHOWCASE */}
       {/* ========================================================= */}
       <section id="desserts" className="py-20 px-6 sm:px-12 bg-[#FAF3E8] border-t border-b border-[#C9A86A]/25 text-[#171522]">
-        <div className="max-w-7xl mx-auto space-y-10">
+        <div className="w-full max-w-[1800px] mx-auto space-y-10">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#96722d]">
@@ -710,7 +710,7 @@ export default function LunavereTheme({
       {/* ========================================================= */}
       {isChefSectionVisible && (
         <section id="chefs" className="py-20 bg-[#F4E7D3] border-b border-[#C9A86A]/20 scroll-mt-20 overflow-hidden text-[#171522]">
-          <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-4">
+          <div className="w-full max-w-[1800px] mx-auto px-6 sm:px-12 space-y-4">
             <div className="text-center max-w-2xl mx-auto space-y-3">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#96722d] flex items-center justify-center gap-2">
                 <ChefHat className="w-4 h-4 text-[#96722d]" />
@@ -915,7 +915,7 @@ export default function LunavereTheme({
       {/* 9. LUNAVERE PARISIAN STARLIGHT FOOTER */}
       {/* ========================================================= */}
       <footer id="visit" className="bg-[#0f101d] text-white border-t border-white/20 pt-16 pb-12 px-6 sm:px-12">
-        <div className="max-w-7xl mx-auto space-y-12">
+        <div className="w-full max-w-[1800px] mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14">
             {/* Col 1: Brand & Socials (White styling, no email) */}
             <div className="space-y-4">

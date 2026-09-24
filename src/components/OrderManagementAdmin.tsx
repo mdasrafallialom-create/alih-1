@@ -908,6 +908,7 @@ export default function OrderManagementAdmin({
   const slide1FileInputRef = useRef<HTMLInputElement>(null);
   const slide2FileInputRef = useRef<HTMLInputElement>(null);
   const slide3FileInputRef = useRef<HTMLInputElement>(null);
+  const slide4FileInputRef = useRef<HTMLInputElement>(null);
   const [slideNotificationMsg, setSlideNotificationMsg] = useState<string | null>(null);
 
   // Sync hero slider images automatically based on current country or preset selection
@@ -929,10 +930,17 @@ export default function OrderManagementAdmin({
 
   const handleUpdateSlideImage = (index: number, newImageUrl: string) => {
     setLocalBrandSettings(prev => {
-      const currentSlides = prev.heroSlides && prev.heroSlides.length === 3 
+      const defaultSlides = getHeroSlidesForLocation(selectedCountry || prev.brandLocation, prev.brandName);
+      const currentSlides = prev.heroSlides && prev.heroSlides.length >= 1 
         ? [...prev.heroSlides] 
-        : getHeroSlidesForLocation(selectedCountry || prev.brandLocation, prev.brandName);
+        : [...defaultSlides];
       
+      // Ensure currentSlides has items up to index
+      while (currentSlides.length <= index) {
+        const fallback = defaultSlides[currentSlides.length] || defaultSlides[0];
+        currentSlides.push({ ...fallback, id: currentSlides.length + 1 });
+      }
+
       currentSlides[index] = {
         ...currentSlides[index],
         image: newImageUrl
@@ -2674,370 +2682,239 @@ export default function OrderManagementAdmin({
                     {/* ========================================================================= */}
                     <div className="pt-6 border-t border-inherit space-y-6">
                       
-                      {/* Active Subscription Plan Tier Switcher Header */}
-                      <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-400/30">
-                              <Sparkles className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="text-base font-black text-white">
-                                  {lang === 'bn' ? 'সাবস্ক্রিপশন প্ল্যান ও থিম পারমিশন' : 'Subscription Plan & Theme Features'}
-                                </h4>
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 font-mono shadow-sm">
-                                  {localBrandSettings.subscriptionPlan === 'basic' ? '$15 Basic Tier' : localBrandSettings.subscriptionPlan === 'pro' ? '$49 Pro Tier' : '$99 Elite Tier'}
-                                </span>
-                              </div>
-                              <p className="text-xs text-slate-300 mt-0.5">
-                                {lang === 'bn' 
-                                  ? '১৫, ৪৯ এবং ৯৯ ডলারের প্ল্যান অনুযায়ী এডমিন প্যানেলে সামাজিক লিংক ও হিরো স্লাইডার অপশন নিয়ন্ত্রিত হবে।'
-                                  : 'Social links and Hero slider capabilities adapt dynamically based on your selected $15, $49, or $99 plan tier.'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Plan Switcher Pills */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                          {[
-                            { 
-                              id: 'basic', 
-                              name: '$15 Basic Plan', 
-                              slides: '1 Hero Slide', 
-                              socials: '1 Social Link (Instagram)',
-                              badgeColor: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300'
-                            },
-                            { 
-                              id: 'pro', 
-                              name: '$49 Pro Plan', 
-                              slides: '3 Hero Slides', 
-                              socials: '3 Social Links (FB, YT, Insta)',
-                              badgeColor: 'border-blue-500/50 bg-blue-500/10 text-blue-300'
-                            },
-                            { 
-                              id: 'elite', 
-                              name: '$99 Elite Plan', 
-                              slides: '4 Hero Slides', 
-                              socials: '4 Social Links (FB, YT, LinkedIn, Insta)',
-                              badgeColor: 'border-amber-500/50 bg-amber-500/10 text-amber-300'
-                            }
-                          ].map(planItem => {
-                            const isSelected = (localBrandSettings.subscriptionPlan || 'basic') === planItem.id;
-                            return (
-                              <button
-                                key={planItem.id}
-                                type="button"
-                                onClick={() => setLocalBrandSettings(prev => ({ ...prev, subscriptionPlan: planItem.id as any }))}
-                                className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                                  isSelected 
-                                    ? 'bg-white text-slate-950 border-amber-400 shadow-lg scale-[1.02]' 
-                                    : 'bg-white/5 hover:bg-white/10 text-white border-white/10'
-                                }`}
-                              >
-                                <div>
-                                  <div className="flex items-center justify-between gap-2">
-                                    <span className={`font-black text-xs ${isSelected ? 'text-slate-950' : 'text-white'}`}>
-                                      {planItem.name}
-                                    </span>
-                                    {isSelected && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
-                                  </div>
-                                  <div className="text-[10px] opacity-80 mt-1 space-y-0.5">
-                                    <p className="font-bold">🎬 {planItem.slides}</p>
-                                    <p className="font-medium">🌐 {planItem.socials}</p>
-                                  </div>
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Social Media Links Section (Filtered by Plan Tier) */}
-                      <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <h4 className="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                              <span>🌐</span>
-                              <span>{lang === 'bn' ? 'সোশ্যাল মিডিয়া প্রোফাইল লিংক (প্ল্যানভিত্তিক লিমিট)' : 'Social Media Links (Plan Filtered)'}</span>
-                            </h4>
-                            <p className="text-xs text-slate-400 mt-0.5">
-                              {localBrandSettings.subscriptionPlan === 'basic' 
-                                ? (lang === 'bn' ? '১৫ ডলারের Basic প্ল্যানে শুধুমাত্র ১টি ইনস্টাগ্রাম (Instagram) লিংক এলাউড।' : '$15 Basic Plan allows 1 Instagram Link.') 
-                                : localBrandSettings.subscriptionPlan === 'pro' 
-                                  ? (lang === 'bn' ? '৪৯ ডলারের Pro প্ল্যানে ৩টি লিঙ্ক এলাউড (Facebook, YouTube, Instagram)।' : '$49 Pro Plan allows 3 Links (Facebook, YouTube, Instagram).') 
-                                  : (lang === 'bn' ? '৯৯ ডলারের Elite প্ল্যানে সর্বমোট ৪টি লিঙ্ক এলাউড (Facebook, YouTube, LinkedIn, Instagram)।' : '$99 Elite Plan allows all 4 Links (Facebook, YouTube, LinkedIn, Instagram).')
-                              }
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* 4 URL Inputs Grid with Plan Tier Lock overlays */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                          {[
-                            { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand', allowedPlans: ['basic', 'pro', 'elite'] },
-                            { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page', allowedPlans: ['pro', 'elite'] },
-                            { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel', allowedPlans: ['pro', 'elite'] },
-                            { key: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/your-profile', allowedPlans: ['elite'] }
-                          ].map(item => {
-                            const currentPlan = localBrandSettings.subscriptionPlan || 'basic';
-                            const isAllowed = item.allowedPlans.includes(currentPlan);
-                            const url = localBrandSettings.socialLinks[item.key as keyof typeof localBrandSettings.socialLinks];
-
-                            return (
-                              <div 
-                                key={item.key} 
-                                className={`p-3.5 rounded-2xl border transition-all ${
-                                  isAllowed 
-                                    ? 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1a1a1a] shadow-sm' 
-                                    : 'border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 opacity-75'
-                                } flex flex-col gap-2 relative overflow-hidden`}
-                              >
-                                <div className="flex items-center justify-between gap-1">
-                                  <div className="flex items-center gap-2">
-                                    <div className={`p-1.5 rounded-lg ${isAllowed ? 'bg-amber-500/15 text-amber-500' : 'bg-slate-500/15 text-slate-400'}`}>
-                                      {getSocialIcon(item.key)}
-                                    </div>
-                                    <span className="text-xs font-black capitalize text-slate-800 dark:text-slate-100">{item.label}</span>
-                                  </div>
-                                  <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
-                                    isAllowed 
-                                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' 
-                                      : 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
-                                  }`}>
-                                    {isAllowed ? 'Active' : '🔒 Locked'}
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                  <input 
-                                    type="text" 
-                                    disabled={!isAllowed}
-                                    value={url || ''}
-                                    onChange={e => setLocalBrandSettings(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, [item.key]: e.target.value } }))}
-                                    onKeyDown={handleKeyDownSave}
-                                    placeholder={isAllowed ? item.placeholder : `Upgrade to ${item.allowedPlans[0].toUpperCase()} plan`}
-                                    className={`w-full bg-transparent text-xs font-bold outline-none py-1 ${
-                                      isAllowed 
-                                        ? 'text-slate-800 dark:text-slate-100 placeholder:text-slate-400' 
-                                        : 'text-slate-400 dark:text-slate-500 cursor-not-allowed italic'
-                                    }`}
-                                  />
-                                  {isAllowed && url && (
-                                    <button 
-                                      type="button"
-                                      onClick={() => window.open(url.startsWith('http') ? url : `https://${url}`, '_blank')}
-                                      className="p-1.5 rounded-lg hover:bg-blue-500/10 text-blue-500 transition-colors shrink-0"
-                                      title={`Open ${item.label}`}
-                                    >
-                                      <ExternalLink className="w-4 h-4" />
-                                    </button>
-                                  )}
-                                </div>
-
-                                {!isAllowed && (
-                                  <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 pt-0.5">
-                                    {item.key === 'linkedin' 
-                                      ? (lang === 'bn' ? 'LinkedIn শুধুমাত্র $99 Elite প্ল্যানে অন্তর্ভুক্ত।' : 'LinkedIn included in $99 Elite plan.') 
-                                      : (lang === 'bn' ? 'এই সোশ্যাল লিঙ্ক আনলক করতে $49 Pro বা $99 Elite প্ল্যান বেছে নিন।' : 'Upgrade to $49 Pro or $99 Elite plan to unlock.')}
-                                  </p>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                  {/* ================================================================= */}
-                  {/* HERO SLIDER COVER PHOTOS CONFIGURATION (PLAN RESTRICTED SLIDES)    */}
-                  {/* ================================================================= */}
-                  <div className="p-8 border-b border-inherit space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>
-                          <Sparkles className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black">
-                              {lang === 'bn' ? 'হিরো স্লাইডার কাভার ফটো' : 'Hero Slider Cover Images'}
-                            </h2>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
-                              {localBrandSettings.subscriptionPlan === 'basic' ? '1 Active Slide ($15)' : localBrandSettings.subscriptionPlan === 'pro' ? '3 Active Slides ($49)' : '4 Active Slides ($99)'}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            {localBrandSettings.subscriptionPlan === 'basic' 
-                              ? (lang === 'bn' ? '$15 Basic প্ল্যানে ১টি হিরো অ্যানিমেশন স্লাইড থাকে।' : '$15 Basic plan includes 1 Hero Animation slide.') 
-                              : localBrandSettings.subscriptionPlan === 'pro' 
-                                ? (lang === 'bn' ? '$49 Pro প্ল্যানে ৩টি অটো স্লাইড থাকে।' : '$49 Pro plan includes 3 Auto Hero Slides.') 
-                                : (lang === 'bn' ? '$99 Elite প্ল্যানে ৪টি ইন্টারেক্টিভ হিরো স্লাইড থাকে।' : '$99 Elite plan includes 4 Interactive Hero Slides.')
-                            }
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Auto-Sync with Current Country Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleSyncCountryHeroSlides()}
-                        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer whitespace-nowrap self-start sm:self-auto"
-                        title={lang === 'bn' ? 'বর্তমান দেশের ছবি দিয়ে স্লাইডার অটো-রিসেট করুন' : 'Auto-sync hero slides with country preset'}
-                      >
-                        <Sparkles className="w-4 h-4 text-slate-950" />
-                        <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Country'})` : `Auto-Sync (${selectedCountry || 'Country'})`}</span>
-                      </button>
-                    </div>
-
-                    {/* Notification Toast */}
-                    {slideNotificationMsg && (
-                      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold text-xs flex items-center gap-2">
-                        <Check className="w-4 h-4 shrink-0" />
-                        <span>{slideNotificationMsg}</span>
-                      </div>
-                    )}
-
-                    {/* Plan Restricted Slide Cards Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+                      {/* DEDICATED ISOLATED PLAN CONTAINER */}
                       {(() => {
-                        const currentPlan = localBrandSettings.subscriptionPlan || 'basic';
-                        const maxAllowed = currentPlan === 'basic' ? 1 : currentPlan === 'pro' ? 3 : 4;
-                        const totalIndices = [0, 1, 2, 3]; // Support up to 4 slides for $99 plan
+                        const plansToRender = [
+                          {
+                            id: 'basic',
+                            price: '$15',
+                            name: lang === 'bn' ? '$15 Basic Plan' : '$15 Basic Plan',
+                            socials: [
+                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' }
+                            ],
+                            slideIndices: [0]
+                          },
+                          {
+                            id: 'pro',
+                            price: '$49',
+                            name: lang === 'bn' ? '$49 Pro Plan' : '$49 Pro Plan',
+                            socials: [
+                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
+                              { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
+                              { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' }
+                            ],
+                            slideIndices: [0, 1, 2]
+                          },
+                          {
+                            id: 'elite',
+                            price: '$99',
+                            name: lang === 'bn' ? '$99 Elite Plan' : '$99 Elite Plan',
+                            socials: [
+                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
+                              { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
+                              { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' },
+                              { key: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/your-profile' }
+                            ],
+                            slideIndices: [0, 1, 2, 3]
+                          }
+                        ];
 
-                        return totalIndices.map((idx) => {
-                          const isAllowed = idx < maxAllowed;
-                          const defaultSlides = getHeroSlidesForLocation(selectedCountry || localBrandSettings.brandLocation, localBrandSettings.brandName);
-                          const fallbackSlide = defaultSlides[idx] || defaultSlides[0];
-                          const currentSlide = (localBrandSettings.heroSlides && localBrandSettings.heroSlides[idx]) || fallbackSlide;
-                          const currentImg = (localBrandSettings.heroImages && localBrandSettings.heroImages[idx]) || currentSlide.image || fallbackSlide.image;
+                        const currentPlanId = localBrandSettings.subscriptionPlan || 'basic';
+                        const activePlanObj = plansToRender.find(p => p.id === currentPlanId) || plansToRender[0];
+                        const isBasic = activePlanObj.id === 'basic';
 
-                          const fileRef = idx === 0 ? slide1FileInputRef : idx === 1 ? slide2FileInputRef : slide3FileInputRef;
-
-                          return (
-                            <div 
-                              key={idx}
-                              className={`p-4 rounded-2xl border transition-all ${
-                                isAllowed 
-                                  ? (theme === 'dark' ? 'bg-[#232323] border-slate-700' : 'bg-slate-50 border-slate-200')
-                                  : 'bg-amber-500/5 border-amber-500/30 opacity-60'
-                              } space-y-3 flex flex-col justify-between relative overflow-hidden`}
-                            >
-                              <div className="space-y-3">
-                                {/* Slide Header */}
-                                <div className="flex items-center justify-between">
-                                  <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${
-                                    isAllowed 
-                                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
-                                      : 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
-                                  }`}>
-                                    Slide #{idx + 1}
-                                  </span>
-                                  <span className="text-[11px] font-bold text-slate-400 truncate max-w-[150px]">
-                                    {isAllowed ? fallbackSlide.tag : `🔒 ${idx === 3 ? '$99 Elite' : '$49 Pro / $99 Elite'}`}
-                                  </span>
+                        return (
+                          <div key={activePlanObj.id} className="p-6 md:p-8 rounded-3xl border border-[#e8e2d8] bg-[#faf8f5] text-slate-900 space-y-8 shadow-md relative overflow-hidden">
+                            
+                            {/* Dedicated Clean Header (Without plan names/dollar labels) */}
+                            <div className="flex items-center justify-between border-b border-[#e8e2d8] pb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
+                                  <Sparkles className="w-5 h-5" />
                                 </div>
-
-                                {/* Image Preview */}
-                                <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-700/50 shadow-inner group">
-                                  <img 
-                                    src={currentImg} 
-                                    alt={`Slide ${idx + 1}`} 
-                                    className={`w-full h-full object-cover ${isAllowed ? 'group-hover:scale-105' : 'blur-[1px]'} transition-transform duration-300`}
-                                  />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-2.5 pointer-events-none">
-                                    <p className="text-[11px] font-black text-white line-clamp-1">
-                                      {fallbackSlide.title}
-                                    </p>
-                                    <p className="text-[9px] text-slate-300 line-clamp-1">
-                                      {fallbackSlide.subtitle}
-                                    </p>
-                                  </div>
-
-                                  {!isAllowed && (
-                                    <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-3 text-center space-y-1">
-                                      <Lock className="w-6 h-6 text-amber-400" />
-                                      <p className="text-xs font-black text-white">Slide #{idx + 1} Locked</p>
-                                      <p className="text-[10px] text-slate-300">
-                                        {idx === 3 
-                                          ? (lang === 'bn' ? '$99 Elite প্ল্যান আপগ্রেড করুন' : 'Upgrade to $99 Elite plan') 
-                                          : (lang === 'bn' ? '$49 Pro বা $99 Elite প্ল্যান বেছে নিন' : 'Upgrade to $49 Pro or $99 Elite')}
-                                      </p>
-                                    </div>
-                                  )}
+                                <div>
+                                  <h3 className="text-lg font-black text-slate-900">
+                                    {lang === 'bn' ? 'সোশ্যাল লিংক ও হিরো মিডিয়া সেটিংস' : 'Social Links & Hero Media Settings'}
+                                  </h3>
                                 </div>
-
-                                {/* Hidden file input */}
-                                <input 
-                                  type="file" 
-                                  ref={fileRef}
-                                  onChange={(e) => handleSlideFileUpload(idx, e)}
-                                  accept="image/*"
-                                  disabled={!isAllowed}
-                                  className="hidden"
-                                />
-
-                                {/* Image URL Input */}
-                                <div className="space-y-1">
-                                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-                                    {lang === 'bn' ? 'ছবির লিঙ্ক (Image URL)' : 'Custom Image URL'}
-                                  </label>
-                                  <div className="flex gap-2">
-                                    <input 
-                                      type="text" 
-                                      disabled={!isAllowed}
-                                      value={localBrandSettings.heroImages?.[idx] || ''} 
-                                      onChange={(e) => handleUpdateSlideImage(idx, e.target.value)}
-                                      placeholder={isAllowed ? fallbackSlide.image : 'Locked on current plan'}
-                                      className={`flex-1 px-3 py-2 text-xs rounded-xl outline-none font-medium border ${
-                                        isAllowed
-                                          ? (theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-800')
-                                          : 'bg-transparent border-slate-700/50 text-slate-500 cursor-not-allowed'
-                                      }`}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Action Buttons: Gallery Upload & Reset */}
-                              <div className="flex gap-2 pt-2 border-t border-inherit">
-                                <button
-                                  type="button"
-                                  disabled={!isAllowed}
-                                  onClick={() => fileRef.current?.click()}
-                                  className={`flex-1 py-2 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all ${
-                                    isAllowed 
-                                      ? 'bg-cyan-600 hover:bg-cyan-500 text-slate-950 active:scale-95 cursor-pointer' 
-                                      : 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
-                                  }`}
-                                  title={lang === 'bn' ? 'গ্যালারি বা পিসি থেকে ছবি আপলোড করুন' : 'Upload photo from gallery or file'}
-                                >
-                                  <Camera className="w-3.5 h-3.5" />
-                                  <span>{lang === 'bn' ? 'আপলোড' : 'Upload'}</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  disabled={!isAllowed}
-                                  onClick={() => handleResetSlide(idx)}
-                                  className={`py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all border ${
-                                    isAllowed 
-                                      ? (theme === 'dark' ? 'border-slate-700 text-slate-400 hover:text-white cursor-pointer active:scale-95' : 'border-slate-200 text-slate-600 hover:bg-slate-100 cursor-pointer active:scale-95')
-                                      : 'border-slate-800 text-slate-600 cursor-not-allowed'
-                                  }`}
-                                  title={lang === 'bn' ? 'ডিফল্ট ছবিতে ফিরিয়ে নিন' : 'Reset to country default image'}
-                                >
-                                  <RefreshCw className="w-3.5 h-3.5" />
-                                  <span>{lang === 'bn' ? 'রিসেট' : 'Reset'}</span>
-                                </button>
                               </div>
                             </div>
-                          );
-                        });
+
+                            {/* PART 1: SOCIAL MEDIA URL INPUTS */}
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
+                                  <span>🌐</span>
+                                  <span>{lang === 'bn' ? 'সোশ্যাল মিডিয়া লিংক' : 'Social Media Links'}</span>
+                                </h4>
+                              </div>
+
+                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
+                                activePlanObj.socials.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'
+                              } gap-5`}>
+                                {activePlanObj.socials.map((item) => {
+                                  const url = localBrandSettings.socialLinks[item.key as keyof typeof localBrandSettings.socialLinks];
+                                  return (
+                                    <div 
+                                      key={item.key} 
+                                      className={`p-4 md:p-5 rounded-2xl border border-[#e5dfd5] bg-white shadow-sm flex flex-col gap-3 relative overflow-hidden ${isBasic ? 'w-full' : ''}`}
+                                    >
+                                      <div className="flex items-center justify-between gap-1">
+                                        <div className="flex items-center gap-2.5">
+                                          <div className="p-2 rounded-xl bg-amber-500/15 text-amber-700">
+                                            {getSocialIcon(item.key)}
+                                          </div>
+                                          <span className="text-sm font-black capitalize text-slate-900">{item.label}</span>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-2 bg-[#f8f6f0] p-2 rounded-xl border border-[#e2dcd2] focus-within:border-amber-600 focus-within:bg-white transition-colors">
+                                        <input 
+                                          type="text" 
+                                          value={url || ''}
+                                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, [item.key]: e.target.value } }))}
+                                          onKeyDown={handleKeyDownSave}
+                                          placeholder={item.placeholder}
+                                          className="w-full bg-transparent text-xs font-bold outline-none text-slate-900 placeholder:text-slate-400 px-2 py-1"
+                                        />
+                                        {url && (
+                                          <button 
+                                            type="button"
+                                            onClick={() => window.open(url.startsWith('http') ? url : `https://${url}`, '_blank')}
+                                            className="p-1.5 rounded-lg hover:bg-blue-500/15 text-blue-600 transition-colors shrink-0"
+                                            title={`Open ${item.label}`}
+                                          >
+                                            <ExternalLink className="w-4 h-4" />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* PART 2: HERO COVER PHOTO SLIDES */}
+                            <div className="space-y-5 pt-6 border-t border-[#e8e2d8]">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
+                                    <Sparkles className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
+                                      <span>{lang === 'bn' ? 'হিরো স্লাইডার কাভার ফটো' : 'Hero Slider Cover Images'}</span>
+                                    </h4>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleSyncCountryHeroSlides()}
+                                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
+                                >
+                                  <Sparkles className="w-4 h-4 text-slate-950" />
+                                  <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Country'})` : `Auto-Sync (${selectedCountry || 'Country'})`}</span>
+                                </button>
+                              </div>
+
+                              {slideNotificationMsg && (
+                                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 font-bold text-xs flex items-center gap-2">
+                                  <Check className="w-4 h-4 shrink-0" />
+                                  <span>{slideNotificationMsg}</span>
+                                </div>
+                              )}
+
+                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
+                                activePlanObj.slideIndices.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'
+                              } gap-6`}>
+                                {activePlanObj.slideIndices.map((idx) => {
+                                  const defaultSlides = getHeroSlidesForLocation(selectedCountry || localBrandSettings.brandLocation, localBrandSettings.brandName);
+                                  const fallbackSlide = defaultSlides[idx] || defaultSlides[0];
+                                  const currentSlide = (localBrandSettings.heroSlides && localBrandSettings.heroSlides[idx]) || fallbackSlide;
+                                  const currentImg = (localBrandSettings.heroImages && localBrandSettings.heroImages[idx]) || currentSlide.image || fallbackSlide.image;
+
+                                  const fileRef = idx === 0 ? slide1FileInputRef : idx === 1 ? slide2FileInputRef : idx === 2 ? slide3FileInputRef : slide4FileInputRef;
+
+                                  return (
+                                    <div 
+                                      key={idx}
+                                      className={`p-5 rounded-2xl border border-[#e5dfd5] bg-white space-y-4 flex flex-col justify-between relative overflow-hidden shadow-sm ${isBasic ? 'w-full' : ''}`}
+                                    >
+                                      <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                          <span className="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-white border border-slate-800">
+                                            Slide #{idx + 1}
+                                          </span>
+                                        </div>
+
+                                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md group">
+                                          <img 
+                                            src={currentImg} 
+                                            alt={`Slide ${idx + 1}`} 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                          />
+                                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
+                                            <p className="text-xs font-black text-white line-clamp-1">
+                                              {fallbackSlide.title}
+                                            </p>
+                                            <p className="text-[10px] text-slate-300 line-clamp-1">
+                                              {fallbackSlide.subtitle}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        <input 
+                                          type="file" 
+                                          ref={fileRef}
+                                          onChange={(e) => handleSlideFileUpload(idx, e)}
+                                          accept="image/*"
+                                          className="hidden"
+                                        />
+
+                                        <div className="space-y-1.5">
+                                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">
+                                            {lang === 'bn' ? 'ছবির ইউআরএল (Image URL)' : 'Image URL'}
+                                          </label>
+                                          <input 
+                                            type="text" 
+                                            value={localBrandSettings.heroImages?.[idx] || ''} 
+                                            onChange={(e) => handleUpdateSlideImage(idx, e.target.value)}
+                                            placeholder={fallbackSlide.image}
+                                            className="w-full px-3.5 py-2.5 text-xs rounded-xl outline-none font-medium bg-[#f8f6f0] text-slate-900 border border-[#e2dcd2] focus:border-amber-600 focus:bg-white transition-colors"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="flex gap-2.5 pt-3 border-t border-[#e8e2d8]">
+                                        <button
+                                          type="button"
+                                          onClick={() => fileRef.current?.click()}
+                                          className="flex-1 py-2.5 px-3.5 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-cyan-600 hover:bg-cyan-500 text-slate-950 active:scale-95 cursor-pointer shadow-md"
+                                        >
+                                          <Camera className="w-3.5 h-3.5" />
+                                          <span>{lang === 'bn' ? 'আপলোড' : 'Upload'}</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleResetSlide(idx)}
+                                          className="py-2.5 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all border border-[#e0d9cd] text-slate-800 hover:bg-[#ede7db] cursor-pointer active:scale-95 bg-[#f5f1e8]"
+                                        >
+                                          <RefreshCw className="w-3.5 h-3.5" />
+                                          <span>{lang === 'bn' ? 'রিসেট' : 'Reset'}</span>
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                          </div>
+                        );
                       })()}
                     </div>
-                  </div>
 
                   <div className="p-8 flex items-center justify-between border-b border-inherit">
                     <div className="flex items-center gap-4">

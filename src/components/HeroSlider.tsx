@@ -30,6 +30,7 @@ interface HeroSliderProps {
     subtitle?: string;
     tag?: string;
   }[];
+  plan?: string;
 }
 
 export function HeroSlider({ 
@@ -37,15 +38,18 @@ export function HeroSlider({
   brandLocation = '', 
   brandName = '', 
   heroImages,
-  heroSlides 
+  heroSlides,
+  plan = 'basic'
 }: HeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Compute active slides dynamically based on location or custom admin slides
+  // Compute active slides dynamically based on location or custom admin slides and restrict by plan tier
   const activeSlides: SlideItem[] = React.useMemo(() => {
+    let slides: SlideItem[] = [];
+
     // 1. If explicit custom heroSlides are configured in admin
-    if (heroSlides && heroSlides.length >= 3 && heroSlides.some(s => s.image)) {
-      return heroSlides.map((s, idx) => ({
+    if (heroSlides && heroSlides.length >= 1 && heroSlides.some(s => s && s.image)) {
+      slides = heroSlides.map((s, idx) => ({
         id: s.id || idx + 1,
         image: s.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=85',
         title: s.title || `Gourmet Specialty #${idx + 1}`,
@@ -53,20 +57,22 @@ export function HeroSlider({
         subtitle: s.subtitle || 'Explore our chef-curated culinary creations and virtual menu in WebAR.',
         tag: s.tag || 'Luxury Dining Experience'
       }));
-    }
-
-    // 2. If explicit heroImages array is provided
-    if (heroImages && heroImages.length >= 3 && heroImages.some(img => !!img)) {
+    } else if (heroImages && heroImages.length >= 1 && heroImages.some(img => !!img)) {
+      // 2. If explicit heroImages array is provided
       const locationDefaults = getHeroSlidesForLocation(brandLocation, brandName);
-      return locationDefaults.map((def, idx) => ({
+      slides = locationDefaults.map((def, idx) => ({
         ...def,
         image: heroImages[idx] || def.image
       }));
+    } else {
+      // 3. Automatic country-based luxury restaurant slides
+      slides = getHeroSlidesForLocation(brandLocation, brandName);
     }
 
-    // 3. Automatic country-based luxury restaurant slides
-    return getHeroSlidesForLocation(brandLocation, brandName);
-  }, [brandLocation, brandName, heroImages, heroSlides]);
+    // Strictly enforce plan-based limits: $15 Basic = 1 slide, $49 Pro = 3 slides, $99 Elite = 4 slides
+    const maxAllowed = plan === 'basic' ? 1 : plan === 'pro' ? 3 : 4;
+    return slides.slice(0, maxAllowed);
+  }, [brandLocation, brandName, heroImages, heroSlides, plan]);
 
   const getLocalizedHero = (index: number) => {
     const slide = activeSlides[index] || activeSlides[0];
