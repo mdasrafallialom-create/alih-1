@@ -446,7 +446,7 @@ export const KOPPEE_SLIDES = [
 ];
 
 export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
-  brandName = 'KOPPEE',
+  brandName = 'My Restaurant',
   heroBackgroundImage,
   heroSlides,
   onOrderClick,
@@ -606,9 +606,27 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     }
   };
 
+  const isDemoOrPlaceholderBrand = (name?: string) => {
+    if (!name) return true;
+    const lower = name.trim().toLowerCase();
+    return lower === 'sahinsh' || 
+           lower === 'askul' || 
+           lower === 'koppee' || 
+           lower === 'velmora dining' || 
+           lower === 'velmora' || 
+           lower === 'lunavere' || 
+           lower === "l'aura webar restaurant" ||
+           lower === 'the golden fork';
+  };
+
+  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
+    ? 'My Restaurant'
+    : brandName!.trim();
+
   const getLogoInitials = (name: string): [string, string] => {
-    if (!name) return ["A", "S"];
+    if (!name || isDemoOrPlaceholderBrand(name)) return ["M", "R"];
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+    if (!cleanName || isDemoOrPlaceholderBrand(cleanName)) return ["M", "R"];
     const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
     if (parts.length >= 2) {
       return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
@@ -616,10 +634,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     if (cleanName.length >= 2) {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
-    return ["A", "S"];
+    return ["M", "R"];
   };
 
-  const [initial1, initial2] = getLogoInitials(brandName);
+  const [initial1, initial2] = getLogoInitials(effectiveBrandName);
 
   return (
     <div className="relative w-full overflow-x-clip bg-[#120a06] text-white font-sans selection:bg-[#DA9F93]/30">
@@ -634,7 +652,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               {initial1}{initial2}
             </div>
             <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-sans drop-shadow-md">
-              {brandName || 'KOPPEE'}
+              {effectiveBrandName}
             </span>
           </div>
         </div>
@@ -1421,7 +1439,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         {/* Bottom divider: On Desktop, render refined artisanal Torn Paper Edge; on Mobile and Tablet, keep completely straight/flat */}
         {isDesktop ? (
           <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none select-none hidden lg:block">
-            <TornPaperEdge color="#FFFBF2" position="top" />
+            <TornPaperEdge color="#ffffff" position="top" />
           </div>
         ) : (
           <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10 z-30 pointer-events-none" />

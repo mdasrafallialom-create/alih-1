@@ -29,7 +29,7 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
   const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
 
   return (
-    <section id="delivery" className="relative w-full bg-[#FFFBF2] text-[#2c1e13] overflow-hidden">
+    <section id="delivery" className="relative w-full bg-white text-[#2c1e13] overflow-hidden">
       <div className={`w-full max-w-[1800px] mx-auto ${
         isMobile ? 'px-4 py-8 sm:py-10' : isTablet ? 'px-6 sm:px-8 py-10 sm:py-12' : 'px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 py-14 sm:py-20'
       }`}>

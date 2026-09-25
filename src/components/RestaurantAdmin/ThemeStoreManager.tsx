@@ -66,6 +66,26 @@ import CoffeeHeaderHero from '../CoffeeHeaderHero';
 import LunavereTheme from '../themes/LunavereTheme';
 import VelmoraDiningTheme from '../themes/VelmoraDiningTheme';
 
+export const isDemoOrPlaceholderBrand = (name?: string) => {
+  if (!name) return true;
+  const lower = name.trim().toLowerCase();
+  return lower === 'sahinsh' || 
+         lower === 'askul' || 
+         lower === 'koppee' || 
+         lower === 'velmora dining' || 
+         lower === 'velmora' || 
+         lower === 'lunavere' || 
+         lower === "l'aura webar restaurant" ||
+         lower === 'the golden fork';
+};
+
+export const resolveSafeBrand = (name?: string, fallback: string = 'My Restaurant') => {
+  if (isDemoOrPlaceholderBrand(name)) {
+    return isDemoOrPlaceholderBrand(fallback) ? 'My Restaurant' : fallback.trim();
+  }
+  return name!.trim();
+};
+
 export interface ThemePreset {
   id: string;
   name: string;
@@ -504,10 +524,11 @@ export default function ThemeStoreManager({
         } catch {}
       }
       
+      const safeBrand = resolveSafeBrand(savedEdits?.brandName, resolveSafeBrand(brandName, 'My Restaurant'));
       setPreviewTagline(savedEdits?.tagline || preset.tagline);
       setPreviewHeaderOption(savedEdits?.headerOption || 'both');
       setPreviewPrimaryColor(savedEdits?.primaryColor || preset.primaryColor);
-      setPreviewBrandName(savedEdits?.brandName || brandName || 'SAHINSH');
+      setPreviewBrandName(safeBrand);
       setPreviewFontDisplay(savedEdits?.fontDisplay || preset.fontDisplay || 'Cormorant Garamond');
       setPreviewFontBody(savedEdits?.fontBody || preset.fontBody || 'Manrope');
       setModalDishes(savedEdits?.dishes || userAddedDishes);
@@ -613,8 +634,12 @@ export default function ThemeStoreManager({
       }
       return updated;
     });
+    const activeBrand = resolveSafeBrand(settings?.brandName, resolveSafeBrand(brandName, 'My Restaurant'));
+    const currentRestName = (settings as any)?.restaurantName;
     onUpdateSettings({
       ...(settings as any),
+      brandName: activeBrand,
+      restaurantName: (!currentRestName || isDemoOrPlaceholderBrand(currentRestName)) ? activeBrand : currentRestName,
       activeThemeId: preset.id,
       subscriptionPlan: targetPlan,
       brandColors: {
@@ -1334,21 +1359,29 @@ export default function ThemeStoreManager({
                   <header ref={previewMegaMenuRef} className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/90 px-4 sm:px-8 py-3.5 flex flex-col gap-3 shadow-md transition-all duration-300">
                     {/* Top Row: Logo + Brand + Location & Admin Avatar */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-cyan-400 font-black text-xl shadow-md">
-                          SA
-                        </div>
-                        <div>
-                          <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight font-display">
-                            {previewBrandName || brandName || 'SAHINSH'}
-                          </h1>
-                          {settings?.brandLocation && (
-                            <p className="text-xs text-slate-500 font-bold tracking-wide">
-                              {settings.brandLocation}
-                            </p>
-                          )}
-                        </div>
-                      </div>
+                      {(() => {
+                        const displayBrand = (!previewBrandName || previewBrandName.toLowerCase() === 'sahinsh') 
+                          ? ((!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName)
+                          : previewBrandName;
+                        const initials = displayBrand.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'MR';
+                        return (
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-cyan-400 font-black text-xl shadow-md select-none">
+                              {initials}
+                            </div>
+                            <div>
+                              <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight font-display">
+                                {displayBrand}
+                              </h1>
+                              {settings?.brandLocation && (
+                                <p className="text-xs text-slate-500 font-bold tracking-wide">
+                                  {settings.brandLocation}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       <div className="flex items-center gap-3">
                         {settings?.showAdminButton === true && (
@@ -1634,7 +1667,7 @@ export default function ThemeStoreManager({
 
                   {previewTheme.id === 'lunavere' ? (
                     <LunavereTheme 
-                      brandName={previewBrandName || brandName || 'LUNAVERE'}
+                      brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
                       tagline={previewTagline || previewTheme.tagline}
                       dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
                       onOrderDish={(dish) => {
@@ -1655,7 +1688,7 @@ export default function ThemeStoreManager({
                     />
                   ) : (
                     <VelmoraDiningTheme 
-                      brandName={previewBrandName || brandName || previewTheme.name}
+                      brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
                       tagline={previewTagline || previewTheme.tagline}
                       dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
                       onOrderDish={(dish) => {
@@ -1694,7 +1727,7 @@ export default function ThemeStoreManager({
                     {/* Render Dual Coffee Animated Header (Cover Banner from Top & Floating Coffee Beans Beats) */}
                     <div className="w-full max-w-5xl">
                       <CoffeeHeaderHero 
-                        brandName={previewBrandName || brandName || 'SAHINSH'}
+                        brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
                         tagline={previewTagline || previewTheme.tagline}
                         themeStyle={{
                           ...previewTheme,
@@ -1713,7 +1746,7 @@ export default function ThemeStoreManager({
                     <div className="w-full max-w-4xl bg-zinc-950 text-white p-4 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-2 font-mono font-bold text-amber-400">
                         <Globe className="w-4 h-4 text-emerald-400" />
-                        <span>https://askul-restaurant.foodie.site</span>
+                        <span>https://myrestaurant.foodie.site</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="px-2.5 py-1 rounded bg-zinc-800 text-[10px] font-bold text-slate-300">
@@ -1927,7 +1960,7 @@ export default function ThemeStoreManager({
                         </h3>
 
                         <p className="text-xs sm:text-sm opacity-80 leading-relaxed">
-                          At {brandName || 'SAHINSH'}, every recipe is a celebration of authentic flavors, master culinary techniques, and hand-selected organic ingredients sourced directly from artisanal farms.
+                          At {(!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName}, every recipe is a celebration of authentic flavors, master culinary techniques, and hand-selected organic ingredients sourced directly from artisanal farms.
                         </p>
 
                         <div className="grid grid-cols-3 gap-4 pt-2">
@@ -2102,7 +2135,7 @@ export default function ThemeStoreManager({
                         </h3>
                       </div>
                       <span className="text-xs font-mono text-orange-500 font-bold">
-                        @sahinsh.gourmet
+                        @myrestaurant.gourmet
                       </span>
                     </div>
 
@@ -2172,18 +2205,26 @@ export default function ThemeStoreManager({
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                       {/* Column 1: Brand Logo & Socials */}
                       <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-cyan-400 font-black text-lg">
-                            SA
-                          </div>
-                          <h3 className="text-lg font-black text-white font-display">
-                            {brandName ? brandName.toLowerCase() : 'sahinsh'}
-                          </h3>
-                        </div>
+                        {(() => {
+                          const footerBrand = (!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName;
+                          const initials = footerBrand.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'MR';
+                          return (
+                            <>
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-cyan-400 font-black text-lg select-none">
+                                  {initials}
+                                </div>
+                                <h3 className="text-lg font-black text-white font-display">
+                                  {footerBrand}
+                                </h3>
+                              </div>
 
-                        <p className="text-xs text-slate-400 leading-relaxed">
-                          {settings?.aboutUsText || `${brandName || 'Our restaurant'} is a gourmet dining venue serving signature dishes and fresh home-style taste.`}
-                        </p>
+                              <p className="text-xs text-slate-400 leading-relaxed">
+                                {settings?.aboutUsText || `${footerBrand} is a gourmet dining venue serving signature dishes and fresh home-style taste.`}
+                              </p>
+                            </>
+                          );
+                        })()}
 
                         <div className="flex items-center gap-2 pt-2">
                           <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300">

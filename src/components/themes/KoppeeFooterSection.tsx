@@ -42,7 +42,7 @@ interface KoppeeFooterSectionProps {
 }
 
 export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
-  brandName = 'KOPPEE',
+  brandName = 'My Restaurant',
   brandLogoUrl,
   brandDescription,
   brandLocation,
@@ -59,6 +59,22 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   onOpenAdmin,
   previewDeviceView
 }) => {
+  const isDemoOrPlaceholderBrand = (name?: string) => {
+    if (!name) return true;
+    const lower = name.trim().toLowerCase();
+    return lower === 'sahinsh' || 
+           lower === 'askul' || 
+           lower === 'koppee' || 
+           lower === 'velmora dining' || 
+           lower === 'velmora' || 
+           lower === 'lunavere' || 
+           lower === "l'aura webar restaurant" ||
+           lower === 'the golden fork';
+  };
+
+  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
+    ? 'My Restaurant'
+    : brandName!.trim();
   const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   React.useEffect(() => {
@@ -117,13 +133,14 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
     locationAddress = rawLocation;
   }
 
-  const fullQuery = `${brandName || ''}${locationAddress && locationAddress !== 'Location Not Set' ? `, ${locationAddress}` : ''}`;
+  const fullQuery = `${effectiveBrandName || ''}${locationAddress && locationAddress !== 'Location Not Set' ? `, ${locationAddress}` : ''}`;
 
   const defaultDesc = brandDescription || "Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews.";
 
   const getLogoInitials = (name: string): [string, string] => {
-    if (!name) return ["A", "S"];
+    if (!name || isDemoOrPlaceholderBrand(name)) return ["M", "R"];
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+    if (!cleanName || isDemoOrPlaceholderBrand(cleanName)) return ["M", "R"];
     const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
     if (parts.length >= 2) {
       return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
@@ -131,10 +148,10 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
     if (cleanName.length >= 2) {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
-    return ["A", "S"];
+    return ["M", "R"];
   };
 
-  const [initial1, initial2] = getLogoInitials(brandName);
+  const [initial1, initial2] = getLogoInitials(effectiveBrandName);
 
   const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(fullQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const directDirectionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullQuery)}`;

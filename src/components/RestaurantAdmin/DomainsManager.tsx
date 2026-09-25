@@ -40,16 +40,16 @@ export default function DomainsManager({
 }: DomainsManagerProps) {
   const isDark = theme === 'dark';
 
-  const cleanBrandSlug = (brandName || 'sahinsh')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '') || 'sahinsh';
+  const cleanBrandSlug = (!brandName || brandName.toLowerCase() === 'sahinsh')
+    ? 'myrestaurant'
+    : (brandName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'myrestaurant');
 
   // State management
   const [activeTab, setActiveTab] = useState<'list' | 'connect'>('list');
   
-  // Custom connected domain (defaults to sahinsh.food or user's customDomain)
+  // Custom connected domain (defaults to myrestaurant.food or user's customDomain)
   const [connectedDomain, setConnectedDomain] = useState<string>(
-    settings.customDomain || 'sahinsh.food'
+    settings.customDomain || 'myrestaurant.food'
   );
   
   // Subdomain
@@ -616,7 +616,7 @@ export default function DomainsManager({
                     type="text"
                     value={newDomainInput}
                     onChange={(e) => setNewDomainInput(e.target.value)}
-                    placeholder="e.g. sahinsh.food or menu.mycafe.com"
+                    placeholder="e.g. myrestaurant.food or menu.mycafe.com"
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-semibold outline-none focus:border-[#00875a]"
                     autoFocus
                   />
@@ -759,7 +759,7 @@ export default function DomainsManager({
 
                   <button
                     onClick={() => {
-                      setConnectedDomain('sahinsh.food');
+                      setConnectedDomain('myrestaurant.food');
                       onUpdateSettings({ customDomain: '' });
                       setShowManageModal(false);
                       showToast('Domain reset to default.');

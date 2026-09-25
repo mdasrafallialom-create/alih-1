@@ -838,6 +838,17 @@ export default function App() {
           if (enforcedPlan) {
             parsed.subscriptionPlan = enforcedPlan;
           }
+          const isDemoBrand = (name?: string) => {
+            if (!name) return true;
+            const lower = name.trim().toLowerCase();
+            return lower === 'sahinsh' || lower === 'askul' || lower === 'koppee' || lower === 'velmora dining' || lower === 'velmora' || lower === 'lunavere' || lower === "l'aura webar restaurant" || lower === 'the golden fork';
+          };
+          if (isDemoBrand(parsed.brandName)) {
+            parsed.brandName = 'My Restaurant';
+          }
+          if (isDemoBrand(parsed.restaurantName)) {
+            parsed.restaurantName = 'My Restaurant';
+          }
           return parsed;
         } catch (e) {
           console.error('Failed to parse admin settings', e);
@@ -847,8 +858,8 @@ export default function App() {
       if (enforcedPlan) {
         return {
           id: 'demo-restaurant',
-          restaurantName: "L'Aura WebAR Restaurant",
-          brandName: "sahinsh",
+          restaurantName: "My Restaurant",
+          brandName: "My Restaurant",
           brandLocation: "",
           subscriptionPlan: enforcedPlan,
           subscriptionStatus: 'active',
@@ -1032,8 +1043,8 @@ export default function App() {
           planParam === '49' || planParam === 'pro' ? 'pro' : 'basic';
         
         setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: targetPlan }) : {
-          restaurantName: "L'Aura WebAR Restaurant",
-          brandName: "sahinsh",
+          restaurantName: "My Restaurant",
+          brandName: "My Restaurant",
           brandLocation: "",
           subscriptionPlan: targetPlan,
           subscriptionStatus: 'active',
@@ -1253,12 +1264,18 @@ export default function App() {
   }
 
   // Helper to extract exactly 2 initials for the monogram logo
+  const isDemoBrandHelper = (name?: string) => {
+    if (!name) return true;
+    const lower = name.trim().toLowerCase();
+    return lower === 'sahinsh' || lower === 'askul' || lower === 'koppee' || lower === 'velmora dining' || lower === 'velmora' || lower === 'lunavere' || lower === "l'aura webar restaurant" || lower === 'the golden fork';
+  };
+
   const getLogoInitials = (name: string) => {
-    if (!name) return ["L", "A"];
+    if (!name || isDemoBrandHelper(name)) return ["M", "R"];
     
     // Remove non-alphanumeric characters except spaces
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    if (!cleanName) return ["L", "A"];
+    if (!cleanName || isDemoBrandHelper(cleanName)) return ["M", "R"];
     
     const parts = cleanName.split(/\s+/);
     if (parts.length >= 2 && parts[0] && parts[1]) {
@@ -1269,12 +1286,13 @@ export default function App() {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
     
-    return [cleanName[0].toUpperCase(), "A"];
+    return ["M", "R"];
   };
 
   // Helper to render a high-end designer SVG monogram logo
   const renderMonogramLogo = (brandName: string, isLight: boolean = false, size: 'sm' | 'md' | 'lg' = 'md') => {
-    const [c1, c2] = getLogoInitials(brandName || 'sahinsh');
+    const safeBrand = isDemoBrandHelper(brandName) ? 'My Restaurant' : brandName.trim();
+    const [c1, c2] = getLogoInitials(safeBrand);
     const style = adminSettings?.logoStyle || 'crest';
     const primaryColor = adminSettings?.logoColorPrimary || '#f59e0b';
     const secondaryColor = adminSettings?.logoColorSecondary || '#d4af37';
@@ -2272,11 +2290,11 @@ export default function App() {
                   className="flex items-center gap-3 cursor-pointer group shrink-0" 
                   onClick={() => setLogoClickCount(prev => prev + 1)}
                 >
-                  {renderMonogramLogo(adminSettings?.brandName || 'sahinsh')}
+                  {renderMonogramLogo(adminSettings?.brandName || 'My Restaurant')}
                   <div className="flex flex-col items-start leading-none">
                     <div className="flex items-center gap-2">
                       <h1 className="text-base font-bold text-slate-900 tracking-tight leading-none group-hover:text-cyan-600 transition-colors">
-                        {adminSettings?.brandName || "sahinsh"}
+                        {(!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? "My Restaurant" : adminSettings.brandName}
                       </h1>
                     </div>
                     {adminSettings?.brandLocation && (
@@ -2363,7 +2381,7 @@ export default function App() {
                 <div className="flex flex-col items-start">
                   <div className="flex items-center gap-2">
                     <h1 className="text-sm font-display font-black tracking-tight text-inherit group-hover:text-cyan-600 transition-colors leading-none">
-                      {adminSettings?.brandName || "sahinsh"}
+                      {(!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? "My Restaurant" : adminSettings.brandName}
                     </h1>
                     {adminSettings?.subscriptionPlan && (
                       <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-[0.2em] shadow-sm ${
@@ -2797,7 +2815,7 @@ export default function App() {
                 />
               ) : (
                 <VelmoraDiningTheme 
-                  brandName={(adminSettings as any)?.customDomain || adminSettings?.brandName || selectedThemePreset.name}
+                  brandName={(adminSettings as any)?.customDomain || ((!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : adminSettings.brandName)}
                   tagline={selectedThemePreset.tagline || adminSettings?.tagline || 'Palatial Gastronomy & Fine Dining'}
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
@@ -3495,8 +3513,8 @@ export default function App() {
                     planId === '99' || planId === 'elite' || planId === 'premium' ? 'elite' :
                     planId === '49' || planId === 'pro' ? 'pro' : 'basic';
                   setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: targetPlan }) : {
-                    restaurantName: "L'Aura WebAR Restaurant",
-                    brandName: "sahinsh",
+                    restaurantName: "My Restaurant",
+                    brandName: "My Restaurant",
                     brandLocation: "",
                     subscriptionPlan: targetPlan,
                     subscriptionStatus: 'active',

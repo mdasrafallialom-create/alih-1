@@ -19,7 +19,7 @@ interface KoppeeAboutSectionProps {
 }
 
 export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
-  brandName = 'KOPPEE',
+  brandName = 'My Restaurant',
   brandLogoUrl,
   brandDescription,
   aboutUsTitle,
@@ -33,9 +33,25 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   themePresetId,
   previewDeviceView
 }) => {
+  const isDemoOrPlaceholderBrand = (name?: string) => {
+    if (!name) return true;
+    const lower = name.trim().toLowerCase();
+    return lower === 'sahinsh' || 
+           lower === 'askul' || 
+           lower === 'koppee' || 
+           lower === 'velmora dining' || 
+           lower === 'velmora' || 
+           lower === 'lunavere' || 
+           lower === "l'aura webar restaurant" ||
+           lower === 'the golden fork';
+  };
+
+  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
+    ? 'My Restaurant'
+    : brandName!.trim();
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   const displayTitle = aboutUsTitle || (lang === 'bn' ? 'কেন আমাদের কাছে খাবেন?' : 'Why Dine With Us?');
-  const defaultStory = brandDescription || `Redefining luxury dining experiences in Bangladesh. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${brandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`;
+  const defaultStory = brandDescription || `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`;
   const storyText = aboutUsText || defaultStory;
   const imageSrc = aboutUsImage || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop';
 
@@ -69,8 +85,9 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   const featuresList = (aboutUsFeatures && aboutUsFeatures.length > 0) ? aboutUsFeatures : defaultFeatures;
 
   const getLogoInitials = (name: string): [string, string] => {
-    if (!name) return ["A", "S"];
+    if (!name || isDemoOrPlaceholderBrand(name)) return ["M", "R"];
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+    if (!cleanName || isDemoOrPlaceholderBrand(cleanName)) return ["M", "R"];
     const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
     if (parts.length >= 2) {
       return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
@@ -78,13 +95,13 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
     if (cleanName.length >= 2) {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
-    return ["A", "S"];
+    return ["M", "R"];
   };
 
-  const [initial1, initial2] = getLogoInitials(brandName);
+  const [initial1, initial2] = getLogoInitials(effectiveBrandName);
 
   return (
-    <section id="about" className="relative w-full bg-[#FFFBF2] text-[#2c1e13] overflow-hidden">
+    <section id="about" className="relative w-full bg-white text-[#2c1e13] overflow-hidden">
       <div className={`w-full max-w-[1800px] mx-auto ${
         isTablet 
           ? 'px-6 sm:px-8 py-10 sm:py-12' 

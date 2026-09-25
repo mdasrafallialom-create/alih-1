@@ -98,24 +98,19 @@ const DEFAULT_TESTIMONIALS = [
 ];
 
 const DEFAULT_LUNAVERE_DISHES: FoodItem[] = [
-  { id: '1', title: 'Artisan Caramel Macchiato', price: 6.50, calories: '180 kcal', desc: 'Single-origin espresso with steamed vanilla oat milk & Madagascar caramel drizzle', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop', category: 'coffee', isPopular: true },
-  { id: '2', title: 'Flaky Butter Almond Croissant', price: 4.50, calories: '290 kcal', desc: 'Freshly baked daily with French butter, roasted almond flakes & powdered sugar', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop', category: 'pastries', isPopular: true },
-  { id: '3', title: 'Pistachio Velvet Cold Brew', price: 5.50, calories: '150 kcal', desc: '24-hour slow-steeped Arabica cold brew topped with sweet pistachio cream foam', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop', category: 'coffee', isPopular: true },
-  { id: '4', title: 'Smoked Salmon Avocado Sourdough', price: 12.00, calories: '380 kcal', desc: 'Stone-baked sourdough toast, wild smoked salmon, poached egg & micro-herbs', img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&auto=format&fit=crop', category: 'brunch', isPopular: true },
-  { id: '5', title: 'Double Shot Velvet Espresso', price: 4.00, calories: '10 kcal', desc: 'Rich golden crema with notes of dark cocoa, roasted hazelnut & wild honey', img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=600&auto=format&fit=crop', category: 'coffee' },
-  { id: '6', title: 'Wild Berry Almond Custard Tart', price: 7.50, calories: '310 kcal', desc: 'Crispy butter pastry filled with organic berries and vanilla bean custard', img: 'https://images.unsplash.com/photo-1519869325930-281384150729?w=600&auto=format&fit=crop', category: 'desserts', isPopular: true },
-  { id: '7', title: 'Honey Glazed Cinnamon Brioche Roll', price: 5.00, calories: '340 kcal', desc: 'Warm fluffy brioche roll swirled with Saigon cinnamon & organic honey glaze', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop', category: 'pastries' },
-  { id: '8', title: 'Rustic Sourdough Artisan Loaf', price: 8.00, calories: '420 kcal', desc: 'Handcrafted stone-baked sourdough loaf served with cultured whipped butter', img: 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=600&auto=format&fit=crop', category: 'pastries' },
-  { id: '9', title: 'Lavender Starlight Latte', price: 6.00, calories: '190 kcal', desc: 'Espresso infused with French culinary lavender, vanilla bean & silky micro-foam', img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=600&auto=format&fit=crop', category: 'coffee' },
-  { id: '10', title: 'Truffle Prosciutto Burrata Panini', price: 13.50, calories: '490 kcal', desc: 'Crispy ciabatta, aged prosciutto di Parma, creamy burrata & black truffle glaze', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&auto=format&fit=crop', category: 'brunch' },
-  { id: '11', title: 'Truffle Burrata Artisan Pizza', price: 19.50, calories: '820 kcal', desc: 'Artisanal sourdough base with shaved black truffles, fresh creamy burrata & arugula', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop', category: 'brunch', isPopular: true },
-  { id: '12', title: 'Belgian Dark Chocolate Fondant', price: 8.50, calories: '450 kcal', desc: 'Warm molten chocolate core served with Madagascar vanilla bean gelato', img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&auto=format&fit=crop', category: 'desserts' },
-  { id: '13', title: 'Parisian Rose Macarons Box', price: 9.00, calories: '260 kcal', desc: 'Artisanal box of 6 handcrafted macarons: raspberry, salted caramel, pistachio & dark cacao', img: 'https://images.unsplash.com/photo-1569864321390-dc872714c382?w=600&auto=format&fit=crop', category: 'desserts' },
-  { id: '14', title: 'Organic Jasmine Pearl Green Tea', price: 4.50, calories: '0 kcal', desc: 'Hand-rolled young green tea pearls scented with fresh night-blooming jasmine flowers', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop', category: 'tea' }
+  { id: '1', title: 'Artisan Caramel Macchiato', price: 6.50, calories: '180 kcal', desc: 'Single-origin espresso with steamed vanilla oat milk & Madagascar caramel drizzle', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800&auto=format&fit=crop', category: 'coffee', isPopular: true },
+  { id: '2', title: 'Flaky Butter Almond Croissant', price: 4.50, calories: '290 kcal', desc: 'Freshly baked daily with French butter, roasted almond flakes & powdered sugar', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop', category: 'pastries', isPopular: true },
+  { id: '3', title: 'Pistachio Velvet Cold Brew', price: 5.50, calories: '150 kcal', desc: '24-hour slow-steeped Arabica cold brew topped with sweet pistachio cream foam', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop', category: 'coffee', isPopular: true },
+  { id: '4', title: 'Double Shot Velvet Espresso', price: 4.00, calories: '10 kcal', desc: 'Rich golden crema with notes of dark cocoa, roasted hazelnut & wild honey', img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=800&auto=format&fit=crop', category: 'coffee' },
+  { id: '5', title: 'Lavender Starlight Latte', price: 6.00, calories: '190 kcal', desc: 'Espresso infused with French culinary lavender, vanilla bean & silky micro-foam', img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=800&auto=format&fit=crop', category: 'coffee' },
+  { id: '6', title: 'Parisian Glass Siphon Brew', price: 9.50, calories: '40 kcal', desc: 'Single-origin Ethiopian Yirgacheffe slow-brewed through a glass siphon, infused with gold dust', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop', category: 'coffee', isPopular: true },
+  { id: '7', title: 'Honey Glazed Cinnamon Brioche Roll', price: 5.00, calories: '340 kcal', desc: 'Warm fluffy brioche roll swirled with Saigon cinnamon & organic honey glaze', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop', category: 'pastries' },
+  { id: '8', title: 'Parisian Rose Macarons Box', price: 9.00, calories: '260 kcal', desc: 'Artisanal box of 6 handcrafted macarons: raspberry, salted caramel, pistachio & dark cacao', img: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=800&auto=format&fit=crop', category: 'desserts' },
+  { id: '9', title: 'Organic Jasmine Pearl Green Tea', price: 4.50, calories: '0 kcal', desc: 'Hand-rolled young green tea pearls scented with fresh night-blooming jasmine flowers', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&auto=format&fit=crop', category: 'tea' }
 ];
 
 export default function LunavereTheme({
-  brandName = 'LUNAVERE',
+  brandName = 'My Restaurant',
   tagline = 'Parisian Starlight Cafe',
   dishes = [],
   fontDisplay,
@@ -127,6 +122,22 @@ export default function LunavereTheme({
   settings,
   lang = 'en'
 }: LunavereThemeProps) {
+  const isDemoOrPlaceholderBrand = (name?: string) => {
+    if (!name) return true;
+    const lower = name.trim().toLowerCase();
+    return lower === 'sahinsh' || 
+           lower === 'askul' || 
+           lower === 'koppee' || 
+           lower === 'velmora dining' || 
+           lower === 'velmora' || 
+           lower === 'lunavere' || 
+           lower === "l'aura webar restaurant" ||
+           lower === 'the golden fork';
+  };
+
+  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName || settings?.brandName)
+    ? 'My Restaurant'
+    : (brandName || settings?.brandName)!.trim();
   // State
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -220,7 +231,7 @@ export default function LunavereTheme({
                   className="text-lg sm:text-2xl font-normal tracking-wider text-[#171522] group-hover:text-[#96722d] transition-colors block leading-tight"
                   style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
                 >
-                  {brandName || 'LUNAVERE'}
+                  {effectiveBrandName}
                 </span>
                 <span className="text-[9px] font-mono tracking-[0.25em] text-[#96722d] uppercase block font-bold">
                   {tagline || 'Parisian Starlight Cafe'}
@@ -928,7 +939,7 @@ export default function LunavereTheme({
                     className="text-2xl font-normal text-white tracking-wide"
                     style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
                   >
-                    {brandName || settings?.brandName || 'askul'}
+                    {effectiveBrandName}
                   </h3>
                   <span className="text-[9px] font-mono tracking-widest text-white/80 uppercase block">
                     {settings?.lunavereFooterSubtitle || settings?.brandTagline || 'PARISIAN STARLIGHT CAFE'}
@@ -1031,7 +1042,7 @@ export default function LunavereTheme({
           </div>
 
           <div className="pt-8 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-            <p>© {new Date().getFullYear()} {brandName || settings?.brandName || 'askul'}. All Parisian rights reserved.</p>
+            <p>© {new Date().getFullYear()} {effectiveBrandName}. All Parisian rights reserved.</p>
             <p className="font-mono text-[11px] text-white/70">Parisian Starlight Cafe • Theme #03</p>
           </div>
         </div>

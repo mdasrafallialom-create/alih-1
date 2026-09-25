@@ -19,13 +19,14 @@ interface CoffeeHeaderHeroProps {
 }
 
 export function CoffeeHeaderHero({
-  brandName = 'SAHINSH',
+  brandName = 'My Restaurant',
   tagline = 'Warm hearth fires, exposed brick and vintage bronze for artisan coffee houses & bakeries.',
   themeStyle,
   activeHeaderOption: externalOption,
   onHeaderOptionChange,
   lang = 'bn'
 }: CoffeeHeaderHeroProps) {
+  const effectiveBrandName = (!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName;
   const [internalHeaderOption, setInternalHeaderOption] = useState<'cover' | 'beans' | 'both'>('both');
   
   const currentOption = externalOption || internalHeaderOption;
@@ -157,7 +158,7 @@ export function CoffeeHeaderHero({
                 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-amber-500"
                 style={{ fontFamily: fontDisplay }}
               >
-                {brandName} - Artisan Roast House
+                {effectiveBrandName} - Artisan Roast House
               </h2>
 
               <p className="text-xs sm:text-sm text-amber-100/80 max-w-xl font-medium leading-relaxed">

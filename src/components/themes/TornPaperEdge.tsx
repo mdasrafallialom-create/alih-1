@@ -7,7 +7,7 @@ interface TornPaperEdgeProps {
 }
 
 export const TornPaperEdge: React.FC<TornPaperEdgeProps> = ({
-  color = '#FFFBF2',
+  color = '#ffffff',
   position = 'top',
   className = ''
 }) => {

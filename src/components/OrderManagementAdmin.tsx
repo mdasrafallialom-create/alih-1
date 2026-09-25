@@ -8,6 +8,7 @@ import PaymentModal from './PaymentModal';
 import MenuCardStudio from './RestaurantAdmin/MenuCardStudio';
 import DomainsManager from './RestaurantAdmin/DomainsManager';
 import ThemeStoreManager from './RestaurantAdmin/ThemeStoreManager';
+import AIAnalyticsDashboard from './AIAnalyticsDashboard';
 import financialImage from '../assets/images/financial_control_full_dashboard_1786529698199.jpg';
 import analyticsWatermark from '../assets/images/analytics_watermark_1786531181027.jpg';
 import { GEO_COUNTRIES } from '../data/geoData';
@@ -1348,7 +1349,7 @@ export default function OrderManagementAdmin({
           </aside>
         )}
 
-        <main className={`flex-1 overflow-y-auto w-full ${theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-[#faf6f0] text-slate-900'} px-4 sm:px-6 lg:px-8 py-4 pb-16`}>
+        <main className={`flex-1 overflow-y-auto w-full ${activeNavTab === 'analytics' ? 'bg-white text-slate-900' : theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-[#faf6f0] text-slate-900'} px-4 sm:px-6 lg:px-8 py-4 pb-16`}>
           <div className="w-full">
             <AnimatePresence mode="wait">
               <motion.div
@@ -1894,112 +1895,12 @@ export default function OrderManagementAdmin({
             )}
 
             {activeNavTab === 'analytics' && (
-              <div className="space-y-8 animate-fade-in text-slate-800 dark:text-slate-100">
-                {/* Header */}
-                <header className="space-y-1">
-                  <h1 className={`text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>AI Predictive Analytics</h1>
-                  <p className="text-slate-500 font-medium text-sm">Deep learning sales projections, kitchen demand forecasts, and live speedometer indices.</p>
-                </header>
-
-                {/* Main Full-Page Watermark & Glow Trend Visualization Card */}
-                <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/60 dark:border-white/5 shadow-2xl bg-[#020617] text-white p-8 md:p-12 min-h-[580px] flex flex-col justify-between transition-all">
-                  
-                  {/* Huge Restaurant Brand Name Watermark (Placed behind the grid image) */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none z-0">
-                    <span className="text-[11vw] font-black tracking-[0.15em] uppercase text-center text-white break-words max-w-4xl leading-none">
-                      {settings.brandName || "THE GOLDEN FORK"}
-                    </span>
-                  </div>
-
-                  {/* The gorgeous clean cyan glowing trendline chart watermark image */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center mix-blend-screen opacity-25 pointer-events-none select-none z-10"
-                    style={{ backgroundImage: `url(${analyticsWatermark})` }}
-                  />
-
-                  {/* High-tech overlay grids & gradients */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-950/10 via-transparent to-transparent z-10" />
-
-                  {/* Animated Interactive SVG Spline Line and Tracking Pulse Point */}
-                  <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
-                    <svg className="w-full h-full opacity-70" viewBox="0 0 1000 500" preserveAspectRatio="none">
-                      <defs>
-                        {/* Perfect glowing filters */}
-                        <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                          <feGaussianBlur stdDeviation="6" result="blur" />
-                          <feMerge>
-                            <feMergeNode in="blur" />
-                            <feMergeNode in="SourceGraphic" />
-                          </feMerge>
-                        </filter>
-                        <filter id="dotGlow" x="-50%" y="-50%" width="200%" height="200%">
-                          <feGaussianBlur stdDeviation="10" result="blur" />
-                          <feMerge>
-                            <feMergeNode in="blur" />
-                            <feMergeNode in="SourceGraphic" />
-                          </feMerge>
-                        </filter>
-                      </defs>
-
-                      {/* Traced exact custom path matching the design: starting low, fluctuating, and peaking at the top right */}
-                      <path
-                        id="activeTrendLine"
-                        d="M 0 420 Q 120 380 200 350 T 400 320 T 550 220 T 700 150 T 850 180 T 1000 80"
-                        fill="none"
-                        stroke="#22d3ee"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        filter="url(#neonGlow)"
-                      />
-
-                      {/* Animated Glowing Pulse Point that glides along the trendline perfectly */}
-                      <circle r="8" fill="#ffffff" filter="url(#dotGlow)">
-                        <animateMotion dur="8s" repeatCount="indefinite" path="M 0 420 Q 120 380 200 350 T 400 320 T 550 220 T 700 150 T 850 180 T 1000 80" />
-                      </circle>
-                      <circle r="4" fill="#22d3ee">
-                        <animateMotion dur="8s" repeatCount="indefinite" path="M 0 420 Q 120 380 200 350 T 400 320 T 550 220 T 700 150 T 850 180 T 1000 80" />
-                      </circle>
-                    </svg>
-                  </div>
-
-                  {/* Header / Info bar inside the card */}
-                  <div className="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="space-y-1.5">
-                      <span className="inline-block px-3 py-1 text-[9px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/80 border border-cyan-800/40 rounded-full">
-                        AI Model: Neural Prophet v4
-                      </span>
-                      <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">Active Predictive Engine</h2>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-2xl backdrop-blur-md text-left">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Projection Period</p>
-                      <p className="text-sm font-bold text-cyan-400 mt-0.5">{monthNames[selectedMonth]} {selectedYear}</p>
-                    </div>
-                  </div>
-
-                  {/* Three Stat Cards Overlay (Exactly matching the screenshot format) */}
-                  <div className="relative z-30 grid grid-cols-1 md:grid-cols-3 gap-6 mt-24">
-                    
-                    <div className="bg-slate-900/70 backdrop-blur-md border border-white/5 p-6 rounded-3xl text-left hover:border-cyan-500/20 transition-all">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">Predicted End-Of-Month Revenue</span>
-                      <p className="text-4xl font-black mt-2 text-white">৳{(totalMonthlyRevenue * 1.12).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-                      <p className="text-xs text-emerald-400 font-medium mt-1">↑ +12.0% Projected Growth</p>
-                    </div>
-
-                    <div className="bg-slate-900/70 backdrop-blur-md border border-white/5 p-6 rounded-3xl text-left hover:border-cyan-500/20 transition-all">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">Anomaly Detection</span>
-                      <p className="text-4xl font-black mt-2 text-white">0 Flags</p>
-                      <p className="text-xs text-slate-400 font-medium mt-1">All revenue indicators normal</p>
-                    </div>
-
-                    <div className="bg-slate-900/70 backdrop-blur-md border border-white/5 p-6 rounded-3xl text-left hover:border-cyan-500/20 transition-all">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">Model Confidence</span>
-                      <p className="text-4xl font-black mt-2 text-white">98.4%</p>
-                      <p className="text-xs text-cyan-400 font-medium mt-1">High statistical reliability</p>
-                    </div>
-
-                  </div>
-                </div>
+              <div className="space-y-6 animate-fade-in bg-white text-slate-900 rounded-2xl">
+                <AIAnalyticsDashboard
+                  theme="light"
+                  brandName={settings.brandName || "My Restaurant"}
+                  onOpenSales={() => setActiveNavTab('financial')}
+                />
               </div>
             )}
 
