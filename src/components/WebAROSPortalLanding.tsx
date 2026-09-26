@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, 
@@ -46,6 +46,32 @@ const WebAROSPortalLanding: React.FC<WebAROSPortalLandingProps> = ({
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [claimStatus, setClaimStatus] = useState<string | null>(null);
+
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScrollYRef = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const difference = currentScrollY - lastScrollYRef.current;
+
+      if (currentScrollY < 80) {
+        // Always show header at the very top of the page
+        setShowHeader(true);
+      } else if (difference > 10) {
+        // Scrolling down -> Hide header
+        setShowHeader(false);
+      } else if (difference < -10) {
+        // Scrolling up -> Show header
+        setShowHeader(true);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const DEMO_RESTAURANTS = [
     {
@@ -192,16 +218,79 @@ const WebAROSPortalLanding: React.FC<WebAROSPortalLandingProps> = ({
     <div className="min-h-screen bg-[#faf8f5] text-slate-900 font-sans selection:bg-amber-500 selection:text-white w-full">
       
       {/* TOP NAVIGATION BAR */}
-      <header className="sticky top-0 z-40 bg-[#faf8f5]/90 backdrop-blur-md border-b border-amber-900/5 px-4 sm:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <header className={`fixed top-0 left-0 right-0 z-40 bg-[#faf8f5]/90 backdrop-blur-md border-b border-amber-900/5 px-4 sm:px-8 lg:px-16 py-3.5 transition-transform duration-300 ${
+        showHeader ? 'translate-y-0' : '-translate-y-full'
+      }`}>
+        <div className="w-full flex items-center justify-between gap-4">
           
-          {/* Logo & Platform Name */}
+          {/* Logo & Platform Name with Premium Luxury Squircle Design and Orange Status Dot */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 p-0.5 shadow-md flex items-center justify-center shrink-0">
-              <div className="w-full h-full bg-[#111827] rounded-[10px] flex items-center justify-center">
-                <UtensilsIcon className="w-5 h-5 text-amber-400" />
+            <div className="relative shrink-0 select-none">
+              {/* Outer Golden Squircle Container */}
+              <div className="w-14 h-14 rounded-2xl p-0.5 bg-gradient-to-tr from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] shadow-md flex items-center justify-center">
+                {/* Inner White Container */}
+                <div className="w-full h-full bg-white rounded-[13px] flex flex-col items-center justify-center p-1 border border-amber-100">
+                  {/* Elegant Golden Line-Art Chef Hat SVG */}
+                  <svg viewBox="0 0 100 100" className="w-full h-full text-[#aa7c11]" fill="currentColor">
+                    {/* Delicate background crest or stars */}
+                    <circle cx="50" cy="40" r="30" fill="none" stroke="#d4af37" strokeWidth="0.5" strokeDasharray="2,2" opacity="0.4" />
+                    
+                    {/* Stars on Left & Right */}
+                    <path d="M 12,38 L 14,43 L 19,43 L 15,46 L 16,51 L 12,48 L 8,51 L 9,46 L 5,43 L 10,43 Z" fill="#d4af37" opacity="0.3" />
+                    <path d="M 88,38 L 90,43 L 95,43 L 91,46 L 92,51 L 88,48 L 84,51 L 85,46 L 81,43 L 86,43 Z" fill="#d4af37" opacity="0.3" />
+
+                    {/* Detailed Golden Line-Art Chef Hat */}
+                    <g fill="none" stroke="#aa7c11" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      {/* Main puff */}
+                      <path d="M 32,48 C 24,48 24,35 34,35 C 32,22 45,18 50,24 C 55,18 68,22 66,35 C 76,35 76,48 68,48 Z" />
+                      {/* Base bands */}
+                      <path d="M 34,48 L 66,48 L 64,56 L 36,56 Z" fill="#aa7c11" opacity="0.1" />
+                      <path d="M 34,48 L 66,48 M 36,56 L 64,56" />
+                      {/* Folds line details inside hat */}
+                      <path d="M 42,48 C 42,38 45,34 45,34" strokeWidth="1.8" />
+                      <path d="M 50,48 L 50,30" strokeWidth="1.8" />
+                      <path d="M 58,48 C 58,38 55,34 55,34" strokeWidth="1.8" />
+                    </g>
+
+                    {/* Elegant Serif Text "AVERNAO" */}
+                    <text 
+                      x="50" 
+                      y="74" 
+                      textAnchor="middle" 
+                      fill="#aa7c11" 
+                      style={{
+                        fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif", 
+                        fontSize: "11px", 
+                        fontWeight: "900",
+                        letterSpacing: "1px"
+                      }}
+                    >
+                      AVERNAO
+                    </text>
+
+                    {/* Small Subtitle */}
+                    <text 
+                      x="50" 
+                      y="84" 
+                      textAnchor="middle" 
+                      fill="#c59b27" 
+                      style={{
+                        fontFamily: "'Inter', sans-serif", 
+                        fontSize: "4.5px", 
+                        fontWeight: "bold",
+                        letterSpacing: "0.2px"
+                      }}
+                    >
+                      PREMIUM WEBAR OS
+                    </text>
+                  </svg>
+                </div>
               </div>
+              
+              {/* Pulsing Orange Dot at bottom right */}
+              <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-[#ff9800] border-2 border-white shadow-md" />
             </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-display font-black text-xl text-slate-900 tracking-tight">Avernao</span>

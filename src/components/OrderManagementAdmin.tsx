@@ -432,11 +432,11 @@ export default function OrderManagementAdmin({
   isFullScreenPageRef.current = isFullScreenPage;
 
   // Modular Settings Hub categories, search, and accordion states
-  const [settingsCategoryTab, setSettingsCategoryTab] = useState<'list' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains'>('brand');
+  const [settingsCategoryTab, setSettingsCategoryTab] = useState<'all' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains'>('all');
   const settingsCategoryTabRef = useRef(settingsCategoryTab);
   settingsCategoryTabRef.current = settingsCategoryTab;
 
-  const openSettingsCategory = (tabId: 'list' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains') => {
+  const openSettingsCategory = (tabId: 'all' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains') => {
     setSettingsCategoryTab(tabId);
     setSettingsSearchQuery('');
     if (typeof window !== 'undefined') {
@@ -446,12 +446,16 @@ export default function OrderManagementAdmin({
 
   useEffect(() => {
     const handleAdminBack = () => {
-      // 1. If in Settings, back out to Active Dashboard with sidebar visible
+      // 1. If in Settings, back out to 'all' or Active Dashboard with sidebar visible
       if (activeNavTabRef.current === 'settings') {
-        setActiveNavTab('recent');
-        setIsFullScreenPage(false);
-        if (typeof window !== 'undefined') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (settingsCategoryTabRef.current !== 'all') {
+          openSettingsCategory('all');
+        } else {
+          setActiveNavTab('recent');
+          setIsFullScreenPage(false);
+          if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
         return;
       }
@@ -1298,7 +1302,7 @@ export default function OrderManagementAdmin({
     <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-white text-slate-900'} no-print font-sans`}>
       <div className="flex h-screen overflow-hidden">
         {showSidebar && (
-          <aside className={`w-72 flex-shrink-0 ${(isFullScreenPage || activeNavTab === 'menu_studio' || (activeNavTab === 'settings' && settingsCategoryTab !== 'list')) ? 'hidden' : 'flex'} flex-col border-r transition-all duration-300 ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} ${currentTierStyle.sidebar} h-full overflow-y-auto`}>
+          <aside className={`w-72 flex-shrink-0 ${(isFullScreenPage || activeNavTab === 'menu_studio' || (activeNavTab === 'settings' && settingsCategoryTab !== 'all')) ? 'hidden' : 'flex'} flex-col border-r transition-all duration-300 ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} ${currentTierStyle.sidebar} h-full overflow-y-auto`}>
             {/* Premium Header Profile Block at the top */}
             <div className={`p-6 border-b ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} flex flex-col items-center text-center relative overflow-hidden group/profileCard`}>
               {/* Hidden input to pick image from files/gallery */}
@@ -1380,7 +1384,7 @@ export default function OrderManagementAdmin({
                   onClick={() => {
                     setActiveNavTab(item.id as any);
                     if (item.id === 'settings') {
-                      setSettingsCategoryTab('brand');
+                      setSettingsCategoryTab('all');
                     }
                     setIsFullScreenPage(false);
                     window.dispatchEvent(new CustomEvent('admin-tab-change', { detail: { label: item.label.toUpperCase() } }));
@@ -2259,6 +2263,7 @@ export default function OrderManagementAdmin({
 
                     <div className="space-y-1">
                       {[
+                        { id: 'all', label: lang === 'bn' ? 'সব সেটিংস' : 'All Settings', icon: Settings },
                         { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও ফোন' : 'Brand & Contact', icon: Utensils },
                         { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', icon: Lock },
                         { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', icon: Globe },
@@ -2299,9 +2304,66 @@ export default function OrderManagementAdmin({
                   {/* Right Column: Settings Content Form */}
                   <div className="flex-1 w-full space-y-8">
 
+                    {/* All Settings Premium Grid View */}
+                    {settingsCategoryTab === 'all' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in pb-12">
+                        {[
+                          { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও ফোন' : 'Brand & Contact', desc: lang === 'bn' ? 'রেস্টুরেন্টের নাম, লোগো, কন্টাক্ট, হোয়াটসঅ্যাপ, ইমেইল ও থিম কালার।' : 'Manage restaurant identity, phone, WhatsApp support & branding colors.', icon: Utensils, color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
+                          { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', desc: lang === 'bn' ? 'ম্যানেজার পিন কোড, প্যানেল পাসওয়ার্ড এবং গোপন এক্সেস সেটিংস।' : 'Setup manager security passcode, credentials & admin panel buttons.', icon: Lock, color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
+                          { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', desc: lang === 'bn' ? 'ডার্ক মোড, ম্যাপ অন/অফ এবং লাইভ লোকেশন প্রদর্শন।' : 'Toggle live Google Maps, default styling, colors & personalization.', icon: Globe, color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
+                          { id: 'chef', label: lang === 'bn' ? 'শেফ গ্যালারি' : 'Chef Showcase', desc: lang === 'bn' ? 'প্রধান রাঁধুনীদের বিবরণ, রেটিং, অভিজ্ঞতা ও পরিচিতি।' : 'Showcase your culinary experts, their biographies & special ratings.', icon: ChefHat, color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
+                          { id: 'social', label: lang === 'bn' ? 'সোশ্যাল ও ব্যানার' : 'Social & Banners', desc: lang === 'bn' ? 'ফেসবুক, ইউটিউব লিংক ও হিরো স্লাইডার কভার ব্যানার ছবি।' : 'Configure external channels & active home cover slider banners.', icon: Sparkles, color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
+                          { id: 'deploy', label: lang === 'bn' ? 'সিস্টেম আপডেট' : 'System Update', desc: lang === 'bn' ? 'কাস্টমারের ব্রাউজার সরাসরি স্বয়ংক্রিয়ভাবে হালনাগাদ করার ব্যবস্থা।' : 'Push live system updates to idle client devices in real-time.', icon: Zap, color: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20' },
+                          { id: 'domains', label: lang === 'bn' ? 'ডোমেইন ও কাস্টম লিংক' : 'Domains & Custom URL', desc: lang === 'bn' ? 'কাস্টম ব্র্যান্ডেড ডোমেইন কানেক্ট এবং ডিএনএস সাব-ডোমেইন সেটিং।' : 'Connect custom root domains, SSL certificates and DNS hostnames.', icon: Globe, color: 'text-violet-500 bg-violet-500/10 border-violet-500/20' }
+                        ].map((card) => {
+                          const CardIcon = card.icon;
+                          return (
+                            <div
+                              key={card.id}
+                              onClick={() => openSettingsCategory(card.id as any)}
+                              className={`group p-6 rounded-3xl border transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-xs hover:shadow-md ${
+                                theme === 'dark'
+                                  ? 'bg-[#1c1c1c] border-slate-800 hover:border-blue-500/50 hover:bg-[#252525]'
+                                  : 'bg-white border-slate-200 hover:border-blue-500/50 hover:bg-slate-50'
+                              }`}
+                            >
+                              <div className="space-y-4">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${card.color}`}>
+                                  <CardIcon className="w-5 h-5" />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <h3 className={`text-base font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'} group-hover:text-blue-500 transition-colors`}>
+                                    {card.label}
+                                  </h3>
+                                  <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
+                                    {card.desc}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-500 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 group-hover:translate-x-1 transition-transform">
+                                <span>{lang === 'bn' ? 'সম্পূর্ণ পেজ দেখুন' : 'View Section'}</span>
+                                <ChevronRight className="w-4 h-4 text-blue-500" />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
                 {/* 1. BRAND, IDENTITY, CONTACT & MENU TAGLINES CARD */}
                 {isSectionVisible('brand', ['brand', 'identity', 'name', 'নাম', 'রেস্টুরেন্ট', 'logo', 'লোগো', 'phone', 'ফোন', 'whatsapp', 'হোয়াটসঅ্যাপ', 'email', 'ইমেইল', 'color', 'কালার', 'menu', 'মেনু', 'tagline', 'title']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     {/* Header bar */}
                     <div className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent">
                       <div className="flex items-center gap-4">
@@ -2768,6 +2830,16 @@ export default function OrderManagementAdmin({
                 {/* 2. ADMIN SECURITY, PASSWORD & PUBLIC BUTTON LOCK CARD */}
                 {isSectionVisible('security', ['security', 'password', 'পাসওয়ার্ড', 'pin', 'পিন', 'lock', 'লক', 'secret', 'admin button', 'বাটন', 'কাস্টমার', 'public']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -2915,6 +2987,16 @@ export default function OrderManagementAdmin({
                 {/* 3. WEBSITE DARK/LIGHT THEME & GOOGLE MAPS LOCATION DISPLAY CARD */}
                 {isSectionVisible('features', ['theme', 'থিম', 'dark', 'light', 'কালো', 'সাদা', 'map', 'ম্যাপ', 'google map', 'গুগল ম্যাপ', 'location', 'লোケーション', 'personalization']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3017,6 +3099,16 @@ export default function OrderManagementAdmin({
                 {/* 4. CHEF SHOWCASE & 6 CHEF PROFILES CARD */}
                 {isSectionVisible('chef', ['chef', 'শেফ', 'profile', 'প্রোফাইল', 'cook', 'রাঁধুনী', 'rating', 'রেটিং', 'experience', 'অভিজ্ঞতা', 'bio']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3443,6 +3535,16 @@ export default function OrderManagementAdmin({
                 {/* 5. SOCIAL MEDIA LINKS & HERO SLIDER BANNERS CARD */}
                 {isSectionVisible('social', ['social', 'সোশ্যাল', 'facebook', 'instagram', 'youtube', 'linkedin', 'banner', 'ব্যনার', 'hero', 'হিরো', 'slide', 'স্লাইডার', 'plan', 'প্ল্যান']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3705,6 +3807,16 @@ export default function OrderManagementAdmin({
                 {/* 6. LIVE SYSTEM UPDATE & DEPLOYMENT CARD */}
                 {isSectionVisible('deploy', ['deploy', 'ডিপ্লয়', 'update', 'আপডেট', 'push', 'live', 'সরাসরি', 'shield', 'সিস্টেম']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3821,6 +3933,16 @@ export default function OrderManagementAdmin({
                 {/* 7. CUSTOM DOMAINS & WEB URL CARD */}
                 {isSectionVisible('domains', ['domain', 'domains', 'ডোমেইন', 'url', 'লিংক', 'custom domain', 'dns', 'cname', 'ssl', 'hostname']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
+                    {settingsCategoryTab !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => openSettingsCategory('all')}
+                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
+                      </button>
+                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >

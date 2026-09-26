@@ -9,6 +9,9 @@ interface MenuItemCardProps {
   onAddToCart: (item: MenuItem) => void;
   onOpenAR: (item: MenuItem) => void;
   onSelectFood: (item: MenuItem) => void;
+  salesCount?: number;
+  isRecentlySold?: boolean;
+  recentlySoldTable?: string | number | null;
 }
 
 const CATEGORY_FALLBACKS: Record<string, string> = {
@@ -28,7 +31,10 @@ export const MenuItemCard = React.memo(function MenuItemCard({
   lang,
   onAddToCart,
   onOpenAR,
-  onSelectFood
+  onSelectFood,
+  salesCount = 0,
+  isRecentlySold = false,
+  recentlySoldTable = null
 }: MenuItemCardProps) {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const fallback = CATEGORY_FALLBACKS[item.category] || DEFAULT_IMAGE_FALLBACK;

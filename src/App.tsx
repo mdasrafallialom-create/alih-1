@@ -562,6 +562,25 @@ export default function App() {
   // Table Selection popup state (visible when tableNumber is null)
   const [showTableModal, setShowTableModal] = useState<boolean>(!tableNumber);
 
+  // Header hide/show on scroll behavior
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const lastScrollYRef = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollYRef.current && currentScrollY > 70) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const [isAllDishesOpen, setIsAllDishesOpen] = useState(false);
   // Active client-side menu category tab
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -2262,7 +2281,7 @@ export default function App() {
           ======================================================================= */}
       {(!isCustomThemeActive || viewMode === 'admin') && (
       <header 
-        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
+        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-transform duration-300 transform-gpu ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
         style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') }}
       >
         <div className="max-w-full mx-auto px-4 sm:px-8 md:px-12 lg:px-16 py-3 flex items-center justify-between relative">
