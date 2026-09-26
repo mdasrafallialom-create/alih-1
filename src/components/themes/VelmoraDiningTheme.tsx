@@ -784,6 +784,8 @@ export default function VelmoraDiningTheme({
   // Search & secret code
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [menuSearchQuery, setMenuSearchQuery] = useState('');
+  const [modalSearchTerm, setModalSearchTerm] = useState('');
 
   // Marquee pause-on-hover state
   const [isChefHovered, setIsChefHovered] = useState(false);
@@ -947,12 +949,54 @@ export default function VelmoraDiningTheme({
     ? 'An exclusive repertoire of haute gastronomy, 24k gold leaf infusions, and private cellar reserves.'
     : 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.';
 
-  const filteredDishes = activeCategory === 'all' 
-    ? effectiveDishes 
-    : effectiveDishes.filter(d => 
-        (d.category && d.category.toLowerCase().includes(activeCategory)) || 
-        d.title.toLowerCase().includes(activeCategory)
-      );
+  // Priority sorting: Popular items come first!
+  const sortedDishes = React.useMemo(() => {
+    return [...effectiveDishes].sort((a, b) => {
+      const aPop = (a as any).popular || (a as any).isPopular ? 1 : 0;
+      const bPop = (b as any).popular || (b as any).isPopular ? 1 : 0;
+      return bPop - aPop;
+    });
+  }, [effectiveDishes]);
+
+  const filteredDishes = React.useMemo(() => {
+    return sortedDishes.filter(d => {
+      const matchesCat = activeCategory === 'all' || 
+        (d.category && d.category.toLowerCase().includes(activeCategory.toLowerCase())) || 
+        d.title.toLowerCase().includes(activeCategory.toLowerCase());
+      const query = menuSearchQuery.trim().toLowerCase();
+      const matchesSearch = !query || 
+        d.title.toLowerCase().includes(query) || 
+        (d.desc && d.desc.toLowerCase().includes(query)) ||
+        (d.category && d.category.toLowerCase().includes(query));
+      return matchesCat && matchesSearch;
+    });
+  }, [sortedDishes, activeCategory, menuSearchQuery]);
+
+  // Keyboard navigation for Menu Card modal (Arrow Left / Right to flip next/prev card)
+  useEffect(() => {
+    if (!selectedDishDetail) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        const idx = filteredDishes.findIndex(d => d.id === selectedDishDetail.id);
+        if (idx !== -1 && filteredDishes.length > 1) {
+          const nextIdx = idx < filteredDishes.length - 1 ? idx + 1 : 0;
+          setSelectedDishDetail(filteredDishes[nextIdx]);
+          setDetailOrderQty(1);
+          setDetailSpecialNote('');
+        }
+      } else if (e.key === 'ArrowLeft') {
+        const idx = filteredDishes.findIndex(d => d.id === selectedDishDetail.id);
+        if (idx !== -1 && filteredDishes.length > 1) {
+          const prevIdx = idx > 0 ? idx - 1 : filteredDishes.length - 1;
+          setSelectedDishDetail(filteredDishes[prevIdx]);
+          setDetailOrderQty(1);
+          setDetailSpecialNote('');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedDishDetail, filteredDishes]);
 
   const handleReservationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1093,6 +1137,35 @@ export default function VelmoraDiningTheme({
             <Sliders className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-[11px]">Edit Section</span>
           </button>
+        </div>
+
+        {/* Live Search Bar for Menu Cards */}
+        <div className="max-w-md mx-auto w-full px-2">
+          <div className="relative flex items-center">
+            <Search className="w-4 h-4 absolute left-4 text-amber-400 pointer-events-none" />
+            <input
+              type="text"
+              value={menuSearchQuery}
+              onChange={(e) => setMenuSearchQuery(e.target.value)}
+              placeholder={lang === 'bn' ? "খাবারের নাম লিখে সরাসরি মেনু কার্ড খুঁজুন..." : "Search menu cards by food name..."}
+              className="w-full pl-11 pr-10 py-3 rounded-full bg-[#14120B]/90 border border-[#D4AF37]/40 text-xs sm:text-sm text-[#FBF8EE] placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all shadow-inner backdrop-blur-md"
+            />
+            {menuSearchQuery && (
+              <button
+                type="button"
+                onClick={() => setMenuSearchQuery('')}
+                className="absolute right-3.5 p-1 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
+                title="Clear Search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {menuSearchQuery && (
+            <p className="text-center text-xs text-amber-300/80 mt-2 font-mono">
+              Found {filteredDishes.length} menu card{filteredDishes.length !== 1 ? 's' : ''} for "{menuSearchQuery}"
+            </p>
+          )}
         </div>
 
         {/* Food Items Grid */}
@@ -1770,13 +1843,18 @@ export default function VelmoraDiningTheme({
               onClick={(e) => e.stopPropagation()}
               className="bg-[#14120B] border-2 border-[#D4AF37] rounded-3xl overflow-hidden max-w-4xl md:max-w-5xl w-full shadow-2xl flex flex-col max-h-[92vh] my-auto relative"
             >
-              {/* Modal Header */}
-              <div className="px-6 py-4 bg-[#090805] border-b border-[#D4AF37]/30 flex items-center justify-between shrink-0 z-10">
-                <div className="flex items-center gap-3">
+              {/* Modal Header with Next/Prev Card Controls & Fast Search */}
+              <div className="px-4 sm:px-6 py-3.5 bg-[#090805] border-b border-[#D4AF37]/30 flex flex-wrap items-center justify-between gap-3 shrink-0 z-10">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#b58f27] text-stone-950 font-black text-[10px] uppercase tracking-wider shadow-lg flex items-center gap-1">
                     <Crown className="w-3 h-3" />
                     {selectedDishDetail.category || 'Specialty'}
                   </span>
+                  {((selectedDishDetail as any).popular || selectedDishDetail.isPopular) && (
+                    <span className="px-3 py-1 rounded-full bg-orange-950/90 border border-orange-500/50 text-orange-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                      🔥 Popular
+                    </span>
+                  )}
                   {selectedDishDetail.isChefSpecial && (
                     <span className="px-3 py-1 rounded-full bg-red-950/90 border border-red-500/50 text-red-200 text-[10px] font-bold uppercase tracking-wider">
                       Chef's Special
@@ -1784,7 +1862,79 @@ export default function VelmoraDiningTheme({
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Card-by-Card Next & Prev Navigation Bar */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Quick Card Search */}
+                  <div className="relative hidden md:block w-40">
+                    <Search className="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder={lang === 'bn' ? "খাবার খুঁজুন..." : "Find dish..."}
+                      value={modalSearchTerm}
+                      onChange={(e) => {
+                        const q = e.target.value;
+                        setModalSearchTerm(q);
+                        if (q.trim()) {
+                          const match = effectiveDishes.find(d => 
+                            d.title.toLowerCase().includes(q.toLowerCase()) || 
+                            (d.category && d.category.toLowerCase().includes(q.toLowerCase()))
+                          );
+                          if (match) {
+                            setSelectedDishDetail(match);
+                            setDetailOrderQty(1);
+                            setDetailSpecialNote('');
+                          }
+                        }
+                      }}
+                      className="w-full pl-7 pr-2.5 py-1 text-[11px] rounded-lg bg-stone-900 border border-[#D4AF37]/40 text-white placeholder-stone-400 outline-none focus:border-[#D4AF37]"
+                    />
+                  </div>
+
+                  {/* Prev / Counter / Next Controls */}
+                  <div className="flex items-center gap-1 bg-[#14120B] p-1 rounded-xl border border-[#D4AF37]/50 shadow-inner">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (filteredDishes.length <= 1) return;
+                        const idx = filteredDishes.findIndex(d => d.id === selectedDishDetail.id);
+                        const prevIdx = idx > 0 ? idx - 1 : filteredDishes.length - 1;
+                        setSelectedDishDetail(filteredDishes[prevIdx]);
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                        const scrollEl = document.getElementById('dish-modal-scroll-body');
+                        if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-[#D4AF37] hover:text-stone-950 text-amber-300 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                      title="Previous Menu Card (Left Arrow)"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span className="hidden xs:inline">Prev</span>
+                    </button>
+
+                    <span className="px-2 text-[11px] font-mono font-bold text-amber-300 whitespace-nowrap">
+                      {Math.max(1, filteredDishes.findIndex(d => d.id === selectedDishDetail.id) + 1)} / {filteredDishes.length}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (filteredDishes.length <= 1) return;
+                        const idx = filteredDishes.findIndex(d => d.id === selectedDishDetail.id);
+                        const nextIdx = idx < filteredDishes.length - 1 ? idx + 1 : 0;
+                        setSelectedDishDetail(filteredDishes[nextIdx]);
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                        const scrollEl = document.getElementById('dish-modal-scroll-body');
+                        if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-[#D4AF37] hover:bg-amber-300 text-stone-950 text-xs font-black flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-md"
+                      title="Next Menu Card (Right Arrow)"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -1792,14 +1942,16 @@ export default function VelmoraDiningTheme({
                       setSelectedDishDetail(null);
                       setEditingSingleDish(d);
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37] text-[#D4AF37] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-[#D4AF37] hover:text-stone-950 transition-all cursor-pointer backdrop-blur-md"
+                    className="px-3 py-1.5 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37] text-[#D4AF37] text-xs font-bold uppercase tracking-wider hidden sm:flex items-center gap-1.5 hover:bg-[#D4AF37] hover:text-stone-950 transition-all cursor-pointer backdrop-blur-md"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit Item</span>
+                    <span>Edit</span>
                   </button>
+
                   <button
                     onClick={() => setSelectedDishDetail(null)}
-                    className="p-2 rounded-full bg-stone-900/80 text-white hover:bg-stone-800 transition-colors cursor-pointer border border-white/20"
+                    className="p-1.5 rounded-full bg-stone-900/80 text-white hover:bg-stone-800 transition-colors cursor-pointer border border-white/20"
+                    title="Close"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1812,14 +1964,50 @@ export default function VelmoraDiningTheme({
                 {/* 2-Column Main Item View */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
                   
-                  {/* Left Column: Food Image */}
-                  <div className="relative h-64 sm:h-80 md:h-[380px] w-full rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-2xl bg-black group">
+                  {/* Left Column: Food Image with Next/Prev Arrow Overlays */}
+                  <div className="relative h-64 sm:h-80 md:h-[380px] w-full rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-2xl bg-black group select-none">
                     <img 
                       src={selectedDishDetail.img} 
                       alt={selectedDishDetail.title} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#14120B] via-transparent to-black/40" />
+
+                    {/* Left & Right floating click arrows directly on the image */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (filteredDishes.length <= 1) return;
+                        const idx = filteredDishes.findIndex(d => d.id === selectedDishDetail.id);
+                        const prevIdx = idx > 0 ? idx - 1 : filteredDishes.length - 1;
+                        setSelectedDishDetail(filteredDishes[prevIdx]);
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                      }}
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-[#D4AF37] text-white hover:text-stone-950 border border-white/30 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
+                      title="Previous Card"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (filteredDishes.length <= 1) return;
+                        const idx = filteredDishes.findIndex(d => d.id === selectedDishDetail.id);
+                        const nextIdx = idx < filteredDishes.length - 1 ? idx + 1 : 0;
+                        setSelectedDishDetail(filteredDishes[nextIdx]);
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-[#D4AF37] text-white hover:text-stone-950 border border-white/30 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
+                      title="Next Card"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+
                     <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-amber-400/50 text-amber-300 font-mono text-xs font-bold">
                       📸 High-Res Gourmet Selection
                     </div>

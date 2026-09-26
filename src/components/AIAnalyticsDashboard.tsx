@@ -8,6 +8,7 @@ interface AIAnalyticsDashboardProps {
   theme?: 'light' | 'dark';
   brandName?: string;
   onOpenSales?: () => void;
+  orders?: any[];
 }
 
 interface BarData {
@@ -23,6 +24,7 @@ interface BarData {
 export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
   brandName = 'My Restaurant',
   onOpenSales,
+  orders = [],
 }) => {
   // Tabs
   const [activeTrendTab, setActiveTrendTab] = useState<'revenue' | 'order' | 'avg' | 'value'>('order');
@@ -30,97 +32,267 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('Today');
   const [selectedDateRange, setSelectedDateRange] = useState('15 Mar, 2025 - 21 Mar, 2025');
   const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredBar, setHoveredBar] = useState<string | null>('10-04-1');
+  const [hoveredBar, setHoveredBar] = useState<string | null>(null);
 
-  // Bar Chart Data matching screenshot
-  const initialBarData: BarData[] = [
-    { id: '10-01', date: '10-01', value: 75, percentage: '55%', salesAmount: '$3,820', growth: '+15%' },
-    { id: '10-02', date: '10-02', value: 165, percentage: '180%', salesAmount: '$8,450', growth: '+180%' },
-    { id: '10-03', date: '10-03', value: 115, percentage: '110%', salesAmount: '$5,920', growth: '+110%' },
-    { id: '10-04-1', date: '10-04', value: 195, percentage: '200%', salesAmount: '$9,4317', growth: '+200%', isHighlight: true },
-    { id: '10-04-2', date: '10-04', value: 172, percentage: '190%', salesAmount: '$8,940', growth: '+190%' },
-    { id: '10-05', date: '10-05', value: 155, percentage: '160%', salesAmount: '$7,830', growth: '+160%' },
-    { id: '10-06', date: '10-06', value: 92, percentage: '60%', salesAmount: '$4,120', growth: '+60%' },
-    { id: '10-07', date: '10-07', value: 172, percentage: '190%', salesAmount: '$8,920', growth: '+190%' },
-    { id: '10-08', date: '10-08', value: 170, percentage: '190%', salesAmount: '$8,850', growth: '+190%' },
-    { id: '10-09', date: '10-09', value: 182, percentage: '190%', salesAmount: '$9,100', growth: '+190%' },
-    { id: '10-10', date: '10-10', value: 92, percentage: '60%', salesAmount: '$4,150', growth: '+60%' },
-    { id: '10-11', date: '10-11', value: 172, percentage: '190%', salesAmount: '$8,900', growth: '+190%' },
+  // ------------------ DYNAMIC REAL-TIME CALCULATION ------------------
+  // Filter out any cancelled orders to represent real business success
+  const validOrders = Array.isArray(orders) ? orders.filter(o => o && o.status !== 'Cancelled') : [];
+  
+  const totalRevenue = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalOrdersCount = validOrders.length;
+  const averageOrderValue = totalOrdersCount > 0 ? (totalRevenue / totalOrdersCount) : 0;
+  
+  // Calculate Returning Customers Ratio based on repeated names/phones
+  const customerIdentifiers = validOrders
+    .map(o => (o.customerPhone || o.customerEmail || o.customerName || '').trim().toLowerCase())
+    .filter(val => val.length > 0 && val !== 'guest' && val !== 'walk-in' && val !== 'table');
+
+  const uniqueCustomers = new Set(customerIdentifiers);
+  const returningCustomersCount = customerIdentifiers.length - uniqueCustomers.size;
+  const returningRatio = customerIdentifiers.length > 0 
+    ? Math.round((returningCustomersCount / customerIdentifiers.length) * 100) 
+    : 29; // fallback if no data
+
+  // Dynamic Date Range based on actual orders
+  const sortedTimestamps = validOrders
+    .map(o => o.timestamp)
+    .filter(t => typeof t === 'number' && !isNaN(t))
+    .sort((a, b) => a - b);
+    
+  let dynamicDateRange = '15 Mar, 2025 - 21 Mar, 2025';
+  if (sortedTimestamps.length > 0) {
+    const formatDate = (ts: number) => {
+      const d = new Date(ts);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+    };
+    dynamicDateRange = `${formatDate(sortedTimestamps[0])} - ${formatDate(sortedTimestamps[sortedTimestamps.length - 1])}`;
+  }
+
+  // Group orders by day for the last 12 days
+  const dynamicBarData: BarData[] = [];
+  const now = new Date();
+  
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    
+    // Filter orders on this day
+    const dayOrders = validOrders.filter(order => {
+      const orderDate = new Date(order.timestamp);
+      return orderDate.getFullYear() === d.getFullYear() &&
+             orderDate.getMonth() === d.getMonth() &&
+             orderDate.getDate() === d.getDate();
+    });
+    
+    const dayRevenue = dayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const dayCount = dayOrders.length;
+    const dayAvg = dayCount > 0 ? dayRevenue / dayCount : 0;
+    const dayValue = dayOrders.reduce((sum, o) => sum + (o.items?.reduce((s, it) => s + (it.quantity || 1), 0) || 0), 0);
+    
+    // Depending on activeTrendTab, we determine the bar's numeric height
+    let rawVal = 0;
+    let labelVal = '';
+    
+    if (activeTrendTab === 'revenue') {
+      rawVal = dayRevenue;
+      labelVal = `USD ${dayRevenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    } else if (activeTrendTab === 'order') {
+      rawVal = dayCount;
+      labelVal = `${dayCount}`;
+    } else if (activeTrendTab === 'avg') {
+      rawVal = dayAvg;
+      labelVal = `USD ${dayAvg.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    } else {
+      rawVal = dayValue;
+      labelVal = `${dayValue}`;
+    }
+    
+    dynamicBarData.push({
+      id: dateStr,
+      date: dateStr,
+      value: rawVal,
+      percentage: labelVal,
+      salesAmount: `USD ${dayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      growth: '+100%'
+    });
+  }
+  
+  // Scale bar values to fit visual container height (max 160px for dynamic, min 25px so empty isn't completely flat)
+  const maxBarValue = Math.max(...dynamicBarData.map(b => b.value), 1);
+  const finalBarData = dynamicBarData.map((b, idx) => {
+    const hasData = validOrders.length > 0;
+    
+    // Fallback values matching screenshot if there's no real order data yet
+    const screenshotValues = [75, 165, 115, 195, 172, 155, 92, 172, 170, 182, 92, 172];
+    const screenshotPercentages = ['55%', '180%', '110%', '200%', '190%', '160%', '60%', '190%', '190%', '190%', '60%', '190%'];
+    const screenshotSales = ['$3,820', '$8,450', '$5,920', '$9,431.42', '$8,940', '$7,830', '$4,120', '$8,920', '$8,850', '$9,100', '$4,150', '$8,900'];
+    
+    let height = 30;
+    let pctLabel = b.percentage;
+    let salesAmount = b.salesAmount;
+    
+    if (hasData) {
+      height = maxBarValue > 0 ? Math.round((b.value / maxBarValue) * 140) + 30 : 30;
+    } else {
+      height = screenshotValues[idx] || 50;
+      pctLabel = screenshotPercentages[idx] || '50%';
+      salesAmount = screenshotSales[idx] || '$4,500';
+    }
+    
+    const isHighlight = hasData ? (idx === 11 || (maxBarValue > 0 && b.value === maxBarValue)) : (idx === 3); // 10-04 highlight is index 3
+    
+    return {
+      ...b,
+      value: height,
+      percentage: pctLabel,
+      salesAmount,
+      isHighlight
+    };
+  });
+
+  // Top Dishes list computed in real time from validOrders
+  const dishSalesMap: Record<string, { name: string; quantity: number; sales: number; image: string }> = {};
+
+  validOrders.forEach(order => {
+    if (order.items && Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        if (item.menuItem) {
+          const name = item.menuItem.name || 'Unknown Dish';
+          const price = item.menuItem.price || 0;
+          const qty = item.quantity || 1;
+          const totalSales = price * qty;
+          const image = item.menuItem.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120&auto=format&fit=crop&q=80';
+          
+          if (dishSalesMap[name]) {
+            dishSalesMap[name].quantity += qty;
+            dishSalesMap[name].sales += totalSales;
+          } else {
+            dishSalesMap[name] = {
+              name,
+              quantity: qty,
+              sales: totalSales,
+              image
+            };
+          }
+        }
+      });
+    }
+  });
+
+  const calculatedTopDishes = Object.values(dishSalesMap)
+    .sort((a, b) => b.sales - a.sales)
+    .slice(0, 8);
+
+  const defaultDishes = [
+    { id: 1, name: 'Noodles', sales: 690163, percentage: 98, image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=120&auto=format&fit=crop&q=80' },
+    { id: 2, name: 'Pizza', sales: 120163, percentage: 70, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop&q=80' },
+    { id: 3, name: 'Biryani', sales: 1000163, percentage: 60, image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=120&auto=format&fit=crop&q=80' },
+    { id: 4, name: 'Pasta', sales: 280163, percentage: 80, image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281270?w=120&auto=format&fit=crop&q=80' },
+    { id: 5, name: 'Steak', sales: 300163, percentage: 65, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=120&auto=format&fit=crop&q=80' },
+    { id: 6, name: 'Sushi', sales: 100163, percentage: 50, image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=120&auto=format&fit=crop&q=80' },
+    { id: 7, name: 'Fried Chicken', sales: 50163, percentage: 40, image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=120&auto=format&fit=crop&q=80' },
+    { id: 8, name: 'Ice Cream', sales: 500153, percentage: 56, image: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=120&auto=format&fit=crop&q=80' },
   ];
 
-  // Top Dishes list
-  const topDishes = [
-    {
-      id: 1,
-      name: 'Noodles',
-      priceText: 'USD 690,163',
-      percentage: 98,
-      image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 2,
-      name: 'Pizza',
-      priceText: 'USD 120,163',
-      percentage: 70,
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 3,
-      name: 'Biryani',
-      priceText: 'USD 1000,163',
-      percentage: 60,
-      image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 4,
-      name: 'Pasta',
-      priceText: 'USD 280,163',
-      percentage: 80,
-      image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281270?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 5,
-      name: 'Steak',
-      priceText: 'USD 300,163',
-      percentage: 65,
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 6,
-      name: 'Sushi',
-      priceText: 'USD 100,163',
-      percentage: 50,
-      image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 7,
-      name: 'Fried Chicken',
-      priceText: 'USD 50,163',
-      percentage: 40,
-      image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 8,
-      name: 'Ice Cream',
-      priceText: 'USD 500,153',
-      percentage: 56,
-      image: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=120&auto=format&fit=crop&q=80',
-    },
+  const maxCalculatedSales = calculatedTopDishes.length > 0 ? calculatedTopDishes[0].sales : 0;
+  
+  const finalTopDishes = calculatedTopDishes.length > 0 
+    ? calculatedTopDishes.map((d, index) => ({
+        id: index + 1,
+        name: d.name,
+        priceText: `USD ${d.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+        percentage: maxCalculatedSales > 0 ? Math.round((d.sales / maxCalculatedSales) * 100) : 100,
+        image: d.image
+      }))
+    : defaultDishes.map(d => ({
+        id: d.id,
+        name: d.name,
+        priceText: `USD ${d.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+        percentage: d.percentage,
+        image: d.image
+      }));
+
+  // Category sales computed in real-time
+  const categorySalesMap: Record<string, number> = {};
+  validOrders.forEach(order => {
+    if (order.items && Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        if (item.menuItem) {
+          const cat = item.menuItem.category || 'Other';
+          const price = item.menuItem.price || 0;
+          const qty = item.quantity || 1;
+          categorySalesMap[cat] = (categorySalesMap[cat] || 0) + (price * qty);
+        }
+      });
+    }
+  });
+
+  const defaultCategoryPoints = [
+    { label: 'Sushi', sales: 23 },
+    { label: 'Steak', sales: 25 },
+    { label: 'Pasta', sales: 30 },
+    { label: 'Biryani', sales: 29 },
+    { label: 'Biryani', sales: 33, isTooltip: true, tooltipName: 'Main Category', tooltipValue: '$3,425' },
+    { label: 'Pizza', sales: 28 },
+    { label: 'Noodles', sales: 25 },
   ];
 
-  // Category chart points
-  const categoryPoints = [
-    { label: 'Sushi', x: 40, y: 160, pct: '23%' },
-    { label: 'Steak', x: 105, y: 145, pct: '25%' },
-    { label: 'Pasta', x: 170, y: 110, pct: '30%' },
-    { label: 'Biryani', x: 235, y: 125, pct: '29%' },
-    { label: 'Biryani', x: 300, y: 95, pct: '33%', isTooltip: true, tooltipName: 'China', tooltipValue: '4.245B' },
-    { label: 'Pizza', x: 365, y: 100, pct: '28%' },
-    { label: 'Noodles', x: 430, y: 115, pct: '25%' },
-  ];
+  const hasCalculatedCategories = Object.keys(categorySalesMap).length > 0;
+  const rawCategories = hasCalculatedCategories
+    ? Object.entries(categorySalesMap).map(([label, sales]) => ({ label, sales }))
+    : defaultCategoryPoints;
 
-  // Build SVG path for category smooth curve
-  const catPathD = "M 20 170 C 35 165, 38 162, 40 160 C 70 152, 90 148, 105 145 C 135 130, 155 112, 170 110 C 195 115, 215 122, 235 125 C 265 110, 285 96, 300 95 C 330 96, 350 99, 365 100 C 395 105, 415 112, 430 115 L 450 90";
+  // Ensure 7 points for spline chart
+  const finalCategoriesForChart = [...rawCategories];
+  while (finalCategoriesForChart.length < 7) {
+    finalCategoriesForChart.push({ label: 'N/A', sales: 0 });
+  }
+  const slicedCategories = finalCategoriesForChart.slice(0, 7);
+
+  const maxCategorySales = Math.max(...slicedCategories.map(c => c.sales), 1);
+  const totalCategorySalesSum = slicedCategories.reduce((sum, c) => sum + c.sales, 0);
+
+  const finalCategoryPoints = slicedCategories.map((c, idx) => {
+    const x = 40 + idx * 65;
+    
+    let pctValueStr = '';
+    let y = 110;
+    let tooltipVal = '';
+    
+    if (hasCalculatedCategories) {
+      const pctValue = totalCategorySalesSum > 0 ? Math.round((c.sales / totalCategorySalesSum) * 100) : 0;
+      pctValueStr = `${pctValue}%`;
+      y = maxCategorySales > 0 ? 170 - Math.round((c.sales / maxCategorySales) * 110) : 160;
+      tooltipVal = `USD ${c.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    } else {
+      const screenshotY = [160, 145, 110, 125, 95, 100, 115];
+      const screenshotPct = ['23%', '25%', '30%', '29%', '33%', '28%', '25%'];
+      const screenshotVal = ['2.145B', '2.545B', '3.125B', '2.945B', '4.245B', '3.845B', '3.245B'];
+      
+      y = screenshotY[idx];
+      pctValueStr = screenshotPct[idx];
+      tooltipVal = screenshotVal[idx];
+    }
+    
+    return {
+      label: c.label,
+      x,
+      y,
+      pct: pctValueStr,
+      isTooltip: idx === 4,
+      tooltipName: hasCalculatedCategories ? c.label : 'China',
+      tooltipValue: tooltipVal
+    };
+  });
+
+  const catPathD = `M 20 170 C 35 ${finalCategoryPoints[0].y + 5}, 38 ${finalCategoryPoints[0].y + 2}, ${finalCategoryPoints[0].x} ${finalCategoryPoints[0].y} ` +
+    `C 70 ${finalCategoryPoints[1].y + 5}, 90 ${finalCategoryPoints[1].y + 2}, ${finalCategoryPoints[1].x} ${finalCategoryPoints[1].y} ` +
+    `C 135 ${finalCategoryPoints[2].y + 5}, 155 ${finalCategoryPoints[2].y + 2}, ${finalCategoryPoints[2].x} ${finalCategoryPoints[2].y} ` +
+    `C 195 ${finalCategoryPoints[3].y + 5}, 215 ${finalCategoryPoints[3].y + 2}, ${finalCategoryPoints[3].x} ${finalCategoryPoints[3].y} ` +
+    `C 265 ${finalCategoryPoints[4].y + 5}, 285 ${finalCategoryPoints[4].y + 2}, ${finalCategoryPoints[4].x} ${finalCategoryPoints[4].y} ` +
+    `C 330 ${finalCategoryPoints[5].y + 5}, 350 ${finalCategoryPoints[5].y + 2}, ${finalCategoryPoints[5].x} ${finalCategoryPoints[5].y} ` +
+    `C 395 ${finalCategoryPoints[6].y + 5}, 415 ${finalCategoryPoints[6].y + 2}, ${finalCategoryPoints[6].x} ${finalCategoryPoints[6].y} L 450 90`;
 
   return (
     <div className="w-full bg-white text-slate-800 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-200/80 font-sans space-y-6">
@@ -174,7 +346,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
           {/* Date Range Picker pill */}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-sm">
             <Calendar className="w-3.5 h-3.5 text-slate-500" />
-            <span>{selectedDateRange}</span>
+            <span>{dynamicDateRange}</span>
           </div>
 
           {/* Select Data Dropdown */}
@@ -196,7 +368,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
             Revenue
           </p>
           <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5">
-            19,999.00
+            USD {totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <p className="text-[11px] font-medium text-slate-400 mt-2">
             vs Last period
@@ -209,7 +381,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
             Total Orders
           </p>
           <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5">
-            177
+            {totalOrdersCount}
           </p>
           <p className="text-[11px] font-medium text-slate-400 mt-2">
             vs Last period
@@ -222,7 +394,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
             Average Orders value
           </p>
           <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5">
-            $109.00
+            USD {averageOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <p className="text-[11px] font-medium text-slate-400 mt-2">
             vs Last period
@@ -232,10 +404,10 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
         {/* Card 4: Returning Customers Ration */}
         <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
           <p className="text-xs font-medium text-slate-500">
-            Returning Customers Ration
+            Returning Customers Ratio
           </p>
           <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5">
-            29%
+            {returningRatio}%
           </p>
           <p className="text-[11px] font-medium text-slate-400 mt-2">
             vs Last period
@@ -338,7 +510,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
             </span>
             <div className="flex items-baseline gap-2 mt-0.5">
               <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                $9,431.42
+                USD {totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </h3>
             </div>
             <p className="text-xs font-medium text-slate-400">
@@ -374,7 +546,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
 
           {/* Foreground Bars Grid */}
           <div className="absolute inset-0 left-9 right-2 flex items-end justify-between px-2 pt-10 pb-6">
-            {initialBarData.map((bar) => {
+            {finalBarData.map((bar) => {
               const isHighlight = bar.isHighlight;
 
               return (
@@ -382,13 +554,13 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
                   key={bar.id} 
                   className="flex flex-col items-center group relative h-full justify-end cursor-pointer"
                   onMouseEnter={() => setHoveredBar(bar.id)}
-                  onMouseLeave={() => setHoveredBar('10-04-1')}
+                  onMouseLeave={() => setHoveredBar(null)}
                 >
                   {/* Floating Tooltip for Active Bar (like 10-04 $9,4317 +200%) */}
                   {isHighlight && (
                     <div className="absolute -top-7 z-30 flex flex-col items-center transition-all animate-bounce-subtle pointer-events-none">
                       <div className="bg-[#111827] text-white px-2.5 py-1.5 rounded-lg shadow-xl text-[10px] whitespace-nowrap text-left border border-slate-700">
-                        <span className="text-slate-400 block text-[9px] font-medium">4 Sep 2025</span>
+                        <span className="text-slate-400 block text-[9px] font-medium">Active Sales</span>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="font-bold text-white tracking-tight">{bar.salesAmount}</span>
                           <span className="text-[#22c55e] font-extrabold text-[9px] bg-emerald-950/80 px-1 py-0.5 rounded">
@@ -464,7 +636,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
 
           {/* Dishes List with Progress Bars & Percentage badges */}
           <div className="space-y-3 pt-1">
-            {topDishes.map((dish) => (
+            {finalTopDishes.map((dish) => (
               <div key={dish.id} className="flex items-center gap-3 group">
                 {/* Food Image */}
                 <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 border border-slate-100 shadow-xs">
@@ -565,7 +737,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
               </svg>
 
               {/* Data points & Percentage tags */}
-              {categoryPoints.map((pt, idx) => (
+              {finalCategoryPoints.map((pt, idx) => (
                 <div 
                   key={idx}
                   style={{ left: `${(pt.x / 460) * 100}%`, top: `${(pt.y / 200) * 100}%` }}
@@ -599,7 +771,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
 
             {/* X Axis Labels */}
             <div className="flex items-center justify-between pl-7 pr-2 pt-4">
-              {categoryPoints.map((pt, idx) => (
+              {finalCategoryPoints.map((pt, idx) => (
                 <span key={idx} className="text-[11px] font-medium text-slate-500 text-center">
                   {pt.label}
                 </span>

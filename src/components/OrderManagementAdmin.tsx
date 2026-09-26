@@ -80,6 +80,7 @@ import {
   ListTree,
   Sparkles,
   ArrowLeft,
+  ArrowRight,
   ShoppingBag,
   ChefHat,
   Award
@@ -430,15 +431,56 @@ export default function OrderManagementAdmin({
   const isFullScreenPageRef = useRef(isFullScreenPage);
   isFullScreenPageRef.current = isFullScreenPage;
 
+  // Modular Settings Hub categories, search, and accordion states
+  const [settingsCategoryTab, setSettingsCategoryTab] = useState<'list' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains'>('brand');
+  const settingsCategoryTabRef = useRef(settingsCategoryTab);
+  settingsCategoryTabRef.current = settingsCategoryTab;
+
+  const openSettingsCategory = (tabId: 'list' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains') => {
+    setSettingsCategoryTab(tabId);
+    setSettingsSearchQuery('');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     const handleAdminBack = () => {
+      // 1. If in Settings, back out to Active Dashboard with sidebar visible
+      if (activeNavTabRef.current === 'settings') {
+        setActiveNavTab('recent');
+        setIsFullScreenPage(false);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      // 2. If in Menu Card Studio
       if (activeNavTabRef.current === 'menu_studio') {
         window.dispatchEvent(new CustomEvent('studio-back-event'));
-      } else if (isFullScreenPageRef.current) {
         setIsFullScreenPage(false);
-      } else if (activeNavTabRef.current !== 'recent') {
+        return;
+      }
+
+      // 3. If in any other admin tab (history, categories, etc.), back out to Active Dashboard with sidebar visible
+      if (activeNavTabRef.current !== 'recent') {
         setActiveNavTab('recent');
-      } else if (onExitAdmin) {
+        setIsFullScreenPage(false);
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      // 4. If already on Active Dashboard ('recent') and full screen is true, reset it
+      if (isFullScreenPageRef.current) {
+        setIsFullScreenPage(false);
+        return;
+      }
+
+      // 5. If already on Active Dashboard ('recent') and normal layout, exit admin mode to client portal
+      if (onExitAdmin) {
         onExitAdmin();
       }
     };
@@ -511,7 +553,7 @@ export default function OrderManagementAdmin({
       categories: 'CATEGORIES',
       menu: 'MENU BUILDER',
       menu_studio: 'MENU CARD STUDIO',
-      qrcodes: 'QR MANAGEMENT',
+      qrcodes: 'QR & MENU BINDING',
       financial: 'FINANCIAL CONTROL',
       analytics: 'AI ANALYTICS',
       waiter: 'WAITER REQUESTS',
@@ -610,6 +652,34 @@ export default function OrderManagementAdmin({
 
   // Active selected chef index (0 to 5 for 6 chefs)
   const [selectedChefIndex, setSelectedChefIndex] = useState<number>(0);
+
+  const [settingsSearchQuery, setSettingsSearchQuery] = useState('');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    brand: true,
+    security: true,
+    features: true,
+    chef: true,
+    social: true,
+    deploy: true
+  });
+
+  const toggleSection = (key: string) => {
+    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const isSectionVisible = (sectionKey: string, keywords: string[]) => {
+    if (settingsCategoryTab !== sectionKey) {
+      return false;
+    }
+    if (!settingsSearchQuery.trim()) return true;
+    const q = settingsSearchQuery.toLowerCase().trim();
+    return keywords.some(k => k.toLowerCase().includes(q));
+  };
+
+  const isExpanded = (sectionKey: string) => {
+    if (settingsSearchQuery.trim().length > 0) return true;
+    return expandedSections[sectionKey] !== false;
+  };
 
   // Geographic Location details state
   const [selectedCountry, setSelectedCountry] = useState(() => {
@@ -1008,19 +1078,19 @@ export default function OrderManagementAdmin({
 
   const tierColors = {
     elite: {
-      sidebar: theme === 'dark' ? 'bg-[#0f172a] text-white' : 'bg-[#faf6f0] border-r border-slate-200/80 text-slate-900 shadow-sm',
+      sidebar: theme === 'dark' ? 'bg-[#0f172a] text-white' : 'bg-white border-r border-slate-200 text-slate-900 shadow-sm',
       navActive: 'bg-amber-500 text-slate-900 font-bold shadow-md',
       navInactive: theme === 'dark' ? 'text-slate-300 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
       accent: 'text-amber-500'
     },
     pro: {
-      sidebar: theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-[#faf6f0] border-r border-slate-200/80 text-slate-900 shadow-sm',
+      sidebar: theme === 'dark' ? 'bg-slate-900 text-white' : 'bg-white border-r border-slate-200 text-slate-900 shadow-sm',
       navActive: 'bg-blue-600 text-white font-bold shadow-md',
       navInactive: theme === 'dark' ? 'text-slate-300 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
       accent: 'text-blue-400'
     },
     basic: {
-      sidebar: theme === 'dark' ? 'bg-[#1c1c1c] text-white' : 'bg-[#faf6f0] border-r border-slate-200/80 text-slate-900 shadow-sm',
+      sidebar: theme === 'dark' ? 'bg-[#1c1c1c] text-white' : 'bg-white border-r border-slate-200 text-slate-900 shadow-sm',
       navActive: 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/20',
       navInactive: theme === 'dark' ? 'text-slate-300 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
       accent: 'text-blue-600'
@@ -1225,10 +1295,10 @@ export default function OrderManagementAdmin({
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-[#faf6f0] text-slate-900'} no-print font-sans`}>
+    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-white text-slate-900'} no-print font-sans`}>
       <div className="flex h-screen overflow-hidden">
         {showSidebar && (
-          <aside className={`w-72 flex-shrink-0 ${(isFullScreenPage || activeNavTab === 'menu_studio') ? 'hidden' : 'flex'} flex-col border-r transition-all duration-300 ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} ${currentTierStyle.sidebar} h-full overflow-y-auto`}>
+          <aside className={`w-72 flex-shrink-0 ${(isFullScreenPage || activeNavTab === 'menu_studio' || (activeNavTab === 'settings' && settingsCategoryTab !== 'list')) ? 'hidden' : 'flex'} flex-col border-r transition-all duration-300 ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} ${currentTierStyle.sidebar} h-full overflow-y-auto`}>
             {/* Premium Header Profile Block at the top */}
             <div className={`p-6 border-b ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} flex flex-col items-center text-center relative overflow-hidden group/profileCard`}>
               {/* Hidden input to pick image from files/gallery */}
@@ -1298,8 +1368,7 @@ export default function OrderManagementAdmin({
                 { id: 'history', label: 'Order History', icon: History },
                 { id: 'categories', label: 'Categories', icon: ListTree },
                 { id: 'menu_studio', label: 'Menu Card Studio', icon: Palette },
-                { id: 'qrcodes', label: 'QR Management', icon: QrCode },
-                { id: 'domains', label: 'Domains', icon: Globe },
+                { id: 'qrcodes', label: 'QR & Menu Binding', icon: QrCode },
                 { id: 'financial', label: 'Financial Control', icon: BarChart3 },
                 { id: 'analytics', label: 'AI Analytics', icon: TrendingUp },
                 { id: 'theme_store', label: 'Theme Store', icon: ShoppingBag },
@@ -1310,7 +1379,10 @@ export default function OrderManagementAdmin({
                   key={item.id}
                   onClick={() => {
                     setActiveNavTab(item.id as any);
-                    setIsFullScreenPage(true);
+                    if (item.id === 'settings') {
+                      setSettingsCategoryTab('brand');
+                    }
+                    setIsFullScreenPage(false);
                     window.dispatchEvent(new CustomEvent('admin-tab-change', { detail: { label: item.label.toUpperCase() } }));
                   }}
                   whileHover={{ x: 3 }}
@@ -1349,7 +1421,7 @@ export default function OrderManagementAdmin({
           </aside>
         )}
 
-        <main className={`flex-1 overflow-y-auto w-full ${activeNavTab === 'analytics' ? 'bg-white text-slate-900' : theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-[#faf6f0] text-slate-900'} px-4 sm:px-6 lg:px-8 py-4 pb-16`}>
+        <main className={`flex-1 overflow-y-auto w-full ${activeNavTab === 'analytics' || activeNavTab === 'qrcodes' ? 'bg-white text-slate-900' : theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-white text-slate-900'} px-4 sm:px-6 lg:px-8 py-4 pb-16`}>
           <div className="w-full">
             <AnimatePresence mode="wait">
               <motion.div
@@ -1900,6 +1972,7 @@ export default function OrderManagementAdmin({
                   theme="light"
                   brandName={settings.brandName || "My Restaurant"}
                   onOpenSales={() => setActiveNavTab('financial')}
+                  orders={orders}
                 />
               </div>
             )}
@@ -1940,7 +2013,11 @@ export default function OrderManagementAdmin({
               />
             )}
 
-            {activeNavTab === 'qrcodes' && <QrCodeManager restaurantId={restaurantId} />}
+            {activeNavTab === 'qrcodes' && (
+              <div className="space-y-6 animate-fade-in bg-white text-slate-900 rounded-2xl">
+                <QrCodeManager restaurantId={restaurantId} brandName={settings.brandName || "My Restaurant"} />
+              </div>
+            )}
 
             {activeNavTab === 'domains' && (
               <div className="max-w-5xl mx-auto">
@@ -2133,21 +2210,129 @@ export default function OrderManagementAdmin({
             )}
 
             {activeNavTab === 'settings' && (
-              <div className="space-y-12">
-                <header className="space-y-2">
-                  <h1 className={`text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>System Settings</h1>
-                  <p className="text-slate-500 font-medium text-sm">Configure restaurant identity and behavior.</p>
+              <div className="space-y-8">
+                {/* Header Banner */}
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                        {lang === 'bn' ? 'সিস্টেম কন্ট্রোল সেন্টার' : 'System Control Hub'}
+                      </span>
+                    </div>
+                    <h1 className={`text-3xl md:text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                      {lang === 'bn' ? 'সেটিংস সেন্টার' : 'System Settings Hub'}
+                    </h1>
+                    <p className="text-slate-500 font-medium text-xs md:text-sm mt-1">
+                      {lang === 'bn' 
+                        ? 'রেস্টুরেন্টের নাম, ফোন, লোগো, পাসওয়ার্ড, থিম, গুগল ম্যাপস ও ক্যাটাগরি অনুযায়ী সেটিংস।' 
+                        : 'Manage restaurant identity, contacts, security access, maps, chef profiles & updates.'}
+                    </p>
+                  </div>
+
+                  {/* Top Action Save Button */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button 
+                      type="button"
+                      onClick={handleSaveBrandSettings} 
+                      disabled={isSaving}
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>{isSaving ? (lang === 'bn' ? 'সংরক্ষিত হচ্ছে...' : 'Saving...') : (lang === 'bn' ? 'সকল সেটিংস সেভ করুন' : 'Save All Settings')}</span>
+                    </button>
+                  </div>
                 </header>
 
-                <div className={`rounded-3xl border ${theme === 'dark' ? 'bg-[#1c1c1c] border-slate-800' : 'bg-white border-slate-200'} shadow-sm overflow-hidden`}>
-                  <div className="p-8 space-y-8 border-b border-inherit">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-black">Brand Identity</h2>
-                      <button onClick={handleSaveBrandSettings} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-blue-700 transition-all">
-                        {isSaving ? 'Saving...' : 'Save Changes'}
-                      </button>
+                {/* Two-Column Split Layout for Settings */}
+                <div className="flex flex-col lg:flex-row gap-8 w-full items-start">
+                  
+                  {/* Left Column: Settings Navigation Sidebar */}
+                  <div className="w-full lg:w-72 shrink-0 border-r border-slate-200 dark:border-slate-800 pr-0 lg:pr-8 space-y-6 pb-6 lg:pb-0">
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                      <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                        {lang === 'bn' ? 'সেটিংস নেভিগেশন' : 'Settings Navigation'}
+                      </span>
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 font-mono">
+                        {lang === 'bn' ? '৭টি সেকশন' : '7 Sections'}
+                      </span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    <div className="space-y-1">
+                      {[
+                        { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও ফোন' : 'Brand & Contact', icon: Utensils },
+                        { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', icon: Lock },
+                        { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', icon: Globe },
+                        { id: 'chef', label: lang === 'bn' ? 'শেফ গ্যালারি' : 'Chef Showcase', icon: ChefHat },
+                        { id: 'social', label: lang === 'bn' ? 'সোশ্যাল ও ব্যানার' : 'Social & Banners', icon: Sparkles },
+                        { id: 'deploy', label: lang === 'bn' ? 'সিস্টেম আপডেট' : 'System Update', icon: Zap },
+                        { id: 'domains', label: lang === 'bn' ? 'ডোমেইন ও কাস্টম লিংক' : 'Domains & Custom URL', icon: Globe }
+                      ].map(item => {
+                        const Icon = item.icon;
+                        const isSelected = settingsCategoryTab === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => openSettingsCategory(item.id as any)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-left cursor-pointer ${
+                              isSelected
+                                ? theme === 'dark' 
+                                  ? 'bg-slate-800 text-white font-black shadow-sm' 
+                                  : 'bg-slate-100 text-slate-900 font-black shadow-none'
+                                : theme === 'dark'
+                                  ? 'text-slate-400 hover:text-white hover:bg-white/5 font-semibold'
+                                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold'
+                            }`}
+                          >
+                            <Icon className={`w-4 h-4 shrink-0 ${
+                              isSelected 
+                                ? theme === 'dark' ? 'text-white' : 'text-slate-900' 
+                                : 'text-slate-500'
+                            }`} />
+                            <span className="text-sm tracking-tight">{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Settings Content Form */}
+                  <div className="flex-1 w-full space-y-8">
+
+                {/* 1. BRAND, IDENTITY, CONTACT & MENU TAGLINES CARD */}
+                {isSectionVisible('brand', ['brand', 'identity', 'name', 'নাম', 'রেস্টুরেন্ট', 'logo', 'লোগো', 'phone', 'ফোন', 'whatsapp', 'হোয়াটসঅ্যাপ', 'email', 'ইমেইল', 'color', 'কালার', 'menu', 'মেনু', 'tagline', 'title']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    {/* Header bar */}
+                    <div className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20 shrink-0">
+                          <Utensils className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'রেস্টুরেন্ট ব্র্যান্ড, লোগো ও যোগাযোগ' : 'Restaurant Brand, Logo & Contact'}</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                              {localBrandSettings.brandName || 'My Restaurant'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {lang === 'bn' ? 'রেস্টুরেন্টের নাম, লোগো গ্যালারি, কন্টাক্ট নম্বর, হোয়াটসঅ্যাপ, সাপোর্ট ইমেইল ও থিম কালার।' : 'Restaurant name, custom logo gallery, phone, WhatsApp, email & theme colors.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-6 space-y-8">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-blue-500" />
+                            <span>{lang === 'bn' ? 'ব্র্যান্ড আইডেন্টিটি এডিটর' : 'Brand Identity Editor'}</span>
+                          </h3>
+                          <button onClick={handleSaveBrandSettings} className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-blue-700 transition-all cursor-pointer">
+                            {isSaving ? (lang === 'bn' ? 'সেভ হচ্ছে...' : 'Saving...') : (lang === 'bn' ? 'পরিবর্তন সেভ করুন' : 'Save Changes')}
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {/* Left Column: Name & Logo Preview */}
                       <div className="space-y-6">
                         <div className="space-y-2">
@@ -2577,460 +2762,287 @@ export default function OrderManagementAdmin({
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
 
-                    {/* ========================================================================= */}
-                    {/* SUBSCRIPTION PLAN TIER SELECTOR & PERMISSIONS MODULE                     */}
-                    {/* ========================================================================= */}
-                    <div className="pt-6 border-t border-inherit space-y-6">
-                      
-                      {/* DEDICATED ISOLATED PLAN CONTAINER */}
-                      {(() => {
-                        const plansToRender = [
-                          {
-                            id: 'basic',
-                            price: '$15',
-                            name: lang === 'bn' ? '$15 Basic Plan' : '$15 Basic Plan',
-                            socials: [
-                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' }
-                            ],
-                            slideIndices: [0]
-                          },
-                          {
-                            id: 'pro',
-                            price: '$49',
-                            name: lang === 'bn' ? '$49 Pro Plan' : '$49 Pro Plan',
-                            socials: [
-                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
-                              { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
-                              { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' }
-                            ],
-                            slideIndices: [0, 1, 2]
-                          },
-                          {
-                            id: 'elite',
-                            price: '$99',
-                            name: lang === 'bn' ? '$99 Elite Plan' : '$99 Elite Plan',
-                            socials: [
-                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
-                              { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
-                              { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' },
-                              { key: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/your-profile' }
-                            ],
-                            slideIndices: [0, 1, 2, 3]
-                          }
-                        ];
-
-                        const currentPlanId = localBrandSettings.subscriptionPlan || 'basic';
-                        const activePlanObj = plansToRender.find(p => p.id === currentPlanId) || plansToRender[0];
-                        const isBasic = activePlanObj.id === 'basic';
-
-                        return (
-                          <div key={activePlanObj.id} className="p-6 md:p-8 rounded-3xl border border-[#e8e2d8] bg-[#faf8f5] text-slate-900 space-y-8 shadow-md relative overflow-hidden">
-                            
-                            {/* Dedicated Clean Header (Without plan names/dollar labels) */}
-                            <div className="flex items-center justify-between border-b border-[#e8e2d8] pb-4">
-                              <div className="flex items-center gap-3">
-                                <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
-                                  <Sparkles className="w-5 h-5" />
-                                </div>
-                                <div>
-                                  <h3 className="text-lg font-black text-slate-900">
-                                    {lang === 'bn' ? 'সোশ্যাল লিংক ও হিরো মিডিয়া সেটিংস' : 'Social Links & Hero Media Settings'}
-                                  </h3>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* PART 1: SOCIAL MEDIA URL INPUTS */}
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
-                                  <span>🌐</span>
-                                  <span>{lang === 'bn' ? 'সোশ্যাল মিডিয়া লিংক' : 'Social Media Links'}</span>
-                                </h4>
-                              </div>
-
-                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
-                                activePlanObj.socials.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'
-                              } gap-5`}>
-                                {activePlanObj.socials.map((item) => {
-                                  const url = localBrandSettings.socialLinks[item.key as keyof typeof localBrandSettings.socialLinks];
-                                  return (
-                                    <div 
-                                      key={item.key} 
-                                      className={`p-4 md:p-5 rounded-2xl border border-[#e5dfd5] bg-white shadow-sm flex flex-col gap-3 relative overflow-hidden ${isBasic ? 'w-full' : ''}`}
-                                    >
-                                      <div className="flex items-center justify-between gap-1">
-                                        <div className="flex items-center gap-2.5">
-                                          <div className="p-2 rounded-xl bg-amber-500/15 text-amber-700">
-                                            {getSocialIcon(item.key)}
-                                          </div>
-                                          <span className="text-sm font-black capitalize text-slate-900">{item.label}</span>
-                                        </div>
-                                      </div>
-
-                                      <div className="flex items-center gap-2 bg-[#f8f6f0] p-2 rounded-xl border border-[#e2dcd2] focus-within:border-amber-600 focus-within:bg-white transition-colors">
-                                        <input 
-                                          type="text" 
-                                          value={url || ''}
-                                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, [item.key]: e.target.value } }))}
-                                          onKeyDown={handleKeyDownSave}
-                                          placeholder={item.placeholder}
-                                          className="w-full bg-transparent text-xs font-bold outline-none text-slate-900 placeholder:text-slate-400 px-2 py-1"
-                                        />
-                                        {url && (
-                                          <button 
-                                            type="button"
-                                            onClick={() => window.open(url.startsWith('http') ? url : `https://${url}`, '_blank')}
-                                            className="p-1.5 rounded-lg hover:bg-blue-500/15 text-blue-600 transition-colors shrink-0"
-                                            title={`Open ${item.label}`}
-                                          >
-                                            <ExternalLink className="w-4 h-4" />
-                                          </button>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            {/* PART 2: HERO COVER PHOTO SLIDES */}
-                            <div className="space-y-5 pt-6 border-t border-[#e8e2d8]">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
-                                    <Sparkles className="w-5 h-5" />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
-                                      <span>{lang === 'bn' ? 'হিরো স্লাইডার কাভার ফটো' : 'Hero Slider Cover Images'}</span>
-                                    </h4>
-                                  </div>
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleSyncCountryHeroSlides()}
-                                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
-                                >
-                                  <Sparkles className="w-4 h-4 text-slate-950" />
-                                  <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Country'})` : `Auto-Sync (${selectedCountry || 'Country'})`}</span>
-                                </button>
-                              </div>
-
-                              {slideNotificationMsg && (
-                                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 font-bold text-xs flex items-center gap-2">
-                                  <Check className="w-4 h-4 shrink-0" />
-                                  <span>{slideNotificationMsg}</span>
-                                </div>
-                              )}
-
-                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
-                                activePlanObj.slideIndices.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'
-                              } gap-6`}>
-                                {activePlanObj.slideIndices.map((idx) => {
-                                  const defaultSlides = getHeroSlidesForLocation(selectedCountry || localBrandSettings.brandLocation, localBrandSettings.brandName);
-                                  const fallbackSlide = defaultSlides[idx] || defaultSlides[0];
-                                  const currentSlide = (localBrandSettings.heroSlides && localBrandSettings.heroSlides[idx]) || fallbackSlide;
-                                  const currentImg = (localBrandSettings.heroImages && localBrandSettings.heroImages[idx]) || currentSlide.image || fallbackSlide.image;
-
-                                  const fileRef = idx === 0 ? slide1FileInputRef : idx === 1 ? slide2FileInputRef : idx === 2 ? slide3FileInputRef : slide4FileInputRef;
-
-                                  return (
-                                    <div 
-                                      key={idx}
-                                      className={`p-5 rounded-2xl border border-[#e5dfd5] bg-white space-y-4 flex flex-col justify-between relative overflow-hidden shadow-sm ${isBasic ? 'w-full' : ''}`}
-                                    >
-                                      <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                          <span className="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-white border border-slate-800">
-                                            Slide #{idx + 1}
-                                          </span>
-                                        </div>
-
-                                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md group">
-                                          <img 
-                                            src={currentImg} 
-                                            alt={`Slide ${idx + 1}`} 
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                          />
-                                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
-                                            <p className="text-xs font-black text-white line-clamp-1">
-                                              {fallbackSlide.title}
-                                            </p>
-                                            <p className="text-[10px] text-slate-300 line-clamp-1">
-                                              {fallbackSlide.subtitle}
-                                            </p>
-                                          </div>
-                                        </div>
-
-                                        <input 
-                                          type="file" 
-                                          ref={fileRef}
-                                          onChange={(e) => handleSlideFileUpload(idx, e)}
-                                          accept="image/*"
-                                          className="hidden"
-                                        />
-
-                                        <div className="space-y-1.5">
-                                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">
-                                            {lang === 'bn' ? 'ছবির ইউআরএল (Image URL)' : 'Image URL'}
-                                          </label>
-                                          <input 
-                                            type="text" 
-                                            value={localBrandSettings.heroImages?.[idx] || ''} 
-                                            onChange={(e) => handleUpdateSlideImage(idx, e.target.value)}
-                                            placeholder={fallbackSlide.image}
-                                            className="w-full px-3.5 py-2.5 text-xs rounded-xl outline-none font-medium bg-[#f8f6f0] text-slate-900 border border-[#e2dcd2] focus:border-amber-600 focus:bg-white transition-colors"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div className="flex gap-2.5 pt-3 border-t border-[#e8e2d8]">
-                                        <button
-                                          type="button"
-                                          onClick={() => fileRef.current?.click()}
-                                          className="flex-1 py-2.5 px-3.5 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-cyan-600 hover:bg-cyan-500 text-slate-950 active:scale-95 cursor-pointer shadow-md"
-                                        >
-                                          <Camera className="w-3.5 h-3.5" />
-                                          <span>{lang === 'bn' ? 'আপলোড' : 'Upload'}</span>
-                                        </button>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => handleResetSlide(idx)}
-                                          className="py-2.5 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all border border-[#e0d9cd] text-slate-800 hover:bg-[#ede7db] cursor-pointer active:scale-95 bg-[#f5f1e8]"
-                                        >
-                                          <RefreshCw className="w-3.5 h-3.5" />
-                                          <span>{lang === 'bn' ? 'রিসেট' : 'Reset'}</span>
-                                        </button>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                          </div>
-                        );
-                      })()}
-                    </div>
-
-                  <div className="p-8 flex items-center justify-between border-b border-inherit">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
-                        {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-black">Personalization</h2>
-                        <p className="text-xs text-slate-500">Toggle dark and light modes.</p>
-                      </div>
-                    </div>
-                    <div className={`flex p-1 rounded-xl transition-colors ${theme === 'dark' ? 'bg-[#252525]' : 'bg-slate-200'}`}>
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          setTheme('light');
-                          onUpdateSettings({ theme: 'light' });
-                        }} 
-                        className={`px-6 py-2 rounded-lg font-black text-xs transition-all cursor-pointer ${theme === 'light' ? 'bg-white text-blue-600 shadow-md' : theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
-                      >
-                        Light
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          setTheme('dark');
-                          onUpdateSettings({ theme: 'dark' });
-                        }} 
-                        className={`px-6 py-2 rounded-lg font-black text-xs transition-all cursor-pointer ${theme === 'dark' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}`}
-                      >
-                        Dark
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Security PIN / Admin Password Configuration card */}
-                  <div className="p-8 space-y-6 border-b border-inherit">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>
-                        <Lock className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-black">{lang === 'bn' ? 'অ্যাডমিন সিকিউরিটি পাসওয়ার্ড' : 'Admin Security Access Password'}</h2>
-                        <p className="text-xs text-slate-500 font-medium">
-                          {lang === 'bn' ? 'অ্যাডমিন প্যানেল আনলক করার গোপন পাসওয়ার্ড পরিবর্তন করুন।' : 'Change the secret key phrase used to access the owner portal from the client views.'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <form onSubmit={handleSaveSecretCode} className="flex flex-col gap-5 pt-2 max-w-xl w-full">
-                      {/* Top: display current password with show/hide toggle */}
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'বর্তমান পাসওয়ার্ড' : 'Current Active Password'}</label>
-                        <div className="relative">
-                          <input 
-                            type={showSecretCode ? "text" : "password"} 
-                            readOnly
-                            value={currentSecretCode} 
-                            className={`w-full pl-5 pr-12 py-3.5 rounded-xl font-mono font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-slate-300 border-transparent' : 'bg-slate-50 border-slate-100 text-slate-600'} border select-all outline-none`}
-                          />
-                          <button 
-                            type="button" 
-                            onClick={() => setShowSecretCode(!showSecretCode)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:text-cyan-500 text-slate-400 transition-colors"
-                          >
-                            {showSecretCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Bottom: Enter new password with Save button */}
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'নতুন পাসওয়ার্ড লিখুন' : 'Create New Password'}</label>
-                        <div className="flex gap-3">
-                          <input 
-                            type="text" 
-                            required
-                            value={newSecretCode}
-                            onChange={e => setNewSecretCode(e.target.value)}
-                            className={`flex-1 px-5 py-3.5 rounded-xl outline-none font-bold font-mono ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent focus:border-cyan-500' : 'bg-slate-50 border-slate-100 text-slate-800 focus:border-blue-500'} border transition-all`}
-                          />
-                          <button 
-                            type="submit" 
-                            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap cursor-pointer shadow-md hover:shadow-blue-500/20"
-                          >
-                            <Check className="w-4 h-4" />
-                            <span>{lang === 'bn' ? 'পরিবর্তন করুন' : 'Change'}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-
-                    {secretCodeSuccessMsg && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold leading-relaxed flex items-center gap-2"
-                      >
-                        <Check className="w-4 h-4 shrink-0 text-emerald-500" />
-                        <span>{secretCodeSuccessMsg}</span>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* Header Admin Button Visibility Control Card */}
-                  <div className="p-8 space-y-6 border-b border-inherit">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* 2. ADMIN SECURITY, PASSWORD & PUBLIC BUTTON LOCK CARD */}
+                {isSectionVisible('security', ['security', 'password', 'পাসওয়ার্ড', 'pin', 'পিন', 'lock', 'লক', 'secret', 'admin button', 'বাটন', 'কাস্টমার', 'public']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    <div 
+                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-cyan-50 text-cyan-600'}`}>
-                          <ShieldCheck className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h2 className="text-lg font-black">
-                            {lang === 'bn' ? 'কাস্টমারের জন্য এডমিন বাটন প্রদর্শন (Public Admin Button)' : 'Public Customer Admin Button Toggle'}
-                          </h2>
-                          <p className="text-xs text-slate-500 font-medium max-w-xl">
-                            {lang === 'bn' 
-                              ? 'কাস্টমারদের জন্য ডিফল্টভাবে ওয়েবসাইটে সরাসরি "Admin" বাটনটি বন্ধ (লুকানো) রাখা হয়। এডমিন প্যানেলে প্রবেশ করতে সার্চ বক্সে পিন (৮৫২০) লিখুন বা ফুটারে 🔒 ক্লিক করুন।' 
-                              : 'By default, the Admin button is hidden from public restaurant customers. Staff can access Admin by entering PIN (8520) in the search bar or clicking 🔒 in footer.'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Switch Button */}
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className={`text-xs font-black uppercase tracking-wider ${settings?.showAdminButton === true ? 'text-emerald-500' : 'text-slate-400'}`}>
-                          {settings?.showAdminButton === true ? (lang === 'bn' ? 'অন (দৃশ্যমান)' : 'ON (Visible)') : (lang === 'bn' ? 'অফ (কাস্টমারদের জন্য লুকানো)' : 'OFF (Hidden for Customers)')}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setTargetAdminBtnVisibility(settings?.showAdminButton === true ? false : true);
-                            setIsConfirmAdminBtnModalOpen(true);
-                            setAdminConfirmPasswordInput('');
-                            setAdminConfirmPasswordError('');
-                          }}
-                          className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-                            settings?.showAdminButton === true ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
-                          }`}
-                        >
-                          <motion.div 
-                            layout 
-                            className="w-6 h-6 bg-white rounded-full shadow-md" 
-                          />
-                        </button>
-                      </div>
-                    </div>
-
-                    {adminToggleSuccessMsg && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs font-bold leading-relaxed flex items-center gap-2"
-                      >
-                        <Check className="w-4 h-4 shrink-0 text-cyan-500" />
-                        <span>{adminToggleSuccessMsg}</span>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* ================================================================= */}
-                  {/* GOOGLE MAPS & LOCATION VISIBILITY (TOGGLE ON/OFF)                 */}
-                  {/* ================================================================= */}
-                  <div className="p-8 space-y-6 border-b border-inherit">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'}`}>
-                          <Globe className="w-5 h-5" />
+                        <div className="p-3.5 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 shrink-0">
+                          <Lock className="w-6 h-6" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black">
-                              {lang === 'bn' ? 'গুগল ম্যাপ ও লাইভ লোকেশন প্রদর্শন (Google Maps Toggle)' : 'Google Maps & Live Location Display'}
-                            </h2>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                              {localBrandSettings.showGoogleMap !== false ? (lang === 'bn' ? 'চালু' : 'Active') : (lang === 'bn' ? 'বন্ধ' : 'Disabled')}
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'সিকিউরিটি পাসওয়ার্ড ও এক্সেস পিন' : 'Admin Security Password & PIN Lock'}</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                              🔑 Protected
                             </span>
                           </div>
-                          <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
-                            {lang === 'bn' 
-                              ? 'থিমের ফুটারে এবং ওয়েবসাইটে লাইভ গুগল ম্যাপ ও ডিরেকশন সেকশন অন বা অফ রাখুন। অন থাকলে গ্রাহকরা গুগল ম্যাপে সরাসরি লোকেশন দেখতে পারবেন।' 
-                              : 'Controls the embedded Google Map and direction navigation section on the theme and website footer. Turn on/off anytime.'}
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {lang === 'bn' ? 'অ্যাডমিন প্যানেলে ঢোকার গোপন পাসওয়ার্ড এবং কাস্টমারদের জন্য "Admin" বাটন বন্ধ বা চালু রাখা।' : 'Change owner secret password and toggle public customer Admin button.'}
                           </p>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Toggle On/Off Switch */}
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className={`text-xs font-black uppercase tracking-wider ${localBrandSettings.showGoogleMap !== false ? 'text-emerald-500' : 'text-slate-400'}`}>
-                          {localBrandSettings.showGoogleMap !== false ? (lang === 'bn' ? 'অন (দৃশ্যমান)' : 'ON (Visible)') : (lang === 'bn' ? 'অফ (লুকানো)' : 'OFF (Hidden)')}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newStatus = localBrandSettings.showGoogleMap === false ? true : false;
-                            setLocalBrandSettings(prev => ({ ...prev, showGoogleMap: newStatus }));
-                            onUpdateSettings({ showGoogleMap: newStatus });
-                          }}
-                          className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-                            localBrandSettings.showGoogleMap !== false ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
-                          }`}
-                        >
-                          <motion.div 
-                            layout 
-                            className="w-6 h-6 bg-white rounded-full shadow-md" 
-                          />
-                        </button>
+                    <div className="py-6 space-y-8">
+                        {/* Security PIN / Admin Password Configuration */}
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>
+                              <Lock className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-black">{lang === 'bn' ? 'অ্যাডমিন সিকিউরিটি পাসওয়ার্ড পরিবর্তন' : 'Change Secret Password'}</h3>
+                              <p className="text-xs text-slate-500 font-medium">
+                                {lang === 'bn' ? 'অ্যাডমিন প্যানেল আনলক করার গোপন পাসওয়ার্ড আপডেট করুন।' : 'Update the secret PIN or passphrase used to access owner dashboard.'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <form onSubmit={handleSaveSecretCode} className="flex flex-col gap-5 pt-2 max-w-xl w-full">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'বর্তমান পাসওয়ার্ড' : 'Current Active Password'}</label>
+                              <div className="relative">
+                                <input 
+                                  type={showSecretCode ? "text" : "password"} 
+                                  readOnly
+                                  value={currentSecretCode} 
+                                  className={`w-full pl-5 pr-12 py-3.5 rounded-xl font-mono font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-slate-300 border-transparent' : 'bg-slate-50 border-slate-100 text-slate-600'} border select-all outline-none`}
+                                />
+                                <button 
+                                  type="button" 
+                                  onClick={() => setShowSecretCode(!showSecretCode)}
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:text-cyan-500 text-slate-400 transition-colors cursor-pointer"
+                                >
+                                  {showSecretCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'নতুন পাসওয়ার্ড লিখুন' : 'Create New Password'}</label>
+                              <div className="flex gap-3">
+                                <input 
+                                  type="text" 
+                                  required
+                                  value={newSecretCode}
+                                  onChange={e => setNewSecretCode(e.target.value)}
+                                  className={`flex-1 px-5 py-3.5 rounded-xl outline-none font-bold font-mono ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent focus:border-cyan-500' : 'bg-slate-50 border-slate-100 text-slate-800 focus:border-blue-500'} border transition-all`}
+                                />
+                                <button 
+                                  type="submit" 
+                                  className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap cursor-pointer shadow-md hover:shadow-blue-500/20"
+                                >
+                                  <Check className="w-4 h-4" />
+                                  <span>{lang === 'bn' ? 'পরিবর্তন করুন' : 'Change'}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+
+                          {secretCodeSuccessMsg && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold leading-relaxed flex items-center gap-2"
+                            >
+                              <Check className="w-4 h-4 shrink-0 text-emerald-500" />
+                              <span>{secretCodeSuccessMsg}</span>
+                            </motion.div>
+                          )}
+                        </div>
+
+                        {/* Public Admin Button Toggle */}
+                        <div className="pt-6 border-t border-inherit space-y-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-cyan-50 text-cyan-600'}`}>
+                                <ShieldCheck className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <h3 className="text-base font-black">
+                                  {lang === 'bn' ? 'কাস্টমারের জন্য এডমিন বাটন প্রদর্শন (Public Admin Button)' : 'Public Customer Admin Button Toggle'}
+                                </h3>
+                                <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
+                                  {lang === 'bn' 
+                                    ? 'কাস্টমারদের জন্য ডিফল্টভাবে ওয়েবসাইটে "Admin" বাটনটি বন্ধ রাখা হয়। এডমিন ঢুকতে পিন (৮৫২০) বা ফুটারে 🔒 ব্যবহার করুন।' 
+                                    : 'By default, Admin button is hidden from public customers. Staff can enter PIN (8520) in search bar or click 🔒 in footer.'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                              <span className={`text-xs font-black uppercase tracking-wider ${settings?.showAdminButton === true ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                {settings?.showAdminButton === true ? (lang === 'bn' ? 'অন (দৃশ্যমান)' : 'ON (Visible)') : (lang === 'bn' ? 'অফ (লুকানো)' : 'OFF (Hidden)')}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTargetAdminBtnVisibility(settings?.showAdminButton === true ? false : true);
+                                  setIsConfirmAdminBtnModalOpen(true);
+                                  setAdminConfirmPasswordInput('');
+                                  setAdminConfirmPasswordError('');
+                                }}
+                                className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                                  settings?.showAdminButton === true ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                                }`}
+                              >
+                                <motion.div layout className="w-6 h-6 bg-white rounded-full shadow-md" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {adminToggleSuccessMsg && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs font-bold leading-relaxed flex items-center gap-2"
+                            >
+                              <Check className="w-4 h-4 shrink-0 text-cyan-500" />
+                              <span>{adminToggleSuccessMsg}</span>
+                            </motion.div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                )}
 
-                  {/* ================================================================= */}
-                  {/* CHEF SECTION & PROFILE CONFIGURATION                              */}
-                  {/* ================================================================= */}
-                  <div className="p-8 space-y-6 border-b border-inherit">
+                {/* 3. WEBSITE DARK/LIGHT THEME & GOOGLE MAPS LOCATION DISPLAY CARD */}
+                {isSectionVisible('features', ['theme', 'থিম', 'dark', 'light', 'কালো', 'সাদা', 'map', 'ম্যাপ', 'google map', 'গুগল ম্যাপ', 'location', 'লোケーション', 'personalization']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    <div 
+                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shrink-0">
+                          <Globe className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'ওয়েবসাইট থিম ও গুগল ম্যাপস ডিসপ্লে' : 'Website Theme & Google Maps Display'}</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                              {localBrandSettings.showGoogleMap !== false ? (lang === 'bn' ? 'ম্যাপ চালু' : 'Map Active') : (lang === 'bn' ? 'ম্যাপ বন্ধ' : 'Map Off')}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {lang === 'bn' ? 'অ্যাডমিন প্যানেলের ডার্ক/লাইট মোড এবং কাস্টমার ওয়েবসাইটে গুগল ম্যাপস ও লাইভ লোকেশন প্রদর্শন।' : 'Toggle dark/light mode and turn Google Maps live location on/off.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-6 space-y-8">
+                        {/* Dark/Light Mode */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+                              {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                            </div>
+                            <div>
+                              <h3 className="text-base font-black">{lang === 'bn' ? 'এডমিন ড্যাশবোর্ড মোড' : 'Admin Theme Mode'}</h3>
+                              <p className="text-xs text-slate-500 font-medium">{lang === 'bn' ? 'ডার্ক মোড অথবা ক্লিন হোয়াইট ড্যাশবোর্ড সিলেক্ট করুন।' : 'Switch between clean light and dark admin background.'}</p>
+                            </div>
+                          </div>
+                          <div className={`flex p-1 rounded-xl transition-colors ${theme === 'dark' ? 'bg-[#252525]' : 'bg-slate-200'}`}>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                setTheme('light');
+                                onUpdateSettings({ theme: 'light' });
+                              }} 
+                              className={`px-5 py-2 rounded-lg font-black text-xs transition-all cursor-pointer ${theme === 'light' ? 'bg-white text-blue-600 shadow-md' : theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+                            >
+                              Light
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                setTheme('dark');
+                                onUpdateSettings({ theme: 'dark' });
+                              }} 
+                              className={`px-5 py-2 rounded-lg font-black text-xs transition-all cursor-pointer ${theme === 'dark' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'}`}
+                            >
+                              Dark
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Google Maps Toggle */}
+                        <div className="pt-6 border-t border-inherit space-y-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'}`}>
+                                <Globe className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <h3 className="text-base font-black">
+                                  {lang === 'bn' ? 'গুগল ম্যাপ ও লাইভ লোকেশন প্রদর্শন (Google Maps)' : 'Google Maps & Live Location Display'}
+                                </h3>
+                                <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
+                                  {lang === 'bn' 
+                                    ? 'থিমের ফুটারে এবং ওয়েবসাইটে লাইভ গুগল ম্যাপ ও ডিরেকশন সেকশন অন বা অফ রাখুন।' 
+                                    : 'Controls embedded Google Map and navigation on theme footer.'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                              <span className={`text-xs font-black uppercase tracking-wider ${localBrandSettings.showGoogleMap !== false ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                {localBrandSettings.showGoogleMap !== false ? (lang === 'bn' ? 'অন (দৃশ্যমান)' : 'ON (Visible)') : (lang === 'bn' ? 'অফ (লুকানো)' : 'OFF (Hidden)')}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newStatus = localBrandSettings.showGoogleMap === false ? true : false;
+                                  setLocalBrandSettings(prev => ({ ...prev, showGoogleMap: newStatus }));
+                                  onUpdateSettings({ showGoogleMap: newStatus });
+                                }}
+                                className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                                  localBrandSettings.showGoogleMap !== false ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                                }`}
+                              >
+                                <motion.div layout className="w-6 h-6 bg-white rounded-full shadow-md" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                )}
+                {/* 4. CHEF SHOWCASE & 6 CHEF PROFILES CARD */}
+                {isSectionVisible('chef', ['chef', 'শেফ', 'profile', 'প্রোফাইল', 'cook', 'রাঁধুনী', 'rating', 'রেটিং', 'experience', 'অভিজ্ঞতা', 'bio']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    <div 
+                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                          <ChefHat className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'শেফ প্রোফাইল গ্যালারি' : 'Chef Profile Showcase & Gallery'}</h2>
+                            <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
+                              localBrandSettings.themeShowChefSection !== false
+                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                            }`}>
+                              {localBrandSettings.themeShowChefSection !== false ? (lang === 'bn' ? '৬ শেফ অ্যাক্টিভ' : '6 Chefs Active') : (lang === 'bn' ? 'বন্ধ' : 'Disabled')}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {lang === 'bn' ? 'শেফ সেকশন চালু/বন্ধ রাখুন এবং ৬ জন দক্ষ শেফের ছবি, নাম, পদবী, রেটিং ও অভিজ্ঞতা এডিট করুন।' : 'Enable or disable chef section and manage 6 professional chef profiles.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-6 space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>
@@ -3424,106 +3436,432 @@ export default function OrderManagementAdmin({
                         </div>
                       );
                     })()}
+                      </div>
                   </div>
+                )}
 
-
-
-                  {/* Enterprise Live Update Deployment Section */}
-                  <div className="p-8 space-y-6 border-t border-inherit">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* 5. SOCIAL MEDIA LINKS & HERO SLIDER BANNERS CARD */}
+                {isSectionVisible('social', ['social', 'সোশ্যাল', 'facebook', 'instagram', 'youtube', 'linkedin', 'banner', 'ব্যনার', 'hero', 'হিরো', 'slide', 'স্লাইডার', 'plan', 'প্ল্যান']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    <div 
+                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>
-                          <Zap className="w-5 h-5" />
+                        <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                          <Sparkles className="w-6 h-6" />
                         </div>
                         <div>
-                          <h2 className="text-lg font-black">
-                            {lang === 'bn' ? 'সরাসরি সিস্টেম আপডেট কন্ট্রোল' : 'Live System Update & Deployments'}
-                          </h2>
-                          <p className="text-xs text-slate-500">
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'সোশ্যাল মিডিয়া ও হিরো ব্যানার স্লাইডার' : 'Social Media & Hero Banner Slider'}</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">
+                              {localBrandSettings.subscriptionPlan || 'Basic'} Plan
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {lang === 'bn' ? 'ইনস্টাগ্রাম, ফেসবুক, ইউটিউব, লিঙ্কডইন পেজ এবং হেডার স্লাইডারের কাভার ফটো কাস্টমাইজেশন।' : 'Social media channel links and homepage hero slider cover photo uploads.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-6 space-y-6">
+                        
+                        {/* DEDICATED ISOLATED PLAN CONTAINER */}
+                      {(() => {
+                        const plansToRender = [
+                          {
+                            id: 'basic',
+                            price: '$15',
+                            name: lang === 'bn' ? '$15 Basic Plan' : '$15 Basic Plan',
+                            socials: [
+                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' }
+                            ],
+                            slideIndices: [0]
+                          },
+                          {
+                            id: 'pro',
+                            price: '$49',
+                            name: lang === 'bn' ? '$49 Pro Plan' : '$49 Pro Plan',
+                            socials: [
+                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
+                              { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
+                              { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' }
+                            ],
+                            slideIndices: [0, 1, 2]
+                          },
+                          {
+                            id: 'elite',
+                            price: '$99',
+                            name: lang === 'bn' ? '$99 Elite Plan' : '$99 Elite Plan',
+                            socials: [
+                              { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
+                              { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
+                              { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' },
+                              { key: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/your-profile' }
+                            ],
+                            slideIndices: [0, 1, 2, 3]
+                          }
+                        ];
+
+                        const currentPlanId = localBrandSettings.subscriptionPlan || 'basic';
+                        const activePlanObj = plansToRender.find(p => p.id === currentPlanId) || plansToRender[0];
+                        const isBasic = activePlanObj.id === 'basic';
+
+                        return (
+                          <div key={activePlanObj.id} className={`p-6 md:p-8 rounded-3xl border ${theme === 'dark' ? 'border-slate-800 bg-[#222222] text-white' : 'border-slate-200 bg-white text-slate-900'} space-y-8 shadow-sm relative overflow-hidden`}>
+                            
+                            {/* Dedicated Clean Header (Without plan names/dollar labels) */}
+                            <div className="flex items-center justify-between border-b border-[#e8e2d8] pb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
+                                  <Sparkles className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-black text-slate-900">
+                                    {lang === 'bn' ? 'সোশ্যাল লিংক ও হিরো মিডিয়া সেটিংস' : 'Social Links & Hero Media Settings'}
+                                  </h3>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* PART 1: SOCIAL MEDIA URL INPUTS */}
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
+                                  <span>🌐</span>
+                                  <span>{lang === 'bn' ? 'সোশ্যাল মিডিয়া লিংক' : 'Social Media Links'}</span>
+                                </h4>
+                              </div>
+
+                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
+                                activePlanObj.socials.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'
+                              } gap-5`}>
+                                {activePlanObj.socials.map((item) => {
+                                  const url = localBrandSettings.socialLinks[item.key as keyof typeof localBrandSettings.socialLinks];
+                                  return (
+                                    <div 
+                                      key={item.key} 
+                                      className={`p-4 md:p-5 rounded-2xl border border-[#e5dfd5] bg-white shadow-sm flex flex-col gap-3 relative overflow-hidden ${isBasic ? 'w-full' : ''}`}
+                                    >
+                                      <div className="flex items-center justify-between gap-1">
+                                        <div className="flex items-center gap-2.5">
+                                          <div className="p-2 rounded-xl bg-amber-500/15 text-amber-700">
+                                            {getSocialIcon(item.key)}
+                                          </div>
+                                          <span className="text-sm font-black capitalize text-slate-900">{item.label}</span>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-2 bg-[#f8f6f0] p-2 rounded-xl border border-[#e2dcd2] focus-within:border-amber-600 focus-within:bg-white transition-colors">
+                                        <input 
+                                          type="text" 
+                                          value={url || ''}
+                                          onChange={e => setLocalBrandSettings(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, [item.key]: e.target.value } }))}
+                                          onKeyDown={handleKeyDownSave}
+                                          placeholder={item.placeholder}
+                                          className="w-full bg-transparent text-xs font-bold outline-none text-slate-900 placeholder:text-slate-400 px-2 py-1"
+                                        />
+                                        {url && (
+                                          <button 
+                                            type="button"
+                                            onClick={() => window.open(url.startsWith('http') ? url : `https://${url}`, '_blank')}
+                                            className="p-1.5 rounded-lg hover:bg-blue-500/15 text-blue-600 transition-colors shrink-0"
+                                            title={`Open ${item.label}`}
+                                          >
+                                            <ExternalLink className="w-4 h-4" />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* PART 2: HERO COVER PHOTO SLIDES */}
+                            <div className="space-y-5 pt-6 border-t border-[#e8e2d8]">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
+                                    <Sparkles className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
+                                      <span>{lang === 'bn' ? 'হিরো স্লাইডার কাভার ফটো' : 'Hero Slider Cover Images'}</span>
+                                    </h4>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleSyncCountryHeroSlides()}
+                                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
+                                >
+                                  <Sparkles className="w-4 h-4 text-slate-950" />
+                                  <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Country'})` : `Auto-Sync (${selectedCountry || 'Country'})`}</span>
+                                </button>
+                              </div>
+
+                              {slideNotificationMsg && (
+                                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 font-bold text-xs flex items-center gap-2">
+                                  <Check className="w-4 h-4 shrink-0" />
+                                  <span>{slideNotificationMsg}</span>
+                                </div>
+                              )}
+
+                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
+                                activePlanObj.slideIndices.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'
+                              } gap-6`}>
+                                {activePlanObj.slideIndices.map((idx) => {
+                                  const defaultSlides = getHeroSlidesForLocation(selectedCountry || localBrandSettings.brandLocation, localBrandSettings.brandName);
+                                  const fallbackSlide = defaultSlides[idx] || defaultSlides[0];
+                                  const currentSlide = (localBrandSettings.heroSlides && localBrandSettings.heroSlides[idx]) || fallbackSlide;
+                                  const currentImg = (localBrandSettings.heroImages && localBrandSettings.heroImages[idx]) || currentSlide.image || fallbackSlide.image;
+
+                                  const fileRef = idx === 0 ? slide1FileInputRef : idx === 1 ? slide2FileInputRef : idx === 2 ? slide3FileInputRef : slide4FileInputRef;
+
+                                  return (
+                                    <div 
+                                      key={idx}
+                                      className={`p-5 rounded-2xl border border-[#e5dfd5] bg-white space-y-4 flex flex-col justify-between relative overflow-hidden shadow-sm ${isBasic ? 'w-full' : ''}`}
+                                    >
+                                      <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                          <span className="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-white border border-slate-800">
+                                            Slide #{idx + 1}
+                                          </span>
+                                        </div>
+
+                                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md group">
+                                          <img 
+                                            src={currentImg} 
+                                            alt={`Slide ${idx + 1}`} 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                          />
+                                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
+                                            <p className="text-xs font-black text-white line-clamp-1">
+                                              {fallbackSlide.title}
+                                            </p>
+                                            <p className="text-[10px] text-slate-300 line-clamp-1">
+                                              {fallbackSlide.subtitle}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        <input 
+                                          type="file" 
+                                          ref={fileRef}
+                                          onChange={(e) => handleSlideFileUpload(idx, e)}
+                                          accept="image/*"
+                                          className="hidden"
+                                        />
+
+                                        <div className="space-y-1.5">
+                                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">
+                                            {lang === 'bn' ? 'ছবির ইউআরএল (Image URL)' : 'Image URL'}
+                                          </label>
+                                          <input 
+                                            type="text" 
+                                            value={localBrandSettings.heroImages?.[idx] || ''} 
+                                            onChange={(e) => handleUpdateSlideImage(idx, e.target.value)}
+                                            placeholder={fallbackSlide.image}
+                                            className="w-full px-3.5 py-2.5 text-xs rounded-xl outline-none font-medium bg-[#f8f6f0] text-slate-900 border border-[#e2dcd2] focus:border-amber-600 focus:bg-white transition-colors"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="flex gap-2.5 pt-3 border-t border-[#e8e2d8]">
+                                        <button
+                                          type="button"
+                                          onClick={() => fileRef.current?.click()}
+                                          className="flex-1 py-2.5 px-3.5 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-cyan-600 hover:bg-cyan-500 text-slate-950 active:scale-95 cursor-pointer shadow-md"
+                                        >
+                                          <Camera className="w-3.5 h-3.5" />
+                                          <span>{lang === 'bn' ? 'আপলোড' : 'Upload'}</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleResetSlide(idx)}
+                                          className="py-2.5 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-200 text-slate-800 hover:bg-slate-50 cursor-pointer active:scale-95 bg-white shadow-xs"
+                                        >
+                                          <RefreshCw className="w-3.5 h-3.5" />
+                                          <span>{lang === 'bn' ? 'রিসেট' : 'Reset'}</span>
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                          </div>
+                        );
+                      })()}
+                    </div>
+                </div>
+              )}
+
+                {/* 6. LIVE SYSTEM UPDATE & DEPLOYMENT CARD */}
+                {isSectionVisible('deploy', ['deploy', 'ডিপ্লয়', 'update', 'আপডেট', 'push', 'live', 'সরাসরি', 'shield', 'সিস্টেম']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    <div 
+                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-2xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20 shrink-0">
+                          <Zap className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'সরাসরি সিস্টেম আপডেট ডিপ্লয় (Push Update)' : 'Live System Update & Deployments'}</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+                              ⚡ Push Ready
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
                             {lang === 'bn' ? 'এক ক্লিকে সমস্ত সচল কাস্টমার ও ডিভাইসগুলোর ওয়েবসাইট লাইভ আপডেট করুন।' : 'Instantly trigger system-wide live code updates to all connected client screens.'}
                           </p>
                         </div>
                       </div>
-                      
-                      <button 
-                        onClick={async () => {
-                          if (onTriggerGlobalUpdate) {
-                            setIsDeploying(true);
-                            try {
-                              await onTriggerGlobalUpdate();
-                              setDeploySuccess(true);
-                              setTimeout(() => setDeploySuccess(false), 5000);
-                            } catch (e) {
-                              console.error(e);
-                            } finally {
-                              setIsDeploying(false);
-                            }
-                          } else {
-                            alert("Update trigger not available in current mode.");
-                          }
-                        }}
-                        disabled={isDeploying}
-                        className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg transition-all flex items-center gap-2 ${
-                          deploySuccess 
-                            ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/10'
-                            : theme === 'dark'
-                              ? 'bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-cyan-500/20 active:scale-95'
-                              : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/10 active:scale-95'
-                        }`}
-                      >
-                        {isDeploying ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                            <span>{lang === 'bn' ? 'ডিপ্লয় হচ্ছে...' : 'Deploying...'}</span>
-                          </>
-                        ) : deploySuccess ? (
-                          <>
-                            <Check className="w-4 h-4" />
-                            <span>{lang === 'bn' ? 'আপডেট সম্পন্ন!' : 'Successfully Pushed!'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4 animate-pulse" />
-                            <span>{lang === 'bn' ? 'সরাসরি আপডেট করুন' : 'Push Live Update'}</span>
-                          </>
-                        )}
-                      </button>
                     </div>
 
-                    {deploySuccess && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold leading-relaxed flex items-center gap-3"
-                      >
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-                        <span>
-                          {lang === 'bn' 
-                            ? 'সরাসরি সিস্টেম আপডেট সফলভাবে রিলিজ করা হয়েছে! যারা ওয়েবসাইটটি ব্যবহার করছে, কোনো সচল অর্ডার না থাকলে তাদের ব্রাউজার ৩ সেকেন্ডের মধ্যে স্বয়ংক্রিয়ভাবে আপডেট হয়ে যাবে।' 
-                            : 'Live update has been successfully released! Open client windows will automatically apply the update in 3 seconds once their session becomes idle.'}
-                        </span>
-                      </motion.div>
-                    )}
+                    <div className="py-6 space-y-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-cyan-50 text-cyan-600'}`}>
+                              <Zap className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-black">
+                                {lang === 'bn' ? 'সরাসরি আপডেট সুবিধা' : 'Instant Push Update'}
+                              </h3>
+                              <p className="text-xs text-slate-500">
+                                {lang === 'bn' ? 'ওয়েবসাইটে হওয়া সমস্ত পরিবর্তন সাথে সাথে ব্রাউজারে রিফ্লেক্ট করান।' : 'Sync brand changes instantly across active browsers.'}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <button 
+                            type="button"
+                            onClick={async () => {
+                              if (onTriggerGlobalUpdate) {
+                                setIsDeploying(true);
+                                try {
+                                  await onTriggerGlobalUpdate();
+                                  setDeploySuccess(true);
+                                  setTimeout(() => setDeploySuccess(false), 5000);
+                                } catch (e) {
+                                  console.error(e);
+                                } finally {
+                                  setIsDeploying(false);
+                                }
+                              } else {
+                                alert("Update trigger not available in current mode.");
+                              }
+                            }}
+                            disabled={isDeploying}
+                            className={`px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg transition-all flex items-center gap-2 cursor-pointer ${
+                              deploySuccess 
+                                ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/10'
+                                : theme === 'dark'
+                                  ? 'bg-cyan-500 text-slate-950 hover:bg-cyan-400 shadow-cyan-500/20 active:scale-95'
+                                  : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/10 active:scale-95'
+                            }`}
+                          >
+                            {isDeploying ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 animate-spin" />
+                                <span>{lang === 'bn' ? 'ডিপ্লয় হচ্ছে...' : 'Deploying...'}</span>
+                              </>
+                            ) : deploySuccess ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>{lang === 'bn' ? 'আপডেট সম্পন্ন!' : 'Successfully Pushed!'}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-4 h-4 animate-pulse" />
+                                <span>{lang === 'bn' ? 'সরাসরি আপডেট করুন' : 'Push Live Update'}</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
 
-                    <div className={`p-5 rounded-2xl border ${theme === 'dark' ? 'bg-[#252525]/50 border-slate-800' : 'bg-slate-50 border-slate-100'} text-xs space-y-3`}>
-                      <div className="flex items-center gap-2 font-black text-slate-400 uppercase tracking-widest text-[10px]">
-                        <ShieldCheck className="w-4 h-4 text-cyan-500" />
-                        <span>{lang === 'bn' ? 'নিরাপদ স্বয়ংক্রিয়-হালনাগাদ বিধি' : 'Intelligent Auto-Update Shield'}</span>
+                        {deploySuccess && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold leading-relaxed flex items-center gap-3"
+                          >
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                            <span>
+                              {lang === 'bn' 
+                                ? 'সরাসরি সিস্টেম আপডেট সফলভাবে রিলিজ করা হয়েছে! কাস্টমারের ব্রাউজার ৩ সেকেন্ডের মধ্যে স্বয়ংক্রিয়ভাবে আপডেট হয়ে যাবে।' 
+                                : 'Live update released! Idle client devices will reload automatically in 3 seconds.'}
+                            </span>
+                          </motion.div>
+                        )}
+
+                        <div className={`p-5 rounded-2xl border ${theme === 'dark' ? 'bg-[#252525]/50 border-slate-800' : 'bg-slate-50 border-slate-100'} text-xs space-y-3`}>
+                          <div className="flex items-center gap-2 font-black text-slate-400 uppercase tracking-widest text-[10px]">
+                            <ShieldCheck className="w-4 h-4 text-cyan-500" />
+                            <span>{lang === 'bn' ? 'নিরাপদ স্বয়ংক্রিয়-হালনাগাদ বিধি' : 'Intelligent Auto-Update Shield'}</span>
+                          </div>
+                          <p className="text-slate-500 leading-relaxed font-medium">
+                            {lang === 'bn' 
+                              ? 'গ্রাহকদের অর্ডার করার সুবিধার্থে সিস্টেমে স্মার্ট আইডল-ট্র্যাকিং যুক্ত রয়েছে। কাস্টমারের কার্ট ফাঁকা থাকলে এবং কোনো লাইভ ট্র্যাকিং সচল না থাকলেই কেবল ব্রাউজারটি নিজে থেকে রিফ্রেশ হবে।' 
+                              : 'To protect client transactions, client devices will only automatically trigger a browser reload when idle.'}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-slate-500 leading-relaxed font-medium">
-                        {lang === 'bn' 
-                          ? 'গ্রাহকদের অর্ডার করার সুবিধার্থে সিস্টেমে স্মার্ট আইডল-ট্র্যাকিং যুক্ত রয়েছে। কাস্টমারের কার্ট ফাঁকা থাকলে এবং কোনো লাইভ ট্র্যাকিং সচল না থাকলেই কেবল ব্রাউজারটি নিজে থেকে রিফ্রেশ হবে। ফলে কোনো কাস্টমারের অর্ডার প্লেসিং ব্যাহত হবে না।' 
-                          : 'To protect client transactions, the application implements active idle-state polling. Client devices will only automatically trigger a browser reload when they have no active cart items and are not currently tracking a live order.'}
-                      </p>
+                  </div>
+                )}
+
+                {/* 7. CUSTOM DOMAINS & WEB URL CARD */}
+                {isSectionVisible('domains', ['domain', 'domains', 'ডোমেইন', 'url', 'লিংক', 'custom domain', 'dns', 'cname', 'ssl', 'hostname']) && (
+                  <div className="transition-all duration-300 w-full bg-transparent">
+                    <div 
+                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20 shrink-0">
+                          <Globe className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'ডোমেইন ও কাস্টম ওয়েবসাইট লিংক' : 'Domains & Custom Web Address'}</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                              🌐 Custom Domains
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                            {lang === 'bn' ? 'রেস্টুরেন্টের নিজস্ব ব্র্যান্ডেড ডোমেইন (যেমন: myrestaurant.com) এবং কাস্টম সাব-ডোমেইন কানেক্ট করুন।' : 'Connect custom root domains, SSL certificates and DNS hostnames.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-6">
+                      <DomainsManager
+                        restaurantId={restaurantId}
+                        brandName={settings.brandName || ''}
+                        settings={settings}
+                        onUpdateSettings={onUpdateSettings}
+                        theme={theme}
+                        lang={lang}
+                      />
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-            )}
-              </motion.div>
-            </AnimatePresence>
+            </div>
           </div>
-        </main>
+        )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  </main>
       </div>
 
       {verifyingOrder && (

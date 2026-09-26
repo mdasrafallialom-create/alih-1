@@ -1608,15 +1608,22 @@ export default function App() {
     }
   };
 
-  // Filter menu items based on subscription plan with high performance memoization
+  // Filter menu items based on subscription plan with high performance memoization (Popular items first)
   const tierFilteredItems = useMemo(() => {
     const plan = adminSettings?.subscriptionPlan || 'basic';
     // Only show items that are available and published
     const visibleItems = menuItems.filter(item => item.isAvailable !== false && item.published !== false);
     
-    if (plan === 'basic') return visibleItems.slice(0, 150);
-    if (plan === 'pro') return visibleItems.slice(0, 300);
-    return visibleItems;
+    // Priority sorting: Popular items come first!
+    const sorted = [...visibleItems].sort((a, b) => {
+      const aPop = (a as any).popular || (a as any).isPopular ? 1 : 0;
+      const bPop = (b as any).popular || (b as any).isPopular ? 1 : 0;
+      return bPop - aPop;
+    });
+
+    if (plan === 'basic') return sorted.slice(0, 150);
+    if (plan === 'pro') return sorted.slice(0, 300);
+    return sorted;
   }, [adminSettings?.subscriptionPlan, menuItems]);
 
   const handleAddToCart = useCallback((item: MenuItem) => {
@@ -2033,9 +2040,9 @@ export default function App() {
 
   return (
     <div 
-      className={`min-h-screen flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-800 transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-[#faf6f0] text-slate-900') : themeConfig.textColor} ${lang === 'ar' ? 'font-arabic' : ''}`}
+      className={`min-h-screen flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-800 transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-white text-slate-900') : themeConfig.textColor} ${lang === 'ar' ? 'font-arabic' : ''}`}
       style={{ 
-        backgroundColor: viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#faf6f0') : ((adminSettings as any)?.activeThemeId === 'lunavere' ? '#F4E7D3' : (themeConfig.bgColor || '#ffffff')),
+        backgroundColor: viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') : ((adminSettings as any)?.activeThemeId === 'lunavere' ? '#F4E7D3' : (themeConfig.bgColor || '#ffffff')),
         backgroundImage: 'none'
       }}
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
@@ -2255,8 +2262,8 @@ export default function App() {
           ======================================================================= */}
       {(!isCustomThemeActive || viewMode === 'admin') && (
       <header 
-        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-[#faf6f0] border-slate-200/80 text-slate-900 shadow-sm') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
-        style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#faf6f0') }}
+        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-colors duration-700 ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
+        style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') }}
       >
         <div className="max-w-full mx-auto px-4 sm:px-8 md:px-12 lg:px-16 py-3 flex items-center justify-between relative">
           
@@ -2273,11 +2280,15 @@ export default function App() {
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1e293b] hover:bg-[#334155] text-white font-bold text-xs shadow-md border border-slate-700/60 transition-all cursor-pointer select-none"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs shadow-xs border transition-all cursor-pointer select-none ${
+                    adminSettings?.theme === 'dark' 
+                      ? 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700 shadow-md' 
+                      : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200 shadow-sm'
+                  }`}
                   title={lang === 'bn' ? 'পিছনে যান (ব্যাক)' : 'Back'}
                 >
-                  <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                  <ArrowLeft className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+                  <span className="font-extrabold">{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
                 </motion.button>
               </div>
             )}
