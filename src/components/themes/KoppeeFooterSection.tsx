@@ -7,11 +7,12 @@ import {
   Facebook, 
   Linkedin, 
   Instagram, 
-  ChevronUp, 
   Navigation,
-  Lock
+  Lock,
+  MessageCircle
 } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
+import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 
 import { THEME_HERO_CONFIGS } from './KoppeeHeroHeader';
@@ -87,6 +88,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
   const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
 
+  const isOrivelle = themePresetId === 'orivelle-house';
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   const scrollToTop = (e?: React.MouseEvent) => {
     if (e) {
@@ -115,15 +117,21 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
     } catch (err) {}
   };
 
-  const rawPhone = (contactWhatsapp || contactPhone || '').trim();
+  const rawPhone = (contactPhone || '').trim();
   let displayPhone = '+1 (XXX) XXX-XXXX';
   if (rawPhone && rawPhone !== '+880' && rawPhone !== '+1' && !rawPhone.includes('1340491041')) {
     displayPhone = rawPhone;
   }
 
+  const rawWhatsapp = (contactWhatsapp || '').trim();
+  let displayWhatsapp = '';
+  if (rawWhatsapp && rawWhatsapp !== '+880' && rawWhatsapp !== '+1' && !rawWhatsapp.includes('1340491041')) {
+    displayWhatsapp = rawWhatsapp;
+  }
+
   const rawEmail = (contactEmail || '').trim();
-  let cleanEmail = 'xxxx@xxxx.com';
-  if (rawEmail && !rawEmail.includes('atikulalomasif4') && !rawEmail.includes('gmail.com')) {
+  let cleanEmail = 'contact@yourrestaurant.com';
+  if (rawEmail && !rawEmail.includes('atikulalomasif4')) {
     cleanEmail = rawEmail;
   }
 
@@ -163,9 +171,15 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   );
 
   return (
-    <footer className="relative w-full bg-[#120a06] text-white font-sans overflow-hidden">
-      {/* Torn Paper Edge Transition at Top of Footer: Only on Desktop */}
-      {isDesktop ? (
+    <footer className={`relative w-full text-white font-sans overflow-hidden ${
+      isOrivelle ? 'bg-[#090806]' : 'bg-[#120a06]'
+    }`}>
+      {/* Top Transition Divider: Orivelle uses 24K Gold Geometric Divider on all screens; default uses Torn Paper on desktop */}
+      {isOrivelle ? (
+        <div className="relative -mt-4 sm:-mt-8 z-20 w-full pointer-events-none select-none">
+          <OrivelleGeometricDivider color="#090806" position="top" />
+        </div>
+      ) : isDesktop ? (
         <div className="relative -mt-8 sm:-mt-12 z-20 hidden lg:block">
           <TornPaperEdge color="#120a06" position="top" />
         </div>
@@ -173,15 +187,19 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
         <div className="w-full h-px bg-white/10" />
       )}
 
-      {/* Coffee Beans Texture Overlay */}
-      <div className="absolute inset-0 z-0 opacity-25 pointer-events-none">
-        <img
-          src={roastedCoffeeBeansBg}
-          alt="Roasted Coffee Beans Background"
-          className="w-full h-full object-cover filter brightness-90 contrast-125"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0503] via-black/80 to-[#120a06]" />
-      </div>
+      {/* Coffee Beans Texture Overlay for Coffee Theme vs Subtle Starlight Aura for Orivelle */}
+      {!isOrivelle ? (
+        <div className="absolute inset-0 z-0 opacity-25 pointer-events-none">
+          <img
+            src={roastedCoffeeBeansBg}
+            alt="Roasted Coffee Beans Background"
+            className="w-full h-full object-cover filter brightness-90 contrast-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0503] via-black/80 to-[#120a06]" />
+        </div>
+      ) : (
+        <div className="absolute inset-0 z-0 opacity-15 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(229,193,88,0.15),_transparent_70%)]" />
+      )}
 
       {/* Embedded Google Maps Location Section */}
       {showGoogleMap !== false && Boolean(locationAddress) && (
@@ -190,7 +208,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
           <div className="w-full max-w-[1800px] mx-auto px-6 sm:px-10 md:px-12 lg:px-16 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2">
               <div className="space-y-1">
-                <h3 className="text-xl sm:text-2xl font-light text-[#DA9F93] tracking-normal">
+                <h3 className={`text-xl sm:text-2xl font-light tracking-normal ${
+                  isOrivelle ? 'text-amber-300 font-serif' : 'text-[#DA9F93]'
+                }`} style={isOrivelle ? { fontFamily: "'Cinzel', serif" } : undefined}>
                   {brandName}
                 </h3>
                 {locationAddress && (
@@ -204,7 +224,11 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 href={directDirectionsUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06] text-xs font-semibold transition-transform active:scale-95 shadow-md shrink-0 cursor-pointer"
+                className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-transform active:scale-95 shadow-md shrink-0 cursor-pointer ${
+                  isOrivelle 
+                    ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-600 text-stone-950 font-black shadow-[0_0_15px_rgba(229,193,88,0.35)]' 
+                    : 'bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06]'
+                }`}
               >
                 <Navigation className="w-4 h-4" />
                 <span>{lang === 'bn' ? 'গুগল ম্যাপে ডিরেকশন' : 'Get Directions'}</span>
@@ -273,13 +297,51 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 <MapPin className="w-5 h-5 text-[#DA9F93] shrink-0 mt-0.5" />
                 <span className="leading-snug">{locationAddress}</span>
               </div>
+              
+              {/* Phone Line */}
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-[#DA9F93] shrink-0" />
-                <span>{displayPhone}</span>
+                {displayPhone && displayPhone !== '+1 (XXX) XXX-XXXX' ? (
+                  <a href={`tel:${displayPhone.replace(/[^0-9+]/g, '')}`} className="hover:text-[#DA9F93] transition-colors">
+                    {displayPhone}
+                  </a>
+                ) : (
+                  <span>{displayPhone}</span>
+                )}
               </div>
+
+              {/* WhatsApp Line */}
+              <div className="flex items-center gap-3">
+                <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0" />
+                {displayWhatsapp ? (
+                  <a 
+                    href={`https://wa.me/${displayWhatsapp.replace(/[^0-9]/g, '')}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="hover:text-[#25D366] transition-colors flex items-center gap-2"
+                  >
+                    <span>{displayWhatsapp}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#25D366]/20 text-[#25D366] font-bold border border-[#25D366]/30">
+                      WhatsApp
+                    </span>
+                  </a>
+                ) : (
+                  <span className="text-white/60">
+                    {lang === 'bn' ? 'হোয়াটসঅ্যাপ: যুক্ত করা হয়নি' : '+1 (XXX) XXX-XXXX (WhatsApp)'}
+                  </span>
+                )}
+              </div>
+
+              {/* Email Line */}
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-[#DA9F93] shrink-0" />
-                <span>{cleanEmail}</span>
+                {cleanEmail && cleanEmail !== 'contact@yourrestaurant.com' ? (
+                  <a href={`mailto:${cleanEmail}`} className="hover:text-[#DA9F93] transition-colors">
+                    {cleanEmail}
+                  </a>
+                ) : (
+                  <span>{cleanEmail}</span>
+                )}
               </div>
             </div>
           </div>
@@ -361,16 +423,6 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             )}
           </p>
         </div>
-
-        {/* Scroll To Top Button (Right Corner) */}
-        <button
-          type="button"
-          onClick={scrollToTop}
-          className="w-10 h-10 bg-[#DA9F93] text-[#120a06] hover:bg-[#c88d81] flex items-center justify-center rounded-sm transition-transform active:scale-90 cursor-pointer shadow-lg"
-          aria-label="Scroll to top"
-        >
-          <ChevronUp className="w-6 h-6" />
-        </button>
       </div>
     </footer>
   );

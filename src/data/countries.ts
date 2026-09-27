@@ -6,6 +6,7 @@ export interface CountryPhone {
 }
 
 export const countriesWithCodes: CountryPhone[] = [
+  { code: 'US', name: 'United States', prefix: '+1', flag: '🇺🇸' },
   { code: 'AF', name: 'Afghanistan', prefix: '+93', flag: '🇦🇫' },
   { code: 'AL', name: 'Albania', prefix: '+355', flag: '🇦🇱' },
   { code: 'DZ', name: 'Algeria', prefix: '+213', flag: '🇩🇿' },
@@ -194,7 +195,6 @@ export const countriesWithCodes: CountryPhone[] = [
   { code: 'UA', name: 'Ukraine', prefix: '+380', flag: '🇺🇦' },
   { code: 'AE', name: 'United Arab Emirates', prefix: '+971', flag: '🇦🇪' },
   { code: 'GB', name: 'United Kingdom', prefix: '+44', flag: '🇬🇧' },
-  { code: 'US', name: 'United States', prefix: '+1', flag: '🇺🇸' },
   { code: 'UY', name: 'Uruguay', prefix: '+598', flag: '🇺🇾' },
   { code: 'UZ', name: 'Uzbekistan', prefix: '+998', flag: '🇺🇿' },
   { code: 'VU', name: 'Vanuatu', prefix: '+678', flag: '🇻🇺' },

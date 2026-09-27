@@ -83,12 +83,14 @@ import {
   ArrowRight,
   ShoppingBag,
   ChefHat,
-  Award
+  Award,
+  LayoutGrid
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
 import { getHeroSlidesForLocation, COUNTRY_HERO_PRESETS, HeroSlideData } from '../data/countryHeroImages';
+import { getThemeAdminButtonVisibility, setThemeAdminButtonVisibility, checkAdminPasswordInput } from '../lib/adminHelpers';
 
 // High-fidelity country flag badge with CDN image & graceful emoji fallback
 export const CountryFlagBadge: React.FC<{ code: string; name?: string; flag?: string; className?: string }> = ({ 
@@ -432,11 +434,11 @@ export default function OrderManagementAdmin({
   isFullScreenPageRef.current = isFullScreenPage;
 
   // Modular Settings Hub categories, search, and accordion states
-  const [settingsCategoryTab, setSettingsCategoryTab] = useState<'all' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains'>('all');
+  const [settingsCategoryTab, setSettingsCategoryTab] = useState<'menu' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains'>('menu');
   const settingsCategoryTabRef = useRef(settingsCategoryTab);
   settingsCategoryTabRef.current = settingsCategoryTab;
 
-  const openSettingsCategory = (tabId: 'all' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains') => {
+  const openSettingsCategory = (tabId: 'menu' | 'brand' | 'security' | 'features' | 'chef' | 'social' | 'deploy' | 'domains') => {
     setSettingsCategoryTab(tabId);
     setSettingsSearchQuery('');
     if (typeof window !== 'undefined') {
@@ -446,10 +448,10 @@ export default function OrderManagementAdmin({
 
   useEffect(() => {
     const handleAdminBack = () => {
-      // 1. If in Settings, back out to 'all' or Active Dashboard with sidebar visible
+      // 1. If in Settings, back out to 'menu' or Active Dashboard with sidebar visible
       if (activeNavTabRef.current === 'settings') {
-        if (settingsCategoryTabRef.current !== 'all') {
-          openSettingsCategory('all');
+        if (settingsCategoryTabRef.current !== 'menu') {
+          openSettingsCategory('menu');
         } else {
           setActiveNavTab('recent');
           setIsFullScreenPage(false);
@@ -633,6 +635,12 @@ export default function OrderManagementAdmin({
     aboutUsSubtitle: settings.aboutUsSubtitle || 'ABOUT US',
     aboutUsText: settings.aboutUsText || '',
     aboutUsImage: settings.aboutUsImage || '',
+    aboutUsFeatures: (settings.aboutUsFeatures && settings.aboutUsFeatures.length > 0) ? settings.aboutUsFeatures : [
+      '100% Fresh Organic Ingredients',
+      'Chef-Curated Gourmet Menu',
+      '3D Interactive WebAR Food Previews',
+      'Fast Home Delivery & Table Ordering'
+    ],
     lunavereFooterSubtitle: settings.lunavereFooterSubtitle || 'PARISIAN STARLIGHT CAFE',
     lunavereFooterDesc: settings.lunavereFooterDesc || 'An intimate Parisian coffee house for slow evenings, delicate pastries, and beautifully brewed single-origin coffee.',
     lunavereReservationTitle: settings.lunavereReservationTitle || 'STARLIGHT TABLE',
@@ -729,7 +737,7 @@ export default function OrderManagementAdmin({
     const phone = settings.contactPhone || '';
     const sortedCountries = [...countriesWithCodes].sort((a, b) => b.prefix.length - a.prefix.length);
     const match = sortedCountries.find(c => phone.startsWith(c.prefix));
-    return match ? match.prefix : '+880';
+    return match ? match.prefix : '+1';
   });
 
   const [localPhoneSuffix, setLocalPhoneSuffix] = useState(() => {
@@ -759,7 +767,7 @@ export default function OrderManagementAdmin({
     const phone = settings.contactWhatsapp || settings.contactPhone || '';
     const sortedCountries = [...countriesWithCodes].sort((a, b) => b.prefix.length - a.prefix.length);
     const match = sortedCountries.find(c => phone.startsWith(c.prefix));
-    return match ? match.prefix : '+880';
+    return match ? match.prefix : '+1';
   });
 
   const [localWhatsappSuffix, setLocalWhatsappSuffix] = useState(() => {
@@ -881,21 +889,21 @@ export default function OrderManagementAdmin({
 
   const handleConfirmAdminButtonToggle = (e: React.FormEvent) => {
     e.preventDefault();
-    const validPassword = currentSecretCode || settings?.adminPassword || localStorage.getItem('webar_admin_secret_code') || 'admin5321';
+    const activeThemeId = settings?.activeThemeId || 'velmora-dining';
     
-    if (adminConfirmPasswordInput.trim() !== validPassword.trim()) {
+    if (!checkAdminPasswordInput(adminConfirmPasswordInput, settings)) {
       setAdminConfirmPasswordError(lang === 'bn' ? 'ভুল পাসওয়ার্ড! সঠিক এডমিন পাসওয়ার্ড দিন।' : 'Incorrect password! Enter valid admin password.');
       return;
     }
 
-    onUpdateSettings({ showAdminButton: targetAdminBtnVisibility });
+    setThemeAdminButtonVisibility(activeThemeId, targetAdminBtnVisibility, settings, onUpdateSettings);
     setIsConfirmAdminBtnModalOpen(false);
     setAdminConfirmPasswordInput('');
     setAdminConfirmPasswordError('');
     
     const msg = targetAdminBtnVisibility
-      ? (lang === 'bn' ? 'ওয়েবসাইট হেডারে এডমিন বাটন অন (দৃশ্যমান) করা হয়েছে!' : 'Header Admin button is now ON (Visible)!')
-      : (lang === 'bn' ? 'ওয়েবসাইট হেডারে এডমিন বাটন অফ (লুকানো) করা হয়েছে! এডমিন প্যানেলে ফিরতে পাসওয়ার্ড টাইপ করতে হবে।' : 'Header Admin button is now OFF (Hidden)! Password required to return to admin.');
+      ? (lang === 'bn' ? `"${activeThemeId}" থিমে এডমিন বাটন অন (দৃশ্যমান) করা হয়েছে!` : `Header Admin button is now ON for "${activeThemeId}"!`)
+      : (lang === 'bn' ? `"${activeThemeId}" থিমে এডমিন বাটন অফ (লুকানো) করা হয়েছে! পিন বা পাসওয়ার্ড টাইপ করে প্যানেলে ঢোকা যাবে।` : `Header Admin button is now OFF for "${activeThemeId}"! Password required to enter.`);
 
     setAdminToggleSuccessMsg(msg);
     setTimeout(() => setAdminToggleSuccessMsg(null), 5000);
@@ -1254,6 +1262,7 @@ export default function OrderManagementAdmin({
         aboutUsSubtitle: localBrandSettings.aboutUsSubtitle,
         aboutUsText: localBrandSettings.aboutUsText,
         aboutUsImage: localBrandSettings.aboutUsImage,
+        aboutUsFeatures: localBrandSettings.aboutUsFeatures,
         chefProfiles: localBrandSettings.chefProfiles,
         chefProfile: localBrandSettings.chefProfiles?.[selectedChefIndex] || localBrandSettings.chefProfiles?.[0] || localBrandSettings.chefProfile,
         lunavereFooterSubtitle: localBrandSettings.lunavereFooterSubtitle,
@@ -1302,7 +1311,7 @@ export default function OrderManagementAdmin({
     <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0f0f0f] text-slate-100' : 'bg-white text-slate-900'} no-print font-sans`}>
       <div className="flex h-screen overflow-hidden">
         {showSidebar && (
-          <aside className={`w-72 flex-shrink-0 ${(isFullScreenPage || activeNavTab === 'menu_studio' || (activeNavTab === 'settings' && settingsCategoryTab !== 'all')) ? 'hidden' : 'flex'} flex-col border-r transition-all duration-300 ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} ${currentTierStyle.sidebar} h-full overflow-y-auto`}>
+          <aside className={`w-72 flex-shrink-0 ${(isFullScreenPage || activeNavTab !== 'recent') ? 'hidden' : 'flex'} flex-col border-r transition-all duration-300 ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} ${currentTierStyle.sidebar} h-full overflow-y-auto`}>
             {/* Premium Header Profile Block at the top */}
             <div className={`p-6 border-b ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'} flex flex-col items-center text-center relative overflow-hidden group/profileCard`}>
               {/* Hidden input to pick image from files/gallery */}
@@ -1356,12 +1365,25 @@ export default function OrderManagementAdmin({
                   </motion.div>
                 )}
 
-                {/* Elegant Admin Badge */}
-                <div className="pt-2">
+                {/* Elegant Admin Badge & Active Theme Sync Badge */}
+                <div className="pt-2 flex items-center gap-2 flex-wrap justify-center sm:justify-start">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[9px] font-black uppercase tracking-wider">
                     <Crown className="w-2.5 h-2.5 text-cyan-400" />
                     <span>{lang === 'bn' ? 'রেস্টুরেন্ট ওনার' : 'Owner'}</span>
                   </span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveNavTab('theme_store');
+                      setIsFullScreenPage(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-500 text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer"
+                    title={lang === 'bn' ? 'থিম স্টোরে থিম পরিবর্তন করুন' : 'Change theme in Theme Store'}
+                  >
+                    <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                    <span>{settings.activeThemeId === 'lunavere' ? 'Lunavere' : 'Velmora Dining'}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1384,9 +1406,13 @@ export default function OrderManagementAdmin({
                   onClick={() => {
                     setActiveNavTab(item.id as any);
                     if (item.id === 'settings') {
-                      setSettingsCategoryTab('all');
+                      setSettingsCategoryTab('menu');
                     }
-                    setIsFullScreenPage(false);
+                    if (item.id !== 'recent') {
+                      setIsFullScreenPage(true);
+                    } else {
+                      setIsFullScreenPage(false);
+                    }
                     window.dispatchEvent(new CustomEvent('admin-tab-change', { detail: { label: item.label.toUpperCase() } }));
                   }}
                   whileHover={{ x: 3 }}
@@ -2247,123 +2273,65 @@ export default function OrderManagementAdmin({
                   </div>
                 </header>
 
-                {/* Two-Column Split Layout for Settings */}
-                <div className="flex flex-col lg:flex-row gap-8 w-full items-start">
-                  
-                  {/* Left Column: Settings Navigation Sidebar */}
-                  <div className="w-full lg:w-72 shrink-0 border-r border-slate-200 dark:border-slate-800 pr-0 lg:pr-8 space-y-6 pb-6 lg:pb-0">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                      <span className="text-xs font-black uppercase tracking-widest text-slate-400">
-                        {lang === 'bn' ? 'সেটিংস নেভিগেশন' : 'Settings Navigation'}
-                      </span>
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 font-mono">
-                        {lang === 'bn' ? '৭টি সেকশন' : '7 Sections'}
-                      </span>
-                    </div>
+                {/* Settings Navigation Menu Screen (When settingsCategoryTab === 'menu') */}
+                {settingsCategoryTab === 'menu' && (
+                  <div className="w-full max-w-sm animate-fade-in pb-12">
+                    <div className="space-y-4">
+                      {/* Header */}
+                      <div className="pb-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                          SETTINGS NAVIGATION
+                        </span>
+                      </div>
 
-                    <div className="space-y-1">
-                      {[
-                        { id: 'all', label: lang === 'bn' ? 'সব সেটিংস' : 'All Settings', icon: Settings },
-                        { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও ফোন' : 'Brand & Contact', icon: Utensils },
-                        { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', icon: Lock },
-                        { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', icon: Globe },
-                        { id: 'chef', label: lang === 'bn' ? 'শেফ গ্যালারি' : 'Chef Showcase', icon: ChefHat },
-                        { id: 'social', label: lang === 'bn' ? 'সোশ্যাল ও ব্যানার' : 'Social & Banners', icon: Sparkles },
-                        { id: 'deploy', label: lang === 'bn' ? 'সিস্টেম আপডেট' : 'System Update', icon: Zap },
-                        { id: 'domains', label: lang === 'bn' ? 'ডোমেইন ও কাস্টম লিংক' : 'Domains & Custom URL', icon: Globe }
-                      ].map(item => {
-                        const Icon = item.icon;
-                        const isSelected = settingsCategoryTab === item.id;
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => openSettingsCategory(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all text-left cursor-pointer ${
-                              isSelected
-                                ? theme === 'dark' 
-                                  ? 'bg-slate-800 text-white font-black shadow-sm' 
-                                  : 'bg-slate-100 text-slate-900 font-black shadow-none'
-                                : theme === 'dark'
-                                  ? 'text-slate-400 hover:text-white hover:bg-white/5 font-semibold'
-                                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold'
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 shrink-0 ${
-                              isSelected 
-                                ? theme === 'dark' ? 'text-white' : 'text-slate-900' 
-                                : 'text-slate-500'
-                            }`} />
-                            <span className="text-sm tracking-tight">{item.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Right Column: Settings Content Form */}
-                  <div className="flex-1 w-full space-y-8">
-
-                    {/* All Settings Premium Grid View */}
-                    {settingsCategoryTab === 'all' && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in pb-12">
+                      {/* Navigation list - compact & sleek */}
+                      <div className="space-y-1">
                         {[
-                          { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও ফোন' : 'Brand & Contact', desc: lang === 'bn' ? 'রেস্টুরেন্টের নাম, লোগো, কন্টাক্ট, হোয়াটসঅ্যাপ, ইমেইল ও থিম কালার।' : 'Manage restaurant identity, phone, WhatsApp support & branding colors.', icon: Utensils, color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
-                          { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', desc: lang === 'bn' ? 'ম্যানেজার পিন কোড, প্যানেল পাসওয়ার্ড এবং গোপন এক্সেস সেটিংস।' : 'Setup manager security passcode, credentials & admin panel buttons.', icon: Lock, color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
-                          { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', desc: lang === 'bn' ? 'ডার্ক মোড, ম্যাপ অন/অফ এবং লাইভ লোকেশন প্রদর্শন।' : 'Toggle live Google Maps, default styling, colors & personalization.', icon: Globe, color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
-                          { id: 'chef', label: lang === 'bn' ? 'শেফ গ্যালারি' : 'Chef Showcase', desc: lang === 'bn' ? 'প্রধান রাঁধুনীদের বিবরণ, রেটিং, অভিজ্ঞতা ও পরিচিতি।' : 'Showcase your culinary experts, their biographies & special ratings.', icon: ChefHat, color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
-                          { id: 'social', label: lang === 'bn' ? 'সোশ্যাল ও ব্যানার' : 'Social & Banners', desc: lang === 'bn' ? 'ফেসবুক, ইউটিউব লিংক ও হিরো স্লাইডার কভার ব্যানার ছবি।' : 'Configure external channels & active home cover slider banners.', icon: Sparkles, color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
-                          { id: 'deploy', label: lang === 'bn' ? 'সিস্টেম আপডেট' : 'System Update', desc: lang === 'bn' ? 'কাস্টমারের ব্রাউজার সরাসরি স্বয়ংক্রিয়ভাবে হালনাগাদ করার ব্যবস্থা।' : 'Push live system updates to idle client devices in real-time.', icon: Zap, color: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20' },
-                          { id: 'domains', label: lang === 'bn' ? 'ডোমেইন ও কাস্টম লিংক' : 'Domains & Custom URL', desc: lang === 'bn' ? 'কাস্টম ব্র্যান্ডেড ডোমেইন কানেক্ট এবং ডিএনএস সাব-ডোমেইন সেটিং।' : 'Connect custom root domains, SSL certificates and DNS hostnames.', icon: Globe, color: 'text-violet-500 bg-violet-500/10 border-violet-500/20' }
-                        ].map((card) => {
-                          const CardIcon = card.icon;
+                          { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও যোগাযোগ' : 'Brand & Contact', desc: lang === 'bn' ? 'লোগো, ফোন, হোয়াটসঅ্যাপ ও ইমেইল' : 'Logo, phone, WhatsApp & email', icon: Utensils },
+                          { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', desc: lang === 'bn' ? 'ম্যানেজার পিন কোড ও নিরাপত্তা' : 'Passcode & security access', icon: Lock },
+                          { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', desc: lang === 'bn' ? 'ডার্ক মোড ও গুগল ম্যাপস' : 'Dark theme & Google Maps', icon: Globe },
+                          { id: 'chef', label: lang === 'bn' ? 'শেফ গ্যালারি' : 'Chef Showcase', desc: lang === 'bn' ? 'রাঁধুনীদের পরিচয় ও গ্যালারি' : 'Chef team profiles & showcase', icon: ChefHat },
+                          { id: 'social', label: lang === 'bn' ? 'সোশ্যাল ও ব্যানার' : 'Social & Banners', desc: lang === 'bn' ? 'ফেসবুক ও স্লাইডার ব্যানার' : 'Social links & hero sliders', icon: Sparkles },
+                          { id: 'deploy', label: lang === 'bn' ? 'সিস্টেম আপডেট' : 'System Update', desc: lang === 'bn' ? 'লাইভ সিস্টেম ডিপ্লয়মেন্ট' : 'Real-time deployment updates', icon: Zap },
+                          { id: 'domains', label: lang === 'bn' ? 'ডোমেইন ও কাস্টম লিংক' : 'Domains & Custom URL', desc: lang === 'bn' ? 'কাস্টম ব্র্যান্ডেড ডোমেইন কানেক্ট' : 'Custom root domains & DNS', icon: Globe }
+                        ].map((item) => {
+                          const ItemIcon = item.icon;
                           return (
-                            <div
-                              key={card.id}
-                              onClick={() => openSettingsCategory(card.id as any)}
-                              className={`group p-6 rounded-3xl border transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-xs hover:shadow-md ${
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => openSettingsCategory(item.id as any)}
+                              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-sm transition-all text-left cursor-pointer border ${
                                 theme === 'dark'
-                                  ? 'bg-[#1c1c1c] border-slate-800 hover:border-blue-500/50 hover:bg-[#252525]'
-                                  : 'bg-white border-slate-200 hover:border-blue-500/50 hover:bg-slate-50'
+                                  ? 'bg-slate-900/60 border-slate-800/80 text-slate-200 hover:bg-slate-800 hover:border-blue-500/40 hover:text-white'
+                                  : 'bg-white border-slate-200/80 text-slate-800 hover:border-blue-500/40 hover:text-slate-950 shadow-2xs hover:shadow-xs'
                               }`}
                             >
-                              <div className="space-y-4">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${card.color}`}>
-                                  <CardIcon className="w-5 h-5" />
+                              <div className="flex items-center gap-3.5">
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${theme === 'dark' ? 'bg-slate-800 text-cyan-400' : 'bg-slate-50 text-blue-600 border border-slate-200/60'}`}>
+                                  <ItemIcon className="w-4 h-4 shrink-0" />
                                 </div>
-                                <div className="space-y-1.5">
-                                  <h3 className={`text-base font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'} group-hover:text-blue-500 transition-colors`}>
-                                    {card.label}
-                                  </h3>
-                                  <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
-                                    {card.desc}
-                                  </p>
+                                <div>
+                                  <div className="font-extrabold text-[13px] tracking-tight">{item.label}</div>
+                                  <div className="text-[10px] text-slate-400 font-medium">{item.desc}</div>
                                 </div>
                               </div>
-
-                              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-500 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 group-hover:translate-x-1 transition-transform">
-                                <span>{lang === 'bn' ? 'সম্পূর্ণ পেজ দেখুন' : 'View Section'}</span>
-                                <ChevronRight className="w-4 h-4 text-blue-500" />
-                              </div>
-                            </div>
+                              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                            </button>
                           );
                         })}
                       </div>
-                    )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Full-Page Selected Category Form (When a category is active) */}
+                {settingsCategoryTab !== 'menu' && (
+                  <div className="w-full space-y-6 min-w-0 animate-fade-in">
 
                 {/* 1. BRAND, IDENTITY, CONTACT & MENU TAGLINES CARD */}
                 {isSectionVisible('brand', ['brand', 'identity', 'name', 'নাম', 'রেস্টুরেন্ট', 'logo', 'লোগো', 'phone', 'ফোন', 'whatsapp', 'হোয়াটসঅ্যাপ', 'email', 'ইমেইল', 'color', 'কালার', 'menu', 'মেনু', 'tagline', 'title']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     {/* Header bar */}
                     <div className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent">
                       <div className="flex items-center gap-4">
@@ -2473,7 +2441,7 @@ export default function OrderManagementAdmin({
                                 } border hover:border-blue-500 transition-all h-10 cursor-pointer shadow-sm`}
                               >
                                 {(() => {
-                                  const c = countriesWithCodes.find(item => item.prefix === selectedPhonePrefix) || { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', prefix: '+880' };
+                                  const c = countriesWithCodes.find(item => item.prefix === selectedPhonePrefix) || { code: 'US', name: 'United States', flag: '🇺🇸', prefix: '+1' };
                                   return (
                                     <>
                                       <CountryFlagBadge code={c.code} name={c.name} flag={c.flag} className="w-5 h-3.5" />
@@ -2613,7 +2581,7 @@ export default function OrderManagementAdmin({
                                 } border hover:border-emerald-500 transition-all h-10 cursor-pointer shadow-sm`}
                               >
                                 {(() => {
-                                  const c = countriesWithCodes.find(item => item.prefix === selectedWhatsappPrefix) || { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', prefix: '+880' };
+                                  const c = countriesWithCodes.find(item => item.prefix === selectedWhatsappPrefix) || { code: 'US', name: 'United States', flag: '🇺🇸', prefix: '+1' };
                                   return (
                                     <>
                                       <CountryFlagBadge code={c.code} name={c.name} flag={c.flag} className="w-5 h-3.5" />
@@ -2731,7 +2699,7 @@ export default function OrderManagementAdmin({
                             value={localBrandSettings.contactEmail || ''}
                             onChange={e => setLocalBrandSettings(prev => ({ ...prev, contactEmail: e.target.value }))}
                             onKeyDown={handleKeyDownSave}
-                            placeholder="asrafali.com@gmail.com"
+                            placeholder="contact@yourrestaurant.com"
                             className={`w-full px-4 py-2.5 rounded-lg outline-none font-bold text-xs ${
                               theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-white border-slate-200 text-slate-700'
                             } border focus:border-blue-500 transition-colors h-10`}
@@ -2821,6 +2789,167 @@ export default function OrderManagementAdmin({
                           </div>
                         </div>
                       </div>
+
+                      {/* 3. ABOUT US & 'WHY DINE WITH US?' SECTION EDITOR */}
+                      <div className="p-6 rounded-3xl border space-y-6 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5 border-amber-500/20 shadow-xs">
+                        <div className="flex items-center justify-between pb-3 border-b border-amber-500/15">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                              <Sparkles className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h4 className="font-black text-sm text-slate-900 dark:text-white">
+                                {lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" (About Us) সেকশন এডিটর' : '"Why Dine With Us?" (About Us) Section Editor'}
+                              </h4>
+                              <p className="text-[11px] text-slate-500 font-medium">
+                                {lang === 'bn' ? 'হোমপেজের পরিচিতি লেখা, শিরোনাম, ছবি ও ৪টি মূল বৈশিষ্ট্য সম্পাদনা করুন।' : 'Customize the About Us badge, title, story text, image & 4 feature bullet points.'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono">
+                            Live Sync
+                          </span>
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* 1. Subtitle & Main Title in 2 columns */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                {lang === 'bn' ? 'টপ সাবটাইটেল ব্যাজ (Badge)' : 'Top Subtitle Tag'}
+                              </label>
+                              <input
+                                type="text"
+                                value={localBrandSettings.aboutUsSubtitle || ''}
+                                onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsSubtitle: e.target.value }))}
+                                onKeyDown={handleKeyDownSave}
+                                placeholder="ABOUT US"
+                                className={`w-full px-4 py-2.5 rounded-xl outline-none font-bold text-xs ${
+                                  theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
+                                } border focus:border-amber-500 transition-colors`}
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                {lang === 'bn' ? 'প্রধান শিরোনাম (Main Heading)' : 'Main Heading Title'}
+                              </label>
+                              <input
+                                type="text"
+                                value={localBrandSettings.aboutUsTitle || ''}
+                                onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsTitle: e.target.value }))}
+                                onKeyDown={handleKeyDownSave}
+                                placeholder="Why Dine With Us?"
+                                className={`w-full px-4 py-2.5 rounded-xl outline-none font-bold text-xs ${
+                                  theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
+                                } border focus:border-amber-500 transition-colors`}
+                              />
+                            </div>
+                          </div>
+
+                          {/* 2. Story / Description Paragraph */}
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                              {lang === 'bn' ? 'পরিচিতি বিবরণ / গল্প (Story Description)' : 'Story / Description Paragraph'}
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={localBrandSettings.aboutUsText || ''}
+                              onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsText: e.target.value }))}
+                              placeholder="Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews..."
+                              className={`w-full p-3.5 rounded-xl outline-none font-medium text-xs ${
+                                theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
+                              } border focus:border-amber-500 transition-colors leading-relaxed`}
+                            />
+                          </div>
+
+                          {/* 3. Section Banner Image */}
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                              {lang === 'bn' ? 'সেকশন কভার ছবি (Image URL)' : 'Section Image URL'}
+                            </label>
+                            <div className="flex flex-col sm:flex-row gap-3 items-center">
+                              <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-700 shrink-0">
+                                <img 
+                                  src={localBrandSettings.aboutUsImage || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop'} 
+                                  alt="About Us Preview" 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <input
+                                type="text"
+                                value={localBrandSettings.aboutUsImage || ''}
+                                onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsImage: e.target.value }))}
+                                onKeyDown={handleKeyDownSave}
+                                placeholder="https://images.unsplash.com/photo-1509042239860-f550ce710b93..."
+                                className={`flex-1 w-full px-4 py-2.5 rounded-xl outline-none font-medium text-xs font-mono ${
+                                  theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
+                                } border focus:border-amber-500 transition-colors`}
+                              />
+                            </div>
+
+                            {/* Preset Image Options */}
+                            <div className="flex items-center gap-2 flex-wrap pt-1">
+                              <span className="text-[10px] font-bold text-slate-400">{lang === 'bn' ? 'প্রিসেট ছবি:' : 'Presets:'}</span>
+                              {[
+                                { label: '☕ Coffee Barista', url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop' },
+                                { label: '🍽️ Luxury Dining', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop' },
+                                { label: '👨‍🍳 Master Chef', url: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=1000&auto=format&fit=crop' },
+                                { label: '🥐 Fresh Bakery', url: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1000&auto=format&fit=crop' }
+                              ].map((preset, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setLocalBrandSettings(prev => ({ ...prev, aboutUsImage: preset.url }))}
+                                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-white transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                                >
+                                  {preset.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 4. Four Features Checklist Editor */}
+                          <div className="space-y-3 pt-3 border-t border-amber-500/15">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                              <span>{lang === 'bn' ? '৪টি মূল বৈশিষ্ট্য (Feature Checklist)' : '4 Key Feature Bullet Points'}</span>
+                              <span className="text-[10px] font-normal text-amber-500">4 Points</span>
+                            </label>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {[0, 1, 2, 3].map((index) => {
+                                const currentFeatures = localBrandSettings.aboutUsFeatures || [
+                                  '100% Fresh Organic Ingredients',
+                                  'Chef-Curated Gourmet Menu',
+                                  '3D Interactive WebAR Food Previews',
+                                  'Fast Home Delivery & Table Ordering'
+                                ];
+                                return (
+                                  <div key={index} className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20 font-mono text-xs font-black">
+                                      {index + 1}
+                                    </div>
+                                    <input
+                                      type="text"
+                                      value={currentFeatures[index] || ''}
+                                      onChange={e => {
+                                        const updated = [...currentFeatures];
+                                        updated[index] = e.target.value;
+                                        setLocalBrandSettings(prev => ({ ...prev, aboutUsFeatures: updated }));
+                                      }}
+                                      onKeyDown={handleKeyDownSave}
+                                      placeholder={`Feature ${index + 1}`}
+                                      className={`flex-1 px-3.5 py-2 rounded-xl outline-none font-bold text-xs ${
+                                        theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
+                                      } border focus:border-amber-500 transition-colors`}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2830,16 +2959,6 @@ export default function OrderManagementAdmin({
                 {/* 2. ADMIN SECURITY, PASSWORD & PUBLIC BUTTON LOCK CARD */}
                 {isSectionVisible('security', ['security', 'password', 'পাসওয়ার্ড', 'pin', 'পিন', 'lock', 'লক', 'secret', 'admin button', 'বাটন', 'কাস্টমার', 'public']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -2948,24 +3067,32 @@ export default function OrderManagementAdmin({
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-3 shrink-0">
-                              <span className={`text-xs font-black uppercase tracking-wider ${settings?.showAdminButton === true ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                {settings?.showAdminButton === true ? (lang === 'bn' ? 'অন (দৃশ্যমান)' : 'ON (Visible)') : (lang === 'bn' ? 'অফ (লুকানো)' : 'OFF (Hidden)')}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setTargetAdminBtnVisibility(settings?.showAdminButton === true ? false : true);
-                                  setIsConfirmAdminBtnModalOpen(true);
-                                  setAdminConfirmPasswordInput('');
-                                  setAdminConfirmPasswordError('');
-                                }}
-                                className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-                                  settings?.showAdminButton === true ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
-                                }`}
-                              >
-                                <motion.div layout className="w-6 h-6 bg-white rounded-full shadow-md" />
-                              </button>
+                             <div className="flex items-center gap-3 shrink-0">
+                              {(() => {
+                                const activeThemeId = settings?.activeThemeId || 'velmora-dining';
+                                const isVisible = getThemeAdminButtonVisibility(activeThemeId, settings);
+                                return (
+                                  <>
+                                    <span className={`text-xs font-black uppercase tracking-wider ${isVisible ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                      {isVisible ? (lang === 'bn' ? `অন (${activeThemeId})` : `ON (${activeThemeId})`) : (lang === 'bn' ? `অফ (${activeThemeId})` : `OFF (${activeThemeId})`)}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setTargetAdminBtnVisibility(!isVisible);
+                                        setIsConfirmAdminBtnModalOpen(true);
+                                        setAdminConfirmPasswordInput('');
+                                        setAdminConfirmPasswordError('');
+                                      }}
+                                      className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                                        isVisible ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                                      }`}
+                                    >
+                                      <motion.div layout className="w-6 h-6 bg-white rounded-full shadow-md" />
+                                    </button>
+                                  </>
+                                );
+                              })()}
                             </div>
                           </div>
 
@@ -2987,16 +3114,6 @@ export default function OrderManagementAdmin({
                 {/* 3. WEBSITE DARK/LIGHT THEME & GOOGLE MAPS LOCATION DISPLAY CARD */}
                 {isSectionVisible('features', ['theme', 'থিম', 'dark', 'light', 'কালো', 'সাদা', 'map', 'ম্যাপ', 'google map', 'গুগল ম্যাপ', 'location', 'লোケーション', 'personalization']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3019,6 +3136,44 @@ export default function OrderManagementAdmin({
                     </div>
 
                     <div className="py-6 space-y-8">
+                        {/* Synchronized Theme Overview Card */}
+                        <div className={`p-6 rounded-2xl border ${theme === 'dark' ? 'bg-[#181818] border-slate-800' : 'bg-slate-50 border-slate-200'} space-y-4`}>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                                <Sparkles className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-base font-black text-slate-900 dark:text-white">
+                                    {lang === 'bn' ? 'বর্তমান সক্রিয় থিম ও এডমিন সিঙ্ক' : 'Active Theme & Admin Sync'}
+                                  </h3>
+                                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950">
+                                    {settings.activeThemeId === 'lunavere' ? 'Lunavere Cafe' : 'Velmora Dining Luxury'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                                  {lang === 'bn' 
+                                    ? 'এই থিমের ব্র্যান্ডিং, ফন্ট, কালার ও লেআউটের সঙ্গে এডমিন প্যানেল এবং সেটিংস স্বয়ংক্রিয়ভাবে সিঙ্কড রয়েছে।' 
+                                    : 'Theme styling, palette and layout are fully synchronized with your admin panel.'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveNavTab('theme_store');
+                                setIsFullScreenPage(true);
+                              }}
+                              className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
+                            >
+                              <Palette className="w-4 h-4" />
+                              <span>{lang === 'bn' ? 'থিম স্টোর দেখুন' : 'Open Theme Store'}</span>
+                            </button>
+                          </div>
+                        </div>
+
                         {/* Dark/Light Mode */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
@@ -3099,16 +3254,6 @@ export default function OrderManagementAdmin({
                 {/* 4. CHEF SHOWCASE & 6 CHEF PROFILES CARD */}
                 {isSectionVisible('chef', ['chef', 'শেফ', 'profile', 'প্রোফাইল', 'cook', 'রাঁধুনী', 'rating', 'রেটিং', 'experience', 'অভিজ্ঞতা', 'bio']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3535,16 +3680,6 @@ export default function OrderManagementAdmin({
                 {/* 5. SOCIAL MEDIA LINKS & HERO SLIDER BANNERS CARD */}
                 {isSectionVisible('social', ['social', 'সোশ্যাল', 'facebook', 'instagram', 'youtube', 'linkedin', 'banner', 'ব্যনার', 'hero', 'হিরো', 'slide', 'স্লাইডার', 'plan', 'প্ল্যান']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3807,16 +3942,6 @@ export default function OrderManagementAdmin({
                 {/* 6. LIVE SYSTEM UPDATE & DEPLOYMENT CARD */}
                 {isSectionVisible('deploy', ['deploy', 'ডিপ্লয়', 'update', 'আপডেট', 'push', 'live', 'সরাসরি', 'shield', 'সিস্টেম']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3933,16 +4058,6 @@ export default function OrderManagementAdmin({
                 {/* 7. CUSTOM DOMAINS & WEB URL CARD */}
                 {isSectionVisible('domains', ['domain', 'domains', 'ডোমেইন', 'url', 'লিংক', 'custom domain', 'dns', 'cname', 'ssl', 'hostname']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    {settingsCategoryTab !== 'all' && (
-                      <button
-                        type="button"
-                        onClick={() => openSettingsCategory('all')}
-                        className="mb-6 inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'সব সেটিংসে ফিরে যান' : 'Back to All Settings'}</span>
-                      </button>
-                    )}
                     <div 
                       className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
                     >
@@ -3976,10 +4091,10 @@ export default function OrderManagementAdmin({
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
         </motion.div>
       </AnimatePresence>
     </div>

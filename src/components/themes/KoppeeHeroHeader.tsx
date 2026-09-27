@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
+import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 import cleanCoffeeBg from '../../assets/images/clean_coffee_bg_1790179641546.jpg';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
@@ -9,6 +10,7 @@ import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
 import { HeroAnimatedElement } from './HeroAnimatedElement';
 import { BotanicalCoffeeLeaves } from './BotanicalCoffeeLeaves';
+import { checkAdminPasswordInput, getThemeAdminButtonVisibility } from '../../lib/adminHelpers';
 
 interface KoppeeHeroHeaderProps {
   brandName?: string;
@@ -503,45 +505,11 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const currentSlides = (heroSlides && heroSlides.length > 0) ? heroSlides : KOPPEE_SLIDES;
   const slide = currentSlides[activeSlide] || currentSlides[0] || KOPPEE_SLIDES[0];
 
-  // Check admin PIN logic
+  // Check admin PIN/password logic (supports text, letters, numbers, symbols)
   const checkAdminPin = (input: string) => {
-    const raw = input.trim();
-    if (!raw) return false;
-    const lower = raw.toLowerCase();
+    if (!input || !input.trim()) return false;
 
-    let dynamicCode = '8520';
-    let storedAdminPass = '';
-    let storedPin = '';
-    let storedAdminSettingsPass = '';
-    if (typeof window !== 'undefined') {
-      dynamicCode = (localStorage.getItem('webar_admin_secret_code') || '8520').toLowerCase().trim();
-      storedAdminPass = (localStorage.getItem('restaurant_admin_password') || '').toLowerCase().trim();
-      storedPin = (localStorage.getItem('webar_admin_pin') || '').toLowerCase().trim();
-      try {
-        const rawSettings = localStorage.getItem('webar_admin_settings');
-        if (rawSettings) {
-          const parsed = JSON.parse(rawSettings);
-          if (parsed?.adminPassword) {
-            storedAdminSettingsPass = String(parsed.adminPassword).toLowerCase().trim();
-          }
-        }
-      } catch (e) {}
-    }
-
-    const validPins = [
-      '8520',
-      'admin8520',
-      '8520admin',
-      'admin',
-      'admin5321',
-      '5321',
-      dynamicCode,
-      storedAdminPass,
-      storedPin,
-      storedAdminSettingsPass,
-    ].filter(Boolean);
-
-    if (validPins.some((p) => p === lower)) {
+    if (checkAdminPasswordInput(input)) {
       setAdminUnlockSuccess(true);
       setTimeout(() => {
         if (onOpenAdmin) {
@@ -646,22 +614,24 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
       {/* ========================================================================= */}
       <header className={`absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between ${cfg.headerBg}`}>
         {/* Brand Logo with 2-Letter Initials Badge */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
-            <div className={`w-10 h-10 rounded-xl ${cfg.logoBadgeClass} text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
+        <div className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0" onClick={() => scrollToSection('hero')}>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${cfg.logoBadgeClass} text-[10px] sm:text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
               {initial1}{initial2}
             </div>
-            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-sans drop-shadow-md">
+            <span className={`font-black text-white tracking-wider uppercase font-sans drop-shadow-md truncate ${
+              isMobile ? 'text-xs sm:text-sm max-w-[120px] sm:max-w-[180px]' : isTablet ? 'text-sm sm:text-base md:text-lg max-w-[180px] sm:max-w-[260px]' : 'text-xl sm:text-2xl md:text-3xl'
+            }`}>
               {effectiveBrandName}
             </span>
           </div>
         </div>
 
-        {/* A. TABLET NAVIGATION MENU (Core Links + Admin Button + Expandable Search + Corner 3-Dot Dropdown) */}
+        {/* A. TABLET NAVIGATION MENU (Home & About on Bar, Service & Menu in Dropdown) */}
         {isTablet && (
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
-            {/* The Core Links & Admin Button */}
-            <nav className="flex items-center space-x-2 sm:space-x-2.5 md:space-x-3.5 text-xs md:text-sm font-semibold">
+            {/* The Core Links (Home & About) & Admin Button */}
+            <nav className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm font-semibold">
               <button
                 type="button"
                 onClick={() => scrollToSection('hero')}
@@ -676,26 +646,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               >
                 About
               </button>
-              <button
-                type="button"
-                onClick={() => scrollToSection('services')}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
-              >
-                Service
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (onOrderClick) onOrderClick();
-                  else if (onMenuClick) onMenuClick();
-                  else scrollToSection('menu');
-                }}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
-              >
-                Menu
-              </button>
 
-              {/* Admin Button placed right here where 3-dots used to be (visible only when showAdminButton is true) */}
+              {/* Admin Button (visible only when showAdminButton is true) */}
               {showAdminButton === true && (
                 <button
                   type="button"
@@ -768,7 +720,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 </AnimatePresence>
               </div>
 
-              {/* Three Dots Button & Dropdown at the far right corner */}
+              {/* Three Dots Button & Dropdown (includes Service & Menu for Tablet) */}
               <div ref={tabletMoreDropdownRef} className="relative">
                 <button
                   type="button"
@@ -788,6 +740,30 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       transition={{ duration: 0.15 }}
                       className={`absolute right-0 mt-2 w-48 bg-[#1e140d]/98 backdrop-blur-xl border ${cfg.accentBorderClass} rounded-xl shadow-2xl py-1.5 z-50 text-left space-y-0.5`}
                     >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          scrollToSection('services');
+                          setTabletMoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
+                      >
+                        <Sparkles className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <span>Service</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onOrderClick) onOrderClick();
+                          else if (onMenuClick) onMenuClick();
+                          else scrollToSection('menu');
+                          setTabletMoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
+                      >
+                        <Utensils className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <span>Menu</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => {
@@ -1005,7 +981,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             {mobileMenuOpen ? (
               <X className="w-6 h-6 text-[#DA9F93]" />
             ) : (
-              <MoreVertical className="w-6 h-6 text-[#DA9F93]" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-[#DA9F93]" />
             )}
           </button>
         </div>
@@ -1436,8 +1412,12 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           </>
         )}
 
-        {/* Bottom divider: On Desktop, render refined artisanal Torn Paper Edge; on Mobile and Tablet, keep completely straight/flat */}
-        {isDesktop ? (
+        {/* Bottom divider: Theme #01 Velmora uses Torn Paper Edge; Theme #02 Orivelle House uses Architectural 24K Gold Geometric Divider */}
+        {themePresetId === 'orivelle-house' ? (
+          <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none select-none">
+            <OrivelleGeometricDivider color="#0a0907" position="top" />
+          </div>
+        ) : isDesktop ? (
           <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none select-none hidden lg:block">
             <TornPaperEdge color="#ffffff" position="top" />
           </div>

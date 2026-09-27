@@ -65,6 +65,7 @@ import { DEFAULT_STORE_DISHES } from '../../data/luxuryDishes';
 import CoffeeHeaderHero from '../CoffeeHeaderHero';
 import LunavereTheme from '../themes/LunavereTheme';
 import VelmoraDiningTheme from '../themes/VelmoraDiningTheme';
+import { getThemeAdminButtonVisibility, checkAdminPasswordInput } from '../../lib/adminHelpers';
 
 export const isDemoOrPlaceholderBrand = (name?: string) => {
   if (!name) return true;
@@ -403,22 +404,11 @@ export default function ThemeStoreManager({
     };
   }, [isPreviewSearchExpanded, isPreviewMegaMenuOpen]);
 
-  // Search input password detector to automatically open Admin Panel ONLY when exact password (e.g. 8520) is entered
+  // Search input password detector to automatically open Admin Panel when valid password is entered
   const checkAndTriggerAdminPassword = (text: string) => {
     if (!text) return false;
-    const lower = text.toLowerCase().trim();
-    const configuredPass = ((settings as any)?.adminPassword || '').toLowerCase().trim();
-    const savedCode = (typeof window !== 'undefined' ? (localStorage.getItem('webar_admin_secret_code') || '8520') : '8520').toLowerCase().trim();
 
-    // MUST be exact match of 8520 or the actual configured password. Generic 'admin' or '1234' is NOT allowed!
-    const isPassMatch = 
-      lower === '8520' ||
-      lower === 'admin8520' ||
-      lower === '8520admin' ||
-      (savedCode && lower === savedCode) ||
-      (configuredPass && lower === configuredPass);
-
-    if (isPassMatch) {
+    if (checkAdminPasswordInput(text, settings)) {
       if (onOpenStudio) {
         onOpenStudio();
       }
@@ -427,7 +417,7 @@ export default function ThemeStoreManager({
       window.dispatchEvent(new CustomEvent('admin-active-tab-change', { detail: { label: 'ACTIVE DASHBOARD' } }));
       setPreviewSearchText('');
       setIsPreviewSearchExpanded(false);
-      setSuccessToast(lang === 'bn' ? '🔑 এডমিন পাসওয়ার্ড (8520) সঠিক! এডমিন প্যানেল অন করা হচ্ছে...' : '🔑 Admin password (8520) verified! Opening Admin Panel...');
+      setSuccessToast(lang === 'bn' ? '🔑 এডমিন পাসওয়ার্ড সঠিক! এডমিন প্যানেল অন করা হচ্ছে...' : '🔑 Admin password verified! Opening Admin Panel...');
       setTimeout(() => setSuccessToast(null), 3000);
       return true;
     }
@@ -624,7 +614,6 @@ export default function ThemeStoreManager({
     const serialNumber = themeIndex >= 0 ? themeIndex + 1 : 1;
     const targetPlan: 'basic' | 'pro' | 'elite' = serialNumber <= 10 ? 'basic' : serialNumber <= 25 ? 'pro' : 'elite';
 
-    setActiveThemeId(preset.id);
     setUsedThemeIds((prev) => {
       const updated = prev.includes(preset.id) ? prev : [...prev, preset.id];
       if (typeof window !== 'undefined') {
@@ -1353,9 +1342,9 @@ export default function ThemeStoreManager({
                   }}
                 >
                   {/* ===================================================================== */}
-                  {/* 1. COMMON TOP HEADER BAR (Only for default preview, omitted for custom themes) */}
+                  {/* 1. COMMON TOP HEADER BAR (Omitted for custom themes with built-in headers) */}
                   {/* ===================================================================== */}
-                  {!(previewTheme.id === 'velmora-dining' || previewTheme.id === 'velmora' || previewTheme.id === 'lunavere') && (
+                  {false && (
                   <header ref={previewMegaMenuRef} className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/90 px-4 sm:px-8 py-3.5 flex flex-col gap-3 shadow-md transition-all duration-300">
                     {/* Top Row: Logo + Brand + Location & Admin Avatar */}
                     <div className="flex items-center justify-between">
@@ -1384,7 +1373,7 @@ export default function ThemeStoreManager({
                       })()}
 
                       <div className="flex items-center gap-3">
-                        {settings?.showAdminButton === true && (
+                        {getThemeAdminButtonVisibility(previewTheme.id, settings) && (
                           <button
                             type="button"
                             onClick={() => {

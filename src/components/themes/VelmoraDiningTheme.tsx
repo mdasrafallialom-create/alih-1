@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Crown, Sparkles, Star, Clock, MapPin, Phone, Calendar, 
-  ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, 
+  ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, ArrowLeft,
   Menu, X, Heart, Shield, QrCode, Check, Compass, Search, Bell,
   Award, ChefHat, Utensils, Wine, Gem, Users, CheckCircle2,
   Edit3, Plus, Trash2, ArrowUp, ArrowDown, Save, Image as ImageIcon, Sliders
@@ -14,8 +14,14 @@ import { KoppeeHeroHeader, THEME_HERO_CONFIGS, KOPPEE_SLIDES } from './KoppeeHer
 import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
+import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
+import { getThemeAdminButtonVisibility, checkAdminPasswordInput } from '../../lib/adminHelpers';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 import cleanCoffeeBg from '../../assets/images/clean_coffee_bg_1790179641546.jpg';
+
+import caviarDishImg from '../../assets/images/luxury_caviar_dish_1790508696808.jpg';
+import wagyuPlatedImg from '../../assets/images/luxury_michelin_dish_1790508680735.jpg';
+import dessertSphereImg from '../../assets/images/luxury_dessert_dish_1790508714022.jpg';
 
 interface FoodItem {
   id: string;
@@ -542,11 +548,11 @@ export const DEFAULT_VELMORA_DISHES: FoodItem[] = [
 const ORIVELLE_NOIR_DISHES: FoodItem[] = [
   { 
     id: 'or-1', 
-    title: 'Oscietra Caviar & 24k Gold Blinis', 
+    title: 'Oscietra Caviar & 24k Gold Carpaccio', 
     price: 110.00, 
     calories: '210 kcal', 
-    desc: 'Grand Reserve Oscietra sturgeon caviar served on warm buckwheat blinis with 24k edible gold leaf and crème fraîche.', 
-    img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&auto=format&fit=crop', 
+    desc: 'Grand Reserve Oscietra sturgeon caviar atop smoked sea scallop carpaccio with 24k edible gold leaf flecks and micro borage flowers.', 
+    img: caviarDishImg, 
     category: 'caviar', 
     isPopular: true 
   },
@@ -562,11 +568,11 @@ const ORIVELLE_NOIR_DISHES: FoodItem[] = [
   },
   { 
     id: 'or-3', 
-    title: 'A5 Miyazaki Wagyu Ribeye & Bone Marrow', 
+    title: 'A5 Miyazaki Wagyu Ribeye & Périgord Truffle', 
     price: 145.00, 
     calories: '680 kcal', 
-    desc: 'Miyazaki A5 Wagyu tenderloin with roasted bone marrow, black Périgord truffle jus and smoked Maldon salt.', 
-    img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop', 
+    desc: 'Miyazaki A5 Wagyu tenderloin with black Périgord winter truffle shavings, red wine reduction and smoked Maldon 24k gold salt.', 
+    img: wagyuPlatedImg, 
     category: 'steaks', 
     isPopular: true 
   },
@@ -592,11 +598,11 @@ const ORIVELLE_NOIR_DISHES: FoodItem[] = [
   },
   { 
     id: 'or-6', 
-    title: '24k Gold Flake Valrhona Chocolate Sphere', 
+    title: '24k Gold Valrhona Caramel Sphere', 
     price: 32.00, 
     calories: '380 kcal', 
-    desc: '70% Guanaja dark chocolate molten sphere served with Madagascar Bourbon vanilla anglaise and edible 24k gold flakes.', 
-    img: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=800&auto=format&fit=crop', 
+    desc: '70% Guanaja dark chocolate sphere with warm molten salted caramel, edible 24k gold flakes and smoked vanilla gelato.', 
+    img: dessertSphereImg, 
     category: 'desserts', 
     isPopular: true 
   }
@@ -753,13 +759,22 @@ export default function VelmoraDiningTheme({
   const [editingSectionTagline, setEditingSectionTagline] = useState<string>('');
   const [editingSectionTitle, setEditingSectionTitle] = useState<string>('');
   const [editingSectionSubtitle, setEditingSectionSubtitle] = useState<string>('');
-  const [editorActiveTab, setEditorActiveTab] = useState<'dishes' | 'headings'>('dishes');
+  const [editingCategories, setEditingCategories] = useState<{ id: string; label: string }[]>([]);
+  const [editorActiveTab, setEditorActiveTab] = useState<'dishes' | 'headings'>('headings');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // Single Card Editor & Card Mode
   const [editingSingleDish, setEditingSingleDish] = useState<FoodItem | null>(null);
   const [isCardEditMode, setIsCardEditMode] = useState<boolean>(true);
   const [savedDishIds, setSavedDishIds] = useState<Set<string>>(new Set());
+
+  // About Us Section Live In-Place Editor Modal State
+  const [isAboutUsEditorOpen, setIsAboutUsEditorOpen] = useState<boolean>(false);
+  const [editingAboutUsSubtitle, setEditingAboutUsSubtitle] = useState<string>('');
+  const [editingAboutUsTitle, setEditingAboutUsTitle] = useState<string>('');
+  const [editingAboutUsText, setEditingAboutUsText] = useState<string>('');
+  const [editingAboutUsImage, setEditingAboutUsImage] = useState<string>('');
+  const [editingAboutUsFeatures, setEditingAboutUsFeatures] = useState<string[]>([]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -777,7 +792,7 @@ export default function VelmoraDiningTheme({
   const [resName, setResName] = useState('');
   const [resPhone, setResPhone] = useState('');
   const [resGuests, setResGuests] = useState('2');
-  const [resDate, setResDate] = useState('2026-09-20');
+  const [resDate, setResDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [resTime, setResTime] = useState('19:30');
   const [resSalon, setResSalon] = useState('Grand Royal Ballroom');
 
@@ -817,13 +832,27 @@ export default function VelmoraDiningTheme({
   const activePresetId = themePresetId || settings?.activeThemeId || 'velmora-dining';
   const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['velmora-dining'] || THEME_PAGE_CONFIGS['lumivelle'];
 
-  // Read theme-specific edits if they exist for activePresetId ONLY
-  const themeEdits = typeof window !== 'undefined' ? (() => {
-    try {
-      const raw = localStorage.getItem(`theme_edits_${activePresetId}`);
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  })() : null;
+  // Read theme-specific edits if they exist for activePresetId ONLY with reactive state
+  const [themeEditsState, setThemeEditsState] = useState<any>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(`theme_edits_${activePresetId}`);
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+    return null;
+  });
+
+  const themeEdits = themeEditsState;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(`theme_edits_${activePresetId}`);
+        setThemeEditsState(raw ? JSON.parse(raw) : null);
+      } catch { }
+    }
+  }, [activePresetId]);
 
   // Check if dishes were specifically edited or saved for this activePresetId
   const themeSpecificDishes = (themeEdits?.dishes && themeEdits.dishes.length > 0)
@@ -882,7 +911,7 @@ export default function VelmoraDiningTheme({
 
   const effectiveDishes = themeSpecificDishes || getPresetDefaultDishes(activePresetId);
 
-  const categories = activePresetId === 'velmora-dining' ? [
+  const presetCategories = activePresetId === 'velmora-dining' ? [
     { id: 'all', label: 'Coffee Repertoire' },
     { id: 'coffee', label: 'Artisan Espresso' },
     { id: 'coldbrew', label: 'Cold Brew & Iced' },
@@ -940,6 +969,10 @@ export default function VelmoraDiningTheme({
     { id: 'pasta', label: 'Handmade Pasta' },
     { id: 'desserts', label: 'Palatial Desserts' },
   ];
+
+  const categories = (themeEdits?.categories && themeEdits.categories.length > 0)
+    ? themeEdits.categories
+    : presetCategories;
 
   const defaultMenuTitle = activePresetId === 'orivelle-house'
     ? 'Orivelle Haute Gastronomy & Private Cellar'
@@ -1011,7 +1044,7 @@ export default function VelmoraDiningTheme({
 
   const handleSearchCheck = (text: string) => {
     setSearchQuery(text);
-    if (text.trim() === '8520' || text.trim().toLowerCase() === 'admin8520') {
+    if (checkAdminPasswordInput(text, settings)) {
       if (onOpenAdmin) onOpenAdmin();
       setIsSearchOpen(false);
       setSearchQuery('');
@@ -1035,6 +1068,70 @@ export default function VelmoraDiningTheme({
     settings?.themeSettings?.[activePresetId]?.aboutUsImage ||
     THEME_HERO_CONFIGS[activePresetId]?.heroBgImage ||
     'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop';
+
+  const defaultAboutStory = `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveThemeBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`;
+
+  const openAboutUsEditor = () => {
+    setEditingAboutUsSubtitle(themeEdits?.aboutUsSubtitle || settings?.themeSettings?.[activePresetId]?.aboutUsSubtitle || settings?.aboutUsSubtitle || 'ABOUT US');
+    setEditingAboutUsTitle(themeEdits?.aboutUsTitle || settings?.themeSettings?.[activePresetId]?.aboutUsTitle || settings?.aboutUsTitle || (lang === 'bn' ? 'কেন আমাদের কাছে খাবেন?' : 'Why Dine With Us?'));
+    setEditingAboutUsText(themeEdits?.aboutUsText || settings?.themeSettings?.[activePresetId]?.aboutUsText || settings?.aboutUsText || defaultAboutStory);
+    setEditingAboutUsImage(activeAboutUsImage);
+    const existingFeatures = themeEdits?.aboutUsFeatures || settings?.themeSettings?.[activePresetId]?.aboutUsFeatures || settings?.aboutUsFeatures;
+    setEditingAboutUsFeatures(existingFeatures && existingFeatures.length > 0 ? [...existingFeatures] : [
+      '100% Fresh Organic Ingredients',
+      'Chef-Curated Gourmet Menu',
+      '3D Interactive WebAR Food Previews',
+      'Fast Home Delivery & Table Ordering'
+    ]);
+    setIsAboutUsEditorOpen(true);
+  };
+
+  const saveAboutUsEdits = () => {
+    const payload = {
+      ...(themeEdits || {}),
+      aboutUsSubtitle: editingAboutUsSubtitle,
+      aboutUsTitle: editingAboutUsTitle,
+      aboutUsText: editingAboutUsText,
+      aboutUsImage: editingAboutUsImage,
+      aboutUsFeatures: editingAboutUsFeatures,
+    };
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`theme_edits_${activePresetId}`, JSON.stringify(payload));
+        const rawAdmin = localStorage.getItem('webar_restaurant_admin_settings');
+        if (rawAdmin) {
+          const parsedAdmin = JSON.parse(rawAdmin);
+          parsedAdmin.aboutUsSubtitle = editingAboutUsSubtitle;
+          parsedAdmin.aboutUsTitle = editingAboutUsTitle;
+          parsedAdmin.aboutUsText = editingAboutUsText;
+          parsedAdmin.aboutUsImage = editingAboutUsImage;
+          parsedAdmin.aboutUsFeatures = editingAboutUsFeatures;
+          localStorage.setItem('webar_restaurant_admin_settings', JSON.stringify(parsedAdmin));
+        }
+      } catch (err) {
+        console.error('Failed to save theme edits:', err);
+      }
+    }
+    setThemeEditsState(payload);
+    setIsAboutUsEditorOpen(false);
+    setToastMsg(lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" সেকশনটি সফলভাবে আপডেট হয়েছে!' : '"Why Dine With Us?" section updated successfully!');
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const openMenuSectionEditor = (targetTab: 'headings' | 'dishes' = 'headings') => {
+    const currentTagline = themeEdits?.menuSectionTagline || settings?.menuSectionTagline || pageCfg.repertoireTag || '☕ — ARTISAN HAND-ROASTED SPECIALTY COFFEE —';
+    const currentTitle = themeEdits?.menuSectionTitle || settings?.menuSectionTitle || defaultMenuTitle;
+    const currentSubtitle = themeEdits?.menuSectionSubtitle || settings?.menuSectionSubtitle || defaultMenuSubtitle;
+    const currentCategories = (themeEdits?.categories && themeEdits.categories.length > 0) ? themeEdits.categories : categories;
+
+    setEditingSectionTagline(currentTagline);
+    setEditingSectionTitle(currentTitle);
+    setEditingSectionSubtitle(currentSubtitle);
+    setEditingCategories([...currentCategories]);
+    setEditingDishes([...effectiveDishes]);
+    setEditorActiveTab(targetTab);
+    setIsMenuEditorOpen(true);
+  };
 
   return (
     <div 
@@ -1062,7 +1159,7 @@ export default function VelmoraDiningTheme({
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
           onOpenAdmin={onOpenAdmin}
-          showAdminButton={settings?.showAdminButton === true}
+          showAdminButton={getThemeAdminButtonVisibility(activePresetId, settings)}
           lang={lang}
           themePresetId={activePresetId}
           previewDeviceView={previewDeviceView}
@@ -1084,6 +1181,8 @@ export default function VelmoraDiningTheme({
           const el = document.getElementById('tasting-menu');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }}
+        onEditClick={openAboutUsEditor}
+        onOpenAdmin={onOpenAdmin}
         lang={lang}
         themePresetId={activePresetId}
         previewDeviceView={previewDeviceView}
@@ -1094,20 +1193,47 @@ export default function VelmoraDiningTheme({
       {/* ========================================================= */}
       <section id="tasting-menu" className="py-20 sm:py-28 px-4 sm:px-8 md:px-12 lg:px-16 w-full max-w-[1800px] mx-auto space-y-12">
         
-        {/* Section Heading */}
+        {/* Section Heading with Direct In-Place Edit Trigger */}
         <div className="text-center space-y-3 max-w-3xl mx-auto relative group">
-          <span className="text-xs font-mono font-bold tracking-[0.3em] uppercase block" style={{ color: pageCfg.accentColor }}>
-            {themeEdits?.menuSectionTagline || settings?.menuSectionTagline || pageCfg.repertoireTag}
-          </span>
-          <h2 
-            className="text-3xl sm:text-5xl font-bold tracking-tight text-[#FBF8EE]"
-            style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
-          >
-            {themeEdits?.menuSectionTitle || settings?.menuSectionTitle || defaultMenuTitle}
-          </h2>
-          <p className="text-sm text-[#FBF8EE]/70 font-light">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-xs font-mono font-bold tracking-[0.3em] uppercase block" style={{ color: pageCfg.accentColor }}>
+              {themeEdits?.menuSectionTagline || settings?.menuSectionTagline || pageCfg.repertoireTag}
+            </span>
+            <button
+              type="button"
+              onClick={() => openMenuSectionEditor('headings')}
+              className="p-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-all cursor-pointer opacity-70 group-hover:opacity-100"
+              title={lang === 'bn' ? 'ট্যাগলাইন ও শিরোনাম এডিট করুন' : 'Edit Tagline & Heading'}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="relative inline-block group/title">
+            <h2 
+              className="text-3xl sm:text-5xl font-bold tracking-tight text-[#FBF8EE] transition-colors"
+              style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
+            >
+              {themeEdits?.menuSectionTitle || settings?.menuSectionTitle || defaultMenuTitle}
+            </h2>
+          </div>
+
+          <p className="text-sm text-[#FBF8EE]/70 font-light max-w-2xl mx-auto">
             {themeEdits?.menuSectionSubtitle || settings?.menuSectionSubtitle || defaultMenuSubtitle}
           </p>
+
+          {/* Quick Edit Heading & Categories Trigger */}
+          <div className="pt-2 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => openMenuSectionEditor('headings')}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+              title={lang === 'bn' ? 'শিরোনাম, বিবরণ ও ক্যাটাগরি এডিট করুন' : 'Edit Title, Tagline & Categories'}
+            >
+              <Edit3 className="w-3.5 h-3.5 text-amber-400" />
+              <span>{lang === 'bn' ? 'শিরোনাম ও ক্যাটাগরি এডিট করুন' : 'Edit Section & Categories'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Category Pills & Compact Side Edit Menu Trigger */}
@@ -1130,12 +1256,12 @@ export default function VelmoraDiningTheme({
 
           <button
             type="button"
-            onClick={() => setIsMenuEditorOpen(true)}
-            className="px-3.5 py-2 rounded-2xl bg-[#14120B] hover:bg-stone-800 border border-[#D4AF37]/60 text-amber-300 text-xs font-bold uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
-            title="Edit Food Section & Menu Items"
+            onClick={() => openMenuSectionEditor('headings')}
+            className="px-4 py-2 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border-2 border-amber-400/80 text-amber-300 text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-2 shadow-lg cursor-pointer transition-all hover:scale-105 active:scale-95"
+            title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section Headings & Menu Items'}
           >
             <Sliders className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[11px]">Edit Section</span>
+            <span className="text-xs">{lang === 'bn' ? 'সেকশন এডিট' : 'EDIT SECTION'}</span>
           </button>
         </div>
 
@@ -1259,32 +1385,93 @@ export default function VelmoraDiningTheme({
             ) : activePresetId === 'orivelle-house' ? (
               <motion.div
                 key={dish.id}
+                onClick={() => {
+                  setDetailOrderQty(1);
+                  setDetailSpecialNote('');
+                  setSelectedDishDetail(dish);
+                }}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="group relative bg-gradient-to-b from-[#18181c] via-[#0f0f12] to-[#0a0a0c] border-2 border-amber-400/50 rounded-tl-3xl rounded-br-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 hover:border-amber-300 hover:shadow-[0_0_35px_rgba(229,193,88,0.45)] hover:-translate-y-1"
+                className="group relative bg-[#0a0907] border border-amber-500/30 rounded-sm overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] cursor-pointer"
               >
-                <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-amber-300 via-amber-500 to-transparent opacity-80 pointer-events-none z-10" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+                {/* 24K Gold Corner Geometric Facet Accent */}
+                <div className="absolute top-0 right-0 w-14 h-14 bg-gradient-to-bl from-amber-300 via-amber-500 to-transparent opacity-90 pointer-events-none z-10" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+                <div className="absolute top-1.5 right-1.5 text-stone-950 font-black text-[9px] z-20 pointer-events-none">✦</div>
+
                 <div className="relative h-56 overflow-hidden bg-black">
                   <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 filter brightness-95 contrast-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080705] via-black/40 to-transparent" />
+                  
+                  {/* Michelin Badges */}
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                    {dish.isChefSpecial && <span className="px-3 py-1 rounded-tl-lg rounded-br-lg bg-gradient-to-r from-red-900 to-amber-900 text-amber-200 text-[9px] font-black uppercase tracking-widest border border-amber-400/60 flex items-center gap-1 shadow-lg backdrop-blur-sm"><Crown className="w-3 h-3 text-amber-300" /> Michelin Chef</span>}
-                    {dish.isPopular && <span className="px-3 py-1 rounded-tl-lg rounded-br-lg bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 text-stone-950 text-[9px] font-black uppercase tracking-widest shadow-lg">👑 24K Signature</span>}
+                    <span className="px-3 py-1 rounded-tl-lg rounded-br-lg bg-gradient-to-r from-stone-950/90 to-amber-950/90 text-amber-200 text-[9px] font-black uppercase tracking-widest border border-amber-400/60 flex items-center gap-1 shadow-lg backdrop-blur-md">
+                      <Crown className="w-3 h-3 text-amber-300" />
+                      <span>{dish.isChefSpecial ? 'Michelin Master' : '24K Haute Reserve'}</span>
+                    </span>
+                    {dish.isPopular && (
+                      <span className="px-2.5 py-1 rounded-tl-lg rounded-br-lg bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 text-[9px] font-black uppercase tracking-widest shadow-lg">
+                        👑 Signature
+                      </span>
+                    )}
                   </div>
-                  {dish.calories && <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/80 text-[10px] text-amber-300 font-mono border border-amber-400/40 backdrop-blur-md">{dish.calories}</span>}
+
+                  {/* Center Edit Overlay Button (Editable for Theme #2!) */}
+                  {!savedDishIds.has(dish.id) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingSingleDish(dish);
+                        }}
+                        className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-600 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                        title="Click to edit this food item"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-stone-950" />
+                        <span>EDIT</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {dish.calories && <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-stone-950/90 text-[10px] text-amber-300 font-mono border border-amber-400/40 backdrop-blur-md">{dish.calories}</span>}
                 </div>
+
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="font-bold text-lg sm:text-xl text-amber-100 transition-colors line-clamp-2 leading-snug break-words tracking-tight" style={{ fontFamily: "'Cinzel', serif" }}>{dish.title}</h3>
-                      <span className="font-serif font-black text-lg shrink-0 text-[#e5c158] drop-shadow-[0_0_8px_rgba(229,193,88,0.4)]">{formatPrice(dish.price)}</span>
+                      <span className="font-serif font-black text-lg shrink-0 text-[#e5c158] drop-shadow-[0_0_10px_rgba(229,193,88,0.5)]">{formatPrice(dish.price)}</span>
                     </div>
                     <p className="text-xs text-stone-300 line-clamp-2 leading-relaxed font-light">{dish.desc}</p>
                   </div>
+                  
                   <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-amber-400/20">
-                    <button onClick={() => setSelectedDishDetail(dish)} className="py-2.5 rounded-tl-xl rounded-br-xl bg-stone-950/90 border border-amber-400/40 text-amber-200 text-[11px] font-black uppercase tracking-wider hover:bg-stone-900 hover:border-amber-300 transition-all text-center cursor-pointer">Details</button>
-                    <button onClick={() => { if (onOrderDish) onOrderDish(dish); }} className="py-2.5 rounded-tl-xl rounded-br-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-stone-950 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(229,193,88,0.35)] cursor-pointer"><ShoppingBag className="w-3.5 h-3.5" /><span>Order</span></button>
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                        setSelectedDishDetail(dish);
+                      }} 
+                      className="py-2.5 rounded-tl-xl rounded-br-xl bg-stone-950/90 border border-amber-400/50 text-amber-200 text-[11px] font-black uppercase tracking-wider hover:bg-stone-900 hover:border-amber-300 transition-all text-center cursor-pointer active:scale-95"
+                    >
+                      Details
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (onOrderDish) onOrderDish(dish); 
+                        setToastMsg(`"${dish.title}" added to order!`);
+                        setTimeout(() => setToastMsg(null), 2500);
+                      }} 
+                      className="py-2.5 rounded-tl-xl rounded-br-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 shadow-[0_0_25px_rgba(229,193,88,0.4)] cursor-pointer"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5 text-stone-950" />
+                      <span>Order</span>
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -1477,25 +1664,47 @@ export default function VelmoraDiningTheme({
         </div>
       </section>
 
+      {/* Intersection Divider for Theme #02 Orivelle House (transition to Chefs & Delivery) */}
+      {activePresetId === 'orivelle-house' && (
+        <div className="w-full relative z-20 pointer-events-none select-none -mb-1">
+          <OrivelleGeometricDivider color="#0a0907" position="top" />
+        </div>
+      )}
+
       {/* ========================================================= */}
-      {/* 4. GRAND EXECUTIVE CHEF SECTION (HORIZONTAL CONTINUOUS MARQUEE ON WHITE) */}
+      {/* 4. GRAND EXECUTIVE CHEF SECTION (HORIZONTAL CONTINUOUS MARQUEE) */}
       {/* ========================================================= */}
       {isChefSectionVisible && (
-        <section id="chefs" className="py-16 sm:py-24 bg-white border-y border-[#DA9F93]/30 scroll-mt-20 overflow-hidden">
+        <section 
+          id="chefs" 
+          className={`py-16 sm:py-24 scroll-mt-20 overflow-hidden ${
+            activePresetId === 'orivelle-house'
+              ? 'bg-[#0a0907] border-y border-amber-400/50 text-[#FBF8EE]'
+              : 'bg-white border-y border-[#DA9F93]/30'
+          }`}
+        >
           <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 space-y-4">
             
             <div className="text-center space-y-3">
-              <span className="text-xs font-mono font-bold tracking-[0.3em] text-[#B8860B] uppercase flex items-center justify-center gap-2">
-                <ChefHat className="w-4 h-4 text-[#B8860B]" />
+              <span className={`text-xs font-mono font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-2 ${
+                activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'
+              }`}>
+                <ChefHat className={`w-4 h-4 ${activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'}`} />
                 {lang === 'bn' ? '— রাজকীয় রন্ধনশিল্পী ও মাস্টার শেফ —' : '— MAESTROS OF THE PALACE —'}
               </span>
               <h2 
-                className="text-3xl sm:text-4xl md:text-5xl font-black text-[#2C1810]"
-                style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
+                className={`text-3xl sm:text-4xl md:text-5xl font-black ${
+                  activePresetId === 'orivelle-house'
+                    ? 'bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent'
+                    : 'text-[#2C1810]'
+                }`}
+                style={{ fontFamily: activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
               >
                 {lang === 'bn' ? 'এক্সিকিউটিভ শেফ ও কালিনারি মাস্টার্স' : 'Executive Chefs & Master Sommeliers'}
               </h2>
-              <p className="text-xs sm:text-sm text-[#5C4033]/80 max-w-xl mx-auto font-medium">
+              <p className={`text-xs sm:text-sm max-w-xl mx-auto font-medium ${
+                activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-[#5C4033]/80'
+              }`}>
                 {lang === 'bn'
                   ? 'আন্তর্জাতিক রন্ধনশিল্পের অনন্য স্বাদ ও রাজকীয় পরিবেশনার পেছনের কারিগরগণ।'
                   : 'Where culinary mastery meets regal grandeur curated by world-renowned gastronomy masters.'}
@@ -1512,8 +1721,12 @@ export default function VelmoraDiningTheme({
             onTouchEnd={() => setIsChefHovered(false)}
           >
             {/* Soft Edge Fade Gradients */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
-            <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent" />
+            <div className={`absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-r ${
+              activePresetId === 'orivelle-house' ? 'from-[#0a0907] to-transparent' : 'from-white to-transparent'
+            }`} />
+            <div className={`absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-l ${
+              activePresetId === 'orivelle-house' ? 'from-[#0a0907] to-transparent' : 'from-white to-transparent'
+            }`} />
 
             {/* Marquee Track: duplicated to guarantee seamless continuous infinite loop */}
             <div 
@@ -1525,7 +1738,11 @@ export default function VelmoraDiningTheme({
               {[...chefs, ...chefs].map((chef, idx) => (
                 <div 
                   key={`${chef.id || idx}-${idx}`}
-                  className="w-[340px] sm:w-[380px] md:w-[410px] shrink-0 bg-white p-6 rounded-2xl border border-[#DA9F93]/30 hover:border-[#B8860B] flex flex-col justify-between gap-5 shadow-lg shadow-[#2C1810]/5 hover:shadow-2xl hover:shadow-[#B8860B]/15 transition-all duration-300 group cursor-pointer"
+                  className={`w-[340px] sm:w-[380px] md:w-[410px] shrink-0 p-6 rounded-2xl flex flex-col justify-between gap-5 transition-all duration-300 group cursor-pointer ${
+                    activePresetId === 'orivelle-house'
+                      ? 'bg-gradient-to-b from-[#181612] via-[#0f0e0b] to-[#080705] border-2 border-amber-400/50 hover:border-amber-300 shadow-xl shadow-amber-900/10 hover:shadow-2xl hover:shadow-amber-500/20'
+                      : 'bg-white border border-[#DA9F93]/30 hover:border-[#B8860B] shadow-lg shadow-[#2C1810]/5 hover:shadow-2xl hover:shadow-[#B8860B]/15'
+                  }`}
                 >
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
@@ -1540,33 +1757,51 @@ export default function VelmoraDiningTheme({
                         </div>
                       </div>
                       <div className="space-y-1 min-w-0">
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#DA9F93]/20 text-[#8C584B] text-[10px] font-bold tracking-widest uppercase inline-block truncate max-w-full">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase inline-block truncate max-w-full ${
+                          activePresetId === 'orivelle-house'
+                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                            : 'bg-[#DA9F93]/20 text-[#8C584B]'
+                        }`}>
                           {chef.role}
                         </span>
                         <h3 
-                          className="text-lg font-bold text-slate-900 group-hover:text-[#B8860B] transition-colors truncate"
-                          style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
+                          className={`text-lg font-bold transition-colors truncate ${
+                            activePresetId === 'orivelle-house'
+                              ? 'text-amber-100 group-hover:text-amber-300'
+                              : 'text-slate-900 group-hover:text-[#B8860B]'
+                          }`}
+                          style={{ fontFamily: activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
                         >
                           {chef.name}
                         </h3>
-                        <div className="flex items-center gap-1 text-amber-500 text-xs">
+                        <div className="flex items-center gap-1 text-amber-400 text-xs">
                           {'★'.repeat(Math.min(5, Math.round(chef.rating || 5)))}
-                          <span className="text-[11px] text-slate-500 ml-1">({chef.rating?.toFixed(1) || '5.0'})</span>
+                          <span className={`text-[11px] ml-1 ${activePresetId === 'orivelle-house' ? 'text-amber-300/70 font-mono' : 'text-slate-500'}`}>
+                            ({chef.rating?.toFixed(1) || '5.0'})
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                    <p className={`text-xs line-clamp-3 leading-relaxed ${
+                      activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-slate-600'
+                    }`}>
                       {chef.bio}
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-[#DA9F93]/20 flex items-center justify-between text-[11px]">
-                    <span className="text-[#8C584B] font-bold truncate">
+                  <div className={`pt-3 border-t flex items-center justify-between text-[11px] ${
+                    activePresetId === 'orivelle-house' ? 'border-amber-400/20' : 'border-[#DA9F93]/20'
+                  }`}>
+                    <span className={`font-bold truncate ${
+                      activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#8C584B]'
+                    }`}>
                       ★ {chef.speciality || (chef as any).specialty || 'Master Gastronomy'}
                     </span>
                     {chef.experienceYears && (
-                      <span className="text-slate-500 text-[10px] shrink-0 font-mono ml-2">
+                      <span className={`text-[10px] shrink-0 font-mono ml-2 ${
+                        activePresetId === 'orivelle-house' ? 'text-stone-400' : 'text-slate-500'
+                      }`}>
                         {chef.experienceYears}+ {lang === 'bn' ? 'বছরের অভিজ্ঞতা' : 'Yrs Exp'}
                       </span>
                     )}
@@ -1827,46 +2062,42 @@ export default function VelmoraDiningTheme({
       {/* ========================================================= */}
       {/* 9. RICH FOOD DISH DETAIL MODAL (Desktop 2-Column + Scrollable Related Items Grid) */}
       {/* ========================================================= */}
+      {/* FULL-PAGE ENLARGED FOOD CARD VIEW / MODAL */}
       <AnimatePresence>
         {selectedDishDetail && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-3 sm:p-6 overflow-hidden"
+            className="fixed inset-0 z-50 bg-white flex flex-col overflow-hidden w-full h-full"
             onClick={() => setSelectedDishDetail(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#14120B] border-2 border-[#D4AF37] rounded-3xl overflow-hidden max-w-4xl md:max-w-5xl w-full shadow-2xl flex flex-col max-h-[92vh] my-auto relative"
+              className="bg-white w-full h-full flex flex-col overflow-hidden relative select-text text-slate-900"
             >
-              {/* Modal Header with Next/Prev Card Controls & Fast Search */}
-              <div className="px-4 sm:px-6 py-3.5 bg-[#090805] border-b border-[#D4AF37]/30 flex flex-wrap items-center justify-between gap-3 shrink-0 z-10">
+              {/* Top Navigation Bar with Next/Prev Card Controls & Fast Search */}
+              <div className="px-4 sm:px-8 py-4 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-4 shrink-0 z-10 shadow-2xs">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#b58f27] text-stone-950 font-black text-[10px] uppercase tracking-wider shadow-lg flex items-center gap-1">
-                    <Crown className="w-3 h-3" />
-                    {selectedDishDetail.category || 'Specialty'}
-                  </span>
-                  {((selectedDishDetail as any).popular || selectedDishDetail.isPopular) && (
-                    <span className="px-3 py-1 rounded-full bg-orange-950/90 border border-orange-500/50 text-orange-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-                      🔥 Popular
-                    </span>
-                  )}
-                  {selectedDishDetail.isChefSpecial && (
-                    <span className="px-3 py-1 rounded-full bg-red-950/90 border border-red-500/50 text-red-200 text-[10px] font-bold uppercase tracking-wider">
-                      Chef's Special
-                    </span>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDishDetail(null)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-200 shadow-2xs transition-all cursor-pointer active:scale-95"
+                    title={lang === 'bn' ? 'মেনু পেজে ফিরে যান' : 'Back to menu'}
+                  >
+                    <ArrowLeft className="w-4 h-4 text-slate-700" />
+                    <span className="font-extrabold">{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                  </button>
                 </div>
 
                 {/* Card-by-Card Next & Prev Navigation Bar */}
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-3 flex-wrap">
                   {/* Quick Card Search */}
-                  <div className="relative hidden md:block w-40">
-                    <Search className="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
+                  <div className="relative hidden md:block w-48">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     <input
                       type="text"
                       placeholder={lang === 'bn' ? "খাবার খুঁজুন..." : "Find dish..."}
@@ -1886,12 +2117,12 @@ export default function VelmoraDiningTheme({
                           }
                         }
                       }}
-                      className="w-full pl-7 pr-2.5 py-1 text-[11px] rounded-lg bg-stone-900 border border-[#D4AF37]/40 text-white placeholder-stone-400 outline-none focus:border-[#D4AF37]"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-500 transition-all shadow-2xs"
                     />
                   </div>
 
                   {/* Prev / Counter / Next Controls */}
-                  <div className="flex items-center gap-1 bg-[#14120B] p-1 rounded-xl border border-[#D4AF37]/50 shadow-inner">
+                  <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-2xs">
                     <button
                       type="button"
                       onClick={() => {
@@ -1904,14 +2135,14 @@ export default function VelmoraDiningTheme({
                         const scrollEl = document.getElementById('dish-modal-scroll-body');
                         if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-[#D4AF37] hover:text-stone-950 text-amber-300 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                      className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs"
                       title="Previous Menu Card (Left Arrow)"
                     >
-                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <ChevronLeft className="w-4 h-4" />
                       <span className="hidden xs:inline">Prev</span>
                     </button>
 
-                    <span className="px-2 text-[11px] font-mono font-bold text-amber-300 whitespace-nowrap">
+                    <span className="px-3 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">
                       {Math.max(1, filteredDishes.findIndex(d => d.id === selectedDishDetail.id) + 1)} / {filteredDishes.length}
                     </span>
 
@@ -1927,11 +2158,11 @@ export default function VelmoraDiningTheme({
                         const scrollEl = document.getElementById('dish-modal-scroll-body');
                         if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[#D4AF37] hover:bg-amber-300 text-stone-950 text-xs font-black flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-md"
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-black flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs"
                       title="Next Menu Card (Right Arrow)"
                     >
                       <span>Next</span>
-                      <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <ChevronRight className="w-4 h-4 stroke-[2.5]" />
                     </button>
                   </div>
 
@@ -1942,15 +2173,15 @@ export default function VelmoraDiningTheme({
                       setSelectedDishDetail(null);
                       setEditingSingleDish(d);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37] text-[#D4AF37] text-xs font-bold uppercase tracking-wider hidden sm:flex items-center gap-1.5 hover:bg-[#D4AF37] hover:text-stone-950 transition-all cursor-pointer backdrop-blur-md"
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider hidden sm:flex items-center gap-1.5 hover:bg-slate-200 transition-all cursor-pointer shadow-2xs"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
+                    <Edit3 className="w-3.5 h-3.5 text-amber-600" />
                     <span>Edit</span>
                   </button>
 
                   <button
                     onClick={() => setSelectedDishDetail(null)}
-                    className="p-1.5 rounded-full bg-stone-900/80 text-white hover:bg-stone-800 transition-colors cursor-pointer border border-white/20"
+                    className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer border border-slate-200 shadow-2xs"
                     title="Close"
                   >
                     <X className="w-5 h-5" />
@@ -1958,20 +2189,20 @@ export default function VelmoraDiningTheme({
                 </div>
               </div>
 
-              {/* Modal Scrollable Container */}
-              <div id="dish-modal-scroll-body" className="p-5 sm:p-8 overflow-y-auto space-y-8 scrollbar-thin scrollbar-thumb-amber-500/30">
+              {/* Full-Page Scrollable Container */}
+              <div id="dish-modal-scroll-body" className="flex-1 p-6 sm:p-10 md:p-12 overflow-y-auto space-y-10 scrollbar-thin scrollbar-thumb-slate-300 max-w-7xl mx-auto w-full">
                 
                 {/* 2-Column Main Item View */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                   
                   {/* Left Column: Food Image with Next/Prev Arrow Overlays */}
-                  <div className="relative h-64 sm:h-80 md:h-[380px] w-full rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-2xl bg-black group select-none">
+                  <div className="lg:col-span-7 relative h-72 sm:h-96 md:h-[440px] w-full rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-slate-50 group select-none">
                     <img 
                       src={selectedDishDetail.img} 
                       alt={selectedDishDetail.title} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#14120B] via-transparent to-black/40" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
                     {/* Left & Right floating click arrows directly on the image */}
                     <button
@@ -1985,7 +2216,7 @@ export default function VelmoraDiningTheme({
                         setDetailOrderQty(1);
                         setDetailSpecialNote('');
                       }}
-                      className="absolute left-2.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-[#D4AF37] text-white hover:text-stone-950 border border-white/30 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/85 hover:bg-white text-slate-900 border border-slate-200 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
                       title="Previous Card"
                     >
                       <ChevronLeft className="w-6 h-6" />
@@ -2002,83 +2233,65 @@ export default function VelmoraDiningTheme({
                         setDetailOrderQty(1);
                         setDetailSpecialNote('');
                       }}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-[#D4AF37] text-white hover:text-stone-950 border border-white/30 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/85 hover:bg-white text-slate-900 border border-slate-200 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
                       title="Next Card"
                     >
                       <ChevronRight className="w-6 h-6" />
                     </button>
 
-                    <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-amber-400/50 text-amber-300 font-mono text-xs font-bold">
+                    <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-200 text-slate-800 font-mono text-xs font-bold shadow-sm">
                       📸 High-Res Gourmet Selection
                     </div>
                   </div>
 
                   {/* Right Column: Title, Details & Ordering */}
-                  <div className="space-y-5 flex flex-col justify-between h-full">
-                    <div className="space-y-3">
+                  <div className="lg:col-span-5 space-y-6 flex flex-col justify-between h-full">
+                    <div className="space-y-4">
                       <div className="flex items-start justify-between gap-4">
                         <h3 
-                          className="text-2xl sm:text-3xl font-bold text-[#FBF8EE] leading-tight"
+                          className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight"
                           style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
                         >
                           {selectedDishDetail.title}
                         </h3>
-                        <span className="font-mono text-2xl sm:text-3xl font-black text-[#D4AF37] shrink-0 drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]">
+                        <span className="font-mono text-2xl sm:text-3xl font-black text-amber-600 shrink-0">
                           {formatPrice(selectedDishDetail.price)}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3 text-xs text-[#D4AF37] font-mono bg-[#090805] px-3 py-1.5 rounded-xl border border-white/10 w-fit">
+                      <div className="flex items-center gap-3 text-xs text-slate-600 font-mono bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 w-fit">
                         <span>🔥 {selectedDishDetail.calories || '180 kcal'}</span>
                         <span>•</span>
                         <span>⏱️ Prep Time: 5-8 mins</span>
                       </div>
 
-                      <p className="text-sm text-[#FBF8EE]/85 leading-relaxed font-light">
+                      <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
                         {selectedDishDetail.desc}
                       </p>
-
-                      {/* Barista / Chef Notes */}
-                      <div className="p-4 rounded-2xl bg-[#090805] border border-[#D4AF37]/40 text-xs space-y-1 shadow-inner">
-                        <span className="font-bold text-[#D4AF37] uppercase tracking-wider block text-[11px] flex items-center gap-1">
-                          ✨ Artisanal Recipe & Barista Notes
-                        </span>
-                        <p className="text-[#FBF8EE]/75 font-light text-[11px] leading-relaxed">
-                          Prepared fresh on demand using single-origin premium beans, micro-filtered mountain spring water, and signature organic froth.
-                        </p>
-                      </div>
                     </div>
 
-                    {/* Quantity & Order Note Controls */}
-                    <div className="space-y-3 pt-2 border-t border-white/10">
+                    {/* Quantity Controls & Order Button */}
+                    <div className="space-y-4 pt-4 border-t border-slate-200">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#FBF8EE] uppercase tracking-wider">Order Quantity</span>
-                        <div className="flex items-center gap-3 bg-[#090805] border border-[#D4AF37]/50 rounded-full px-4 py-1.5 shadow-md">
+                        <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Order Quantity</span>
+                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 shadow-2xs">
                           <button 
                             type="button"
                             onClick={() => setDetailOrderQty(prev => Math.max(1, prev - 1))}
-                            className="text-amber-400 font-bold text-lg hover:text-white px-2 cursor-pointer active:scale-95 transition-transform"
+                            className="text-slate-600 font-bold text-lg hover:text-slate-900 px-2 cursor-pointer active:scale-95 transition-transform"
                           >
                             -
                           </button>
-                          <span className="font-mono text-sm font-bold text-white w-6 text-center">{detailOrderQty}</span>
+                          <span className="font-mono text-sm font-black text-slate-900 w-6 text-center">{detailOrderQty}</span>
                           <button 
                             type="button"
                             onClick={() => setDetailOrderQty(prev => prev + 1)}
-                            className="text-amber-400 font-bold text-lg hover:text-white px-2 cursor-pointer active:scale-95 transition-transform"
+                            className="text-slate-600 font-bold text-lg hover:text-slate-900 px-2 cursor-pointer active:scale-95 transition-transform"
                           >
                             +
                           </button>
                         </div>
                       </div>
-
-                      <input
-                        type="text"
-                        placeholder="Special instructions (e.g. Less sugar, oat milk, extra hot)..."
-                        value={detailSpecialNote}
-                        onChange={(e) => setDetailSpecialNote(e.target.value)}
-                        className="w-full bg-[#090805] border border-[#D4AF37]/40 rounded-xl px-4 py-2.5 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] placeholder:text-stone-500 font-sans"
-                      />
 
                       <button
                         type="button"
@@ -2095,7 +2308,7 @@ export default function VelmoraDiningTheme({
                           setTimeout(() => setToastMsg(null), 3000);
                           setSelectedDishDetail(null);
                         }}
-                        className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37] text-[#090805] font-black text-xs uppercase tracking-widest shadow-xl hover:brightness-110 active:scale-98 cursor-pointer flex items-center justify-center gap-2 transition-all"
+                        className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-2 transition-all"
                       >
                         <ShoppingBag className="w-4 h-4" />
                         <span>Add to Order ({formatPrice((typeof selectedDishDetail.price === 'number' ? selectedDishDetail.price : parseFloat(selectedDishDetail.price as any) || 0) * detailOrderQty)})</span>
@@ -2106,20 +2319,20 @@ export default function VelmoraDiningTheme({
                 </div>
 
                 {/* Scroll Down Section: More Delicacies / Related Items Grid */}
-                <div className="pt-6 border-t-2 border-[#D4AF37]/30 space-y-4">
+                <div className="pt-8 border-t border-slate-200 space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <h4 className="text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-2">
+                      <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                         ✨ More Delicacies — Tap Any Item to View Enlarged
                       </h4>
-                      <p className="text-xs text-stone-400 font-light">Scroll down to explore all gourmet selections in our menu</p>
+                      <p className="text-xs text-slate-500 font-medium">Scroll down to explore all gourmet selections in our menu</p>
                     </div>
-                    <span className="text-xs text-amber-300 font-mono bg-amber-950/60 border border-amber-500/30 px-3 py-1 rounded-full w-fit">
+                    <span className="text-xs text-amber-700 font-mono bg-amber-50 border border-amber-200 px-3 py-1 rounded-full w-fit font-bold">
                       {effectiveDishes.length - 1} More Items Available
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 pt-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
                     {effectiveDishes
                       .filter(d => d.id !== selectedDishDetail.id)
                       .map((otherDish) => (
@@ -2132,27 +2345,26 @@ export default function VelmoraDiningTheme({
                             const scrollEl = document.getElementById('dish-modal-scroll-body');
                             if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
-                          className="bg-[#090805] border border-[#D4AF37]/30 hover:border-[#D4AF37] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.03] group shadow-lg flex flex-col justify-between"
+                          className="bg-white border border-slate-200 hover:border-amber-500 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group shadow-2xs hover:shadow-md flex flex-col justify-between"
                         >
-                          <div className="h-28 sm:h-32 overflow-hidden relative">
+                          <div className="h-28 sm:h-36 overflow-hidden relative bg-slate-100">
                             <img 
                               src={otherDish.img} 
                               alt={otherDish.title} 
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                            <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/85 border border-amber-400/50 text-[10px] font-mono font-bold text-amber-300">
+                            <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-white/90 backdrop-blur-xs border border-slate-200 text-[10px] font-mono font-bold text-slate-900 shadow-2xs">
                               {formatPrice(otherDish.price)}
                             </span>
                           </div>
-                          <div className="p-2.5 space-y-1">
-                            <h5 className="font-bold text-xs text-white line-clamp-1 group-hover:text-amber-300 transition-colors">
+                          <div className="p-3 space-y-1">
+                            <h5 className="font-bold text-xs text-slate-900 line-clamp-1 group-hover:text-amber-600 transition-colors">
                               {otherDish.title}
                             </h5>
-                            <p className="text-[10px] text-stone-400 line-clamp-1 font-light">
+                            <p className="text-[10px] text-slate-500 line-clamp-1 font-medium">
                               {otherDish.desc}
                             </p>
-                            <span className="text-[9px] text-amber-400 font-bold uppercase tracking-wider block pt-1">
+                            <span className="text-[9px] text-amber-600 font-bold uppercase tracking-wider block pt-1">
                               Tap to View ➔
                             </span>
                           </div>
@@ -2486,6 +2698,83 @@ export default function VelmoraDiningTheme({
                         className="w-full bg-[#090805] border border-[#D4AF37]/30 rounded-xl px-4 py-2.5 text-white outline-none focus:border-[#D4AF37] resize-none"
                       />
                     </div>
+
+                    {/* Category Tabs Customizer */}
+                    <div className="space-y-3 pt-3 border-t border-[#D4AF37]/20">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[#D4AF37] font-bold uppercase tracking-wider block">
+                          {lang === 'bn' ? 'ক্যাটাগরি পিল বাটন সমূহ (Category Tabs)' : 'Category Filter Buttons'}
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-mono">
+                          {editingCategories.length} tabs
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {editingCategories.map((cat, idx) => (
+                          <div key={cat.id || idx} className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center font-mono font-bold text-[10px] shrink-0 border border-amber-500/30">
+                              {idx + 1}
+                            </span>
+                            <input
+                              type="text"
+                              value={cat.label}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setEditingCategories(prev => prev.map((c, i) => i === idx ? { ...c, label: val } : c));
+                              }}
+                              placeholder="Category Label"
+                              className="flex-1 bg-[#090805] border border-[#D4AF37]/30 rounded-xl px-3 py-2 text-white font-medium outline-none focus:border-[#D4AF37]"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Quick Heading Presets */}
+                    <div className="space-y-2 pt-2 border-t border-[#D4AF37]/20">
+                      <span className="text-[10px] font-bold text-stone-400 block">{lang === 'bn' ? 'তাত্ক্ষণিক প্রিসেট সমূহ:' : 'Quick Heading Presets:'}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {[
+                          {
+                            label: '☕ Specialty Coffee',
+                            tagline: '☕ — ARTISAN HAND-ROASTED SPECIALTY COFFEE —',
+                            title: 'Artisan Roasts & Espresso Flights',
+                            sub: 'Handcrafted single-origin Arabica roasts, micro-foam lattes, and slow drip cold brews.'
+                          },
+                          {
+                            label: '🍽️ Haute Gastronomy',
+                            tagline: '✨ — MICHELIN-INSPIRED TASTING COURSES —',
+                            title: 'Haute Cuisine & Tasting Courses',
+                            sub: 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.'
+                          },
+                          {
+                            label: '🥩 Reserve Steakhouse',
+                            tagline: '🔥 — WOOD-FIRED CHARCOAL & DRY-AGED CUTS —',
+                            title: 'Prime Wagyu & Reserve Grill',
+                            sub: '45-day dry-aged cuts seared over wild white oak charcoal and finished with Himalayan smoked salt.'
+                          },
+                          {
+                            label: '🍕 Italian Trattoria',
+                            tagline: '🌿 — STONE-OVEN ARTISAN RECIPES —',
+                            title: 'Handmade Pasta & Wood-Fired Pizza',
+                            sub: 'Authentic stone-oven delicacies crafted with Italian San Marzano tomatoes and creamy burrata.'
+                          }
+                        ].map((preset, pIdx) => (
+                          <button
+                            key={pIdx}
+                            type="button"
+                            onClick={() => {
+                              setEditingSectionTagline(preset.tagline);
+                              setEditingSectionTitle(preset.title);
+                              setEditingSectionSubtitle(preset.sub);
+                            }}
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#090805] hover:bg-[#D4AF37] text-amber-200 hover:text-stone-950 transition-all cursor-pointer border border-[#D4AF37]/30"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -2677,16 +2966,29 @@ export default function VelmoraDiningTheme({
                       menuSectionTagline: editingSectionTagline,
                       menuSectionTitle: editingSectionTitle,
                       menuSectionSubtitle: editingSectionSubtitle,
+                      categories: editingCategories,
                       dishes: editingDishes
                     };
                     if (typeof window !== 'undefined') {
                       try {
                         localStorage.setItem(`theme_edits_${activePresetId}`, JSON.stringify(payload));
                         localStorage.setItem(`theme_dishes_${activePresetId}`, JSON.stringify(editingDishes));
-                      } catch {}
+                        const rawAdmin = localStorage.getItem('webar_restaurant_admin_settings');
+                        if (rawAdmin) {
+                          const parsedAdmin = JSON.parse(rawAdmin);
+                          parsedAdmin.menuSectionTagline = editingSectionTagline;
+                          parsedAdmin.menuSectionTitle = editingSectionTitle;
+                          parsedAdmin.menuSectionSubtitle = editingSectionSubtitle;
+                          parsedAdmin.themeCategories = editingCategories;
+                          localStorage.setItem('webar_restaurant_admin_settings', JSON.stringify(parsedAdmin));
+                        }
+                      } catch (err) {
+                        console.error('Failed to save menu theme edits:', err);
+                      }
                     }
+                    setThemeEditsState(payload);
                     setIsMenuEditorOpen(false);
-                    setToastMsg(lang === 'bn' ? '✅ সেভ হয়েছে (Saved successfully)!' : '✅ Saved successfully!');
+                    setToastMsg(lang === 'bn' ? '✅ মেনু সেকশন ও শিরোনাম সফলভাবে আপডেট হয়েছে!' : '✅ Menu section & headings updated successfully!');
                     setTimeout(() => setToastMsg(null), 3000);
                   }}
                   className="px-7 py-2.5 rounded-xl bg-transparent border border-white/30 text-white font-bold text-xs uppercase tracking-wider shadow-lg cursor-pointer hover:bg-[#D4AF37] hover:text-stone-950 hover:border-[#D4AF37] transition-all duration-300 flex items-center gap-2"
@@ -2700,7 +3002,196 @@ export default function VelmoraDiningTheme({
         )}
       </AnimatePresence>
 
-      {/* Floating Toast Notification */}
+      {/* ========================================================= */}
+      {/* 10. ABOUT US / "WHY DINE WITH US?" LIVE IN-PLACE EDITOR MODAL */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {isAboutUsEditorOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden"
+            onClick={() => setIsAboutUsEditorOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#14120B] border-2 border-[#D4AF37] rounded-3xl overflow-hidden max-w-3xl w-full shadow-2xl flex flex-col max-h-[92vh] my-auto select-text"
+            >
+              {/* Header */}
+              <div className="px-6 py-4 bg-[#090805] border-b border-[#D4AF37]/30 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm text-[#FBF8EE] uppercase tracking-wider">
+                      {lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" সেকশন এডিটর' : 'Edit "Why Dine With Us?" (About Us) Section'}
+                    </h3>
+                    <p className="text-[11px] text-[#FBF8EE]/60 font-light">
+                      {lang === 'bn' ? 'শিরোনাম, বিবরণ, ছবি ও ৪টি মূল ফিচার পরিবর্তন করুন' : 'Edit badge, title, story, image & 4 feature bullet points'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAboutUsEditorOpen(false)}
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer border border-white/10"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Form Body */}
+              <div className="p-6 overflow-y-auto space-y-6 scrollbar-thin scrollbar-thumb-amber-500/30">
+                {/* 1. Subtitle & Main Title */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'টপ সাবটাইটেল ব্যাজ (Badge)' : 'Top Subtitle Badge'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingAboutUsSubtitle}
+                      onChange={(e) => setEditingAboutUsSubtitle(e.target.value)}
+                      placeholder="ABOUT US"
+                      className="w-full bg-[#090805] border border-[#D4AF37]/40 rounded-xl px-4 py-2.5 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] font-medium"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'প্রধান শিরোনাম (Main Title)' : 'Main Title Heading'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingAboutUsTitle}
+                      onChange={(e) => setEditingAboutUsTitle(e.target.value)}
+                      placeholder="Why Dine With Us?"
+                      className="w-full bg-[#090805] border border-[#D4AF37]/40 rounded-xl px-4 py-2.5 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] font-bold"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Story / Description */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                    {lang === 'bn' ? 'পরিচিতি বিবরণ / গল্প (Story Description)' : 'Story Description'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingAboutUsText}
+                    onChange={(e) => setEditingAboutUsText(e.target.value)}
+                    placeholder="Redefining luxury dining experiences..."
+                    className="w-full bg-[#090805] border border-[#D4AF37]/40 rounded-xl p-3.5 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] leading-relaxed resize-none"
+                  />
+                </div>
+
+                {/* 3. Section Image */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                    {lang === 'bn' ? 'সেকশনের ছবি (Section Image)' : 'Section Image URL'}
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3 items-center">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-black border border-[#D4AF37]/40 shrink-0 shadow-md">
+                      <img 
+                        src={editingAboutUsImage || activeAboutUsImage} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                    <div className="flex-1 w-full space-y-2">
+                      <input
+                        type="text"
+                        value={editingAboutUsImage}
+                        onChange={(e) => setEditingAboutUsImage(e.target.value)}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full bg-[#090805] border border-[#D4AF37]/40 rounded-xl px-4 py-2.5 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] font-mono"
+                      />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] text-stone-400 font-bold">{lang === 'bn' ? 'প্রিসেট ছবি:' : 'Presets:'}</span>
+                        {[
+                          { label: '☕ Coffee Barista', url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop' },
+                          { label: '🍽️ Luxury Dining', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop' },
+                          { label: '👨‍🍳 Master Chef', url: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=1000&auto=format&fit=crop' },
+                          { label: '🥐 Fresh Bakery', url: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1000&auto=format&fit=crop' }
+                        ].map((preset, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setEditingAboutUsImage(preset.url)}
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#090805] hover:bg-[#D4AF37] text-amber-200 hover:text-stone-950 transition-all cursor-pointer border border-[#D4AF37]/30"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. 4 Feature Bullet Points */}
+                <div className="space-y-3 pt-3 border-t border-[#D4AF37]/20">
+                  <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest flex items-center justify-between">
+                    <span>{lang === 'bn' ? '৪টি মূল বৈশিষ্ট্য (4 Features Checklist)' : '4 Key Feature Bullet Points'}</span>
+                    <span className="text-[10px] font-normal text-amber-300">4 Points</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[0, 1, 2, 3].map((index) => {
+                      const currentFeatures = editingAboutUsFeatures.length > 0 ? editingAboutUsFeatures : [
+                        '100% Fresh Organic Ingredients',
+                        'Chef-Curated Gourmet Menu',
+                        '3D Interactive WebAR Food Previews',
+                        'Fast Home Delivery & Table Ordering'
+                      ];
+                      return (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40 font-mono text-xs font-black">
+                            {index + 1}
+                          </div>
+                          <input
+                            type="text"
+                            value={currentFeatures[index] || ''}
+                            onChange={(e) => {
+                              const updated = [...currentFeatures];
+                              updated[index] = e.target.value;
+                              setEditingAboutUsFeatures(updated);
+                            }}
+                            placeholder={`Feature ${index + 1}`}
+                            className="flex-1 bg-[#090805] border border-[#D4AF37]/40 rounded-xl px-3.5 py-2 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] font-bold"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="px-6 py-4 bg-[#090805] border-t border-[#D4AF37]/30 flex items-center justify-between shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsAboutUsEditorOpen(false)}
+                  className="px-5 py-2.5 rounded-xl border border-white/20 text-white/70 hover:text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveAboutUsEdits}
+                  className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#b58f27] hover:brightness-110 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{lang === 'bn' ? 'সংরক্ষণ করুন (Save)' : 'Save Changes'}</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {toastMsg && (
           <motion.div

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { CoffeeBeanSculptedVisual } from './CoffeeBeanSculptedVisual';
+import { OrivelleGoldClocheVisual } from './OrivelleGoldClocheVisual';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
@@ -28,41 +29,11 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
   // Theme #02: Orivelle House (24k Gold Cloche & Crystal Shimmer)
   if (normId === 'orivelle-house') {
     return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/25 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-8, 8, -8], rotate: [-1, 1, -1] }}
-          transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Orivelle Gold Cloche & Cup"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(229,193,88,0.45)]"
-          />
-          {/* Floating Gold Sparkle Particles */}
-          {[0, 1, 2, 3, 4].map((i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [10, -50, -90],
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.2, 0.4],
-                x: [0, (i % 2 === 0 ? 15 : -15)]
-              }}
-              transition={{
-                duration: 2.4,
-                repeat: Infinity,
-                delay: i * 0.45,
-                ease: "easeOut"
-              }}
-              style={{ left: `${30 + i * 12}%`, bottom: '25%' }}
-              className="absolute w-2.5 h-2.5 bg-yellow-300 rounded-full blur-[1px] shadow-[0_0_8px_#fde047]"
-            />
-          ))}
-        </motion.div>
-      </div>
+      <OrivelleGoldClocheVisual
+        accentColor={accentColor}
+        customImg={cupImg}
+        itemName={cupName}
+      />
     );
   }
 

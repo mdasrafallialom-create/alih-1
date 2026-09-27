@@ -56,6 +56,7 @@ import {
 import { Language, translations } from './lib/translations';
 import LunavereTheme from './components/themes/LunavereTheme';
 import VelmoraDiningTheme from './components/themes/VelmoraDiningTheme';
+import { getThemeAdminButtonVisibility, checkAdminPasswordInput } from './lib/adminHelpers';
 
 // Lucide Icons
 import { 
@@ -896,7 +897,7 @@ export default function App() {
     return null;
   });
 
-  // Active Client Theme State (null = Main Portal View, string = Inside Theme View)
+  // Active Client Theme State (null = Main Starting Website Portal View, string = Inside Custom Theme View)
   const [isExitingTheme, setIsExitingTheme] = useState<boolean>(false);
   const [activeThemeId, setActiveThemeId] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
@@ -904,8 +905,10 @@ export default function App() {
       const themeFromUrl = urlParams.get('theme');
       if (themeFromUrl) return themeFromUrl;
 
-      const savedTheme = localStorage.getItem('webar_active_theme_id') || localStorage.getItem('webar_last_entered_from_theme');
-      if (savedTheme) return savedTheme;
+      if (urlParams.get('standalone') === 'true' || urlParams.get('preview') === 'true') {
+        const savedTheme = localStorage.getItem('webar_active_theme_id');
+        if (savedTheme) return savedTheme;
+      }
     }
     return null;
   });
@@ -925,13 +928,12 @@ export default function App() {
     }
   };
 
-  // Handle exiting a theme view (Back button -> returns to main website portal)
+  // Handle exiting a theme view (returns to Main Website Starting Portal)
   const handleExitThemeView = () => {
     setIsExitingTheme(true);
     setActiveThemeId(null);
     if (typeof window !== 'undefined') {
       try {
-        localStorage.removeItem('webar_last_entered_from_theme');
         localStorage.removeItem('webar_active_theme_id');
         const url = new URL(window.location.href);
         url.searchParams.delete('theme');
@@ -965,27 +967,21 @@ export default function App() {
   useEffect(() => {
     const handleExitAdmin = () => {
       const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const urlTheme = urlParams?.get('theme') || activeThemeId;
+      const urlTheme = urlParams?.get('theme');
       if (urlTheme) {
         setIsExitingTheme(false);
         setActiveThemeId(urlTheme);
       } else {
-        setIsExitingTheme(true);
+        setIsExitingTheme(false);
         setActiveThemeId(null);
         if (typeof window !== 'undefined') {
           try {
             const url = new URL(window.location.href);
-            url.searchParams.delete('theme');
-            url.searchParams.delete('standalone');
-            url.searchParams.delete('preview');
             url.searchParams.delete('admin');
             window.history.replaceState({}, '', url.toString());
-            localStorage.removeItem('webar_active_theme_id');
-            localStorage.removeItem('webar_last_entered_from_theme');
           } catch (e) {}
         }
       }
-
       setViewMode('client');
     };
     window.addEventListener('exit-admin-panel', handleExitAdmin);
@@ -994,27 +990,14 @@ export default function App() {
     };
   }, [activeThemeId]);
 
-  // Standalone theme view is active if requested via URL or stored activeThemeId
+  // Standalone theme view is active ONLY if requested via URL with standalone/preview parameter
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = urlParams?.get('theme');
+  const isStandaloneMode = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
   const effectiveThemeId = urlTheme || activeThemeId || 'velmora-dining';
   
-  // Custom theme renders when urlTheme or activeThemeId is set and viewMode is client
-  const isCustomThemeActive = Boolean(urlTheme || activeThemeId) && viewMode === 'client';
-
-  // Keep theme URL param and localStorage persisted on refresh
-  useEffect(() => {
-    if (typeof window !== 'undefined' && isCustomThemeActive && effectiveThemeId) {
-      try {
-        localStorage.setItem('webar_active_theme_id', effectiveThemeId);
-        const url = new URL(window.location.href);
-        if (url.searchParams.get('theme') !== effectiveThemeId) {
-          url.searchParams.set('theme', effectiveThemeId);
-          window.history.replaceState({}, '', url.toString());
-        }
-      } catch (e) {}
-    }
-  }, [effectiveThemeId, isCustomThemeActive]);
+  // Custom theme renders ONLY in standalone/preview mode (e.g. in new tab)
+  const isCustomThemeActive = Boolean(urlTheme && isStandaloneMode) && viewMode === 'client';
 
   const selectedThemePreset = useMemo(() => {
     return LUXURY_THEMES.find(t => t.id === effectiveThemeId) || LUXURY_THEMES[0];
@@ -1102,28 +1085,15 @@ export default function App() {
     };
   }, []);
 
-  // Secret "Search" Trigger: Typing the secret admin password (8520) in the search bar opens the admin panel
+  // Secret "Search" Trigger: Typing the secret admin password in the search bar opens the admin panel
   useEffect(() => {
     if (!searchTerm) return;
-    const normalizedCode = adminSecretCode.toLowerCase().trim();
-    const normalizedSearch = searchTerm.toLowerCase().trim();
-    const configuredPass = ((adminSettings as any)?.adminPassword || '').toLowerCase().trim();
-    
-    // MUST be exact match of 8520 or the configured secret PIN! Generic 'admin' is NOT allowed.
-    const validPasswords = [
-      '8520',
-      'admin8520',
-      '8520admin',
-      normalizedCode,
-      configuredPass
-    ].filter(Boolean);
-    
-    if (validPasswords.some(pass => normalizedSearch === pass)) {
+    if (checkAdminPasswordInput(searchTerm, adminSettings)) {
       enterAdminPanel();
       setSearchTerm(''); 
       setIsSearchExpanded(false);
     }
-  }, [searchTerm, enterAdminPanel, adminSecretCode, adminSettings]);
+  }, [searchTerm, enterAdminPanel, adminSettings]);
 
   // Global Keyboard Listener (Secret Typing anywhere on the page)
   useEffect(() => {
@@ -2279,7 +2249,7 @@ export default function App() {
       {/* =======================================================================
           TOP BAR: BRANDING & QUICK ACCESS
           ======================================================================= */}
-      {(!isCustomThemeActive || viewMode === 'admin') && (
+      {((!isCustomThemeActive || viewMode === 'admin') && activeThemeId !== 'orivelle-house') && (
       <header 
         className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-transform duration-300 transform-gpu ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
         style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') }}
@@ -2348,8 +2318,8 @@ export default function App() {
                   <List className="w-4 h-4" />
                 </button>
 
-                {/* Admin Pill Button (🛡️ Admin - Hidden by default for customers) */}
-                {adminSettings?.showAdminButton === true && (
+                {/* Admin Pill Button (🛡️ Admin - Configured per-theme) */}
+                {getThemeAdminButtonVisibility(effectiveThemeId, adminSettings) && (
                   <button
                     id="header-admin-pill-btn"
                     onClick={enterAdminPanel}
@@ -3040,19 +3010,8 @@ export default function App() {
                   if (typeof window !== 'undefined') {
                     try {
                       const url = new URL(window.location.href);
-                      if (isCustomThemeActive && urlTheme) {
-                        url.searchParams.set('theme', urlTheme);
-                        url.searchParams.set('standalone', 'true');
-                      } else {
-                        url.searchParams.delete('theme');
-                        url.searchParams.delete('standalone');
-                        url.searchParams.delete('preview');
-                        url.searchParams.delete('admin');
-                        setActiveThemeId(null);
-                        setIsExitingTheme(true);
-                        localStorage.removeItem('webar_active_theme_id');
-                        localStorage.removeItem('webar_last_entered_from_theme');
-                      }
+                      url.searchParams.delete('theme');
+                      url.searchParams.delete('admin');
                       window.history.replaceState({}, '', url.toString());
                     } catch (e) {}
                   }
@@ -3104,19 +3063,8 @@ export default function App() {
                   if (typeof window !== 'undefined') {
                     try {
                       const url = new URL(window.location.href);
-                      if (isCustomThemeActive && urlTheme) {
-                        url.searchParams.set('theme', urlTheme);
-                        url.searchParams.set('standalone', 'true');
-                      } else {
-                        url.searchParams.delete('theme');
-                        url.searchParams.delete('standalone');
-                        url.searchParams.delete('preview');
-                        url.searchParams.delete('admin');
-                        setActiveThemeId(null);
-                        setIsExitingTheme(true);
-                        localStorage.removeItem('webar_active_theme_id');
-                        localStorage.removeItem('webar_last_entered_from_theme');
-                      }
+                      url.searchParams.delete('theme');
+                      url.searchParams.delete('admin');
                       window.history.replaceState({}, '', url.toString());
                     } catch (e) {}
                   }

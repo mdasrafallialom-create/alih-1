@@ -26,24 +26,83 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
   onOpenSales,
   orders = [],
 }) => {
-  // Tabs
+  // Tabs & Dropdown Filter States
   const [activeTrendTab, setActiveTrendTab] = useState<'revenue' | 'order' | 'avg' | 'value'>('order');
-  const [selectedWeekFilter, setSelectedWeekFilter] = useState('This Week');
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('Today');
-  const [selectedDateRange, setSelectedDateRange] = useState('15 Mar, 2025 - 21 Mar, 2025');
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string>('This Week');
+  const [selectedWeekFilter, setSelectedWeekFilter] = useState<string>('This Week');
+  const [selectedTopDishesFilter, setSelectedTopDishesFilter] = useState<string>('This Week');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('Today');
+  
+  // Dropdown Open/Close Toggle States
+  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+  const [isSelectDataDropdownOpen, setIsSelectDataDropdownOpen] = useState(false);
+  const [isSalesStatsDropdownOpen, setIsSalesStatsDropdownOpen] = useState(false);
+  const [isTopDishesDropdownOpen, setIsTopDishesDropdownOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
 
-  // ------------------ DYNAMIC REAL-TIME CALCULATION ------------------
+  // ------------------ REAL-TIME DATE & TIME FILTERING HELPERS ------------------
+  const getDateRangeLabel = (filterName: string) => {
+    const now = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    if (filterName === 'Today') {
+      return `${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+    }
+    if (filterName === 'This Month') {
+      return `1 ${months[now.getMonth()]}, ${now.getFullYear()} - ${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+    }
+    if (filterName === 'All Time') {
+      return `Jan, ${now.getFullYear() - 1} - ${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+    }
+    const past = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+    return `${past.getDate()} ${months[past.getMonth()]}, ${past.getFullYear()} - ${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+  };
+
+  const dynamicDateRange = getDateRangeLabel(selectedDateFilter);
+
+  const filterOrdersByTime = (ordersList: any[], filterName: string) => {
+    if (!Array.isArray(ordersList)) return [];
+    const now = new Date();
+    
+    if (filterName === 'Today') {
+      return ordersList.filter(o => {
+        if (!o.timestamp) return false;
+        const d = new Date(o.timestamp);
+        return d.getFullYear() === now.getFullYear() &&
+               d.getMonth() === now.getMonth() &&
+               d.getDate() === now.getDate();
+      });
+    }
+    
+    if (filterName === 'This Week') {
+      const oneWeekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+      return ordersList.filter(o => o.timestamp && o.timestamp >= oneWeekAgo);
+    }
+    
+    if (filterName === 'This Month') {
+      return ordersList.filter(o => {
+        if (!o.timestamp) return false;
+        const d = new Date(o.timestamp);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      });
+    }
+    
+    return ordersList; // All Time
+  };
+
   // Filter out any cancelled orders to represent real business success
   const validOrders = Array.isArray(orders) ? orders.filter(o => o && o.status !== 'Cancelled') : [];
+  const topSummaryOrders = filterOrdersByTime(validOrders, selectedDateFilter);
   
-  const totalRevenue = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const totalOrdersCount = validOrders.length;
+  const totalRevenue = topSummaryOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalOrdersCount = topSummaryOrders.length;
   const averageOrderValue = totalOrdersCount > 0 ? (totalRevenue / totalOrdersCount) : 0;
   
   // Calculate Returning Customers Ratio based on repeated names/phones
-  const customerIdentifiers = validOrders
+  const customerIdentifiers = topSummaryOrders
     .map(o => (o.customerPhone || o.customerEmail || o.customerName || '').trim().toLowerCase())
     .filter(val => val.length > 0 && val !== 'guest' && val !== 'walk-in' && val !== 'table');
 
@@ -51,34 +110,19 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
   const returningCustomersCount = customerIdentifiers.length - uniqueCustomers.size;
   const returningRatio = customerIdentifiers.length > 0 
     ? Math.round((returningCustomersCount / customerIdentifiers.length) * 100) 
-    : 29; // fallback if no data
+    : (validOrders.length > 0 ? 0 : 29); // fallback if no data
 
-  // Dynamic Date Range based on actual orders
-  const sortedTimestamps = validOrders
-    .map(o => o.timestamp)
-    .filter(t => typeof t === 'number' && !isNaN(t))
-    .sort((a, b) => a - b);
-    
-  let dynamicDateRange = '15 Mar, 2025 - 21 Mar, 2025';
-  if (sortedTimestamps.length > 0) {
-    const formatDate = (ts: number) => {
-      const d = new Date(ts);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
-    };
-    dynamicDateRange = `${formatDate(sortedTimestamps[0])} - ${formatDate(sortedTimestamps[sortedTimestamps.length - 1])}`;
-  }
-
-  // Group orders by day for the last 12 days
+  // Group orders by day for the last 12 days using LIVE current dates
   const dynamicBarData: BarData[] = [];
   const now = new Date();
+  const salesStatsOrders = filterOrdersByTime(validOrders, selectedWeekFilter);
   
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
     const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     
-    // Filter orders on this day
-    const dayOrders = validOrders.filter(order => {
+    const dayOrders = salesStatsOrders.filter(order => {
+      if (!order.timestamp) return false;
       const orderDate = new Date(order.timestamp);
       return orderDate.getFullYear() === d.getFullYear() &&
              orderDate.getMonth() === d.getMonth() &&
@@ -90,7 +134,6 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
     const dayAvg = dayCount > 0 ? dayRevenue / dayCount : 0;
     const dayValue = dayOrders.reduce((sum, o) => sum + (o.items?.reduce((s, it) => s + (it.quantity || 1), 0) || 0), 0);
     
-    // Depending on activeTrendTab, we determine the bar's numeric height
     let rawVal = 0;
     let labelVal = '';
     
@@ -151,79 +194,85 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
     };
   });
 
-  // Top Dishes list computed in real time from validOrders
+  // Top Dishes list computed in real time from time-filtered orders
+  const topDishesOrders = filterOrdersByTime(validOrders, selectedTopDishesFilter);
   const dishSalesMap: Record<string, { name: string; quantity: number; sales: number; image: string }> = {};
 
-  validOrders.forEach(order => {
+  topDishesOrders.forEach(order => {
     if (order.items && Array.isArray(order.items)) {
       order.items.forEach(item => {
-        if (item.menuItem) {
-          const name = item.menuItem.name || 'Unknown Dish';
-          const price = item.menuItem.price || 0;
-          const qty = item.quantity || 1;
-          const totalSales = price * qty;
-          const image = item.menuItem.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120&auto=format&fit=crop&q=80';
-          
-          if (dishSalesMap[name]) {
-            dishSalesMap[name].quantity += qty;
-            dishSalesMap[name].sales += totalSales;
-          } else {
-            dishSalesMap[name] = {
-              name,
-              quantity: qty,
-              sales: totalSales,
-              image
-            };
-          }
+        const name = item.menuItem?.name || item.name || item.title || 'Special Dish';
+        const price = Number(item.menuItem?.price || item.price || 0);
+        const qty = Number(item.quantity || item.qty || 1);
+        const totalSales = price * qty;
+        const image = item.menuItem?.image || item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120&auto=format&fit=crop&q=80';
+        
+        if (dishSalesMap[name]) {
+          dishSalesMap[name].quantity += qty;
+          dishSalesMap[name].sales += totalSales;
+        } else {
+          dishSalesMap[name] = {
+            name,
+            quantity: qty,
+            sales: totalSales,
+            image
+          };
         }
       });
     }
   });
 
+  // Sort dishes strictly by quantity sold (and secondarily by sales revenue) so top seller is ALWAYS #1
   const calculatedTopDishes = Object.values(dishSalesMap)
-    .sort((a, b) => b.sales - a.sales)
+    .sort((a, b) => {
+      if (b.quantity !== a.quantity) return b.quantity - a.quantity;
+      return b.sales - a.sales;
+    })
     .slice(0, 8);
 
+  // Logical default dishes sorted in strict descending order of sales & quantity sold
   const defaultDishes = [
-    { id: 1, name: 'Noodles', sales: 690163, percentage: 98, image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=120&auto=format&fit=crop&q=80' },
-    { id: 2, name: 'Pizza', sales: 120163, percentage: 70, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop&q=80' },
-    { id: 3, name: 'Biryani', sales: 1000163, percentage: 60, image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=120&auto=format&fit=crop&q=80' },
-    { id: 4, name: 'Pasta', sales: 280163, percentage: 80, image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281270?w=120&auto=format&fit=crop&q=80' },
-    { id: 5, name: 'Steak', sales: 300163, percentage: 65, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=120&auto=format&fit=crop&q=80' },
-    { id: 6, name: 'Sushi', sales: 100163, percentage: 50, image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=120&auto=format&fit=crop&q=80' },
-    { id: 7, name: 'Fried Chicken', sales: 50163, percentage: 40, image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=120&auto=format&fit=crop&q=80' },
-    { id: 8, name: 'Ice Cream', sales: 500153, percentage: 56, image: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=120&auto=format&fit=crop&q=80' },
+    { id: 1, name: 'Biryani', sales: 1000163, quantity: 520, percentage: 98, image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=120&auto=format&fit=crop&q=80' },
+    { id: 2, name: 'Noodles', sales: 690163, quantity: 380, percentage: 85, image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=120&auto=format&fit=crop&q=80' },
+    { id: 3, name: 'Ice Cream', sales: 500153, quantity: 290, percentage: 72, image: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=120&auto=format&fit=crop&q=80' },
+    { id: 4, name: 'Steak', sales: 300163, quantity: 210, percentage: 65, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=120&auto=format&fit=crop&q=80' },
+    { id: 5, name: 'Pasta', sales: 280163, quantity: 180, percentage: 58, image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281270?w=120&auto=format&fit=crop&q=80' },
+    { id: 6, name: 'Pizza', sales: 120163, quantity: 140, percentage: 48, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop&q=80' },
+    { id: 7, name: 'Sushi', sales: 100163, quantity: 110, percentage: 40, image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=120&auto=format&fit=crop&q=80' },
+    { id: 8, name: 'Fried Chicken', sales: 50163, quantity: 85, percentage: 32, image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=120&auto=format&fit=crop&q=80' },
   ];
 
-  const maxCalculatedSales = calculatedTopDishes.length > 0 ? calculatedTopDishes[0].sales : 0;
+  const maxCalculatedQty = calculatedTopDishes.length > 0 ? calculatedTopDishes[0].quantity : 1;
   
   const finalTopDishes = calculatedTopDishes.length > 0 
-    ? calculatedTopDishes.map((d, index) => ({
-        id: index + 1,
-        name: d.name,
-        priceText: `USD ${d.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
-        percentage: maxCalculatedSales > 0 ? Math.round((d.sales / maxCalculatedSales) * 100) : 100,
-        image: d.image
-      }))
+    ? calculatedTopDishes.map((d, index) => {
+        const pct = maxCalculatedQty > 0 ? Math.round((d.quantity / maxCalculatedQty) * 100) : 100;
+        return {
+          id: index + 1,
+          name: d.name,
+          priceText: `USD ${d.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${d.quantity} sold)`,
+          percentage: pct > 0 ? pct : 5,
+          image: d.image
+        };
+      })
     : defaultDishes.map(d => ({
         id: d.id,
         name: d.name,
-        priceText: `USD ${d.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+        priceText: `USD ${d.sales.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${d.quantity} sold)`,
         percentage: d.percentage,
         image: d.image
       }));
 
-  // Category sales computed in real-time
+  // Category sales computed in real-time from time-filtered orders
+  const categoryOrders = filterOrdersByTime(validOrders, selectedCategoryFilter);
   const categorySalesMap: Record<string, number> = {};
-  validOrders.forEach(order => {
+  categoryOrders.forEach(order => {
     if (order.items && Array.isArray(order.items)) {
       order.items.forEach(item => {
-        if (item.menuItem) {
-          const cat = item.menuItem.category || 'Other';
-          const price = item.menuItem.price || 0;
-          const qty = item.quantity || 1;
-          categorySalesMap[cat] = (categorySalesMap[cat] || 0) + (price * qty);
-        }
+        const cat = item.menuItem?.category || item.category || 'Main Course';
+        const price = Number(item.menuItem?.price || item.price || 0);
+        const qty = Number(item.quantity || item.qty || 1);
+        categorySalesMap[cat] = (categorySalesMap[cat] || 0) + (price * qty);
       });
     }
   });
@@ -342,7 +391,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
           Business Data
         </h2>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap relative">
           {/* Date Range Picker pill */}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-sm">
             <Calendar className="w-3.5 h-3.5 text-slate-500" />
@@ -350,13 +399,36 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
           </div>
 
           {/* Select Data Dropdown */}
-          <button 
-            type="button"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-colors"
-          >
-            <span>Select data</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-          </button>
+          <div className="relative">
+            <button 
+              type="button"
+              onClick={() => setIsSelectDataDropdownOpen(!isSelectDataDropdownOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-colors cursor-pointer"
+            >
+              <span>{selectedDateFilter}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+
+            {isSelectDataDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-36 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in duration-150">
+                {['Today', 'This Week', 'This Month', 'All Time'].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => {
+                      setSelectedDateFilter(option);
+                      setIsSelectDataDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-orange-50 hover:text-[#f95721] transition-colors cursor-pointer ${
+                      selectedDateFilter === option ? 'text-[#f95721] bg-orange-50/50' : 'text-slate-700'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -518,14 +590,35 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="relative">
             <button 
               type="button"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+              onClick={() => setIsSalesStatsDropdownOpen(!isSalesStatsDropdownOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <span>{selectedWeekFilter}</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
+
+            {isSalesStatsDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-36 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in duration-150">
+                {['Today', 'This Week', 'This Month', 'All Time'].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => {
+                      setSelectedWeekFilter(option);
+                      setIsSalesStatsDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-orange-50 hover:text-[#f95721] transition-colors cursor-pointer ${
+                      selectedWeekFilter === option ? 'text-[#f95721] bg-orange-50/50' : 'text-slate-700'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
