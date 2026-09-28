@@ -38,6 +38,7 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Linkedin,
   MapPin,
   Phone,
   Mail,
@@ -2215,17 +2216,39 @@ export default function ThemeStoreManager({
                           );
                         })()}
 
-                        <div className="flex items-center gap-2 pt-2">
-                          <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300">
-                            <Facebook className="w-4 h-4" />
-                          </button>
-                          <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300">
-                            <Instagram className="w-4 h-4" />
-                          </button>
-                          <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300">
-                            <Youtube className="w-4 h-4" />
-                          </button>
-                        </div>
+                        {/* Social Icons based on selected preview theme tier: Basic=$15 [1 link], Pro=$49 [3 links], Elite=$99 [4 links] */}
+                        {(() => {
+                          const themeTier = previewTheme?.tier || 'basic';
+                          return (
+                            <div className="flex items-center gap-2 pt-2">
+                              {/* Instagram: Always present ($15, $49, $99) */}
+                              <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300" title="Instagram ($15 Basic / $49 Pro / $99 Elite)">
+                                <Instagram className="w-4 h-4" />
+                              </button>
+
+                              {/* Facebook: Present in $49 Pro & $99 Elite */}
+                              {(themeTier === 'pro' || themeTier === 'elite') && (
+                                <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300" title="Facebook ($49 Pro / $99 Elite)">
+                                  <Facebook className="w-4 h-4" />
+                                </button>
+                              )}
+
+                              {/* YouTube: Present in $49 Pro & $99 Elite */}
+                              {(themeTier === 'pro' || themeTier === 'elite') && (
+                                <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300" title="YouTube ($49 Pro / $99 Elite)">
+                                  <Youtube className="w-4 h-4" />
+                                </button>
+                              )}
+
+                              {/* LinkedIn: Present in $99 Elite only */}
+                              {themeTier === 'elite' && (
+                                <button className="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-zinc-800 flex items-center justify-center text-slate-300" title="LinkedIn ($99 Elite)">
+                                  <Linkedin className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Column 2: Gourmet Menu */}

@@ -1,6 +1,50 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Suppress transient IndexedDB/Firebase closing/hidden lifecycle errors immediately before any other scripts run
+      (function() {
+        function isDbError(err) {
+          if (!err) return false;
+          const msg = typeof err === 'string' ? err : (err.message || '');
+          return (
+            msg.includes('Database is closing') ||
+            msg.includes('closing/hidden') ||
+            msg.includes('IndexedDB') ||
+            msg.includes('database is closing') ||
+            msg.includes('database is closed')
+          );
+        }
+        window.addEventListener('unhandledrejection', function(event) {
+          const reason = event.reason;
+          if (isDbError(reason) || isDbError(reason && reason.message)) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.warn('Suppressed unhandled promise rejection:', reason);
+          }
+        }, true);
+        window.addEventListener('error', function(event) {
+          const error = event.error;
+          const message = event.message;
+          if (isDbError(message) || isDbError(error) || isDbError(error && error.message)) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.warn('Suppressed uncaught error event:', message || error);
+          }
+        }, true);
+        const originalOnError = window.onerror;
+        window.onerror = function(message, source, lineno, colno, error) {
+          if (isDbError(message) || isDbError(error) || isDbError(error && error.message)) {
+            console.warn('Suppressed onerror:', message);
+            return true;
+          }
+          if (originalOnError) {
+            return originalOnError.apply(this, arguments);
+          }
+          return false;
+        };
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Avernao - Luxury Restaurant Operating System</title>

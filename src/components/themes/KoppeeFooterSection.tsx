@@ -15,7 +15,8 @@ import { TornPaperEdge } from './TornPaperEdge';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 
-import { THEME_HERO_CONFIGS } from './KoppeeHeroHeader';
+import { THEME_HERO_CONFIGS, COFFEE_SHOP_THEME_IDS } from './KoppeeHeroHeader';
+import { LUXURY_THEMES } from '../../data/luxuryThemes';
 
 interface KoppeeFooterSectionProps {
   brandName?: string;
@@ -88,7 +89,8 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   const isMobile = previewDeviceView === 'mobile' || (!previewDeviceView && windowWidth < 640);
   const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
 
-  const isOrivelle = themePresetId === 'orivelle-house';
+  const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
+  const isOrivelle = isLuxuryTheme;
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   const scrollToTop = (e?: React.MouseEvent) => {
     if (e) {
@@ -354,51 +356,65 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
               Connect with us on social media for daily brewing tips, new menu arrivals, and seasonal artisanal roast releases.
             </p>
-            {/* Social Icons Box Grid Filtered strictly by plan: Basic=$15 [1 link], Pro=$49 [3 links], Elite=$99 [4 links] */}
-            <div className="flex items-center gap-2 pt-1 flex-wrap">
-              {plan === 'elite' && (
-                <a
-                  href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-10 h-10 border border-white/30 hover:border-[#0A66C2] text-white hover:text-[#0A66C2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                  title="LinkedIn ($99 Elite)"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
-              )}
-              {(plan === 'pro' || plan === 'elite') && (
-                <a
-                  href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-10 h-10 border border-white/30 hover:border-[#1877F2] text-white hover:text-[#1877F2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                  title="Facebook ($49 Pro / $99 Elite)"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-              )}
-              {(plan === 'pro' || plan === 'elite') && (
-                <a
-                  href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-10 h-10 border border-white/30 hover:border-[#FF0000] text-white hover:text-[#FF0000] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                  title="YouTube ($49 Pro / $99 Elite)"
-                >
-                  <Youtube className="w-4 h-4" />
-                </a>
-              )}
-              <a
-                href={socialLinks?.instagram ? (socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://${socialLinks.instagram}`) : '#'}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 border border-white/30 hover:border-[#E1306C] text-white hover:text-[#E1306C] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
-                title="Instagram ($15 Basic / $49 Pro / $99 Elite)"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-            </div>
+            {/* Social Icons Box Grid Filtered strictly by tier: Basic=$15 [1 link], Pro=$49 [3 links], Elite=$99 [4 links] */}
+            {(() => {
+              const matchedTheme = themePresetId ? LUXURY_THEMES.find(t => t.id === themePresetId) : undefined;
+              const activeTier = matchedTheme?.tier || (plan && plan !== 'basic' ? plan : 'basic');
+
+              return (
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
+                  {/* Instagram: Always present ($15, $49, $99) */}
+                  <a
+                    href={socialLinks?.instagram ? (socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://${socialLinks.instagram}`) : '#'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-10 h-10 border border-white/30 hover:border-[#E1306C] text-white hover:text-[#E1306C] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                    title="Instagram ($15 Basic / $49 Pro / $99 Elite)"
+                  >
+                    <Instagram className="w-4 h-4" />
+                  </a>
+
+                  {/* Facebook: Present in $49 Pro & $99 Elite */}
+                  {(activeTier === 'pro' || activeTier === 'elite') && (
+                    <a
+                      href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : '#'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-10 h-10 border border-white/30 hover:border-[#1877F2] text-white hover:text-[#1877F2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                      title="Facebook ($49 Pro / $99 Elite)"
+                    >
+                      <Facebook className="w-4 h-4" />
+                    </a>
+                  )}
+
+                  {/* YouTube: Present in $49 Pro & $99 Elite */}
+                  {(activeTier === 'pro' || activeTier === 'elite') && (
+                    <a
+                      href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : '#'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-10 h-10 border border-white/30 hover:border-[#FF0000] text-white hover:text-[#FF0000] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                      title="YouTube ($49 Pro / $99 Elite)"
+                    >
+                      <Youtube className="w-4 h-4" />
+                    </a>
+                  )}
+
+                  {/* LinkedIn: Present in $99 Elite only */}
+                  {activeTier === 'elite' && (
+                    <a
+                      href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : '#'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-10 h-10 border border-white/30 hover:border-[#0A66C2] text-white hover:text-[#0A66C2] hover:bg-white/5 flex items-center justify-center transition-colors rounded-sm"
+                      title="LinkedIn ($99 Elite)"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

@@ -11,6 +11,7 @@ import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated
 import { HeroAnimatedElement } from './HeroAnimatedElement';
 import { BotanicalCoffeeLeaves } from './BotanicalCoffeeLeaves';
 import { checkAdminPasswordInput, getThemeAdminButtonVisibility } from '../../lib/adminHelpers';
+import { LUXURY_THEMES } from '../../data/luxuryThemes';
 
 interface KoppeeHeroHeaderProps {
   brandName?: string;
@@ -80,7 +81,7 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
     bgGradientOverlay: 'from-black/75 via-stone-950/80 to-black/95',
     headerBg: 'bg-gradient-to-b from-black/90 via-black/50 to-transparent',
-    heroBgImage: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop'
+    heroBgImage: 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop'
   },
   // #03 Lunavere (Parisian Starlight Cafe)
   'lunavere': {
@@ -399,23 +400,188 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
 };
 
 const DEFAULT_HERO_CONFIG: ThemeHeroConfig = {
-  accentColor: '#DA9F93',
-  accentTextClass: 'text-[#DA9F93]',
-  accentBorderClass: 'border-[#DA9F93]/40',
-  logoBadgeClass: 'bg-gradient-to-br from-[#DA9F93] to-[#a86e63] text-[#120a06] font-black border border-white/20 shadow-lg',
-  heroBadgeTag: '* CRAFTED WITH PASSION *',
-  navHoverClass: 'hover:text-[#DA9F93]',
-  navActiveClass: 'text-[#DA9F93] border-b-2 border-[#DA9F93]',
-  primaryBtnClass: 'bg-[#DA9F93] hover:bg-[#c6897e] text-[#120a06] font-black rounded-full shadow-xl',
-  secondaryBtnClass: 'bg-black/50 hover:bg-black/80 border border-[#DA9F93]/60 text-[#FBF8EE] font-black rounded-full backdrop-blur-sm',
-  imageFrameClass: 'border-2 border-[#DA9F93]/40 rounded-2xl shadow-2xl',
-  searchFocusClass: 'focus:border-[#DA9F93] focus:ring-[#DA9F93]',
-  bgGradientOverlay: 'from-black/40 via-transparent to-black/60',
+  accentColor: '#e5c158',
+  accentTextClass: 'text-amber-300',
+  accentBorderClass: 'border-amber-400/40',
+  logoBadgeClass: 'bg-gradient-to-br from-amber-400 to-yellow-600 text-stone-950 font-black border border-white/20 shadow-lg',
+  heroBadgeTag: '★ 5-STAR MICHELIN LUXURY GASTRONOMY ★',
+  navHoverClass: 'hover:text-amber-300',
+  navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+  primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:to-yellow-600 text-stone-950 font-black rounded-full shadow-xl',
+  secondaryBtnClass: 'bg-black/60 hover:bg-black/80 border border-amber-400/60 text-[#FBF8EE] font-black rounded-full backdrop-blur-sm',
+  imageFrameClass: 'border-2 border-amber-400/40 rounded-2xl shadow-2xl',
+  searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+  bgGradientOverlay: 'from-black/75 via-stone-950/80 to-black/95',
   headerBg: 'bg-gradient-to-b from-black/85 via-black/45 to-transparent',
-  heroBgImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop'
+  heroBgImage: 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop'
 };
 
-const COFFEE_BEANS_BG = roastedCoffeeBeansBg;
+const COFFEE_BEANS_BG = 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop';
+
+export const COFFEE_SHOP_THEME_IDS = [
+  'velmora-dining', // #1
+  'lunavere',       // #3
+  'opalune',        // #6
+  'couravelle',     // #8
+  'elvaris-atelier',// #11
+  'silvarenne',     // #12
+  'zafrelle',       // #16
+  'marovelle',      // #21
+  'degustara',      // #23
+  'figavelle',      // #30
+  'garnivelle',     // #33
+  'amberelle',      // #39
+  'lumivelle'       // #40
+];
+
+export const LUXURY_ELITE_4_SLIDES = [
+  {
+    id: 1,
+    subtitle: 'Michelin Gastronomy & Fine Dining',
+    title: 'HAUTE CUISINE',
+    tag: '★ 5-STAR MICHELIN LUXURY ★',
+    cupName: 'Miyazaki A5 Wagyu & Black Truffle',
+    price: 'Chef Special',
+    type: 'cloche',
+    primaryBtn: 'Reserve Table',
+    secondaryBtn: 'View Menu'
+  },
+  {
+    id: 2,
+    subtitle: "Chef's Signature Omakase & Caviar",
+    title: 'ROYAL BANQUET',
+    tag: '★ PRIVATE SOMMELIER ★',
+    cupName: 'Royal Caspian Osetra Caviar',
+    price: 'Imperial Choice',
+    type: 'caviar',
+    primaryBtn: 'Reserve Table',
+    secondaryBtn: 'View Menu'
+  },
+  {
+    id: 3,
+    subtitle: 'Wood-Fired Artisanal Specialty',
+    title: 'NEAPOLITAN PIZZA',
+    tag: '★ TRUFFLE & BUFALA PIZZA ★',
+    cupName: 'Artisanal Black Truffle Pizza',
+    price: 'Gourmet Selection',
+    type: 'pizza',
+    primaryBtn: 'Order Pizza',
+    secondaryBtn: 'View Menu'
+  },
+  {
+    id: 4,
+    subtitle: 'Gourmet Wagyu Burger & Wings',
+    title: 'WAGYU BURGER',
+    tag: '★ CHEF SIGNATURE BURGER & WINGS ★',
+    cupName: 'Double Truffle Wagyu Burger',
+    price: 'Masterpiece',
+    type: 'burger',
+    primaryBtn: 'Order Burger',
+    secondaryBtn: 'View Menu'
+  }
+];
+
+export const LUXURY_PRO_3_SLIDES = [
+  {
+    id: 1,
+    subtitle: 'Michelin Gastronomy & Fine Dining',
+    title: 'HAUTE CUISINE',
+    tag: '★ 5-STAR MICHELIN LUXURY ★',
+    cupName: 'Miyazaki A5 Wagyu & Black Truffle',
+    price: 'Chef Special',
+    type: 'cloche',
+    primaryBtn: 'Reserve Table',
+    secondaryBtn: 'View Menu'
+  },
+  {
+    id: 2,
+    subtitle: "Chef's Signature Omakase & Caviar",
+    title: 'ROYAL BANQUET',
+    tag: '★ PRIVATE SOMMELIER ★',
+    cupName: 'Royal Caspian Osetra Caviar',
+    price: 'Imperial Choice',
+    type: 'caviar',
+    primaryBtn: 'Reserve Table',
+    secondaryBtn: 'View Menu'
+  },
+  {
+    id: 3,
+    subtitle: 'Artisanal Pastry & Dessert Sphere',
+    title: 'GOURMET DESSERT',
+    tag: '★ 24K GOLD LEAF ★',
+    cupName: 'Grand Cru Valrhona Chocolate Sphere',
+    price: 'Artisanal Selection',
+    type: 'dessert',
+    primaryBtn: 'Reserve Table',
+    secondaryBtn: 'View Menu'
+  }
+];
+
+export const LUXURY_DINING_SLIDES = LUXURY_PRO_3_SLIDES;
+
+export const LUXURY_BASIC_2_SLIDES = [
+  {
+    id: 1,
+    subtitle: 'Michelin Gastronomy & Fine Dining',
+    title: 'HAUTE CUISINE',
+    tag: '★ 5-STAR MICHELIN LUXURY ★',
+    cupName: 'Miyazaki A5 Wagyu & Black Truffle',
+    price: 'Chef Special',
+    type: 'cloche',
+    primaryBtn: 'Reserve Table',
+    secondaryBtn: 'View Menu'
+  },
+  {
+    id: 2,
+    subtitle: 'Wood-Fired Artisanal Specialty',
+    title: 'TRUFFLE PIZZA',
+    tag: '★ ARTISANAL SPECIALTY ★',
+    cupName: 'Wood-Fired Truffle Pizza',
+    price: 'Gourmet Selection',
+    type: 'pizza',
+    primaryBtn: 'Order Online',
+    secondaryBtn: 'View Menu'
+  }
+];
+
+export const COFFEE_ELITE_4_SLIDES = [
+  {
+    id: 1,
+    subtitle: 'We Have Been Serving',
+    title: 'SPECIALTY COFFEE',
+    tag: '* SINCE 1950 *',
+    cupImg: whiteCupSideImg,
+    cupName: 'Hand-Crafted Dark Roast',
+    price: '$4.50'
+  },
+  {
+    id: 2,
+    subtitle: 'Hand-Poured Velvet Espresso',
+    title: 'BARISTA RESERVE',
+    tag: '* BARISTA CHAMPION *',
+    cupImg: whiteCoffeeCupImg,
+    cupName: 'Double Shot Velvet Cappuccino',
+    price: '$5.20'
+  },
+  {
+    id: 3,
+    subtitle: 'Siphon Brew & Latte Art',
+    title: 'PARISIAN LATTE',
+    tag: '* SILK FROTH *',
+    cupImg: whiteCappuccinoCupImg,
+    cupName: 'Vanilla Caramel Silk Latte',
+    price: '$5.80'
+  },
+  {
+    id: 4,
+    subtitle: 'Nitro Cold Brew & Glassware',
+    title: 'NITRO COLD BREW',
+    tag: '* CRYSTAL ICE *',
+    cupImg: whiteCupSideImg,
+    cupName: 'Artisanal Nitro Cold Brew',
+    price: '$6.00'
+  }
+];
 
 export const KOPPEE_SLIDES = [
   {
@@ -502,8 +668,16 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) ? THEME_HERO_CONFIGS[themePresetId] : (THEME_HERO_CONFIGS['velmora-dining'] || DEFAULT_HERO_CONFIG);
   const isClassicTheme = false;
 
-  const currentSlides = (heroSlides && heroSlides.length > 0) ? heroSlides : KOPPEE_SLIDES;
-  const slide = currentSlides[activeSlide] || currentSlides[0] || KOPPEE_SLIDES[0];
+  const isCoffeeTheme = COFFEE_SHOP_THEME_IDS.includes(activePresetId);
+  const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
+  const activeTier = matchedTheme?.tier || 'basic'; // 'basic' ($15), 'pro' ($49), 'elite' ($99)
+
+  const defaultSlidesForTheme = isCoffeeTheme
+    ? (activeTier === 'elite' ? COFFEE_ELITE_4_SLIDES : KOPPEE_SLIDES)
+    : (activeTier === 'elite' ? LUXURY_ELITE_4_SLIDES : activeTier === 'pro' ? LUXURY_PRO_3_SLIDES : LUXURY_BASIC_2_SLIDES);
+
+  const currentSlides = (heroSlides && heroSlides.length > 0) ? heroSlides : defaultSlidesForTheme;
+  const slide = currentSlides[activeSlide] || currentSlides[0] || defaultSlidesForTheme[0];
 
   // Check admin PIN/password logic (supports text, letters, numbers, symbols)
   const checkAdminPin = (input: string) => {
@@ -544,14 +718,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     setIsSearchOpenMobile(false);
   };
 
-  // Auto slide cycle - Disabled for single-slide and modern 2-column themes to prevent jumping
+  // Auto slide cycle - Automatically glides through slides every 4.5 seconds
   useEffect(() => {
-    if (!isClassicTheme || currentSlides.length <= 1) return;
+    if (currentSlides.length <= 1) return;
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % currentSlides.length);
-    }, 6000);
+    }, 4500);
     return () => clearInterval(timer);
-  }, [currentSlides.length, isClassicTheme]);
+  }, [currentSlides.length]);
 
   const handlePrevSlide = () => {
     setActiveSlide((prev) => (prev === 0 ? currentSlides.length - 1 : prev - 1));
@@ -1279,15 +1453,23 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           </div>
         ) : (
           /* 2-COLUMN LAYOUT FOR ALL OTHER THEMES (#2, #4, #5, #6, #7, #8, #9, #10) */
-          /* Text on Left, Animated Floating Coffee Visual on Right, NO Boxed Frame, NO Corner Arrows */
+          /* Text on Left, Animated Floating Visual on Right with Directional Sliding */
           <div className="relative z-10 max-w-[1800px] mx-auto w-full px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 my-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`split-${activeSlide}`}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.45, ease: 'easeOut' }}
+                initial={
+                  activeSlide % 2 === 0
+                    ? { opacity: 0, x: 120, y: 0 }
+                    : { opacity: 0, x: 0, y: 90 }
+                }
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={
+                  activeSlide % 2 === 0
+                    ? { opacity: 0, x: -120, y: 0 }
+                    : { opacity: 0, x: 0, y: -70 }
+                }
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                 className={
                   isMobile
                     ? "flex flex-col items-center text-center gap-5 w-full"
@@ -1373,7 +1555,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 {/* RIGHT COLUMN: Theme-Specific Animated Visual Element */}
                 <div className={
                   isMobile
-                    ? "w-full flex items-center justify-center my-1 max-w-[240px] mx-auto"
+                    ? "w-full flex items-center justify-center my-1 max-w-[280px] mx-auto"
                     : isTablet
                     ? "col-span-5 flex items-center justify-center relative my-1"
                     : "md:col-span-5 lg:col-span-6 flex items-center justify-center md:justify-end relative my-2 md:my-0 md:translate-x-0 lg:translate-x-6 xl:translate-x-12"
@@ -1383,6 +1565,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     accentColor={cfg.accentColor}
                     cupImg={(slide as any).cupImg}
                     cupName={(slide as any).cupName}
+                    slideType={(slide as any).type}
+                    slideIndex={activeSlide}
                   />
                 </div>
               </motion.div>
@@ -1390,25 +1574,42 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           </div>
         )}
 
-        {/* Left & Right Slider Arrows ONLY rendered for Classic Themes */}
-        {isClassicTheme && (
+        {/* Left & Right Slider Arrows rendered for ALL themes when multiple slides exist */}
+        {currentSlides.length > 1 && (
           <>
             <button
               type="button"
               onClick={handlePrevSlide}
-              className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 hover:bg-black/70 border border-white/30 text-white/90 hover:text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer shadow-xl active:scale-95"
+              className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-black/60 hover:bg-black/90 border border-amber-400/40 text-amber-200 hover:text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-2xl active:scale-95"
               aria-label="Previous Slide"
             >
-              <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+              <ChevronLeft className="w-5 h-5 sm:w-7 sm:h-7" />
             </button>
             <button
               type="button"
               onClick={handleNextSlide}
-              className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 hover:bg-black/70 border border-white/30 text-white/90 hover:text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer shadow-xl active:scale-95"
+              className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-black/60 hover:bg-black/90 border border-amber-400/40 text-amber-200 hover:text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-2xl active:scale-95"
               aria-label="Next Slide"
             >
-              <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+              <ChevronRight className="w-5 h-5 sm:w-7 sm:h-7" />
             </button>
+
+            {/* Bottom Slider Pagination Indicator Dots */}
+            <div className="absolute bottom-6 z-30 flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur-md">
+              {currentSlides.map((_, idx) => (
+                <button
+                  key={`dot-${idx}`}
+                  type="button"
+                  onClick={() => setActiveSlide(idx)}
+                  className={`transition-all duration-300 rounded-full cursor-pointer ${
+                    activeSlide === idx
+                      ? 'w-7 h-2.5 bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.8)]'
+                      : 'w-2.5 h-2.5 bg-white/40 hover:bg-white/70'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
           </>
         )}
 

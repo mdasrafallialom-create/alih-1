@@ -1,6 +1,6 @@
 import React from 'react';
 import { Coffee, CheckCircle2, ArrowRight, Edit3, Crown, Sparkles, Award } from 'lucide-react';
-import { THEME_HERO_CONFIGS } from './KoppeeHeroHeader';
+import { THEME_HERO_CONFIGS, COFFEE_SHOP_THEME_IDS } from './KoppeeHeroHeader';
 import luxuryInteriorImg from '../../assets/images/luxury_michelin_interior_1790508733625.jpg';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 
@@ -55,18 +55,21 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
     ? 'My Restaurant'
     : brandName!.trim();
-  const isOrivelle = themePresetId === 'orivelle-house';
-  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
-  const displayTitle = aboutUsTitle || (lang === 'bn' ? (isOrivelle ? 'কেন ওরিভেল হাউজে ডাইন করবেন?' : 'কেন আমাদের কাছে খাবেন?') : (isOrivelle ? 'Why Dine at Orivelle House?' : 'Why Dine With Us?'));
   
-  const defaultStory = brandDescription || (isOrivelle
+  // All themes EXCEPT the 13 coffee shop themes receive the 5-Star Michelin Luxury styling
+  const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
+  const isOrivelle = isLuxuryTheme;
+  const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
+  const displayTitle = aboutUsTitle || (lang === 'bn' ? (isLuxuryTheme ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : 'কেন আমাদের কাছে খাবেন?') : (isLuxuryTheme ? `Why Dine at ${effectiveBrandName}?` : 'Why Dine With Us?'));
+  
+  const defaultStory = brandDescription || (isLuxuryTheme
     ? (lang === 'bn'
         ? `মিশেলিন ৩-স্টার মাস্টার শেফদের নেতৃত্বে এক অনন্য গুরমে ডাইনিং অভিজ্ঞতা। ${effectiveBrandName}-এ উপভোগ করুন ২৪ ক্যারেট ভোজ্য গোল্ড লিফ, গ্র্যান্ড রিজার্ভ অসিয়াত্রা ক্যাভিয়ার, মিয়াজাকি এ৫ ওয়াগিউ এবং এক্সক্লুসিভ থ্রিডি ইন্টারেক্টিভ ওয়েব-এআর প্রিভিউ।`
         : `Redefining haute cuisine and 5-star Michelin luxury. Discover our exclusive master chef-curated tasting courses, 24k gold leaf infusions, and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared grand reserve meals crafted with precision and passion.`)
     : `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`);
   
   const storyText = aboutUsText || defaultStory;
-  const imageSrc = aboutUsImage || (isOrivelle 
+  const imageSrc = aboutUsImage || (isLuxuryTheme 
     ? luxuryInteriorImg 
     : 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop');
 

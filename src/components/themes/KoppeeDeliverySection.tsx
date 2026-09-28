@@ -1,6 +1,6 @@
 import React from 'react';
 import { Truck, Banknote, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
-import { THEME_HERO_CONFIGS } from './KoppeeHeroHeader';
+import { THEME_HERO_CONFIGS, COFFEE_SHOP_THEME_IDS } from './KoppeeHeroHeader';
 
 interface KoppeeDeliverySectionProps {
   brandName?: string;
@@ -15,7 +15,9 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
   themePresetId,
   previewDeviceView
 }) => {
-  const isOrivelle = themePresetId === 'orivelle-house';
+  // All themes EXCEPT the 13 coffee shop themes receive the 5-Star Michelin Luxury styling
+  const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
+  const isOrivelle = isLuxuryTheme;
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
 
   const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -81,9 +83,9 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
         }`}>
           {/* Card 1: Cash on Delivery */}
-          <div className={`p-6 sm:p-7 rounded-2xl transition-all space-y-3 relative group hover:-translate-y-1 ${
+          <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
             isOrivelle 
-              ? 'bg-gradient-to-b from-[#181612] via-[#0f0e0b] to-[#080705] border-2 border-amber-400/50 hover:border-amber-300 shadow-xl shadow-amber-900/10 hover:shadow-2xl hover:shadow-amber-500/20' 
+              ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : `bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl`
           }`}>
             <div 
@@ -113,9 +115,9 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
           </div>
 
           {/* Card 2: Doorstep Express Delivery */}
-          <div className={`p-6 sm:p-7 rounded-2xl transition-all space-y-3 relative group hover:-translate-y-1 ${
+          <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
             isOrivelle 
-              ? 'bg-gradient-to-b from-[#181612] via-[#0f0e0b] to-[#080705] border-2 border-amber-400/50 hover:border-amber-300 shadow-xl shadow-amber-900/10 hover:shadow-2xl hover:shadow-amber-500/20' 
+              ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : `bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl`
           }`}>
             <div 
@@ -145,9 +147,9 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
           </div>
 
           {/* Card 3: Safe & Sealed Packaging */}
-          <div className={`p-6 sm:p-7 rounded-2xl transition-all space-y-3 relative group hover:-translate-y-1 ${
+          <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
             isOrivelle 
-              ? 'bg-gradient-to-b from-[#181612] via-[#0f0e0b] to-[#080705] border-2 border-amber-400/50 hover:border-amber-300 shadow-xl shadow-amber-900/10 hover:shadow-2xl hover:shadow-amber-500/20' 
+              ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : 'bg-white border border-[#DA9F93]/30 shadow-md hover:shadow-xl'
           }`}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
@@ -174,9 +176,9 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
           </div>
 
           {/* Card 4: Instant Status Updates */}
-          <div className={`p-6 sm:p-7 rounded-2xl transition-all space-y-3 relative group hover:-translate-y-1 ${
+          <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
             isOrivelle 
-              ? 'bg-gradient-to-b from-[#181612] via-[#0f0e0b] to-[#080705] border-2 border-amber-400/50 hover:border-amber-300 shadow-xl shadow-amber-900/10 hover:shadow-2xl hover:shadow-amber-500/20' 
+              ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : 'bg-white border border-[#DA9F93]/30 shadow-md hover:shadow-xl'
           }`}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${

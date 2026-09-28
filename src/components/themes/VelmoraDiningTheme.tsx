@@ -9,8 +9,19 @@ import {
 } from 'lucide-react';
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
 import { CAFE_HERO_PRESETS } from '../../data/cafeHeroPresets';
+import { LUXURY_THEMES } from '../../data/luxuryThemes';
 import FooterAndLocation from '../FooterAndLocation';
-import { KoppeeHeroHeader, THEME_HERO_CONFIGS, KOPPEE_SLIDES } from './KoppeeHeroHeader';
+import { 
+  KoppeeHeroHeader, 
+  THEME_HERO_CONFIGS, 
+  KOPPEE_SLIDES, 
+  COFFEE_SHOP_THEME_IDS, 
+  LUXURY_DINING_SLIDES,
+  LUXURY_ELITE_4_SLIDES,
+  LUXURY_PRO_3_SLIDES,
+  LUXURY_BASIC_2_SLIDES,
+  COFFEE_ELITE_4_SLIDES
+} from './KoppeeHeroHeader';
 import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
@@ -243,7 +254,7 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
   'orivelle-house': {
     pageBgStyle: {
       backgroundColor: '#0a0a0a',
-      backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 10, 0.92), rgba(18, 18, 18, 0.97)), url('https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop')`,
+      backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 10, 0.92), rgba(18, 18, 18, 0.97)), url('https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop')`,
       backgroundSize: 'cover',
       backgroundAttachment: 'fixed',
       backgroundPosition: 'center',
@@ -371,7 +382,7 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
   'solvence-chateau': {
     pageBgStyle: {
       backgroundColor: '#120d0a',
-      backgroundImage: `linear-gradient(to bottom, rgba(18, 13, 10, 0.90), rgba(10, 7, 5, 0.96)), url('https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop')`,
+      backgroundImage: `linear-gradient(to bottom, rgba(18, 13, 10, 0.90), rgba(10, 7, 5, 0.96)), url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop')`,
       backgroundSize: 'cover',
       backgroundAttachment: 'fixed',
       backgroundPosition: 'center',
@@ -1051,17 +1062,24 @@ export default function VelmoraDiningTheme({
     }
   };
 
+  const isCoffeeTheme = COFFEE_SHOP_THEME_IDS.includes(activePresetId);
+
   const activeHeroBgImage = 
     themeEdits?.heroBackgroundImage ||
     settings?.themeSettings?.[activePresetId]?.heroBackgroundImage ||
     THEME_HERO_CONFIGS[activePresetId]?.heroBgImage ||
-    cleanCoffeeBg;
+    (isCoffeeTheme ? cleanCoffeeBg : 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop');
+
+  const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
+  const activeTier = matchedTheme?.tier || 'basic';
+  const defaultTierSlides = isCoffeeTheme
+    ? (activeTier === 'elite' ? COFFEE_ELITE_4_SLIDES : (CAFE_HERO_PRESETS[activePresetId] || KOPPEE_SLIDES))
+    : (activeTier === 'elite' ? LUXURY_ELITE_4_SLIDES : activeTier === 'pro' ? LUXURY_PRO_3_SLIDES : LUXURY_BASIC_2_SLIDES);
 
   const activeHeroSlides = 
     themeEdits?.heroSlides ||
     settings?.themeSettings?.[activePresetId]?.heroSlides ||
-    CAFE_HERO_PRESETS[activePresetId] ||
-    KOPPEE_SLIDES;
+    defaultTierSlides;
 
   const activeAboutUsImage = 
     themeEdits?.aboutUsImage ||
@@ -1149,8 +1167,8 @@ export default function VelmoraDiningTheme({
       <section id="hero">
         <KoppeeHeroHeader
           brandName={effectiveThemeBrandName}
-          heroTitle={themeEdits?.heroTitle || settings?.themeSettings?.[activePresetId]?.heroTitle || settings?.heroTitle || settings?.hero?.title}
-          heroSubtitle={themeEdits?.heroSubtitle || settings?.themeSettings?.[activePresetId]?.heroSubtitle || settings?.heroSubtitle || settings?.hero?.subtitle}
+          heroTitle={themeEdits?.heroTitle || settings?.themeSettings?.[activePresetId]?.heroTitle || (isCoffeeTheme ? (settings?.heroTitle || settings?.hero?.title) : undefined)}
+          heroSubtitle={themeEdits?.heroSubtitle || settings?.themeSettings?.[activePresetId]?.heroSubtitle || (isCoffeeTheme ? (settings?.heroSubtitle || settings?.hero?.subtitle) : undefined)}
           heroBackgroundImage={activeHeroBgImage}
           heroSlides={activeHeroSlides}
           onReserveClick={() => setReservationModalOpen(true)}
@@ -1382,7 +1400,11 @@ export default function VelmoraDiningTheme({
                   </div>
                 </div>
               </motion.div>
-            ) : activePresetId === 'orivelle-house' ? (
+            ) : !isCoffeeTheme ? (
+              /* ========================================================================= */
+              /* ULTRA-LUXURY 5-STAR MICHELIN BORDERLESS CULINARY MASTERPIECE PRESENTATION  */
+              /* 100% Seamless background-blended radial vignette - ZERO hard 4-corner box */
+              /* ========================================================================= */
               <motion.div
                 key={dish.id}
                 onClick={() => {
@@ -1393,32 +1415,46 @@ export default function VelmoraDiningTheme({
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="group relative bg-[#0a0907] border border-amber-500/30 rounded-sm overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] cursor-pointer"
+                className="group relative flex flex-col justify-between transition-all duration-500 hover:-translate-y-2 cursor-pointer p-2 sm:p-3 select-none bg-transparent"
               >
-                {/* 24K Gold Corner Geometric Facet Accent */}
-                <div className="absolute top-0 right-0 w-14 h-14 bg-gradient-to-bl from-amber-300 via-amber-500 to-transparent opacity-90 pointer-events-none z-10" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-                <div className="absolute top-1.5 right-1.5 text-stone-950 font-black text-[9px] z-20 pointer-events-none">✦</div>
+                {/* 24K Gold Corner Sparkle Accent */}
+                <div className="absolute top-2 right-2 text-amber-400 font-serif text-sm opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all">✦</div>
 
-                <div className="relative h-56 overflow-hidden bg-black">
-                  <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 filter brightness-95 contrast-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#080705] via-black/40 to-transparent" />
+                {/* Dish Platter with Soft Radial Mask - Melts seamlessly into background, NO 4-corner box */}
+                <div className="relative w-full aspect-square max-h-72 mx-auto overflow-visible flex items-center justify-center select-none my-1">
+                  {/* Ambient Glow Halo behind the dish */}
+                  <div className="absolute inset-0 rounded-full blur-3xl bg-radial from-amber-500/25 via-yellow-600/10 to-transparent group-hover:bg-amber-400/35 transition-all duration-700 scale-110 pointer-events-none" />
                   
-                  {/* Michelin Badges */}
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                    <span className="px-3 py-1 rounded-tl-lg rounded-br-lg bg-gradient-to-r from-stone-950/90 to-amber-950/90 text-amber-200 text-[9px] font-black uppercase tracking-widest border border-amber-400/60 flex items-center gap-1 shadow-lg backdrop-blur-md">
+                  <div 
+                    className="relative w-full h-full flex items-center justify-center pointer-events-none"
+                    style={{
+                      maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 48%, rgba(0,0,0,0) 95%)',
+                      WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 48%, rgba(0,0,0,0) 95%)'
+                    }}
+                  >
+                    <img 
+                      src={dish.img} 
+                      alt={dish.title} 
+                      className="w-full h-full object-cover group-hover:scale-112 transition-transform duration-700 filter brightness-105 contrast-110" 
+                    />
+                  </div>
+
+                  {/* Floating Badges */}
+                  <div className="absolute top-1 left-1 flex flex-wrap gap-1.5 z-10 pointer-events-none">
+                    <span className="px-3 py-1 rounded-full bg-stone-950/80 text-amber-300 text-[10px] font-black uppercase tracking-widest border border-amber-400/40 shadow-xl backdrop-blur-md flex items-center gap-1">
                       <Crown className="w-3 h-3 text-amber-300" />
-                      <span>{dish.isChefSpecial ? 'Michelin Master' : '24K Haute Reserve'}</span>
+                      <span>{dish.isChefSpecial ? 'Michelin Special' : '24K Haute Reserve'}</span>
                     </span>
                     {dish.isPopular && (
-                      <span className="px-2.5 py-1 rounded-tl-lg rounded-br-lg bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 text-[9px] font-black uppercase tracking-widest shadow-lg">
-                        👑 Signature
+                      <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 text-[10px] font-black uppercase tracking-widest shadow-lg">
+                        ★ Signature
                       </span>
                     )}
                   </div>
 
-                  {/* Center Edit Overlay Button (Editable for Theme #2!) */}
+                  {/* Center In-Place Edit Trigger */}
                   {!savedDishIds.has(dish.id) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1434,19 +1470,37 @@ export default function VelmoraDiningTheme({
                     </div>
                   )}
 
-                  {dish.calories && <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-stone-950/90 text-[10px] text-amber-300 font-mono border border-amber-400/40 backdrop-blur-md">{dish.calories}</span>}
+                  {dish.calories && (
+                    <span className="absolute bottom-1 right-1 px-2.5 py-0.5 rounded-full bg-stone-950/80 text-[10px] text-amber-300 font-mono border border-amber-400/30 backdrop-blur-md">
+                      {dish.calories}
+                    </span>
+                  )}
                 </div>
 
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="font-bold text-lg sm:text-xl text-amber-100 transition-colors line-clamp-2 leading-snug break-words tracking-tight" style={{ fontFamily: "'Cinzel', serif" }}>{dish.title}</h3>
-                      <span className="font-serif font-black text-lg shrink-0 text-[#e5c158] drop-shadow-[0_0_10px_rgba(229,193,88,0.5)]">{formatPrice(dish.price)}</span>
+                {/* Dish Info & Luxury Pricing */}
+                <div className="p-2 sm:p-3 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5 text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-amber-400/90 font-mono font-bold">
+                      <span>★ 5-STAR MICHELIN GASTRONOMY ★</span>
                     </div>
-                    <p className="text-xs text-stone-300 line-clamp-2 leading-relaxed font-light">{dish.desc}</p>
+                    <h3 
+                      className="font-bold text-lg sm:text-xl text-amber-100 group-hover:text-amber-300 transition-colors line-clamp-2 leading-snug break-words tracking-tight"
+                      style={{ fontFamily: "'Cinzel', 'Playfair Display', serif" }}
+                    >
+                      {dish.title}
+                    </h3>
+                    <p className="text-xs text-stone-300/80 line-clamp-2 leading-relaxed font-light">
+                      {dish.desc}
+                    </p>
+                    <div className="pt-1.5 flex items-center justify-center">
+                      <span className="font-serif font-black text-2xl text-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">
+                        {formatPrice(dish.price)}
+                      </span>
+                    </div>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-amber-400/20">
+
+                  {/* Buttons */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-2">
                     <button 
                       type="button"
                       onClick={(e) => {
@@ -1455,7 +1509,7 @@ export default function VelmoraDiningTheme({
                         setDetailSpecialNote('');
                         setSelectedDishDetail(dish);
                       }} 
-                      className="py-2.5 rounded-tl-xl rounded-br-xl bg-stone-950/90 border border-amber-400/50 text-amber-200 text-[11px] font-black uppercase tracking-wider hover:bg-stone-900 hover:border-amber-300 transition-all text-center cursor-pointer active:scale-95"
+                      className="py-2.5 rounded-full bg-stone-950/80 hover:bg-stone-900 border border-amber-400/40 text-amber-200 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md transition-all text-center cursor-pointer active:scale-95 shadow-md"
                     >
                       Details
                     </button>
@@ -1467,7 +1521,7 @@ export default function VelmoraDiningTheme({
                         setToastMsg(`"${dish.title}" added to order!`);
                         setTimeout(() => setToastMsg(null), 2500);
                       }} 
-                      className="py-2.5 rounded-tl-xl rounded-br-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 shadow-[0_0_25px_rgba(229,193,88,0.4)] cursor-pointer"
+                      className="py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.45)] cursor-pointer"
                     >
                       <ShoppingBag className="w-3.5 h-3.5 text-stone-950" />
                       <span>Order</span>
@@ -1475,112 +1529,8 @@ export default function VelmoraDiningTheme({
                   </div>
                 </div>
               </motion.div>
-            ) : activePresetId === 'aurelisse' ? (
-              <motion.div key={dish.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group relative bg-[#1c082e] border-2 border-purple-500/60 rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_35px_rgba(168,85,247,0.5)] hover:border-purple-300">
-                <div className="relative h-56 overflow-hidden bg-black/60">
-                  <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1c082e] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3"><span className="px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-[9px] font-black uppercase tracking-widest shadow-md">⚜️ Royal Crest</span></div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-lg text-purple-100" style={{ fontFamily: "'Prata', serif" }}>{dish.title}</h3>
-                      <span className="font-mono font-bold text-base text-purple-300">{formatPrice(dish.price)}</span>
-                    </div>
-                    <p className="text-xs text-purple-200/70 line-clamp-2">{dish.desc}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-purple-500/20">
-                    <button onClick={() => setSelectedDishDetail(dish)} className="py-2 rounded-xl bg-purple-950/80 border border-purple-400/40 text-purple-200 text-[11px] font-bold">Details</button>
-                    <button onClick={() => { if (onOrderDish) onOrderDish(dish); }} className="py-2 rounded-xl bg-gradient-to-r from-purple-500 to-amber-500 text-white text-[11px] font-black flex items-center justify-center gap-1"><ShoppingBag className="w-3 h-3" /><span>Order</span></button>
-                  </div>
-                </div>
-              </motion.div>
-            ) : activePresetId === 'palatiora' ? (
-              <motion.div key={dish.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group relative bg-[#1c1410] border-2 border-amber-600/50 rounded-lg overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.35)] hover:border-amber-400">
-                <div className="relative h-56 overflow-hidden bg-black/60">
-                  <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1c1410] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3"><span className="px-2.5 py-1 rounded bg-amber-600 text-stone-950 text-[9px] font-black uppercase tracking-wider">🥩 Dry-Aged Prime</span></div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-lg text-amber-100" style={{ fontFamily: "'DM Serif Display', serif" }}>{dish.title}</h3>
-                      <span className="font-mono font-bold text-base text-amber-400">{formatPrice(dish.price)}</span>
-                    </div>
-                    <p className="text-xs text-amber-200/70 line-clamp-2">{dish.desc}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-amber-600/20">
-                    <button onClick={() => setSelectedDishDetail(dish)} className="py-2 rounded bg-stone-950 border border-amber-600/40 text-amber-200 text-[11px] font-bold">Details</button>
-                    <button onClick={() => { if (onOrderDish) onOrderDish(dish); }} className="py-2 rounded bg-amber-500 text-stone-950 text-[11px] font-black flex items-center justify-center gap-1"><ShoppingBag className="w-3 h-3" /><span>Order</span></button>
-                  </div>
-                </div>
-              </motion.div>
-            ) : activePresetId === 'opalune' ? (
-              <motion.div key={dish.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group relative bg-[#0a1826]/90 border-2 border-cyan-400/50 rounded-2xl overflow-hidden flex flex-col justify-between backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_35px_rgba(34,211,238,0.4)] hover:border-cyan-300">
-                <div className="relative h-56 overflow-hidden bg-black/60">
-                  <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1826] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3"><span className="px-2.5 py-1 rounded-full bg-cyan-500 text-slate-950 text-[9px] font-black uppercase tracking-wider">❄️ Nitro Ice</span></div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-lg text-cyan-100">{dish.title}</h3>
-                      <span className="font-mono font-bold text-base text-cyan-300">{formatPrice(dish.price)}</span>
-                    </div>
-                    <p className="text-xs text-cyan-200/70 line-clamp-2">{dish.desc}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-cyan-500/20">
-                    <button onClick={() => setSelectedDishDetail(dish)} className="py-2 rounded-xl bg-slate-950 border border-cyan-400/40 text-cyan-200 text-[11px] font-bold">Details</button>
-                    <button onClick={() => { if (onOrderDish) onOrderDish(dish); }} className="py-2 rounded-xl bg-cyan-400 text-slate-950 text-[11px] font-black flex items-center justify-center gap-1"><ShoppingBag className="w-3 h-3" /><span>Order</span></button>
-                  </div>
-                </div>
-              </motion.div>
-            ) : activePresetId === 'emberion' ? (
-              <motion.div key={dish.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group relative bg-[#1f0a0a] border-2 border-orange-500/60 rounded-tr-3xl rounded-bl-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_35px_rgba(249,115,22,0.4)] hover:border-orange-400">
-                <div className="relative h-56 overflow-hidden bg-black/60">
-                  <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1f0a0a] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3"><span className="px-2.5 py-1 rounded bg-orange-600 text-white text-[9px] font-black uppercase tracking-wider">🔥 Wood-Fired</span></div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-lg text-orange-100">{dish.title}</h3>
-                      <span className="font-mono font-bold text-base text-orange-400">{formatPrice(dish.price)}</span>
-                    </div>
-                    <p className="text-xs text-orange-200/70 line-clamp-2">{dish.desc}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-orange-500/20">
-                    <button onClick={() => setSelectedDishDetail(dish)} className="py-2 rounded bg-black border border-orange-500/40 text-orange-200 text-[11px] font-bold">Details</button>
-                    <button onClick={() => { if (onOrderDish) onOrderDish(dish); }} className="py-2 rounded bg-gradient-to-r from-orange-500 to-red-600 text-white text-[11px] font-black flex items-center justify-center gap-1"><ShoppingBag className="w-3 h-3" /><span>Order</span></button>
-                  </div>
-                </div>
-              </motion.div>
-            ) : activePresetId === 'couravelle' ? (
-              <motion.div key={dish.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group relative bg-[#0c1c14] border-2 border-emerald-500/50 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:border-emerald-400">
-                <div className="relative h-56 overflow-hidden bg-black/60">
-                  <img src={dish.img} alt={dish.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c1c14] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3"><span className="px-2.5 py-1 rounded-full bg-emerald-500 text-stone-950 text-[9px] font-black uppercase tracking-wider">🌿 Tuscan Garden</span></div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-lg text-emerald-100">{dish.title}</h3>
-                      <span className="font-mono font-bold text-base text-emerald-400">{formatPrice(dish.price)}</span>
-                    </div>
-                    <p className="text-xs text-emerald-200/70 line-clamp-2">{dish.desc}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-500/20">
-                    <button onClick={() => setSelectedDishDetail(dish)} className="py-2 rounded-xl bg-stone-950 border border-emerald-500/40 text-emerald-200 text-[11px] font-bold">Details</button>
-                    <button onClick={() => { if (onOrderDish) onOrderDish(dish); }} className="py-2 rounded-xl bg-emerald-500 text-stone-950 text-[11px] font-black flex items-center justify-center gap-1"><ShoppingBag className="w-3 h-3" /><span>Order</span></button>
-                  </div>
-                </div>
-              </motion.div>
             ) : (
+              /* Coffee Shop Themes Minimalist Modern Card */
               <motion.div
                 key={dish.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -1588,7 +1538,6 @@ export default function VelmoraDiningTheme({
                 viewport={{ once: true }}
                 className={`group ${pageCfg.cardBg} rounded-2xl border ${pageCfg.cardBorderClass} overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl ${pageCfg.cardHoverGlowClass}`}
               >
-                {/* Dish Image */}
                 <div className="relative h-56 overflow-hidden bg-black/40">
                   <img 
                     src={dish.img} 
@@ -1597,22 +1546,12 @@ export default function VelmoraDiningTheme({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   
-                  {/* Badges */}
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                    {dish.isChefSpecial && (
-                      <span className="px-2.5 py-1 rounded-full bg-[#6B1724] text-white text-[9px] font-bold uppercase tracking-wider border border-white/20 flex items-center gap-1 shadow-md">
-                        <Crown className="w-2.5 h-2.5 text-[#D4AF37]" />
-                        Chef Special
-                      </span>
-                    )}
-                    {dish.isPopular && (
-                      <span className={`px-2.5 py-1 rounded-full ${pageCfg.badgeBgClass} text-[9px] font-bold uppercase tracking-wider shadow-md`}>
-                        Signature
-                      </span>
-                    )}
+                    <span className={`px-2.5 py-1 rounded-full ${pageCfg.badgeBgClass} text-[9px] font-bold uppercase tracking-wider shadow-md`}>
+                      ☕ Cafe Reserve
+                    </span>
                   </div>
 
-                  {/* Calories */}
                   {dish.calories && (
                     <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/60 text-[10px] text-[#F3E5AB] font-mono border border-white/10">
                       {dish.calories}
@@ -1620,7 +1559,6 @@ export default function VelmoraDiningTheme({
                   )}
                 </div>
 
-                {/* Dish Info */}
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
@@ -1639,7 +1577,6 @@ export default function VelmoraDiningTheme({
                     </p>
                   </div>
 
-                  {/* Card Action Buttons */}
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
                     <button
                       onClick={() => setSelectedDishDetail(dish)}
@@ -1678,8 +1615,8 @@ export default function VelmoraDiningTheme({
         <section 
           id="chefs" 
           className={`py-16 sm:py-24 scroll-mt-20 overflow-hidden ${
-            activePresetId === 'orivelle-house'
-              ? 'bg-[#0a0907] border-y border-amber-400/50 text-[#FBF8EE]'
+            !isCoffeeTheme || activePresetId === 'orivelle-house'
+              ? 'bg-[#0a0806] border-y border-amber-400/40 text-[#FBF8EE]'
               : 'bg-white border-y border-[#DA9F93]/30'
           }`}
         >
@@ -1738,9 +1675,9 @@ export default function VelmoraDiningTheme({
               {[...chefs, ...chefs].map((chef, idx) => (
                 <div 
                   key={`${chef.id || idx}-${idx}`}
-                  className={`w-[340px] sm:w-[380px] md:w-[410px] shrink-0 p-6 rounded-2xl flex flex-col justify-between gap-5 transition-all duration-300 group cursor-pointer ${
-                    activePresetId === 'orivelle-house'
-                      ? 'bg-gradient-to-b from-[#181612] via-[#0f0e0b] to-[#080705] border-2 border-amber-400/50 hover:border-amber-300 shadow-xl shadow-amber-900/10 hover:shadow-2xl hover:shadow-amber-500/20'
+                  className={`w-[340px] sm:w-[380px] md:w-[410px] shrink-0 p-6 rounded-3xl flex flex-col justify-between gap-5 transition-all duration-300 group cursor-pointer ${
+                    !isCoffeeTheme || activePresetId === 'orivelle-house'
+                      ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]'
                       : 'bg-white border border-[#DA9F93]/30 hover:border-[#B8860B] shadow-lg shadow-[#2C1810]/5 hover:shadow-2xl hover:shadow-[#B8860B]/15'
                   }`}
                 >
@@ -1758,7 +1695,7 @@ export default function VelmoraDiningTheme({
                       </div>
                       <div className="space-y-1 min-w-0">
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase inline-block truncate max-w-full ${
-                          activePresetId === 'orivelle-house'
+                          !isCoffeeTheme || activePresetId === 'orivelle-house'
                             ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
                             : 'bg-[#DA9F93]/20 text-[#8C584B]'
                         }`}>
@@ -1766,17 +1703,17 @@ export default function VelmoraDiningTheme({
                         </span>
                         <h3 
                           className={`text-lg font-bold transition-colors truncate ${
-                            activePresetId === 'orivelle-house'
+                            !isCoffeeTheme || activePresetId === 'orivelle-house'
                               ? 'text-amber-100 group-hover:text-amber-300'
                               : 'text-slate-900 group-hover:text-[#B8860B]'
                           }`}
-                          style={{ fontFamily: activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
+                          style={{ fontFamily: !isCoffeeTheme || activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
                         >
                           {chef.name}
                         </h3>
                         <div className="flex items-center gap-1 text-amber-400 text-xs">
                           {'★'.repeat(Math.min(5, Math.round(chef.rating || 5)))}
-                          <span className={`text-[11px] ml-1 ${activePresetId === 'orivelle-house' ? 'text-amber-300/70 font-mono' : 'text-slate-500'}`}>
+                          <span className={`text-[11px] ml-1 ${!isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-amber-300/70 font-mono' : 'text-slate-500'}`}>
                             ({chef.rating?.toFixed(1) || '5.0'})
                           </span>
                         </div>
@@ -1784,23 +1721,23 @@ export default function VelmoraDiningTheme({
                     </div>
 
                     <p className={`text-xs line-clamp-3 leading-relaxed ${
-                      activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-slate-600'
+                      !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-slate-600'
                     }`}>
                       {chef.bio}
                     </p>
                   </div>
 
                   <div className={`pt-3 border-t flex items-center justify-between text-[11px] ${
-                    activePresetId === 'orivelle-house' ? 'border-amber-400/20' : 'border-[#DA9F93]/20'
+                    !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'border-amber-400/20' : 'border-[#DA9F93]/20'
                   }`}>
                     <span className={`font-bold truncate ${
-                      activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#8C584B]'
+                      !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#8C584B]'
                     }`}>
                       ★ {chef.speciality || (chef as any).specialty || 'Master Gastronomy'}
                     </span>
                     {chef.experienceYears && (
                       <span className={`text-[10px] shrink-0 font-mono ml-2 ${
-                        activePresetId === 'orivelle-house' ? 'text-stone-400' : 'text-slate-500'
+                        !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-400' : 'text-slate-500'
                       }`}>
                         {chef.experienceYears}+ {lang === 'bn' ? 'বছরের অভিজ্ঞতা' : 'Yrs Exp'}
                       </span>

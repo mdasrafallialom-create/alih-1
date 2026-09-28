@@ -1,531 +1,334 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Sparkles, Utensils, ChefHat, Crown, Wine, Flame, Star, Coffee, Pizza, Sandwich } from 'lucide-react';
 import { CoffeeBeanSculptedVisual } from './CoffeeBeanSculptedVisual';
 import { OrivelleGoldClocheVisual } from './OrivelleGoldClocheVisual';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
 
+// Fine Dining Imagery
+import caviarDishImg from '../../assets/images/luxury_caviar_dish_1790508696808.jpg';
+import wagyuDishImg from '../../assets/images/luxury_michelin_dish_1790508680735.jpg';
+import dessertSphereImg from '../../assets/images/luxury_dessert_dish_1790508714022.jpg';
+import tableClosedImg from '../../assets/images/table_closed_gold_cloche_1790603175271.jpg';
+import tableOpenImg from '../../assets/images/table_open_gold_cloche_1790603214374.jpg';
+
 interface HeroAnimatedElementProps {
   themeId?: string;
   accentColor?: string;
   cupImg?: string;
   cupName?: string;
+  slideType?: string;
+  slideIndex?: number;
 }
 
 export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
   themeId = 'velmora-dining',
   accentColor = '#c89666',
   cupImg,
-  cupName
+  cupName,
+  slideType,
+  slideIndex = 0
 }) => {
   const normId = (themeId || '').toLowerCase().trim();
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Theme #01: Velmora Dining -> Artisanal Coffee Cup Sculpted from Coffee Beans with Falling Beans
+  // Compute activeType first based on slideType or cupName keywords
+  const lowerName = (cupName || '').toLowerCase();
+  const activeType = slideType || (
+    lowerName.includes('pizza') ? 'pizza' :
+    lowerName.includes('burger') ? 'burger' :
+    lowerName.includes('chicken') || lowerName.includes('peri') || lowerName.includes('wings') || lowerName.includes('robata') ? 'chicken' :
+    lowerName.includes('steak') || lowerName.includes('wagyu') || lowerName.includes('tomahawk') ? 'steak' :
+    lowerName.includes('sushi') || lowerName.includes('omakase') || lowerName.includes('sashimi') ? 'sushi' :
+    lowerName.includes('seafood') || lowerName.includes('lobster') || lowerName.includes('bass') ? 'seafood' :
+    lowerName.includes('pasta') || lowerName.includes('truffle') ? 'pasta' :
+    lowerName.includes('caviar') ? 'caviar' :
+    lowerName.includes('dessert') || lowerName.includes('sphere') ? 'dessert' :
+    'cloche'
+  );
+
+  // Theme #01: Velmora Dining -> Artisanal Coffee Cup Sculpted from Coffee Beans
   if (normId === 'velmora-dining') {
     return <CoffeeBeanSculptedVisual accentColor={accentColor} />;
   }
 
-  // Theme #02: Orivelle House (24k Gold Cloche & Crystal Shimmer)
-  if (normId === 'orivelle-house') {
+  // Cloche slide type (e.g. for Orivelle House or Haute Gastronomy default)
+  if (activeType === 'cloche' && (normId === 'orivelle-house' || !slideType)) {
     return (
       <OrivelleGoldClocheVisual
         accentColor={accentColor}
         customImg={cupImg}
-        itemName={cupName}
+        itemName={cupName || 'Miyazaki A5 Wagyu & Black Truffle'}
       />
     );
   }
 
-  // Theme #03: Lunavere (Parisian Starlight Latte & Nebula Glow)
-  if (normId === 'lunavere') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-purple-600/25 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-6, 6, -6], rotate: [0.5, -0.5, 0.5] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCappuccinoCupImg}
-            alt={cupName || "Lunavere Starlight Latte"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(154,123,181,0.5)]"
-          />
-          {/* Gentle Starlight Dust */}
-          <motion.div
-            animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.95, 1.05, 0.95] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-6 w-36 h-28 bg-gradient-to-t from-purple-300/30 via-indigo-200/10 to-transparent blur-xl pointer-events-none"
-          />
-        </motion.div>
-      </div>
-    );
-  }
+  // Common Radial Vignette Mask Style: 100% Seamless Dissolve into Background with NO Box Outline
+  const seamlessMaskStyle: React.CSSProperties = {
+    maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 56%, rgba(0,0,0,0) 96%)',
+    WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 56%, rgba(0,0,0,0) 96%)'
+  };
 
-  // Theme #04: Aurelisse (Imperial Monarch Goblet & Royal Aura)
-  if (normId === 'aurelisse') {
+  // 1. Pizza Visual (Seamless Background Blended Wood-Fired Neapolitan Truffle Pizza)
+  if (activeType === 'pizza') {
     return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-purple-700/30 pointer-events-none scale-110" />
+      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
+        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/30 pointer-events-none scale-125" />
         <motion.div
-          animate={{ y: [-7, 7, -7], scale: [0.98, 1.02, 0.98] }}
-          transition={{ duration: 4.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCupSideImg}
-            alt={cupName || "Aurelisse Imperial Goblet"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_25px_45px_rgba(168,85,247,0.55)]"
-          />
-          <motion.div
-            animate={{ y: [-4, -30, -4], opacity: [0.1, 0.6, 0.1] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-32 h-24 bg-gradient-to-t from-amber-400/30 via-purple-400/20 to-transparent blur-xl pointer-events-none"
-          />
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #07: Emberion (Robata Charcoal & Flame Embers)
-  if (normId === 'emberion') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-orange-600/35 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-5, 5, -5] }}
-          transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Emberion Charcoal Robata Cup"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_45px_rgba(234,88,12,0.6)]"
-          />
-          {/* Glowing Ember Particles */}
-          {[0, 1, 2, 3].map((i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -60, -100],
-                opacity: [0, 1, 0],
-                scale: [0.8, 1.4, 0.2],
-                x: [0, (i % 2 === 0 ? 12 : -18)]
-              }}
-              transition={{
-                duration: 1.8,
-                repeat: Infinity,
-                delay: i * 0.4,
-                ease: "easeOut"
-              }}
-              style={{ left: `${35 + i * 10}%`, bottom: '30%' }}
-              className="absolute w-2 h-2 bg-orange-400 rounded-full blur-[0.5px] shadow-[0_0_10px_#ea580c]"
-            />
-          ))}
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #06: Opalune (Minimalist Glass & Nitrogen Cold Brew Bubbles)
-  if (normId === 'opalune') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-teal-500/25 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-6, 6, -6] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCappuccinoCupImg}
-            alt={cupName || "Opalune Cold Brew"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(13,148,136,0.45)]"
-          />
-          {/* Micro Nitrogen Bubbles */}
-          {[0, 1, 2, 3].map((i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -50, -80],
-                opacity: [0, 0.8, 0],
-                scale: [0.4, 1, 0.6]
-              }}
-              transition={{
-                duration: 2.2,
-                repeat: Infinity,
-                delay: i * 0.5,
-                ease: "easeInOut"
-              }}
-              style={{ left: `${40 + i * 8}%`, bottom: '25%' }}
-              className="absolute w-1.5 h-1.5 bg-teal-200 rounded-full blur-[0.5px]"
-            />
-          ))}
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #08: Couravelle (French Courtyard Garden Cup with Floating Jasmine Petals)
-  if (normId === 'couravelle') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/20 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-6, 6, -6], rotate: [-0.8, 0.8, -0.8] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCupSideImg}
-            alt={cupName || "Couravelle Courtyard Cup"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(180,83,9,0.4)]"
-          />
-          {/* Rising gentle steam */}
-          <motion.div
-            animate={{ y: [-5, -28, -5], opacity: [0.15, 0.6, 0.15] }}
-            transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-32 h-24 bg-gradient-to-t from-amber-100/25 via-white/10 to-transparent blur-xl pointer-events-none"
-          />
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #10: Caravelle Dining (Celestial Sapphire Midnight Skyline)
-  if (normId === 'caravelle-dining') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-sky-500/30 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-7, 7, -7] }}
-          transition={{ duration: 4.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Caravelle Skyline Cup"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_45px_rgba(56,189,248,0.55)]"
-          />
-          {/* Twinkling cyan starlight dust */}
-          <motion.div
-            animate={{ opacity: [0.2, 0.7, 0.2], scale: [0.9, 1.1, 0.9] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-6 w-36 h-28 bg-gradient-to-t from-sky-300/30 via-sky-100/10 to-transparent blur-xl pointer-events-none"
-          />
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #11: Elvaris Espresso Roastery (Dark Roast Beans & Roaster Fire Ember Smoke)
-  if (normId === 'elvaris-atelier') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-700/30 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-6, 6, -6], rotate: [-0.5, 0.5, -0.5] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Elvaris Dark Roast Espresso"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_22px_45px_rgba(245,158,11,0.5)]"
-          />
-          {/* Roastery Aromatic Steam Ring */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-            className="absolute inset-6 border border-dashed border-amber-500/30 rounded-full pointer-events-none"
-          />
-          {/* Floating Dark Roast Coffee Bean Particles */}
-          {[0, 1, 2, 3].map((i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -45, -75],
-                opacity: [0, 0.9, 0],
-                rotate: [0, 90, 180],
-                scale: [0.6, 1, 0.7]
-              }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                delay: i * 0.6,
-                ease: 'easeInOut'
-              }}
-              style={{ left: `${32 + i * 14}%`, bottom: '26%' }}
-              className="absolute w-3 h-2 bg-[#2c1407] rounded-full border border-amber-600/60 shadow-[0_0_8px_rgba(217,119,6,0.5)]"
-            />
-          ))}
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #12: Silvarenne Titanium Cafe (High-Tech Titanium Precision & Silver Halo)
-  if (normId === 'silvarenne') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-zinc-400/20 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-5, 5, -5] }}
+          animate={{ y: [-8, 8, -8], rotate: [0.5, -0.5, 0.5] }}
           transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
+          style={seamlessMaskStyle}
         >
           <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Silvarenne Titanium Specialty Cup"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(255,255,255,0.4)]"
-          />
-          {/* Titanium Orbiting Micro Extraction Ring */}
-          <motion.div
-            animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute inset-10 border border-zinc-300/40 rounded-full pointer-events-none"
-          />
-          <motion.div
-            animate={{ y: [-4, -30, -4], opacity: [0.1, 0.5, 0.1] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-32 h-20 bg-gradient-to-t from-zinc-200/30 via-white/10 to-transparent blur-xl pointer-events-none"
+            src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop"
+            alt={cupName || "Wood-Fired Truffle & Burrata Neapolitan Pizza"}
+            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
           />
         </motion.div>
+        
+        {/* Floating Frameless Pill Badge */}
+        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <div className="bg-stone-950/90 border border-amber-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
+            <Pizza className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-amber-200 font-serif tracking-widest">
+              {cupName || "Wood-Fired Truffle & Burrata Neapolitan Pizza"}
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Theme #16: Zafrelle Hand-Grinder Cafe (Vintage Brass Gear & Ground Coffee Bloom)
-  if (normId === 'zafrelle') {
+  // 2. Burger Visual (Seamless Background Blended Double Truffle Wagyu Burger)
+  if (activeType === 'burger') {
     return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-600/25 pointer-events-none scale-110" />
+      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
+        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-600/30 pointer-events-none scale-125" />
         <motion.div
-          animate={{ y: [-6, 6, -6], rotate: [-1, 1, -1] }}
-          transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCupSideImg}
-            alt={cupName || "Zafrelle Hand Grinder Coffee"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_22px_45px_rgba(251,191,36,0.45)]"
-          />
-          {/* Brass Gear Halo Glow */}
-          <motion.div
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-            className="absolute inset-8 rounded-full border border-dashed border-amber-400/40 pointer-events-none"
-          />
-          {/* Golden Aromatic Bloom Sparks */}
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              animate={{
-                y: [0, -40, -70],
-                opacity: [0, 0.85, 0],
-                scale: [0.5, 1.2, 0.5]
-              }}
-              transition={{
-                duration: 2.2,
-                repeat: Infinity,
-                delay: i * 0.7,
-                ease: 'easeOut'
-              }}
-              style={{ left: `${36 + i * 14}%`, bottom: '30%' }}
-              className="absolute w-2 h-2 bg-amber-300 rounded-full blur-[0.5px] shadow-[0_0_8px_#fbbf24]"
-            />
-          ))}
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #21: Marovelle Stovetop Moka (Italian Moka Crema Rise & Rich Velvet Steam)
-  if (normId === 'marovelle') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-orange-700/25 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-7, 7, -7] }}
-          transition={{ duration: 4.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
-        >
-          <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Marovelle Moka Crema"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_24px_45px_rgba(251,146,60,0.5)]"
-          />
-          {/* Dense Warm Moka Crema Plume */}
-          <motion.div
-            animate={{ y: [-6, -32, -6], opacity: [0.2, 0.75, 0.2], scale: [0.9, 1.2, 0.9] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-2 w-36 h-28 bg-gradient-to-t from-orange-400/30 via-amber-200/15 to-transparent blur-2xl pointer-events-none"
-          />
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Theme #30: Degustara Chemex Alchemy (Hand-blown Chemex Pour-Over Dripping Alchemy)
-  if (normId === 'degustara') {
-    return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-600/30 pointer-events-none scale-110" />
-        <motion.div
-          animate={{ y: [-6, 6, -6], rotate: [-0.6, 0.6, -0.6] }}
+          animate={{ y: [-8, 8, -8] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
+          style={seamlessMaskStyle}
         >
           <img
-            src={cupImg || whiteCappuccinoCupImg}
-            alt={cupName || "Degustara Chemex Pour-Over"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_22px_45px_rgba(234,88,12,0.55)]"
-          />
-          {/* Chemex Drip Droplet */}
-          <motion.div
-            animate={{
-              y: [-10, 35, 70],
-              opacity: [0, 1, 0],
-              scale: [0.8, 1.2, 0.4]
-            }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeIn' }}
-            className="absolute top-12 left-1/2 -translate-x-1/2 w-2.5 h-3.5 bg-amber-600 rounded-full blur-[0.5px] shadow-[0_0_6px_#ea580c]"
-          />
-          {/* Soft amber vapor */}
-          <motion.div
-            animate={{ opacity: [0.2, 0.6, 0.2], scale: [0.95, 1.1, 0.95] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-32 h-24 bg-gradient-to-t from-orange-400/25 via-amber-200/10 to-transparent blur-xl pointer-events-none"
+            src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1000&auto=format&fit=crop"
+            alt={cupName || "Double Truffle A5 Wagyu Gourmet Burger"}
+            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
           />
         </motion.div>
+
+        {/* Floating Frameless Pill Badge */}
+        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <div className="bg-stone-950/90 border border-amber-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
+            <Sandwich className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-amber-200 font-serif tracking-widest">
+              {cupName || "Double Truffle A5 Wagyu Gourmet Burger"}
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Theme #33: Figavelle Turkish Sand Cafe (Golden Hot Sand & Copper Cezve Cardamom Froth)
-  if (normId === 'figavelle') {
+  // 3. Chicken / Robata Flame Visual (Seamless Background Blended)
+  if (activeType === 'chicken') {
     return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/30 pointer-events-none scale-110" />
+      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
+        <div className="absolute inset-0 rounded-full blur-3xl bg-orange-600/35 pointer-events-none scale-125" />
         <motion.div
-          animate={{ y: [-5, 5, -5] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
+          animate={{ y: [-8, 8, -8] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
+          style={seamlessMaskStyle}
         >
           <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Figavelle Turkish Cezve Coffee"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_24px_45px_rgba(217,119,6,0.6)]"
-          />
-          {/* Hot Sand Shimmer Bed */}
-          <motion.div
-            animate={{ scaleX: [0.95, 1.05, 0.95], opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-2 w-48 h-6 bg-gradient-to-r from-transparent via-amber-400/35 to-transparent blur-md pointer-events-none"
-          />
-          {/* Cardamom Froth Rising Vapor */}
-          <motion.div
-            animate={{ y: [-5, -28, -5], opacity: [0.2, 0.7, 0.2] }}
-            transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-32 h-24 bg-gradient-to-t from-amber-300/30 via-orange-200/15 to-transparent blur-xl pointer-events-none"
+            src="https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=1000&auto=format&fit=crop"
+            alt={cupName || "Robata Flame Roasted Peri Peri Chicken"}
+            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
           />
         </motion.div>
+
+        {/* Floating Frameless Pill Badge */}
+        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <div className="bg-stone-950/90 border border-orange-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
+            <Flame className="w-4 h-4 text-orange-400 animate-pulse" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-orange-200 font-serif tracking-widest">
+              {cupName || "Robata Flame Roasted Peri Peri Chicken & Skewers"}
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Theme #39: Lumivelle Barista Lounge (Barista Latte Art Microfoam & Morning Pastry Warmth)
-  if (normId === 'lumivelle') {
+  // 4. Steak Visual (Seamless Background Blended)
+  if (activeType === 'steak') {
     return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-600/25 pointer-events-none scale-110" />
+      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
+        <div className="absolute inset-0 rounded-full blur-3xl bg-red-600/30 pointer-events-none scale-125" />
         <motion.div
-          animate={{ y: [-6, 6, -6], rotate: [-0.8, 0.8, -0.8] }}
-          transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
+          animate={{ y: [-8, 8, -8] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
+          style={seamlessMaskStyle}
         >
           <img
-            src={cupImg || whiteCappuccinoCupImg}
-            alt={cupName || "Lumivelle Barista Latte"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_22px_45px_rgba(249,115,22,0.5)]"
-          />
-          {/* Barista Micro-Foam Swirl Steam */}
-          <motion.div
-            animate={{ y: [-6, -26, -6], opacity: [0.2, 0.65, 0.2], rotate: [-5, 5, -5] }}
-            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-36 h-26 bg-gradient-to-t from-amber-200/30 via-white/10 to-transparent blur-xl pointer-events-none"
+            src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop"
+            alt={cupName || "Miyazaki A5 Wagyu Tomahawk Steak"}
+            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
           />
         </motion.div>
+
+        {/* Floating Frameless Pill Badge */}
+        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <div className="bg-stone-950/90 border border-red-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
+            <Crown className="w-4 h-4 text-amber-300 animate-bounce" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-red-200 font-serif tracking-widest">
+              {cupName || "Miyazaki A5 Wagyu Tomahawk Steak"}
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Theme #40: Amberelle Sunset Cafe (Caramel Macchiato Drizzle & Sunset Acoustic Radiance)
-  if (normId === 'amberelle') {
+  // 5. Caviar Visual (Seamless Background Blended Royal Beluga Caviar & Champagne)
+  if (activeType === 'caviar') {
     return (
-      <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-lime-600/20 pointer-events-none scale-110" />
+      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
+        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/30 pointer-events-none scale-125" />
         <motion.div
-          animate={{ y: [-7, 7, -7], scale: [0.98, 1.02, 0.98] }}
+          animate={{ y: [-8, 8, -8] }}
           transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
+          style={seamlessMaskStyle}
         >
           <img
-            src={cupImg || whiteCoffeeCupImg}
-            alt={cupName || "Amberelle Caramel Macchiato"}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_45px_rgba(163,230,53,0.4)]"
-          />
-          {/* Caramel Sunset Glow */}
-          <motion.div
-            animate={{ opacity: [0.2, 0.7, 0.2], scale: [0.9, 1.15, 0.9] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-4 w-36 h-26 bg-gradient-to-t from-amber-300/30 via-lime-200/10 to-transparent blur-xl pointer-events-none"
+            src={caviarDishImg}
+            alt="Royal Caspian Beluga Caviar & Dom Pérignon"
+            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
           />
         </motion.div>
+
+        {/* Floating Frameless Pill Badge */}
+        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <div className="bg-stone-950/90 border border-amber-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-amber-200 font-serif tracking-widest">
+              {cupName || "Royal Caspian Beluga Caviar & Vintage Dom Pérignon"}
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Default Standard Floating Coffee Cup with gentle hovering steam
+  // 6. Dessert Visual (Seamless Background Blended Grand Cru Valrhona Chocolate Sphere)
+  if (activeType === 'dessert') {
+    return (
+      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
+        <div className="absolute inset-0 rounded-full blur-3xl bg-rose-600/35 pointer-events-none scale-125" />
+        <motion.div
+          animate={{ y: [-8, 8, -8] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
+          style={seamlessMaskStyle}
+        >
+          <img
+            src={dessertSphereImg}
+            alt="Grand Cru Valrhona Gold Leaf Chocolate Sphere"
+            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
+          />
+        </motion.div>
+
+        {/* Floating Frameless Pill Badge */}
+        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <div className="bg-stone-950/90 border border-rose-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-rose-300 animate-pulse" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-rose-200 font-serif tracking-widest">
+              {cupName || "Grand Cru Valrhona Gold Leaf Chocolate Sphere"}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 7. Default 5-Star Dining: Luxury Marble Dining Table with Golden Cloche (Seamless Background Blended, NO Box)
   return (
-    <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center select-none">
+    <div 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => setIsHovered(!isHovered)}
+      className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none cursor-pointer group"
+    >
+      <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/25 pointer-events-none scale-125" />
+
+      {/* NO BOX / NO BORDER / SEAMLESS VIGNETTE MASKING */}
       <div 
-        className="absolute inset-0 rounded-full blur-3xl opacity-35 pointer-events-none scale-110" 
-        style={{ backgroundColor: accentColor }}
-      />
-      <motion.div
-        animate={{ y: [-7, 7, -7], rotate: [-1, 1, -1] }}
-        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="relative w-72 sm:w-84 aspect-square flex items-center justify-center"
+        className="relative w-full h-full overflow-hidden pointer-events-none select-none"
+        style={seamlessMaskStyle}
       >
-        <img
-          src={cupImg || whiteCoffeeCupImg}
-          alt={cupName || "Artisan Coffee Cup"}
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.9)]"
-        />
-        {/* Rising steam */}
-        <motion.div
-          animate={{ y: [-6, -26, -6], opacity: [0.15, 0.65, 0.15], scale: [0.9, 1.15, 0.9] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-4 w-36 h-28 bg-gradient-to-t from-white/30 via-white/10 to-transparent blur-2xl pointer-events-none"
-        />
-      </motion.div>
+        {/* Closed Table Image */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none select-none z-0">
+          <img 
+            src={tableClosedImg} 
+            alt="Luxury Marble Table Closed Gold Cloche" 
+            className={`w-full h-full object-cover filter brightness-105 contrast-[1.08] transition-opacity duration-600 ${
+              isHovered ? 'opacity-0 scale-98' : 'opacity-100 scale-100'
+            }`}
+          />
+        </div>
+
+        {/* Open Table Image */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none select-none z-10">
+          <img 
+            src={tableOpenImg} 
+            alt="Michelin Wagyu Steak Revealed" 
+            className={`w-full h-full object-cover filter brightness-110 contrast-110 transition-all duration-700 ease-out ${
+              isHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
+            }`}
+          />
+        </div>
+
+        {/* Floating Gold Sparkle Badges */}
+        <div className="absolute bottom-4 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <AnimatePresence mode="wait">
+            {!isHovered ? (
+              <motion.div
+                key="closed-table-badge"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="bg-stone-950/85 border border-amber-500/50 backdrop-blur-md px-5 py-2 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.9)] flex items-center gap-2.5"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                <span className="text-xs uppercase font-semibold tracking-widest text-amber-200 font-serif">
+                  HOVER TO OPEN CLOCHE
+                </span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="open-table-badge"
+                initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                className="bg-stone-950/90 border border-amber-400/60 backdrop-blur-md px-6 py-2.5 rounded-full text-center shadow-[0_15px_35px_rgba(0,0,0,0.9)] flex items-center gap-2.5"
+              >
+                <Utensils className="w-4 h-4 text-amber-300" />
+                <span className="text-xs uppercase font-bold tracking-widest text-amber-200 font-serif">
+                  {cupName || 'Imperial Michelin Gastronomy'}
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };
+
+export default HeroAnimatedElement;

@@ -33,7 +33,7 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       description: 'Indulge in private sommelier pairings, imperial caviar courses, and opulent dining under crystal chandeliers.',
       primaryBtn: 'Reserve Salon',
       secondaryBtn: 'View Tasting Menu',
-      img: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop',
+      img: 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop',
       actionTarget: 'reservation'
     }
   ],
