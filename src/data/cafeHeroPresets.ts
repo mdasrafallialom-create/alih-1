@@ -8,9 +8,14 @@ export interface CafeHeroSlide {
   secondaryBtn: string;
   img: string;
   actionTarget?: string;
+  cupImg?: string;
+  cupName?: string;
+  price?: string;
+  type?: string;
 }
 
 export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
+  // #01 Velmora Coffee Artisan (Cafe Starter)
   'velmora-dining': [
     {
       id: 1,
@@ -21,22 +26,31 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Shop Now',
       secondaryBtn: 'Explore Blends',
       img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      actionTarget: 'menu',
+      cupName: 'Hand-Crafted Dark Roast',
+      price: '$4.50'
     }
   ],
+
+  // #02 Orivelle House (Artisanal Wood-Fired Pizzeria & Haute Gastronomy)
   'orivelle-house': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'HAUTE NOIR GASTRONOMY',
-      heading: '24K GOLD & VELVET NOIR',
-      description: 'Indulge in private sommelier pairings, imperial caviar courses, and opulent dining under crystal chandeliers.',
-      primaryBtn: 'Reserve Salon',
-      secondaryBtn: 'View Tasting Menu',
-      img: 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
+      eyebrow: 'WOOD-FIRED NEAPOLITAN CRUST',
+      heading: 'ARTISANAL TRUFFLE PIZZA',
+      description: 'Slow-fermented sourdough crust fired at 900°F, molten buffalo mozzarella, rich San Marzano pomodoro, and aromatic shaved winter truffles.',
+      primaryBtn: 'Order Pizza Now',
+      secondaryBtn: 'Explore Gourmet Menu',
+      img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Artisanal Round Truffle Pizza',
+      price: 'Chef Signature',
+      type: 'pizza'
     }
   ],
+
+  // #03 Lunavere Parisian Cafe (Parisian Night Cafe)
   'lunavere': [
     {
       id: 1,
@@ -47,9 +61,13 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Explore Night Cafe',
       secondaryBtn: 'Book Table',
       img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      actionTarget: 'menu',
+      cupName: 'Single Origin Siphon Brew',
+      price: '$5.50'
     }
   ],
+
+  // #04 Aurelisse (5-Star Royal Gastronomy)
   'aurelisse': [
     {
       id: 1,
@@ -60,9 +78,14 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Book Royal Feast',
       secondaryBtn: 'View Imperial Menu',
       img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
+      actionTarget: 'reservation',
+      cupName: 'Royal Caspian Beluga Caviar',
+      price: 'Imperial Choice',
+      type: 'caviar'
     }
   ],
+
+  // #05 Palatiora (5-Star Cellar & Steakhouse)
   'palatiora': [
     {
       id: 1,
@@ -73,9 +96,14 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Explore Cellar Menu',
       secondaryBtn: 'Reserve Wine Table',
       img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      actionTarget: 'menu',
+      cupName: 'Dry-Aged Miyazaki Wagyu Tomahawk',
+      price: 'Sommelier Choice',
+      type: 'steak'
     }
   ],
+
+  // #06 Opalune Nitro Cold Brew (Modern Cold Brew Cafe)
   'opalune': [
     {
       id: 1,
@@ -86,9 +114,13 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Discover Nitro Bar',
       secondaryBtn: 'Order Ahead',
       img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      actionTarget: 'menu',
+      cupName: 'Artisanal Nitro Cold Brew',
+      price: '$6.00'
     }
   ],
+
+  // #07 Emberion (5-Star Robata & Grill)
   'emberion': [
     {
       id: 1,
@@ -99,131 +131,14 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Explore Robata Menu',
       secondaryBtn: 'Book Counter Seat',
       img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
+      actionTarget: 'reservation',
+      cupName: 'Robata Binchotan Charcoal Skewers',
+      price: 'Robata Masterpiece',
+      type: 'chicken'
     }
   ],
-  'ivorelle': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'FRENCH ALABASTER CHATEAU',
-      heading: 'SILK IVORY & CHAMPAGNE',
-      description: 'Silky smooth alabaster architecture with champagne breakfasts, brioche French toast, and delicate cafe au lait.',
-      primaryBtn: 'View Chateau Menu',
-      secondaryBtn: 'Book Morning Salon',
-      img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    }
-  ],
-  'caravelle-dining': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'CELESTIAL SKYLINE ROOFTOP',
-      heading: 'SAPPHIRE NIGHT & COCKTAILS',
-      description: 'Glittering high-altitude views with liquid nitrogen espresso martinis, blue curaçao blends, and starlight dining.',
-      primaryBtn: 'Book Rooftop Table',
-      secondaryBtn: 'Explore Drinks',
-      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
-    }
-  ],
-  'elvaris-atelier': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'BORDEAUX WINE ATELIER',
-      heading: 'CRIMSON CELLARS & CUISINE',
-      description: 'Deep velvet red bistro with oak barrel aged coffees, grand cru pairings, and artisanal charcuterie boards.',
-      primaryBtn: 'Explore Atelier',
-      secondaryBtn: 'Book Wine Tasting',
-      img: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
-    }
-  ],
-  'silvarenne': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'HIGH-FASHION TITANIUM BISTRO',
-      heading: 'PRECISION ESPRESSO & MONO',
-      description: 'Polished silver and titanium espresso machines delivering single-origin extractions with geometric culinary craft.',
-      primaryBtn: 'Order Modern Espresso',
-      secondaryBtn: 'Explore Concept',
-      img: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    }
-  ],
-  'lumivelle': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'ARTISAN HEARTHFIRE COFFEE & BAKERY',
-      heading: 'Roasted Beans & Stone Oven Brioche',
-      description: 'Experience the aroma of freshly roasted single-origin Arabica paired with flaky morning butter croissants baked in our stone hearth.',
-      primaryBtn: 'Explore Coffee & Pastries',
-      secondaryBtn: 'Order Fresh Bakes',
-      img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'FRESH DAILY HEARTH BAKERY',
-      heading: 'Flaky Butter Almond Croissants & Latte Art',
-      description: 'Baked fresh every morning with French cultured butter, roasted almond flakes, and served with rich Madagascar caramel latte.',
-      primaryBtn: 'View Bakery Menu',
-      secondaryBtn: 'Reserve Morning Table',
-      img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'COZY BRICK & TIMBER AMBIANCE',
-      heading: 'Warm Hearth Fires & Slow Brewed Coffee',
-      description: 'Relax in our warm wooden coffee lounge with vintage brick walls, crackling hearth fires, and handcrafted pour-over brews.',
-      primaryBtn: 'Explore Lounge',
-      secondaryBtn: 'Book Corner Lounge',
-      img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
-    }
-  ],
-  'garnivelle': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'HIGH TEA & PEARL DESSERT BOUTIQUE',
-      heading: 'Elegance in Every Cup — Rose Latte & High Tea',
-      description: 'Step into an enchanting pearl ivory atmosphere with artisanal French macarons, floral tea infusions, and velvet cold foam espresso.',
-      primaryBtn: 'Reserve High Tea Table',
-      secondaryBtn: 'View Dessert Showcase',
-      img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'FRENCH PASTRY SHOWCASE',
-      heading: 'Artisanal Macarons & Strawberry Tartlets',
-      description: 'Delicate pink macarons, organic berry custards, and blown sugar decorations crafted daily by master pastry chefs.',
-      primaryBtn: 'Explore Pastries',
-      secondaryBtn: 'Order Custom Box',
-      img: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'ROYAL PEARL TEA ROOM',
-      heading: 'High Tea Towers & Velvet Pistachio Cold Foam',
-      description: 'Indulge in 3-tier high tea stands with smoked salmon savory canapés, scones with clotted cream, and specialty lattes.',
-      primaryBtn: 'View Tea Menu',
-      secondaryBtn: 'Reserve Tea Salon',
-      img: 'https://images.unsplash.com/photo-1519869325930-281384150729?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
-    }
-  ],
+
+  // #08 Couravelle Courtyard Cafe (French Courtyard Cafe)
   'couravelle': [
     {
       id: 1,
@@ -234,274 +149,749 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       primaryBtn: 'Explore Terrace Menu',
       secondaryBtn: 'Book Courtyard Seat',
       img: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'SINGLE-ORIGIN POUR OVER BAR',
-      heading: 'Artisanal Drip Coffee & Organic Preserves',
-      description: 'Hand-selected Ethiopian Yirgacheffe beans dripped to perfection, served with warm cultured butter and brioche.',
-      primaryBtn: 'View Coffee List',
-      secondaryBtn: 'Reserve Courtyard',
-      img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'PARISIAN GARDEN DINING',
-      heading: 'Stone-Baked Sourdough & Fresh Garden Salads',
-      description: 'Rustic sourdough bread baked daily in traditional wood ovens, served with poached eggs and heirloom tomato tartine.',
-      primaryBtn: 'Explore Food Menu',
-      secondaryBtn: 'Reserve Garden Table',
-      img: 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      actionTarget: 'menu',
+      cupName: 'Pour Over Ethiopian Yirgacheffe',
+      price: '$5.00'
     }
   ],
-  'maison-virelle': [
+
+  // #09 Ivorelle (5-Star Chateau Gastronomy)
+  'ivorelle': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'ORGANIC STONE OVEN BAKERY & ESPRESSO',
-      heading: 'Handcrafted Sourdough & Golden Honey Brews',
-      description: 'From golden wheat fields to your table. Enjoy slow-fermented artisan breads, Saigon cinnamon rolls, and rich double-shot espresso.',
-      primaryBtn: 'Order Artisan Breads',
-      secondaryBtn: 'View Today\'s Bakes',
-      img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'SAIGON CINNAMON BRIOCHE',
-      heading: 'Warm Fluffy Rolls & Caramel Drizzle',
-      description: 'Warm brioche rolls swirled with organic Saigon cinnamon, glazed with Madagascar honey cream and paired with hot cappuccinos.',
-      primaryBtn: 'Explore Pastries',
-      secondaryBtn: 'Order Bakery Box',
-      img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'GOLDEN CREMA ESPRESSO BAR',
-      heading: 'Double Shot Velvet Espresso & Nitro Brews',
-      description: 'Rich golden crema with tasting notes of dark cocoa, roasted hazelnut, and wild wildflower honey.',
-      primaryBtn: 'View Coffee Menu',
-      secondaryBtn: 'Visit Bakery Shop',
-      img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      eyebrow: 'FRENCH ALABASTER CHATEAU',
+      heading: 'SILK IVORY & CHAMPAGNE',
+      description: 'Silky smooth alabaster architecture with champagne breakfasts, brioche French toast, and delicate cafe au lait.',
+      primaryBtn: 'View Chateau Menu',
+      secondaryBtn: 'Book Morning Salon',
+      img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Grand Cru Valrhona Chocolate Sphere',
+      price: 'Artisanal Selection',
+      type: 'dessert'
     }
   ],
-  'amberelle': [
+
+  // #10 Caravelle Dining (5-Star Skyline Rooftop Dining)
+  'caravelle-dining': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'TUSCAN SUN-BLEACHED TRATTORIA CAFE',
-      heading: 'Aroma of Tuscany — Authentic Espresso Bar',
-      description: 'Tuscan olive grove vibes paired with dark-roasted Robusta espresso, pistachio cantucci, and velvety caramel macchiatos.',
-      primaryBtn: 'View Espresso Bar',
-      secondaryBtn: 'Explore Trattoria Menu',
-      img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
+      eyebrow: 'CELESTIAL SKYLINE ROOFTOP',
+      heading: 'SAPPHIRE NIGHT & COCKTAILS',
+      description: 'Glittering high-altitude views with liquid nitrogen espresso martinis, blue curaçao blends, and starlight dining.',
+      primaryBtn: 'Book Rooftop Table',
+      secondaryBtn: 'Explore Drinks',
+      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Starlight Skyline Tasting Platter',
+      price: 'Chef Reserve',
+      type: 'cloche'
+    }
+  ],
+
+  // #11 Elvaris Espresso Roastery (Artisan Coffee Roastery)
+  'elvaris-atelier': [
     {
-      id: 2,
-      number: '02',
-      eyebrow: 'ARTISAN CARAMEL MACCHIATO',
-      heading: 'Madagascar Vanilla Oat Milk & Caramel Drizzle',
-      description: 'Single-origin espresso layered over steamed oat milk, topped with Madagascar caramel and almond biscotti.',
-      primaryBtn: 'Explore Beverages',
-      secondaryBtn: 'Reserve Tuscan Table',
-      img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
+      id: 1,
+      number: '01',
+      eyebrow: 'BORDEAUX WINE ATELIER',
+      heading: 'CRIMSON CELLARS & CUISINE',
+      description: 'Deep velvet red bistro with oak barrel aged coffees, grand cru pairings, and artisanal charcuterie boards.',
+      primaryBtn: 'Explore Atelier',
+      secondaryBtn: 'Book Wine Tasting',
+      img: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Oak Barrel Aged Espresso',
+      price: '$5.50'
+    }
+  ],
+
+  // #12 Silvarenne Titanium Cafe (High-Tech Specialty Cafe)
+  'silvarenne': [
     {
-      id: 3,
-      number: '03',
-      eyebrow: 'SUNLIT OUTDOOR TERRACE',
-      heading: 'Affogato al Caffè & Italian Gelato',
-      description: 'Double espresso shot poured hot over artisanal Fior di Latte vanilla gelato and roasted hazelnut crunch.',
-      primaryBtn: 'View Desserts',
-      secondaryBtn: 'Book Outdoor Seat',
+      id: 1,
+      number: '01',
+      eyebrow: 'HIGH-FASHION TITANIUM BISTRO',
+      heading: 'PRECISION ESPRESSO & MONO',
+      description: 'Polished silver and titanium espresso machines delivering single-origin extractions with geometric culinary craft.',
+      primaryBtn: 'Order Modern Espresso',
+      secondaryBtn: 'Explore Concept',
       img: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
+      actionTarget: 'menu',
+      cupName: 'Micro-Extracted Titanium Espresso',
+      price: '$4.80'
     }
   ],
-  'harvessa': [
+
+  // #13 Monarchia House (5-Star Fine Dining & Platinum Society)
+  'monarchia-house': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'PARISIAN BOULEVARD DESSERT & COFFEE BISTRO',
-      heading: 'Champagne Rose Shimmer & Night Starlight Brews',
-      description: 'Romantic boulevard dining under ambient street lamps with vanilla bean latte art, dark chocolate soufflés, and champagne cocktails.',
-      primaryBtn: 'Book Date Night Table',
-      secondaryBtn: 'Explore Dessert Menu',
-      img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'VELVET LATTE ART & CHOCOLATE',
-      heading: 'Valrhona Chocolate Tarts & Hearts in Foam',
-      description: 'Rich dark chocolate ganache tarts, dusted with cocoa powder and served alongside steaming heart latte art cappuccinos.',
-      primaryBtn: 'View Sweet Menu',
-      secondaryBtn: 'Order To-Go',
-      img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'DECADENT BERRY CUSTARD TARTS',
-      heading: 'Wild Berry Almond Custard Tarts',
-      description: 'Crispy French butter pastry filled with organic blackberries, raspberries, and vanilla bean custard.',
-      primaryBtn: 'Explore Bakery',
-      secondaryBtn: 'Reserve Terrace',
-      img: 'https://images.unsplash.com/photo-1519869325930-281384150729?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      eyebrow: 'PLATINUM SOCIETY & HAUTE CUISINE',
+      heading: 'MONARCHIA PLATINUM GASTRONOMY',
+      description: 'Pure platinum shimmer paired with dark slate for ultra-modern luxury dining, private member banquets, and grand tasting menus.',
+      primaryBtn: 'Reserve Private Table',
+      secondaryBtn: 'Explore Tasting Menu',
+      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Monarchia Sovereign Platinum Feast',
+      price: 'Chef Special',
+      type: 'cloche'
     }
   ],
-  'ivoria-dining': [
+
+  // #14 Reservelle (Heritage Royal Banquet Hall & VIP Club)
+  'reservelle': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'ALPINE TIMBER CHALET & COFFEE HOUSE',
-      heading: 'Cozy Fireplace Glow & Spiced Hazelnut Latte',
-      description: 'Escape to a warm alpine cabin with crackling fireplace glow, hot cinnamon cider, maple pecan pastries, and slow pour-over brews.',
-      primaryBtn: 'Warm Alpine Menu',
-      secondaryBtn: 'Book Chalet Corner',
-      img: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
+      eyebrow: 'HERITAGE ROYAL BANQUET & CLUB',
+      heading: 'RESERVELLE GOLD CREST DINING',
+      description: 'Imperial gold crests on midnight black canvas for heritage royal banquet halls, rare sommelier vintages, and VIP dining.',
+      primaryBtn: 'Book VIP Table',
+      secondaryBtn: 'View Banquet Menu',
+      img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Reservelle Imperial Osetra Caviar',
+      price: 'Imperial Choice',
+      type: 'caviar'
+    }
+  ],
+
+  // #15 VELLUNARA - THEME #15 (Artisanal Wood-Fired Stone Pizzeria)
+  'vellunara': [
     {
-      id: 2,
-      number: '02',
-      eyebrow: 'TIMBER CABIN HOT CHOCOLATE',
-      heading: 'Warm Alpine Cocoa with Marshmallow Cream',
-      description: 'Thick Swiss dark chocolate cocoa topped with toasted marshmallow cream, chocolate shavings, and cinnamon sticks.',
-      primaryBtn: 'View Warm Drinks',
-      secondaryBtn: 'Reserve Fireplace Table',
-      img: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
+      id: 1,
+      number: '01',
+      eyebrow: 'ARTISANAL WOOD-FIRED CRAFT',
+      heading: 'WOOD-FIRED NEAPOLITAN PIZZA',
+      description: 'Handcrafted wood-fired Neapolitan pizza with bubbling buffalo mozzarella, sweet San Marzano tomato reduction, and fresh Italian basil leaves on slow-fermented sourdough crust.',
+      primaryBtn: 'Order Fresh Pizza',
+      secondaryBtn: 'Explore Pizza Menu',
+      img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&auto=format&fit=crop',
+      actionTarget: 'order',
+      cupName: 'Round Wood-Fired Neapolitan Pizza',
+      price: '$24.00',
+      type: 'pizza'
+    }
+  ],
+
+  // #16 Zafrelle Hand-Grinder Cafe (Vintage Grinder Cafe)
+  'zafrelle': [
     {
-      id: 3,
-      number: '03',
-      eyebrow: 'FRESH BERRY DANISH BAKERY',
-      heading: 'Flaky Maple Berry Pastries',
-      description: 'Warm out of the cabin oven: flaky puff pastry filled with organic mountain blueberries and maple glaze.',
-      primaryBtn: 'Explore Bakery Items',
-      secondaryBtn: 'Visit Chalet Shop',
+      id: 1,
+      number: '01',
+      eyebrow: 'VINTAGE BRASS HAND-GRINDER CAFE',
+      heading: 'FRESHLY GROUND AROMATICS',
+      description: 'Vintage brass hand-grinders, freshly ground aromatics, single-origin bean blooms, and mesmerizing siphon alchemy.',
+      primaryBtn: 'Order Fresh Grind',
+      secondaryBtn: 'Explore Siphon Alchemy',
+      img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Vintage Brass Hand-Ground Siphon',
+      price: '$5.20'
+    }
+  ],
+
+  // #17 Obscurielle (Exotic Saffron & Raw Silk Fine Dining)
+  'obscurielle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'EXOTIC SAFFRON & RAW SILK',
+      heading: 'OBSCURIELLE ROYAL SPICE SALON',
+      description: 'Exotic saffron amber and raw silk weaves for high-end Middle Eastern and Indian royal banquets with slow-smoked claypot dishes.',
+      primaryBtn: 'Reserve Royal Salon',
+      secondaryBtn: 'Explore Spice Repertoire',
+      img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Royal Saffron Infused Braised Lamb',
+      price: 'Chef Special',
+      type: 'cloche'
+    }
+  ],
+
+  // #18 Perlavia (Minimalist Modern Obsidian Matte Line-Art)
+  'perlavia': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'DEEP MATTE OBSIDIAN BLACK',
+      heading: 'PERLAVIA MODERN MINIMALISM',
+      description: 'Ultra-modern deep matte obsidian canvas with metallic silver line-art, precision micro-seasoned dishes, and clean plating.',
+      primaryBtn: 'Explore Modern Menu',
+      secondaryBtn: 'Reserve Minimalist Table',
+      img: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Obsidian Cured Hamachi Tartare',
+      price: 'Tasting Course',
+      type: 'cloche'
+    }
+  ],
+
+  // #19 Polivara (Organic Pearl White & Black Pepper Bistro)
+  'polivara': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'SOFT PEARL WHITE BISTRO',
+      heading: 'ORGANIC COFFEE & FRESH HARVEST',
+      description: 'Soft pearl white with cracked black pepper contrasts for modern organic coffee bistros and stone-ground sourdough breakfasts.',
+      primaryBtn: 'Order Organic Brunch',
+      secondaryBtn: 'View Daily Bakes',
       img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      actionTarget: 'menu',
+      cupName: 'Organic Pearl Velvet Cappuccino',
+      price: '$4.80'
     }
   ],
+
+  // #20 Noctavelle (Midnight Contemporary Seafood & Grill)
+  'noctavelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'MIDNIGHT MIRROR CHROME & GRILL',
+      heading: 'NOCTAVELLE CONTEMPORARY SEAFOOD',
+      description: 'Glossy polished steel and mirror chrome accents for contemporary seafood, live oyster bars, and wood-fired lobster grills.',
+      primaryBtn: 'Reserve Seafood Table',
+      secondaryBtn: 'Explore Raw Bar',
+      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Wood-Fired Maine Lobster Tail',
+      price: 'Market Catch',
+      type: 'cloche'
+    }
+  ],
+
+  // #21 Marovelle Stovetop Moka (Italian Cafe)
+  'marovelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'AUTHENTIC ITALIAN STOVETOP MOKA',
+      heading: 'TRADITIONAL MOKA POT BREW',
+      description: 'Thick velvet golden crema brewed over open flames with Italian heirloom beans, almond biscotti, and authentic Roman breakfast bakes.',
+      primaryBtn: 'Order Italian Espresso',
+      secondaryBtn: 'View Trattoria Bakes',
+      img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Stovetop Moka Double Crema',
+      price: '$4.20'
+    }
+  ],
+
+  // #22 Regavelle (Carrara White Marble & Rose Gold Dining)
+  'regavelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CARRARA MARBLE & ROSE GOLD',
+      heading: 'REGAVELLE LUXURY SALON',
+      description: 'Carrara white marble textures with delicate rose gold metallic trims for luxury cafes, fine dining, and afternoon tea towers.',
+      primaryBtn: 'Reserve Marble Salon',
+      secondaryBtn: 'Explore High Tea',
+      img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Rose Gold Infused Tea & Macarons',
+      price: 'Salon Choice',
+      type: 'dessert'
+    }
+  ],
+
+  // #23 Elysara (Imperial Emerald Green & Regal Gold)
+  'elysara': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'IMPERIAL EMERALD & REGAL GOLD',
+      heading: 'ELYSARA STATELY DINING',
+      description: 'Imperial emerald green velvet with regal gold trim for stately dining rooms, 5-star associations, and monarch tasting banquets.',
+      primaryBtn: 'Book Stately Banquet',
+      secondaryBtn: 'View Imperial Reserves',
+      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Elysara Imperial Wagyu Course',
+      price: 'Monarch Special',
+      type: 'steak'
+    }
+  ],
+
+  // #24 Cindervale (Binchotan Charcoal & Wagyu Steakhouse)
+  'cindervale': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'BINCHOTAN CHARCOAL & WAGYU',
+      heading: 'CINDERVALE EMBER STEAKHOUSE',
+      description: 'Mystical golden light beaming through dark embers for experimental wood-fired gastronomy, smoked bone marrow, and prime tomahawks.',
+      primaryBtn: 'Reserve Ember Table',
+      secondaryBtn: 'Explore Charcoal Menu',
+      img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Charcoal Smoked Prime Tomahawk',
+      price: 'Chef Selection',
+      type: 'steak'
+    }
+  ],
+
+  // #25 Linorelle (Volcanic Ash Black & Modern Burger Grill)
+  'linorelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'VOLCANIC ASH & ARTISAN GRILL',
+      heading: 'LINORELLE GOURMET BURGERS',
+      description: 'Volcanic ash black with warm embers for modern wood-fired steakhouses, artisanal double wagyu smash burgers, and smoked wings.',
+      primaryBtn: 'Order Wagyu Burger',
+      secondaryBtn: 'View Grill Menu',
+      img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Double Truffle Wagyu Burger',
+      price: '$18.50',
+      type: 'burger'
+    }
+  ],
+
+  // #26 Lumecourt (Crisp White Linen Coffee & Lunch Bistro)
+  'lumecourt': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CRISP WHITE LINEN BISTRO',
+      heading: 'LUMECOURT CAFE & LUNCH',
+      description: 'Crisp starched white linen minimalism with slate grey serif typography for artisanal coffee, fresh quiches, and sunny lunch gatherings.',
+      primaryBtn: 'View Lunch Menu',
+      secondaryBtn: 'Book Bistro Table',
+      img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Cold Drip Reserve & Brioche Toast',
+      price: '$6.50'
+    }
+  ],
+
+  // #27 Sapphirenne (Warm Flickering Candlelight Wine Cellar)
+  'sapphirenne': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CANDLELIGHT CELLAR & TAVERN',
+      heading: 'SAPPHIRENNE OAK CELLAR',
+      description: 'Warm flickering candlelight glow set in dark oak dining chambers and library cellars with artisan charcuterie and aged Pinot Noir.',
+      primaryBtn: 'Book Cellar Chamber',
+      secondaryBtn: 'Explore Sommelier List',
+      img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Grand Reserve Charcuterie Platter',
+      price: '$32.00',
+      type: 'cloche'
+    }
+  ],
+
+  // #28 Bellavere (Midnight Ocean Sapphire Coastal Seafood)
+  'bellavere': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'MIDNIGHT OCEAN SAPPHIRE',
+      heading: 'BELLAVERE COASTAL FINE DINING',
+      description: 'Midnight ocean sapphire with star-gold accents for coastal fine dining, Mediterranean wild turbot, and chilled sea salt martinis.',
+      primaryBtn: 'Reserve Ocean Table',
+      secondaryBtn: 'Explore Seafood Catch',
+      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Wild Mediterranean Sea Bass',
+      price: 'Market Special',
+      type: 'cloche'
+    }
+  ],
+
+  // #29 Copriva (French Riviera Bistro & Coffee Terrace)
+  'copriva': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'FRENCH RIVIERA BISTRO AMBIENCE',
+      heading: 'COPRIVA SUNLIT TERRACE',
+      description: 'Charming French Riviera bistro ambience with warm buttercream and olive green for coffee terraces, flaky croissants, and ratatouille tarts.',
+      primaryBtn: 'Explore Terrace Menu',
+      secondaryBtn: 'Order Riviera Bakes',
+      img: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Riviera Cafe au Lait & Almond Croissant',
+      price: '$5.50'
+    }
+  ],
+
+  // #30 Degustara Chemex Alchemy (Specialty Chemex Coffee)
+  'degustara': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CHEMEX POUR-OVER ALCHEMY',
+      heading: 'ARTISAN CHEMEX TASTING BAR',
+      description: 'Artisan hand-blown Chemex pour-over with tasting notes of wild berries, cocoa nibs, floral jasmine, and silky single-origin coffee.',
+      primaryBtn: 'Explore Chemex Flights',
+      secondaryBtn: 'Reserve Bar Seat',
+      img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Panama Geisha Chemex Reserve',
+      price: '$8.50'
+    }
+  ],
+
+  // #31 Lumivara (Golden Aurora Fine Dining & Saffron Risotto)
+  'lumivara': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'VELVET PLUM & GOLDEN AMARANTH',
+      heading: 'LUMIVARA BOUTIQUE FUSION',
+      description: 'Vibrant velvet plum and golden amaranth flower hues for boutique fusion dining, 5-star lounges, and gold-leaf saffron risotto.',
+      primaryBtn: 'Reserve Boutique Table',
+      secondaryBtn: 'View Fusion Menu',
+      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: '24K Gold Saffron Carnaroli Risotto',
+      price: 'Chef Masterpiece',
+      type: 'cloche'
+    }
+  ],
+
+  // #32 Embrelune (Crystal Glass Teal & Cold Brew Bar)
+  'embrelune': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CRYSTAL GLASS TEAL COFFEE & TEA',
+      heading: 'ICY EMERALD NITRO COLD BREW',
+      description: 'Sleek glassmorphic coffee bar featuring 24-hour slow-steeped cold brews, pistachio cream foams, and crystal clear icy glass aesthetics.',
+      primaryBtn: 'Explore Nitro Bar',
+      secondaryBtn: 'Order Cold Brews',
+      img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Emerald Slow-Drip Cold Brew',
+      price: '$6.20'
+    }
+  ],
+
+  // #33 Figavelle Turkish Sand Cafe (Authentic Copper Cezve)
+  'figavelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'TRADITIONAL HOT SAND BREWING',
+      heading: 'FIGAVELLE TURKISH COPPER CEZVE',
+      description: 'Authentic copper cezve brewed on sizzling golden sand beds with rich cardamom froth, Turkish delights, and pistachio baklava.',
+      primaryBtn: 'Order Turkish Brew',
+      secondaryBtn: 'Explore Sweet Delights',
+      img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Golden Sand Cezve Cardamom Brew',
+      price: '$4.50'
+    }
+  ],
+
+  // #34 Zafravia (Noble Royal Crest Navy & Gold Fine Dining)
+  'zafravia': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'NOBLE ROYAL CREST & NAVY GOLD',
+      heading: 'ZAFRAVIA 5-STAR ASSOCIATION',
+      description: 'Noble royal crest badges with classic deep navy and regal gold foil typography for 5-star associations and diplomatic banquets.',
+      primaryBtn: 'Book Diplomatic Salon',
+      secondaryBtn: 'View Royal Menu',
+      img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Diplomatic Truffle & Duck Confit',
+      price: 'Sovereign Selection',
+      type: 'cloche'
+    }
+  ],
+
+  // #35 Hearthora (Late Night Neon Purple & Electric Amber Supper Club)
+  'hearthora': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'NEON PURPLE & ELECTRIC AMBER',
+      heading: 'HEARTHORA LATE NIGHT SUPPER',
+      description: 'Vibrant neon purple and electric amber for high-end late night supper clubs, flaming signature cocktails, and robata tapas.',
+      primaryBtn: 'Book Supper Table',
+      secondaryBtn: 'Explore Night Bites',
+      img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Flaming Wagyu Skewers & Truffle Dip',
+      price: '$24.00',
+      type: 'chicken'
+    }
+  ],
+
+  // #36 Olivara (Botanical Greenhouse & Matcha Garden Bistro)
   'olivara': [
     {
       id: 1,
       number: '01',
       eyebrow: 'BOTANICAL GREENHOUSE & GARDEN CAFE',
-      heading: 'Lush Botanical Greenery & Iced Matcha Bar',
+      heading: 'LUSH GREENERY & ICED MATCHA',
       description: 'Immerse yourself in a glass greenhouse surrounded by lush tropical plants, ceremonial Japanese matcha lattes, and farm-fresh avocado toasts.',
       primaryBtn: 'Explore Garden Bar',
       secondaryBtn: 'Reserve Glasshouse Table',
       img: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'FARM-TO-TABLE BRUNCH & TOAST',
-      heading: 'Wild Smoked Salmon & Avocado Sourdough',
-      description: 'Stone-baked sourdough toast topped with wild smoked salmon, poached egg, avocado mash, and micro-herbs.',
-      primaryBtn: 'View Brunch Menu',
-      secondaryBtn: 'Book Garden Seat',
-      img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'TROPICAL GLASSHOUSE AMBIANCE',
-      heading: 'Organic Herbal Teas & Iced Cold Brews',
-      description: 'Sip on cold brew coffees and organic chamomile mint tea infusions surrounded by blooming tropical flora.',
-      primaryBtn: 'Explore Teas & Drinks',
-      secondaryBtn: 'Reserve Green House',
-      img: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation'
+      actionTarget: 'menu',
+      cupName: 'Ceremonial Uji Matcha Latte',
+      price: '$5.80'
     }
   ],
-  'embrelune': [
-    {
-      id: 1,
-      number: '01',
-      eyebrow: 'CRYSTAL GLASS TEAL COFFEE & TEA BAR',
-      heading: 'Icy Emerald Nitro Cold Brew & Glass Aesthetics',
-      description: 'Sleek glassmorphic coffee bar featuring 24-hour slow-steeped cold brews, pistachio cream foams, and iced blue butterfly pea teas.',
-      primaryBtn: 'Explore Nitro Bar',
-      secondaryBtn: 'Order Cold Brews',
-      img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 2,
-      number: '02',
-      eyebrow: 'REFLECTIVE EMERALD COFFEE BAR',
-      heading: 'Single-Origin Slow Drip Brews & Espresso',
-      description: 'Cold-extracted coffee served over hand-carved ice crystal spheres in crystal glass cups.',
-      primaryBtn: 'View Cold Drinks',
-      secondaryBtn: 'Reserve Glass Bar',
-      img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
-    {
-      id: 3,
-      number: '03',
-      eyebrow: 'PASTRY & COFFEE PAIRING',
-      heading: 'Organic Berry Tartlets & Pistachio Foam',
-      description: 'Crispy butter pastry paired with velvety iced espresso and sweet cold foam cream.',
-      primaryBtn: 'Explore Pastries',
-      secondaryBtn: 'Order Online',
-      img: 'https://images.unsplash.com/photo-1519869325930-281384150729?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    }
-  ],
+
+  // #37 Crimsera (Mediterranean Coastal Sunset & Fig Tapas)
   'crimsera': [
     {
       id: 1,
       number: '01',
       eyebrow: 'MEDITERRANEAN SUNLIT COASTAL CAFE',
-      heading: 'Sunlit Terrace Brunch & Golden Fig Latte',
+      heading: 'SUNLIT TERRACE & FIG LATTE',
       description: 'Golden Mediterranean sunlit terrace with fig infused lattes, fresh ricotta sourdough toast, and iced citrus espresso tonics.',
       primaryBtn: 'Explore Terrace Brunch',
       secondaryBtn: 'Book Sunlit Table',
       img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
+      actionTarget: 'menu',
+      cupName: 'Mediterranean Fig & Wild Honey Latte',
+      price: '$5.40'
+    }
+  ],
+
+  // #38 Luxevia (Modern Pan-Asian Omakase & Gold Leaf Nigiri)
+  'luxevia': [
     {
-      id: 2,
-      number: '02',
-      eyebrow: 'ORGANIC RICOTTA TARTINE',
-      heading: 'Sourdough Toast with Figs & Wild Honey',
-      description: 'Warm stone-baked sourdough toast topped with fresh whipped ricotta, roasted Mediterranean figs, and organic thyme honey.',
-      primaryBtn: 'View Brunch Items',
-      secondaryBtn: 'Order To-Go',
-      img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
-    },
+      id: 1,
+      number: '01',
+      eyebrow: 'SAFFRON GOLD & WARM TERRACOTTA',
+      heading: 'LUXEVIA PAN-ASIAN OMAKASE',
+      description: 'Aromatic saffron gold and warm terracotta for royal Persian and modern Asian fine dining with 24k gold leaf Otoro nigiri.',
+      primaryBtn: 'Book Omakase Counter',
+      secondaryBtn: 'View Tasting Journey',
+      img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: '24K Gold Bluefin Otoro Nigiri',
+      price: 'Omakase Course',
+      type: 'cloche'
+    }
+  ],
+
+  // #39 Lumivelle Barista Lounge (Hearthfire Roasted Beans)
+  'lumivelle': [
     {
-      id: 3,
-      number: '03',
-      eyebrow: 'ICED CITRUS ESPRESSO BAR',
-      heading: 'Single Origin Espresso & Lemon Tonic',
-      description: 'Sparkling tonic water poured over fresh lemon peel, layered with dark roast espresso shots.',
-      primaryBtn: 'Explore Drinks',
-      secondaryBtn: 'Reserve Terrace',
-      img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=1600&auto=format&fit=crop',
-      actionTarget: 'menu'
+      id: 1,
+      number: '01',
+      eyebrow: 'ARTISAN HEARTHFIRE COFFEE & BAKERY',
+      heading: 'ROASTED BEANS & STONE OVEN BRIOCHE',
+      description: 'Experience the aroma of freshly roasted single-origin Arabica paired with flaky morning butter croissants baked in our stone hearth.',
+      primaryBtn: 'Explore Coffee & Pastries',
+      secondaryBtn: 'Order Fresh Bakes',
+      img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Hearthfire Roasted Dark Mocha',
+      price: '$5.20'
+    }
+  ],
+
+  // #40 Amberelle Sunset Cafe (Tuscan Sunset Trattoria)
+  'amberelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'TUSCAN SUN-BLEACHED TRATTORIA CAFE',
+      heading: 'AROMA OF TUSCANY ESPRESSO BAR',
+      description: 'Tuscan olive grove vibes paired with dark-roasted Robusta espresso, pistachio cantucci, and velvety caramel macchiatos.',
+      primaryBtn: 'View Espresso Bar',
+      secondaryBtn: 'Explore Trattoria Menu',
+      img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Tuscan Salted Caramel Macchiato',
+      price: '$5.00'
+    }
+  ],
+
+  // #41 Rosavere (Parisian Rose Petal Pastry & Champagne Bistro)
+  'rosavere': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'ROSE PETAL PASTRY & CHAMPAGNE',
+      heading: 'ROSAVERE PARISIAN SALON',
+      description: 'Deep crimson velvet and rose petal tea infusions with sparkling French champagne, flaky strawberry tartlets, and berry eclairs.',
+      primaryBtn: 'Reserve Rose Salon',
+      secondaryBtn: 'Explore Pastry Boutique',
+      img: 'https://images.unsplash.com/photo-1519869325930-281384150729?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Wild Berry Rose Petal Tartlet',
+      price: '$7.50',
+      type: 'dessert'
+    }
+  ],
+
+  // #42 Harvessa (Champagne Rose Shimmer & Night Starlight Bistro)
+  'harvessa': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'PARISIAN BOULEVARD DESSERT & COFFEE',
+      heading: 'CHAMPAGNE ROSE & NIGHT BREWS',
+      description: 'Romantic boulevard dining under ambient street lamps with vanilla bean latte art, dark chocolate soufflés, and champagne cocktails.',
+      primaryBtn: 'Book Date Night Table',
+      secondaryBtn: 'Explore Dessert Menu',
+      img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Valrhona Dark Chocolate Soufflé',
+      price: '$12.00',
+      type: 'dessert'
+    }
+  ],
+
+  // #43 Marovian (Silk Road Spiced Duck & Bamboo Tea Cafe)
+  'marovian': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'GLOWING LANTERNS & BAMBOO TEA',
+      heading: 'MAROVIAN SILK ROAD GASTRONOMY',
+      description: 'Warm glowing paper lanterns and soft bamboo tones for serene Japanese and Silk Road cuisine, smoked duck breast, and matcha pots.',
+      primaryBtn: 'Book Zen Table',
+      secondaryBtn: 'Explore Izakaya Menu',
+      img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Silk Road Smoked Duck Breast',
+      price: 'Chef Special',
+      type: 'cloche'
+    }
+  ],
+
+  // #44 Solarienne (Côte d'Azur Sunlit Seafood & Citrus Garden)
+  'solarienne': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'CÔTE D\'AZUR SUNLIT SEAFOOD',
+      heading: 'SOLARIENNE CITRUS TERRACE',
+      description: 'Warm amber glow and brushed bronze accents with lemon tree courtyard dining, grilled sea scallops, and iced citrus spritzers.',
+      primaryBtn: 'Explore Citrus Menu',
+      secondaryBtn: 'Book Terrace Lounge',
+      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Grilled Sea Scallops & Lemon Butter',
+      price: '$28.00',
+      type: 'cloche'
+    }
+  ],
+
+  // #45 Garnivelle (Royal Pearl Tea Room & Macaron Boutique)
+  'garnivelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'HIGH TEA & PEARL DESSERT BOUTIQUE',
+      heading: 'ROSE LATTE & ROYAL HIGH TEA',
+      description: 'Step into an enchanting pearl ivory atmosphere with artisanal French macarons, floral tea infusions, and velvet cold foam espresso.',
+      primaryBtn: 'Reserve High Tea Table',
+      secondaryBtn: 'View Dessert Showcase',
+      img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Artisanal French Macaron Tower',
+      price: '$14.00',
+      type: 'dessert'
+    }
+  ],
+
+  // #46 Maison Virelle (Stone Oven Bakery & Golden Honey Brews)
+  'maison-virelle': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'ORGANIC STONE OVEN BAKERY & ESPRESSO',
+      heading: 'SOURDOUGH & GOLDEN HONEY BREWS',
+      description: 'From golden wheat fields to your table. Enjoy slow-fermented artisan breads, Saigon cinnamon rolls, and rich double-shot espresso.',
+      primaryBtn: 'Order Artisan Breads',
+      secondaryBtn: 'View Today\'s Bakes',
+      img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Stone-Baked Sourdough & Honey Butter',
+      price: '$8.00'
+    }
+  ],
+
+  // #47 Nobravie (Black Truffle Fondue & Alpine Wine Cellar)
+  'nobravie': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'MAROON VELVET & ALPINE CELLAR',
+      heading: 'NOBRAVIE TRUFFLE & STEAK CELLAR',
+      description: 'Rich maroon velvet and golden mahogany for stately steak cellars, black truffle cheese fondue, and rare vintage cellar pairings.',
+      primaryBtn: 'Reserve Cellar Booth',
+      secondaryBtn: 'View Steak Cuts',
+      img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: 'Black Truffle Alpine Prime Rib',
+      price: 'Cellar Special',
+      type: 'steak'
+    }
+  ],
+
+  // #48 Veloura Table (Coastal Greek Taverna & Seafood)
+  'veloura-table': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'MEDITERRANEAN COASTAL SUNSHINE',
+      heading: 'VELOURA AEGEAN SEAFOOD TABLE',
+      description: 'Bright Mediterranean sunshine gold and sky blue for authentic coastal Aegean tavernas, char-grilled octopus, and fresh pita bread.',
+      primaryBtn: 'Explore Aegean Menu',
+      secondaryBtn: 'Book Sea Table',
+      img: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Char-Grilled Aegean Sea Octopus',
+      price: '$26.00',
+      type: 'cloche'
+    }
+  ],
+
+  // #49 Gildara (24K Gold Leaf Omakase & Imperial Wagyu Palace)
+  'gildara': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'GARNET WINE & ROSE-GOLD FOIL',
+      heading: 'GILDARA IMPERIAL PALACE',
+      description: 'Deep garnet red wine tones with brushed rose-gold foil for haute French dining, 5-star associations, and 24k gold leaf imperial beef courses.',
+      primaryBtn: 'Reserve Imperial Palace',
+      secondaryBtn: 'View Grand Menu',
+      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
+      actionTarget: 'reservation',
+      cupName: '24K Gold Leaf Imperial Wagyu',
+      price: 'Imperial Masterpiece',
+      type: 'cloche'
+    }
+  ],
+
+  // #50 Ivoria Dining (Alpine Timber Chalet & Spiced Hazelnut Lounge)
+  'ivoria-dining': [
+    {
+      id: 1,
+      number: '01',
+      eyebrow: 'ALPINE TIMBER CHALET & COFFEE HOUSE',
+      heading: 'FIREPLACE GLOW & SPICED HAZELNUT',
+      description: 'Escape to a warm alpine cabin with crackling fireplace glow, hot cinnamon cider, maple pecan pastries, and slow pour-over brews.',
+      primaryBtn: 'Warm Alpine Menu',
+      secondaryBtn: 'Book Chalet Corner',
+      img: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Hot Spiced Hazelnut Alpine Cocoa',
+      price: '$5.50'
     }
   ]
 };

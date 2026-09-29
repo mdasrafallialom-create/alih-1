@@ -138,8 +138,8 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   }
 
   const rawLocation = (brandLocation || '').trim();
-  let locationAddress = 'Location Not Set';
-  if (rawLocation && rawLocation !== 'Hyderabad, Sindh, Pakistan') {
+  let locationAddress = '';
+  if (rawLocation && rawLocation !== 'Hyderabad, Sindh, Pakistan' && rawLocation !== 'Location Not Set') {
     locationAddress = rawLocation;
   }
 

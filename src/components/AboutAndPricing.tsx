@@ -170,6 +170,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
       color: 'blue',
       description: '10 Premium Themes & 100+ Menu Card Designs included for single cafes and small restaurants.',
       features: [
+        '1 Dedicated Hero Section System',
         '10 Premium Themes & Designs',
         '100+ Menu Card Designs',
         'Active Dashboard',
@@ -182,12 +183,13 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
     {
       id: 'pro',
       name: 'PROFESSIONAL',
-      price: 49,
+      price: 39,
       period: 'MONTH',
       color: 'orange',
       isPopular: true,
       description: '25 Premium Themes & 500+ Menu Card Studio Designs included for growing businesses.',
       features: [
+        '3 Interactive Hero Section Carousel Slides',
         '25 Premium Themes & Designs',
         '500+ Menu Card Studio Access',
         'QR Code Management',
@@ -206,6 +208,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
       color: 'slate',
       description: '50 Premium Themes & 1000+ Menu Card Studio Designs for world-class brands.',
       features: [
+        '4 Interactive Hero Section Carousel Slides',
         '50 Premium Themes & Designs',
         '1000+ Menu Card Studio Access',
         'QR Code Menu Management',
@@ -225,7 +228,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
   const planParam = urlParams?.get('plan')?.toLowerCase();
   
   const isPlanExplicitlySelected = Boolean(
-    planParam === '15' || planParam === '49' || planParam === '99' ||
+    planParam === '15' || planParam === '39' || planParam === '49' || planParam === '99' ||
     planParam === 'basic' || planParam === 'pro' || planParam === 'elite'
   );
 
@@ -233,7 +236,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
   const displayedPlans = PRICING_PLANS;
 
   const getPlanUrl = (planId: string) => {
-    const planParam = planId === 'basic' ? '15' : planId === 'pro' ? '49' : '99';
+    const planParam = planId === 'basic' ? '15' : planId === 'pro' ? '39' : '99';
     if (typeof window !== 'undefined') {
       try {
         const u = new URL(window.location.href);

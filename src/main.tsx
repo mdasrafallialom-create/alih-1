@@ -5,32 +5,56 @@ import './index.css';
 
 // Gracefully handle transient browser IndexedDB closing/hidden tab lifecycle events
 if (typeof window !== 'undefined') {
-  const isDbError = (msg: string) => {
+  const isDbError = (err: any) => {
+    if (!err) return false;
+    let msg = '';
+    try {
+      if (typeof err === 'string') {
+        msg = err;
+      } else {
+        msg = [err.message, err.name, err.code, err.stack, String(err)].filter(Boolean).join(' ');
+      }
+    } catch {
+      msg = String(err);
+    }
+    const lower = msg.toLowerCase();
     return (
-      msg.includes('Database is closing') ||
-      msg.includes('closing/hidden') ||
-      msg.includes('IndexedDB') ||
-      msg.includes('database is closing') ||
-      msg.includes('database is closed')
+      lower.includes('database is closing') ||
+      lower.includes('closing/hidden') ||
+      lower.includes('closing / hidden') ||
+      lower.includes('database is closed') ||
+      lower.includes('the database connection is closing') ||
+      lower.includes('database is closing/hidden')
     );
   };
 
+  // Intercept console.error to prevent transient DB closing/hidden warnings from surfacing as fatal errors
+  const originalConsoleError = console.error;
+  console.error = function (...args: any[]) {
+    const combined = args.map(a => (a && (a.message || a.stack || String(a))) || '').join(' ');
+    if (isDbError(combined)) {
+      console.warn('Suppressed console error for transient DB closing/hidden event');
+      return;
+    }
+    return originalConsoleError.apply(console, args);
+  };
+
   window.addEventListener('unhandledrejection', (event) => {
-    const reason = event?.reason?.message || String(event?.reason || '');
+    const reason = event?.reason;
     if (isDbError(reason)) {
       event.preventDefault();
       event.stopPropagation();
-      console.warn('Suppressed transient Firestore IndexedDB lifecycle event:', reason);
+      console.warn('Suppressed transient Firestore IndexedDB lifecycle event');
     }
   });
 
   window.addEventListener('error', (event) => {
     const message = event?.message || '';
-    const errorMsg = event?.error?.message || '';
-    if (isDbError(message) || isDbError(errorMsg)) {
+    const error = event?.error;
+    if (isDbError(message) || isDbError(error)) {
       event.preventDefault();
       event.stopPropagation();
-      console.warn('Suppressed uncaught IndexedDB error event:', message || errorMsg);
+      console.warn('Suppressed uncaught IndexedDB error event');
     }
   });
 }

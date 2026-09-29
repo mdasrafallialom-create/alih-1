@@ -401,7 +401,7 @@ export default function App() {
         }
       }
       const session = {
-        name: user?.displayName || 'Restaurant Manager',
+        name: adminSettings?.ownerName || user?.displayName || 'Md asraful',
         email: user?.email || 'admin@restaurant.com',
         role: 'Owner',
         restaurantId: activeRestaurantId || 'demo-restaurant'
@@ -2249,7 +2249,7 @@ export default function App() {
       {/* =======================================================================
           TOP BAR: BRANDING & QUICK ACCESS
           ======================================================================= */}
-      {((!isCustomThemeActive || viewMode === 'admin') && activeThemeId !== 'orivelle-house') && (
+      {(viewMode === 'admin' || (!isCustomThemeActive && activeThemeId !== 'orivelle-house')) && (
       <header 
         className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-transform duration-300 transform-gpu ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
         style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') }}
@@ -2377,11 +2377,11 @@ export default function App() {
             {/* Restaurant Branding (Admin Mode Only) */}
             {viewMode === 'admin' && (
               <div className="flex items-center gap-3 select-none group cursor-pointer" onClick={() => setLogoClickCount(prev => prev + 1)}>
-                {renderMonogramLogo(adminSettings?.brandName || '')}
-                <div className="flex flex-col items-start">
+                {renderMonogramLogo(adminSettings?.restaurantName || adminSettings?.brandName || 'My Restaurant')}
+                <div className="flex flex-col items-start leading-none">
                   <div className="flex items-center gap-2">
                     <h1 className="text-sm font-display font-black tracking-tight text-inherit group-hover:text-cyan-600 transition-colors leading-none">
-                      {(!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? "My Restaurant" : adminSettings.brandName}
+                      {adminSettings?.ownerName || user?.displayName || managerSession?.name || "Md asraful"}
                     </h1>
                     {adminSettings?.subscriptionPlan && (
                       <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-[0.2em] shadow-sm ${
@@ -2395,13 +2395,10 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  {adminSettings?.brandLocation && (
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                      <span className="text-[9px] font-mono font-bold text-cyan-600 tracking-widest uppercase leading-none mt-1">
-                        {adminSettings.brandLocation}
-                      </span>
-                    </div>
-                  )}
+                  <span className="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 tracking-wider uppercase leading-none mt-1">
+                    {adminSettings?.restaurantName || adminSettings?.brandName || "My Restaurant"}
+                    {adminSettings?.brandLocation ? ` • ${adminSettings.brandLocation}` : ''}
+                  </span>
                 </div>
               </div>
             )}
@@ -3021,12 +3018,12 @@ export default function App() {
             ) : (
               <RestaurantAdminPanel
                 restaurantId={activeRestaurantId || ''}
-                user={user || ({
-                  uid: managerSession?.restaurantId || 'manager-owner',
-                  email: managerSession?.email || 'admin@restaurant.com',
-                  displayName: managerSession?.name || 'Restaurant Admin',
-                  photoURL: customAvatarUrl || null
-                } as any)}
+                user={{
+                  uid: user?.uid || managerSession?.restaurantId || 'manager-owner',
+                  email: user?.email || managerSession?.email || 'admin@restaurant.com',
+                  displayName: adminSettings?.ownerName || managerSession?.name || user?.displayName || 'Md asraful',
+                  photoURL: customAvatarUrl || user?.photoURL || null
+                } as any}
                 settings={{
                   ...(adminSettings || {
                     id: activeRestaurantId || '',

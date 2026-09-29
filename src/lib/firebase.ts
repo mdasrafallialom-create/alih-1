@@ -1,6 +1,12 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { initializeFirestore, memoryLocalCache, getFirestore, setLogLevel } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { 
+  getAuth, 
+  initializeAuth, 
+  browserLocalPersistence, 
+  inMemoryPersistence, 
+  GoogleAuthProvider 
+} from "firebase/auth";
 
 // Silence non-fatal internal SDK connection retry warnings in iframe/sandboxed environments
 try {
@@ -32,6 +38,16 @@ export const db = (() => {
   }
 })();
 
-export const auth = getAuth(app);
+// Explicitly use browserLocalPersistence (localStorage) and inMemoryPersistence to prevent IndexedDB closing/hidden errors in iframes and background tabs
+export const auth = (() => {
+  try {
+    return initializeAuth(app, {
+      persistence: [browserLocalPersistence, inMemoryPersistence]
+    });
+  } catch {
+    return getAuth(app);
+  }
+})();
+
 export const googleProvider = new GoogleAuthProvider();
 

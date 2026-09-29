@@ -18,15 +18,15 @@ export const COUNTRY_HERO_PRESETS: CountryHeroPreset[] = [
   {
     country: 'Pakistan',
     aliases: ['pakistan', 'pk', 'lahore', 'karachi', 'islamabad', 'rawalpindi', 'peshawar', 'quetta', 'faisalabad', 'multan', 'sindh', 'punjab', 'kpk', 'balochistan'],
-    description: 'Luxurious Pakistani heritage and fine dining ambiance featuring royal grills, rooftop vistas, and lavish feasts.',
+    description: 'Luxurious fine dining ambiance featuring royal grills, rooftop vistas, and lavish feasts.',
     slides: [
       {
         id: 1,
         image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=85', // Luxury Grand Restaurant Ambiance
-        title: 'Royal Mughal & Modern Gastronomy',
+        title: 'Royal Gastronomy & Fine Dining',
         highlight: 'Luxury Dining Experience',
-        subtitle: 'Experience royal Pakistani barbecue, fragrant biryanis, and chef-curated continental delights in WebAR 3D.',
-        tag: '🇵🇰 Top-Rated Luxury Dining in Pakistan'
+        subtitle: 'Experience chef-curated gourmet cuisine, hand-selected seasonal ingredients, and exquisite culinary craftsmanship in 3D WebAR.',
+        tag: '✨ 5-Star Premium Luxury Fine Dining'
       },
       {
         id: 2,

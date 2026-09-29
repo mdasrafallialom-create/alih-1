@@ -8,6 +8,7 @@ import PaymentModal from './PaymentModal';
 import MenuCardStudio from './RestaurantAdmin/MenuCardStudio';
 import DomainsManager from './RestaurantAdmin/DomainsManager';
 import ThemeStoreManager from './RestaurantAdmin/ThemeStoreManager';
+import RestaurantOnboardingGate from './RestaurantAdmin/RestaurantOnboardingGate';
 import AIAnalyticsDashboard from './AIAnalyticsDashboard';
 import financialImage from '../assets/images/financial_control_full_dashboard_1786529698199.jpg';
 import analyticsWatermark from '../assets/images/analytics_watermark_1786531181027.jpg';
@@ -597,8 +598,18 @@ export default function OrderManagementAdmin({
     return 'basic';
   };
 
+  const [showOnboardingGate, setShowOnboardingGate] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const isCompleted = localStorage.getItem(`webar_onboarding_completed_${restaurantId}`);
+      if (isCompleted === 'true') return false;
+    }
+    return !settings?.isProfileComplete;
+  });
+
   const [localBrandSettings, setLocalBrandSettings] = useState({
-    brandName: settings.brandName || '',
+    ownerName: settings.ownerName || user?.displayName || managerSession?.name || 'Chef / Owner',
+    restaurantName: settings.restaurantName || settings.brandName || '',
+    brandName: settings.brandName || settings.restaurantName || '',
     brandLocation: settings.brandLocation || '',
     brandLogo: settings.brandLogo || '',
     brandColors: settings.brandColors || { primary: '#0ea5e9', secondary: '#0f172a', accent: '#f59e0b' },
@@ -1239,9 +1250,26 @@ export default function OrderManagementAdmin({
 
   const handleSaveBrandSettings = () => {
     setIsSaving(true);
+    const finalBrand = localBrandSettings.brandName || localBrandSettings.restaurantName || "My Restaurant";
+    const finalOwner = localBrandSettings.ownerName || "Md asraful";
+
+    if (typeof window !== 'undefined') {
+      try {
+        const sessionSaved = localStorage.getItem('webar_active_manager_session');
+        if (sessionSaved) {
+          const parsed = JSON.parse(sessionSaved);
+          parsed.name = finalOwner;
+          localStorage.setItem('webar_active_manager_session', JSON.stringify(parsed));
+        }
+        localStorage.setItem('webar_owner_name', finalOwner);
+      } catch (e) {}
+    }
+
     setTimeout(() => {
       onUpdateSettings({
-        brandName: localBrandSettings.brandName,
+        ownerName: finalOwner,
+        restaurantName: finalBrand,
+        brandName: finalBrand,
         brandLocation: localBrandSettings.brandLocation,
         brandLogo: localBrandSettings.brandLogo,
         brandColors: localBrandSettings.brandColors,
@@ -1348,11 +1376,12 @@ export default function OrderManagementAdmin({
               </div>
 
               <div className="relative z-10 space-y-1 w-full overflow-hidden">
-                <h4 className="font-black text-sm text-inherit leading-tight tracking-tight truncate max-w-full px-1">
-                  {user?.displayName || "Mdasrafalli Alom"}
+                <h4 className="font-black text-sm text-inherit leading-tight tracking-tight truncate max-w-full px-1" title={settings.ownerName || user?.displayName || managerSession?.name || "Md asraful"}>
+                  {settings.ownerName || user?.displayName || managerSession?.name || "Md asraful"}
                 </h4>
-                <p className="text-[10px] text-slate-400 font-mono tracking-normal truncate max-w-full px-1 leading-none">
-                  {user?.email || "mdasrafallialom@gmail.com"}
+                <p className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-tight truncate max-w-full px-1 leading-none flex items-center justify-center gap-1 mt-0.5" title={settings.restaurantName || settings.brandName || "Velmora Dining"}>
+                  <Utensils className="w-3 h-3 shrink-0" />
+                  <span>{settings.restaurantName || settings.brandName || "Velmora Dining"}</span>
                 </p>
                 
                 {avatarSuccessMsg && (
@@ -1581,7 +1610,7 @@ export default function OrderManagementAdmin({
                           <td className="py-4 px-6 font-mono font-bold text-blue-500">#{o.id.slice(-6).toUpperCase()}</td>
                           <td className="py-4 px-6 text-slate-500">{new Date(o.timestamp).toLocaleString()}</td>
                           <td className="py-4 px-6 font-bold">{o.customerName}</td>
-                          <td className="py-4 px-6 text-right font-black">৳{o.total.toLocaleString()}</td>
+                          <td className="py-4 px-6 text-right font-black">${o.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1594,12 +1623,34 @@ export default function OrderManagementAdmin({
               <div className="space-y-8 animate-fade-in">
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="space-y-1">
-                    <h1 className={`text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Financial Control</h1>
-                    <p className="text-slate-500 font-medium text-sm">Real-time revenue tracking and historical ledger.</p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setActiveNavTab('analytics')}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-xs active:scale-95"
+                      title="Back to AI Analytics"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h1 className={`text-3xl sm:text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Financial Control</h1>
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          USD Mode
+                        </span>
+                      </div>
+                      <p className="text-slate-500 font-medium text-sm">Real-time revenue tracking and historical ledger.</p>
+                    </div>
                   </div>
-                  {/* Month & Year Selectors */}
-                  <div className="flex gap-2">
+                  {/* Month & Year Selectors & Actions */}
+                  <div className="flex gap-2 flex-wrap items-center">
+                    <button
+                      type="button"
+                      onClick={() => setActiveNavTab('analytics')}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
+                    >
+                      <span>Analytics View</span>
+                    </button>
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(Number(e.target.value))}
@@ -1680,12 +1731,14 @@ export default function OrderManagementAdmin({
                           const padB = 35;
 
                           const revenues = dailyLedgerRows.map(r => r.dailyRevenue);
-                          const maxDailyRev = Math.max(...revenues, 5000);
-                          const yMaxValue = maxDailyRev * 1.15; // 15% head space
+                          const maxDailyRev = Math.max(...revenues, 0);
+                          const yMaxValue = maxDailyRev > 0 ? maxDailyRev * 1.15 : 1000;
 
                           const points = dailyLedgerRows.map((r, i) => {
-                            const x = padL + (i / (dailyLedgerRows.length - 1)) * (svgWidth - padL - padR);
-                            const y = svgHeight - padB - (r.dailyRevenue / yMaxValue) * (svgHeight - padT - padB);
+                            const x = padL + (i / Math.max(1, dailyLedgerRows.length - 1)) * (svgWidth - padL - padR);
+                            const y = maxDailyRev > 0 
+                              ? svgHeight - padB - (r.dailyRevenue / yMaxValue) * (svgHeight - padT - padB)
+                              : svgHeight - padB;
                             return { x, y, day: r.dayNumber, revenue: r.dailyRevenue, formattedDate: r.formattedDate };
                           });
 
@@ -1752,13 +1805,13 @@ export default function OrderManagementAdmin({
                                       textAnchor="end"
                                       className="font-mono"
                                     >
-                                      ৳{line.val >= 1000 ? `${(line.val / 1000).toFixed(1)}K` : line.val.toFixed(0)}
+                                      ${line.val >= 1000 ? `${(line.val / 1000).toFixed(1)}K` : line.val.toFixed(0)}
                                     </text>
                                   </g>
                                 ))}
 
                                 {/* Area Under Curve */}
-                                {fillPath && (
+                                {fillPath && maxDailyRev > 0 && (
                                   <path d={fillPath} fill="url(#goldGradient)" />
                                 )}
 
@@ -1839,7 +1892,7 @@ export default function OrderManagementAdmin({
                                     {points[hoveredPointIndex].formattedDate}
                                   </span>
                                   <p className="text-sm font-black text-yellow-400 mt-0.5">
-                                    ৳{points[hoveredPointIndex].revenue.toLocaleString()}
+                                    ${points[hoveredPointIndex].revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </p>
                                 </div>
                               )}
@@ -1867,14 +1920,6 @@ export default function OrderManagementAdmin({
 
                       <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-4 h-[250px] overflow-y-auto space-y-3 custom-scrollbar">
                         {(() => {
-                          const demoLiveOrders = [
-                            { id: '1024', status: 'Preparing', time: '10m 4s', total: 4900, items: 'Chicken Burger x2' },
-                            { id: '1025', status: 'Ready', time: '10m 1s', total: 3950, items: 'Truffle Pizza x3' },
-                            { id: '1026', status: 'Cooking', time: '10m 4s', total: 1600, items: 'Pasta Alfredo x1' },
-                            { id: '1027', status: 'Ready', time: '1h 5m', total: 4900, items: 'Caesar Salad x2' },
-                            { id: '1028', status: 'Ready', time: '1h 2m', total: 3300, items: 'Grilled Salmon x2' }
-                          ];
-
                           const activeLiveOrdersToShow = orders.length > 0
                             ? orders.slice().reverse().slice(0, 6).map(o => {
                                 const elapsedMs = Date.now() - o.timestamp;
@@ -1896,10 +1941,24 @@ export default function OrderManagementAdmin({
                                   status: displayStatus,
                                   time: timeStr,
                                   total: o.total,
-                                  items: o.items?.map(it => `${it.menuItem?.name || 'Item'} x${it.quantity || 1}`).join(', ') || 'Menu Item'
+                                  items: o.items?.map(it => `${it.menuItem?.name || (it as any).name || 'Item'} x${it.quantity || 1}`).join(', ') || 'Menu Item'
                                 };
                               })
-                            : demoLiveOrders;
+                            : [];
+
+                          if (activeLiveOrdersToShow.length === 0) {
+                            return (
+                              <div className="h-full flex flex-col items-center justify-center text-center p-4 text-slate-500 space-y-2">
+                                <div className="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-400">
+                                  <ShoppingBag className="w-5 h-5" />
+                                </div>
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">No Orders Placed Yet</p>
+                                <p className="text-[10px] text-slate-500 max-w-[200px]">
+                                  Incoming customer orders will appear here automatically in real time.
+                                </p>
+                              </div>
+                            );
+                          }
 
                           return (
                             <>
@@ -1927,7 +1986,7 @@ export default function OrderManagementAdmin({
                                       <p className="text-[9px] text-slate-500 font-medium font-mono">{ord.time}</p>
                                     </div>
                                     <p className="text-xs font-black text-slate-200 min-w-[50px] text-right">
-                                      ৳{ord.total.toLocaleString()}
+                                      ${ord.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
                                   </div>
                                 </div>
@@ -1943,7 +2002,7 @@ export default function OrderManagementAdmin({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
                     <div className="bg-slate-900/50 backdrop-blur-md border border-white/5 p-6 rounded-2xl flex flex-col justify-between text-left">
                       <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Monthly Revenue</span>
-                      <p className="text-3xl font-black mt-2 text-yellow-400">৳{totalMonthlyRevenue.toLocaleString()}</p>
+                      <p className="text-3xl font-black mt-2 text-yellow-400">${totalMonthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     </div>
                     <div className="bg-slate-900/50 backdrop-blur-md border border-white/5 p-6 rounded-2xl flex flex-col justify-between text-left">
                       <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Order Volume</span>
@@ -1981,7 +2040,7 @@ export default function OrderManagementAdmin({
                           <tr key={r.dayNumber} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all">
                             <td className="py-4 px-6 font-bold">{r.formattedDate}</td>
                             <td className="py-4 px-6">{r.receivedCount}</td>
-                            <td className="py-4 px-6 text-right font-black text-blue-600 dark:text-blue-400">৳{r.dailyRevenue.toLocaleString()}</td>
+                            <td className="py-4 px-6 text-right font-black text-blue-600 dark:text-blue-400">${r.dailyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           </tr>
                         ))}
                         {dailyLedgerRows.length === 0 && (
@@ -2002,6 +2061,7 @@ export default function OrderManagementAdmin({
                   theme="light"
                   brandName={settings.brandName || "My Restaurant"}
                   onOpenSales={() => setActiveNavTab('financial')}
+                  onVisitStorefront={onExitAdmin}
                   orders={orders}
                 />
               </div>
@@ -2045,7 +2105,13 @@ export default function OrderManagementAdmin({
 
             {activeNavTab === 'qrcodes' && (
               <div className="space-y-6 animate-fade-in bg-white text-slate-900 rounded-2xl">
-                <QrCodeManager restaurantId={restaurantId} brandName={settings.brandName || "My Restaurant"} />
+                <QrCodeManager 
+                  restaurantId={restaurantId} 
+                  brandName={settings.restaurantName || settings.brandName || "Velmora Fine Dining"} 
+                  brandLocation={settings.brandLocation || "123 Culinary Boulevard, Downtown"} 
+                  ownerName={settings.ownerName || user?.displayName || "Md Ashraful"}
+                  onUpdateSettings={onUpdateSettings}
+                />
               </div>
             )}
 
@@ -2205,24 +2271,24 @@ export default function OrderManagementAdmin({
                   ) : (
                     <form onSubmit={handleSendSupport} className="space-y-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
+                        <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest">Subject</label>
                         <input 
                           type="text"
                           value={supportSubject}
                           onChange={e => setSupportSubject(e.target.value)}
                           placeholder="e.g. Menu Builder Issue"
-                          className={`w-full px-5 py-4 rounded-2xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-slate-50 border-slate-100 text-slate-700'} border focus:border-blue-500 transition-all`}
+                          className={`w-full px-5 py-4 rounded-2xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-all`}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Message</label>
+                        <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest">Message</label>
                         <textarea 
                           required
                           value={supportMessage}
                           onChange={e => setSupportMessage(e.target.value)}
                           rows={6}
                           placeholder="Describe your problem or request in detail..."
-                          className={`w-full px-5 py-4 rounded-2xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-slate-50 border-slate-100 text-slate-700'} border focus:border-blue-500 transition-all resize-none`}
+                          className={`w-full px-5 py-4 rounded-2xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-all resize-none`}
                         />
                       </div>
                       <button 
@@ -2365,15 +2431,48 @@ export default function OrderManagementAdmin({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {/* Left Column: Name & Logo Preview */}
                       <div className="space-y-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Restaurant Name</label>
-                          <input 
-                            type="text" 
-                            value={localBrandSettings.brandName} 
-                            onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandName: e.target.value }))}
-                            onKeyDown={handleKeyDownSave}
-                            className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-slate-50 border-slate-100 text-slate-700'} border focus:border-blue-500 transition-colors`}
-                          />
+                        <div className="space-y-4">
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                              <span>{lang === 'bn' ? 'রেস্টুরেন্ট ওনারের নাম (Owner Name)' : 'Restaurant Owner Name'}</span>
+                            </label>
+                            <input 
+                              type="text" 
+                              value={localBrandSettings.ownerName} 
+                              onChange={e => setLocalBrandSettings(prev => ({ ...prev, ownerName: e.target.value }))}
+                              onKeyDown={handleKeyDownSave}
+                              placeholder={lang === 'bn' ? 'যেমন: Md Asraful' : 'e.g. Md Asraful'}
+                              className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                              <span>{lang === 'bn' ? 'রেস্টুরেন্টের নাম (Restaurant Name)' : 'Restaurant Name'}</span>
+                            </label>
+                            <input 
+                              type="text" 
+                              value={localBrandSettings.brandName} 
+                              onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandName: e.target.value, restaurantName: e.target.value }))}
+                              onKeyDown={handleKeyDownSave}
+                              placeholder={lang === 'bn' ? 'যেমন: Velmora Dining' : 'e.g. Velmora Dining'}
+                              className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                              <span>{lang === 'bn' ? 'রেস্টুরেন্টের লোকেশন/ঠিকানা (Location / Address)' : 'Restaurant Location / Address'}</span>
+                            </label>
+                            <input 
+                              type="text" 
+                              value={localBrandSettings.brandLocation || ''} 
+                              onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandLocation: e.target.value }))}
+                              onKeyDown={handleKeyDownSave}
+                              placeholder={lang === 'bn' ? 'যেমন: Gulshan 2, Dhaka, Bangladesh' : 'e.g. 123 Culinary Boulevard, Downtown'}
+                              className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
+                            />
+                          </div>
                         </div>
 
                         {/* Restaurant Logo Gallery (Clickable Card directly under Restaurant Name) */}
@@ -2719,7 +2818,7 @@ export default function OrderManagementAdmin({
                             type="color" 
                             value={localBrandSettings.brandColors.primary} 
                             onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandColors: { ...prev.brandColors, primary: e.target.value } }))}
-                            className="h-11 w-16 rounded-xl cursor-pointer bg-transparent border-none shrink-0"
+                            className="h-11 w-11 rounded-xl cursor-pointer bg-transparent border-none shrink-0"
                           />
                           <input 
                             type="text" 
@@ -2728,6 +2827,43 @@ export default function OrderManagementAdmin({
                             onKeyDown={handleKeyDownSave}
                             className={`flex-1 px-5 py-2.5 rounded-xl outline-none font-bold text-xs font-mono ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-slate-50 border-slate-100 text-slate-700'} border`}
                           />
+                        </div>
+                        {/* Interactive Square Presets / Swatches as requested */}
+                        <div className="space-y-1.5 pt-1.5">
+                          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">
+                            {lang === 'bn' ? 'কুইক কালার সোয়াচ' : 'Quick Color Swatches'}
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              { label: 'Gold', value: '#e5c158' },
+                              { label: 'Ruby Crimson', value: '#e11d48' },
+                              { label: 'Emerald', value: '#10b981' },
+                              { label: 'Sapphire Blue', value: '#3b82f6' },
+                              { label: 'Sunset Amber', value: '#f59e0b' },
+                              { label: 'Velvet Purple', value: '#8b5cf6' },
+                              { label: 'Classic Slate', value: '#475569' },
+                              { label: 'Copper Flame', value: '#ea580c' },
+                              { label: 'Midnight Indigo', value: '#312e81' },
+                              { label: 'Sleek Black', value: '#0f172a' }
+                            ].map((preset) => (
+                              <button
+                                key={preset.value}
+                                type="button"
+                                onClick={() => setLocalBrandSettings(prev => ({ ...prev, brandColors: { ...prev.brandColors, primary: preset.value } }))}
+                                style={{ backgroundColor: preset.value }}
+                                className={`w-7 h-7 rounded-lg border cursor-pointer hover:scale-105 transition-all shadow-2xs shrink-0 flex items-center justify-center ${
+                                  localBrandSettings.brandColors.primary.toLowerCase() === preset.value.toLowerCase()
+                                    ? 'border-white ring-2 ring-blue-500 scale-[1.05]'
+                                    : 'border-slate-300 dark:border-slate-700'
+                                }`}
+                                title={preset.label}
+                              >
+                                {localBrandSettings.brandColors.primary.toLowerCase() === preset.value.toLowerCase() && (
+                                  <span className="text-[10px] text-white font-black">✓</span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
 
@@ -2786,167 +2922,6 @@ export default function OrderManagementAdmin({
                                 theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
                               } border focus:border-amber-500 transition-colors resize-none`}
                             />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 3. ABOUT US & 'WHY DINE WITH US?' SECTION EDITOR */}
-                      <div className="p-6 rounded-3xl border space-y-6 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5 border-amber-500/20 shadow-xs">
-                        <div className="flex items-center justify-between pb-3 border-b border-amber-500/15">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                              <Sparkles className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="font-black text-sm text-slate-900 dark:text-white">
-                                {lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" (About Us) সেকশন এডিটর' : '"Why Dine With Us?" (About Us) Section Editor'}
-                              </h4>
-                              <p className="text-[11px] text-slate-500 font-medium">
-                                {lang === 'bn' ? 'হোমপেজের পরিচিতি লেখা, শিরোনাম, ছবি ও ৪টি মূল বৈশিষ্ট্য সম্পাদনা করুন।' : 'Customize the About Us badge, title, story text, image & 4 feature bullet points.'}
-                              </p>
-                            </div>
-                          </div>
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono">
-                            Live Sync
-                          </span>
-                        </div>
-
-                        <div className="space-y-4">
-                          {/* 1. Subtitle & Main Title in 2 columns */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                {lang === 'bn' ? 'টপ সাবটাইটেল ব্যাজ (Badge)' : 'Top Subtitle Tag'}
-                              </label>
-                              <input
-                                type="text"
-                                value={localBrandSettings.aboutUsSubtitle || ''}
-                                onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsSubtitle: e.target.value }))}
-                                onKeyDown={handleKeyDownSave}
-                                placeholder="ABOUT US"
-                                className={`w-full px-4 py-2.5 rounded-xl outline-none font-bold text-xs ${
-                                  theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
-                                } border focus:border-amber-500 transition-colors`}
-                              />
-                            </div>
-
-                            <div className="space-y-1">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                {lang === 'bn' ? 'প্রধান শিরোনাম (Main Heading)' : 'Main Heading Title'}
-                              </label>
-                              <input
-                                type="text"
-                                value={localBrandSettings.aboutUsTitle || ''}
-                                onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsTitle: e.target.value }))}
-                                onKeyDown={handleKeyDownSave}
-                                placeholder="Why Dine With Us?"
-                                className={`w-full px-4 py-2.5 rounded-xl outline-none font-bold text-xs ${
-                                  theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
-                                } border focus:border-amber-500 transition-colors`}
-                              />
-                            </div>
-                          </div>
-
-                          {/* 2. Story / Description Paragraph */}
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                              {lang === 'bn' ? 'পরিচিতি বিবরণ / গল্প (Story Description)' : 'Story / Description Paragraph'}
-                            </label>
-                            <textarea
-                              rows={3}
-                              value={localBrandSettings.aboutUsText || ''}
-                              onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsText: e.target.value }))}
-                              placeholder="Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews..."
-                              className={`w-full p-3.5 rounded-xl outline-none font-medium text-xs ${
-                                theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
-                              } border focus:border-amber-500 transition-colors leading-relaxed`}
-                            />
-                          </div>
-
-                          {/* 3. Section Banner Image */}
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                              {lang === 'bn' ? 'সেকশন কভার ছবি (Image URL)' : 'Section Image URL'}
-                            </label>
-                            <div className="flex flex-col sm:flex-row gap-3 items-center">
-                              <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-700 shrink-0">
-                                <img 
-                                  src={localBrandSettings.aboutUsImage || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop'} 
-                                  alt="About Us Preview" 
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              <input
-                                type="text"
-                                value={localBrandSettings.aboutUsImage || ''}
-                                onChange={e => setLocalBrandSettings(prev => ({ ...prev, aboutUsImage: e.target.value }))}
-                                onKeyDown={handleKeyDownSave}
-                                placeholder="https://images.unsplash.com/photo-1509042239860-f550ce710b93..."
-                                className={`flex-1 w-full px-4 py-2.5 rounded-xl outline-none font-medium text-xs font-mono ${
-                                  theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
-                                } border focus:border-amber-500 transition-colors`}
-                              />
-                            </div>
-
-                            {/* Preset Image Options */}
-                            <div className="flex items-center gap-2 flex-wrap pt-1">
-                              <span className="text-[10px] font-bold text-slate-400">{lang === 'bn' ? 'প্রিসেট ছবি:' : 'Presets:'}</span>
-                              {[
-                                { label: '☕ Coffee Barista', url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop' },
-                                { label: '🍽️ Luxury Dining', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop' },
-                                { label: '👨‍🍳 Master Chef', url: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=1000&auto=format&fit=crop' },
-                                { label: '🥐 Fresh Bakery', url: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1000&auto=format&fit=crop' }
-                              ].map((preset, idx) => (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => setLocalBrandSettings(prev => ({ ...prev, aboutUsImage: preset.url }))}
-                                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-white transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
-                                >
-                                  {preset.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* 4. Four Features Checklist Editor */}
-                          <div className="space-y-3 pt-3 border-t border-amber-500/15">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
-                              <span>{lang === 'bn' ? '৪টি মূল বৈশিষ্ট্য (Feature Checklist)' : '4 Key Feature Bullet Points'}</span>
-                              <span className="text-[10px] font-normal text-amber-500">4 Points</span>
-                            </label>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {[0, 1, 2, 3].map((index) => {
-                                const currentFeatures = localBrandSettings.aboutUsFeatures || [
-                                  '100% Fresh Organic Ingredients',
-                                  'Chef-Curated Gourmet Menu',
-                                  '3D Interactive WebAR Food Previews',
-                                  'Fast Home Delivery & Table Ordering'
-                                ];
-                                return (
-                                  <div key={index} className="flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20 font-mono text-xs font-black">
-                                      {index + 1}
-                                    </div>
-                                    <input
-                                      type="text"
-                                      value={currentFeatures[index] || ''}
-                                      onChange={e => {
-                                        const updated = [...currentFeatures];
-                                        updated[index] = e.target.value;
-                                        setLocalBrandSettings(prev => ({ ...prev, aboutUsFeatures: updated }));
-                                      }}
-                                      onKeyDown={handleKeyDownSave}
-                                      placeholder={`Feature ${index + 1}`}
-                                      className={`flex-1 px-3.5 py-2 rounded-xl outline-none font-bold text-xs ${
-                                        theme === 'dark' ? 'bg-[#252525] text-white border-slate-700' : 'bg-white border-slate-200 text-slate-700'
-                                      } border focus:border-amber-500 transition-colors`}
-                                    />
-                                  </div>
-                                );
-                              })}
-                            </div>
                           </div>
                         </div>
                       </div>

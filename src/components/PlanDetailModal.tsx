@@ -68,6 +68,7 @@ export const PLAN_DATA: Record<SubscriptionPlan, {
     storageDays: '7 Days History',
     supportLevel: 'Email Support (48h)',
     highlights: [
+      '1 Dedicated Hero Section System',
       '10 Full High-End Themes',
       '100+ Menu Card Studio Templates',
       'Instant Live 3D Food AR Viewer',
@@ -110,11 +111,11 @@ export const PLAN_DATA: Record<SubscriptionPlan, {
     name: 'PROFESSIONAL PRO',
     badge: 'Most Popular ⭐',
     tagline: 'Best for busy restaurants, fine dining & growing brands wanting custom domains and full theme access.',
-    monthly: 49,
-    biannual: 41, // $246 for 6 mo (~16% off)
-    annual: 36,   // $432 for 1 yr (~26% off)
-    biannualTotal: 246,
-    annualTotal: 432,
+    monthly: 39,
+    biannual: 33, // $198 for 6 mo (~15% off)
+    annual: 29,   // $348 for 1 yr (~26% off)
+    biannualTotal: 198,
+    annualTotal: 348,
     color: 'from-amber-500 to-orange-600',
     accentBg: 'bg-orange-50 text-orange-700',
     borderColor: 'border-orange-300',
@@ -123,6 +124,7 @@ export const PLAN_DATA: Record<SubscriptionPlan, {
     storageDays: '90 Days History',
     supportLevel: 'Priority VIP Support (12h)',
     highlights: [
+      '3 Interactive Hero Carousel Slides',
       '25 Luxury Restaurant Themes',
       '500+ Menu Card Studio Designs',
       'Advanced QR Code Management & Analytics',
@@ -179,6 +181,7 @@ export const PLAN_DATA: Record<SubscriptionPlan, {
     storageDays: 'Lifetime Unlimited',
     supportLevel: '24/7 Dedicated Concierge Call',
     highlights: [
+      '4 Interactive Hero Carousel Slides',
       '50+ All Luxury Themes & Custom Studio',
       '1000+ Unlimited Menu Card Designs',
       'AI-Powered Revenue & Dining Analytics',

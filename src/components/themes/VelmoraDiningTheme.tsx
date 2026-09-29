@@ -20,7 +20,8 @@ import {
   LUXURY_ELITE_4_SLIDES,
   LUXURY_PRO_3_SLIDES,
   LUXURY_BASIC_2_SLIDES,
-  COFFEE_ELITE_4_SLIDES
+  COFFEE_ELITE_4_SLIDES,
+  buildTierSlides
 } from './KoppeeHeroHeader';
 import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
@@ -708,13 +709,20 @@ export default function VelmoraDiningTheme({
            lower === 'the golden fork';
   };
 
-  // Compute effective brand name (default to 'My Restaurant' until customized)
+  const activePresetId = themePresetId || settings?.activeThemeId || 'velmora-dining';
+  const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
+
+  // Compute effective brand name (never use owner personal name in theme header)
   const effectiveThemeBrandName = (() => {
-    const custom = brandName || settings?.brandName;
-    if (isDemoOrPlaceholderBrand(custom)) {
-      return 'My Restaurant';
+    const owner = (settings?.ownerName || '').trim().toLowerCase();
+    const custom = (brandName || settings?.restaurantName || settings?.brandName || '').trim();
+    const lowerCustom = custom.toLowerCase();
+    
+    // If brandName is empty, demo placeholder, or matches owner's personal name, fallback to preset theme name
+    if (!custom || isDemoOrPlaceholderBrand(custom) || (owner && lowerCustom === owner) || lowerCustom === 'md asraful' || lowerCustom === 'mdasrafallialom') {
+      return matchedTheme?.name || 'Velmora Dining';
     }
-    return custom!.trim();
+    return custom;
   })();
   // Currency Switcher State: USD ($), GBP (£), BDT (৳), EUR (€)
   const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'GBP' | 'BDT' | 'EUR'>('USD');
@@ -840,7 +848,6 @@ export default function VelmoraDiningTheme({
     return () => clearInterval(interval);
   }, [isPlaying]);
 
-  const activePresetId = themePresetId || settings?.activeThemeId || 'velmora-dining';
   const pageCfg = THEME_PAGE_CONFIGS[activePresetId] || THEME_PAGE_CONFIGS['velmora-dining'] || THEME_PAGE_CONFIGS['lumivelle'];
 
   // Read theme-specific edits if they exist for activePresetId ONLY with reactive state
@@ -1070,16 +1077,15 @@ export default function VelmoraDiningTheme({
     THEME_HERO_CONFIGS[activePresetId]?.heroBgImage ||
     (isCoffeeTheme ? cleanCoffeeBg : 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop');
 
-  const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
-  const activeTier = matchedTheme?.tier || 'basic';
-  const defaultTierSlides = isCoffeeTheme
-    ? (activeTier === 'elite' ? COFFEE_ELITE_4_SLIDES : (CAFE_HERO_PRESETS[activePresetId] || KOPPEE_SLIDES))
-    : (activeTier === 'elite' ? LUXURY_ELITE_4_SLIDES : activeTier === 'pro' ? LUXURY_PRO_3_SLIDES : LUXURY_BASIC_2_SLIDES);
+  const activeTier = (activePresetId === 'vellunara') ? 'basic' : (matchedTheme?.tier || 'basic');
+  const defaultTierSlides = buildTierSlides(activePresetId, activeTier, isCoffeeTheme);
 
   const activeHeroSlides = 
-    themeEdits?.heroSlides ||
-    settings?.themeSettings?.[activePresetId]?.heroSlides ||
-    defaultTierSlides;
+    (themeEdits?.heroSlides && themeEdits.heroSlides.length > 0)
+      ? themeEdits.heroSlides
+      : (settings?.themeSettings?.[activePresetId]?.heroSlides && settings.themeSettings[activePresetId].heroSlides.length > 0)
+      ? settings.themeSettings[activePresetId].heroSlides
+      : defaultTierSlides;
 
   const activeAboutUsImage = 
     themeEdits?.aboutUsImage ||

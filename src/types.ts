@@ -70,8 +70,13 @@ export interface AdminSettings {
   showAdminButton?: boolean;
   showGoogleMap?: boolean;
   adminPassword?: string;
+  ownerName?: string;
+  restaurantName?: string;
   brandName: string;
   brandLocation: string;
+  zipCode?: string;
+  usPhoneNumber?: string;
+  isProfileComplete?: boolean;
   brandLogo?: string;
   brandColors?: {
     primary: string;

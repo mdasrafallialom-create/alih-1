@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Utensils, ChefHat, Crown, Wine, Flame, Star, Coffee, Pizza, Sandwich } from 'lucide-react';
 import { CoffeeBeanSculptedVisual } from './CoffeeBeanSculptedVisual';
 import { OrivelleGoldClocheVisual } from './OrivelleGoldClocheVisual';
+import { InteractivePizzaVisual } from './InteractivePizzaVisual';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
@@ -13,6 +14,13 @@ import wagyuDishImg from '../../assets/images/luxury_michelin_dish_1790508680735
 import dessertSphereImg from '../../assets/images/luxury_dessert_dish_1790508714022.jpg';
 import tableClosedImg from '../../assets/images/table_closed_gold_cloche_1790603175271.jpg';
 import tableOpenImg from '../../assets/images/table_open_gold_cloche_1790603214374.jpg';
+import roundArtisanPizzaImg from '../../assets/images/round_artisan_pizza_1790689153501.jpg';
+
+// Common Radial Vignette Mask Style: 100% Seamless Dissolve into Background with NO Box Outline
+const seamlessMaskStyle: React.CSSProperties = {
+  maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 66%, rgba(0,0,0,0.35) 82%, rgba(0,0,0,0) 96%)',
+  WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 66%, rgba(0,0,0,0.35) 82%, rgba(0,0,0,0) 96%)'
+};
 
 interface HeroAnimatedElementProps {
   themeId?: string;
@@ -54,51 +62,27 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
     return <CoffeeBeanSculptedVisual accentColor={accentColor} />;
   }
 
-  // Cloche slide type (e.g. for Orivelle House or Haute Gastronomy default)
-  if (activeType === 'cloche' && (normId === 'orivelle-house' || !slideType)) {
+  // Theme #15: Vellunara & Theme #02: Orivelle House / Pizza Visual
+  // Interactive Slice Cut & Lift: When mouse hovers over the pizza, a slice cuts and slides away/back like an invisible hand lifting it up!
+  // Guaranteed zero box border with true SVG circular vector clipping.
+  if (normId === 'vellunara' || normId === 'orivelle-house' || activeType === 'pizza') {
+    return (
+      <InteractivePizzaVisual
+        accentColor={accentColor}
+        cupName={cupName}
+        customImg={cupImg || roundArtisanPizzaImg}
+      />
+    );
+  }
+
+  // Cloche slide type (e.g. for Haute Gastronomy default)
+  if (activeType === 'cloche' && !slideType) {
     return (
       <OrivelleGoldClocheVisual
         accentColor={accentColor}
         customImg={cupImg}
         itemName={cupName || 'Miyazaki A5 Wagyu & Black Truffle'}
       />
-    );
-  }
-
-  // Common Radial Vignette Mask Style: 100% Seamless Dissolve into Background with NO Box Outline
-  const seamlessMaskStyle: React.CSSProperties = {
-    maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 56%, rgba(0,0,0,0) 96%)',
-    WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 56%, rgba(0,0,0,0) 96%)'
-  };
-
-  // 1. Pizza Visual (Seamless Background Blended Wood-Fired Neapolitan Truffle Pizza)
-  if (activeType === 'pizza') {
-    return (
-      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-500/30 pointer-events-none scale-125" />
-        <motion.div
-          animate={{ y: [-8, 8, -8], rotate: [0.5, -0.5, 0.5] }}
-          transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
-          style={seamlessMaskStyle}
-        >
-          <img
-            src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop"
-            alt={cupName || "Wood-Fired Truffle & Burrata Neapolitan Pizza"}
-            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
-          />
-        </motion.div>
-        
-        {/* Floating Frameless Pill Badge */}
-        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
-          <div className="bg-stone-950/90 border border-amber-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
-            <Pizza className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span className="text-xs sm:text-sm uppercase font-extrabold text-amber-200 font-serif tracking-widest">
-              {cupName || "Wood-Fired Truffle & Burrata Neapolitan Pizza"}
-            </span>
-          </div>
-        </div>
-      </div>
     );
   }
 

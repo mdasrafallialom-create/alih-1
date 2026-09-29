@@ -12,6 +12,7 @@ import { HeroAnimatedElement } from './HeroAnimatedElement';
 import { BotanicalCoffeeLeaves } from './BotanicalCoffeeLeaves';
 import { checkAdminPasswordInput, getThemeAdminButtonVisibility } from '../../lib/adminHelpers';
 import { LUXURY_THEMES } from '../../data/luxuryThemes';
+import { CAFE_HERO_PRESETS } from '../../data/cafeHeroPresets';
 
 interface KoppeeHeroHeaderProps {
   brandName?: string;
@@ -66,13 +67,13 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     headerBg: 'bg-gradient-to-b from-black/90 via-black/50 to-transparent',
     heroBgImage: cleanCoffeeBg
   },
-  // #02 Orivelle House (Haute Noir Gastronomy & 24k Gold)
+  // #02 Orivelle House (Wood-Fired Artisanal Pizzeria & Haute Gastronomy)
   'orivelle-house': {
     accentColor: '#e5c158',
     accentTextClass: 'text-amber-300',
     accentBorderClass: 'border-amber-400/50',
     logoBadgeClass: 'bg-gradient-to-br from-amber-300 via-yellow-500 to-amber-700 text-stone-950 font-black border border-amber-200 shadow-xl shadow-black/80',
-    heroBadgeTag: '👑 24K GOLD LEAF & PRIVATE SOMMELIER',
+    heroBadgeTag: '🍕 ARTISANAL WOOD-FIRED GOURMET PIZZA',
     navHoverClass: 'hover:text-amber-300',
     navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
     primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:to-yellow-600 text-stone-950 font-black rounded-lg shadow-[0_0_30px_rgba(229,193,88,0.5)] border border-yellow-200/50',
@@ -396,6 +397,499 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     bgGradientOverlay: 'from-rose-950/45 via-stone-950/75 to-black/95',
     headerBg: 'bg-gradient-to-b from-rose-950/85 via-stone-950/50 to-transparent',
     heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  },
+  // #13 Monarchia House (Platinum Society & Haute Cuisine)
+  'monarchia-house': {
+    accentColor: '#94a3b8',
+    accentTextClass: 'text-slate-200',
+    accentBorderClass: 'border-slate-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-slate-400 via-slate-600 to-slate-900 text-white font-black border border-slate-300/50 shadow-xl',
+    heroBadgeTag: '👑 PLATINUM SOCIETY & HAUTE CUISINE',
+    navHoverClass: 'hover:text-slate-200',
+    navActiveClass: 'text-slate-300 border-b-2 border-slate-300',
+    primaryBtnClass: 'bg-gradient-to-r from-slate-300 via-slate-400 to-slate-500 hover:from-slate-200 hover:to-slate-400 text-slate-950 font-black rounded-lg shadow-[0_0_25px_rgba(148,163,184,0.45)] border border-white/40',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-slate-200 border border-slate-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-slate-400/60 rounded-2xl shadow-[0_0_35px_rgba(148,163,184,0.35)]',
+    searchFocusClass: 'focus:border-slate-300 focus:ring-slate-300',
+    bgGradientOverlay: 'from-[#020617]/80 via-[#0f172a]/75 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#020617]/95 via-[#0f172a]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #14 Reservelle (Heritage Royal Banquet & VIP Club)
+  'reservelle': {
+    accentColor: '#facc15',
+    accentTextClass: 'text-yellow-300',
+    accentBorderClass: 'border-yellow-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-yellow-400 via-amber-500 to-stone-900 text-stone-950 font-black border border-yellow-200 shadow-xl',
+    heroBadgeTag: '🏛️ HERITAGE ROYAL BANQUET & VIP CLUB',
+    navHoverClass: 'hover:text-yellow-300',
+    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
+    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 hover:from-yellow-300 hover:to-amber-400 text-stone-950 font-black rounded-xl shadow-[0_0_30px_rgba(250,204,21,0.5)] border border-yellow-200/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-yellow-200 border border-yellow-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-yellow-400/60 rounded-3xl shadow-[0_0_35px_rgba(250,204,21,0.35)]',
+    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
+    bgGradientOverlay: 'from-black/85 via-[#121212]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-black/95 via-stone-950/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop'
+  },
+  // #15 VELLUNARA - THEME #15 (Artisanal Wood-Fired Stone Pizzeria)
+  'vellunara': {
+    accentColor: '#d97706',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-600 via-[#451a03] to-[#1c0d02] text-amber-100 font-black border border-amber-400/50 shadow-xl shadow-amber-950/80',
+    heroBadgeTag: '🍕 WOOD-FIRED ARTISANAL PIZZERIA',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-700 hover:to-amber-600 text-stone-950 font-black rounded-lg shadow-[0_0_30px_rgba(217,119,6,0.5)] border border-amber-300/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(217,119,6,0.35)]',
+    searchFocusClass: 'focus:border-amber-500 focus:ring-amber-500',
+    bgGradientOverlay: 'from-[#1c0d02]/85 via-[#261204]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#1c0d02]/95 via-[#1c0d02]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&auto=format&fit=crop'
+  },
+  // #16 Zafrelle Hand-Grinder Cafe
+  'zafrelle': {
+    accentColor: '#fbbf24',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-400 via-amber-600 to-stone-900 text-stone-950 font-black border border-amber-300/50 shadow-xl',
+    heroBadgeTag: '☕ VINTAGE BRASS HAND-GRINDER CAFE',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:to-yellow-600 text-stone-950 font-black rounded-xl shadow-[0_0_25px_rgba(251,191,36,0.45)] border border-yellow-200/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-400/40 rounded-xl backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_35px_rgba(251,191,36,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#310710]/75 via-[#4a0e17]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#310710]/90 via-[#310710]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1600&auto=format&fit=crop'
+  },
+  // #17 Obscurielle (Exotic Saffron & Raw Silk Salon)
+  'obscurielle': {
+    accentColor: '#f97316',
+    accentTextClass: 'text-orange-400',
+    accentBorderClass: 'border-orange-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-orange-500 via-amber-700 to-stone-950 text-white font-black border border-orange-300/50 shadow-xl',
+    heroBadgeTag: '✨ EXOTIC SAFFRON & RAW SILK SALON',
+    navHoverClass: 'hover:text-orange-400',
+    navActiveClass: 'text-orange-500 border-b-2 border-orange-500',
+    primaryBtnClass: 'bg-gradient-to-r from-orange-500 via-amber-600 to-orange-700 hover:from-orange-600 hover:to-amber-700 text-white font-black rounded-lg shadow-[0_0_30px_rgba(249,115,22,0.5)] border border-orange-300/50',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-orange-200 border border-orange-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-orange-500/60 rounded-2xl shadow-[0_0_35px_rgba(249,115,22,0.35)]',
+    searchFocusClass: 'focus:border-orange-500 focus:ring-orange-500',
+    bgGradientOverlay: 'from-[#2a1200]/80 via-[#3d1b00]/75 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2a1200]/95 via-[#2a1200]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop'
+  },
+  // #18 Perlavia (Minimalist Obsidian & Silver)
+  'perlavia': {
+    accentColor: '#cbd5e1',
+    accentTextClass: 'text-slate-300',
+    accentBorderClass: 'border-slate-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-slate-400 via-slate-600 to-slate-900 text-white font-black border border-slate-300/40 shadow-xl',
+    heroBadgeTag: '✦ OBSIDIAN BLACK & SILVER MINIMALISM',
+    navHoverClass: 'hover:text-slate-300',
+    navActiveClass: 'text-slate-200 border-b-2 border-slate-200',
+    primaryBtnClass: 'bg-gradient-to-r from-slate-300 via-slate-200 to-slate-400 hover:from-white hover:to-slate-300 text-slate-950 font-black rounded-lg shadow-[0_0_25px_rgba(203,213,225,0.4)]',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-slate-200 border border-slate-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-slate-400/50 rounded-2xl shadow-[0_0_35px_rgba(203,213,225,0.25)]',
+    searchFocusClass: 'focus:border-slate-300 focus:ring-slate-300',
+    bgGradientOverlay: 'from-[#0b0f17]/85 via-[#111827]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#0b0f17]/95 via-[#0b0f17]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #19 Polivara (Soft Pearl White & Cracked Pepper)
+  'polivara': {
+    accentColor: '#38bdf8',
+    accentTextClass: 'text-sky-300',
+    accentBorderClass: 'border-sky-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-slate-200 via-slate-400 to-slate-800 text-slate-950 font-black border border-white/60 shadow-xl',
+    heroBadgeTag: '☕ SOFT PEARL WHITE & CRACKED PEPPER',
+    navHoverClass: 'hover:text-sky-300',
+    navActiveClass: 'text-sky-400 border-b-2 border-sky-400',
+    primaryBtnClass: 'bg-gradient-to-r from-sky-400 via-sky-300 to-sky-500 hover:from-sky-300 hover:to-sky-400 text-slate-950 font-black rounded-lg shadow-[0_0_25px_rgba(56,189,248,0.45)]',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-sky-200 border border-sky-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-sky-400/50 rounded-2xl shadow-[0_0_35px_rgba(56,189,248,0.3)]',
+    searchFocusClass: 'focus:border-sky-400 focus:ring-sky-400',
+    bgGradientOverlay: 'from-[#0a1120]/80 via-[#0f172a]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#0a1120]/95 via-[#0a1120]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop'
+  },
+  // #20 Noctavelle (Mirror Chrome & Contemporary Seafood)
+  'noctavelle': {
+    accentColor: '#38bdf8',
+    accentTextClass: 'text-cyan-300',
+    accentBorderClass: 'border-cyan-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-cyan-400 via-sky-600 to-slate-950 text-white font-black border border-cyan-300/40 shadow-xl',
+    heroBadgeTag: '🐟 MIRROR CHROME & CONTEMPORARY SEAFOOD',
+    navHoverClass: 'hover:text-cyan-300',
+    navActiveClass: 'text-cyan-400 border-b-2 border-cyan-400',
+    primaryBtnClass: 'bg-gradient-to-r from-cyan-400 via-sky-400 to-cyan-500 hover:from-cyan-300 hover:to-sky-300 text-slate-950 font-black rounded-lg shadow-[0_0_25px_rgba(6,182,212,0.5)]',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-cyan-200 border border-cyan-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-cyan-400/60 rounded-2xl shadow-[0_0_35px_rgba(6,182,212,0.35)]',
+    searchFocusClass: 'focus:border-cyan-400 focus:ring-cyan-400',
+    bgGradientOverlay: 'from-[#031525]/85 via-[#062035]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#031525]/95 via-[#031525]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  },
+  // #21 Marovelle (Italian Stovetop Moka)
+  'marovelle': {
+    accentColor: '#fb923c',
+    accentTextClass: 'text-orange-400',
+    accentBorderClass: 'border-orange-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-orange-400 via-amber-600 to-red-950 text-white font-black border border-orange-300/40 shadow-xl',
+    heroBadgeTag: '☕ ITALIAN STOVETOP MOKA & THICK CREMA',
+    navHoverClass: 'hover:text-orange-300',
+    navActiveClass: 'text-orange-400 border-b-2 border-orange-400',
+    primaryBtnClass: 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-black rounded-lg shadow-[0_0_25px_rgba(251,146,60,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-orange-200 border border-orange-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-orange-500/60 rounded-2xl shadow-[0_0_35px_rgba(251,146,60,0.35)]',
+    searchFocusClass: 'focus:border-orange-400 focus:ring-orange-400',
+    bgGradientOverlay: 'from-[#2d1109]/80 via-[#3a150c]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2d1109]/95 via-[#2d1109]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&auto=format&fit=crop'
+  },
+  // #22 Regavelle (Carrara White Marble & Rose Gold)
+  'regavelle': {
+    accentColor: '#f43f5e',
+    accentTextClass: 'text-rose-400',
+    accentBorderClass: 'border-rose-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-rose-300 via-pink-500 to-rose-900 text-white font-black border border-rose-200/50 shadow-xl',
+    heroBadgeTag: '👑 CARRARA MARBLE & ROSE GOLD GASTRONOMY',
+    navHoverClass: 'hover:text-rose-300',
+    navActiveClass: 'text-rose-400 border-b-2 border-rose-400',
+    primaryBtnClass: 'bg-gradient-to-r from-rose-400 via-pink-400 to-rose-500 hover:from-rose-300 hover:to-pink-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(244,63,94,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-rose-200 border border-rose-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-rose-400/60 rounded-2xl shadow-[0_0_35px_rgba(244,63,94,0.35)]',
+    searchFocusClass: 'focus:border-rose-400 focus:ring-rose-400',
+    bgGradientOverlay: 'from-[#2b0b14]/80 via-[#350d19]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2b0b14]/95 via-[#2b0b14]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop'
+  },
+  // #23 Elysara (Emerald Green Velvet & Regal Gold)
+  'elysara': {
+    accentColor: '#10b981',
+    accentTextClass: 'text-emerald-400',
+    accentBorderClass: 'border-emerald-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-emerald-500 via-teal-700 to-[#022c22] text-white font-black border border-emerald-300/40 shadow-xl',
+    heroBadgeTag: '💎 IMPERIAL EMERALD VELVET & REGAL GOLD',
+    navHoverClass: 'hover:text-emerald-300',
+    navActiveClass: 'text-emerald-400 border-b-2 border-emerald-400',
+    primaryBtnClass: 'bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 hover:from-emerald-300 hover:to-teal-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(16,185,129,0.5)]',
+    secondaryBtnClass: 'bg-[#022c22]/85 hover:bg-black text-emerald-200 border border-emerald-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-emerald-400/60 rounded-2xl shadow-[0_0_35px_rgba(16,185,129,0.35)]',
+    searchFocusClass: 'focus:border-emerald-400 focus:ring-emerald-400',
+    bgGradientOverlay: 'from-[#022019]/85 via-[#033126]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#022019]/95 via-[#022019]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop'
+  },
+  // #24 Cindervale (Mystical Golden Light & Experimental Gastronomy)
+  'cindervale': {
+    accentColor: '#eab308',
+    accentTextClass: 'text-yellow-400',
+    accentBorderClass: 'border-yellow-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-yellow-400 via-amber-600 to-stone-950 text-stone-950 font-black border border-yellow-200/50 shadow-xl',
+    heroBadgeTag: '✨ MYSTICAL GOLDEN MIST EXPERIMENTAL DINING',
+    navHoverClass: 'hover:text-yellow-300',
+    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
+    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-300 hover:to-amber-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(234,179,8,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-yellow-200 border border-yellow-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-yellow-400/60 rounded-2xl shadow-[0_0_35px_rgba(234,179,8,0.35)]',
+    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
+    bgGradientOverlay: 'from-[#1c180e]/85 via-[#292212]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#1c180e]/95 via-[#1c180e]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #25 Linorelle (Volcanic Ash Black & Wood-Fired Burger/Steak)
+  'linorelle': {
+    accentColor: '#ef4444',
+    accentTextClass: 'text-red-400',
+    accentBorderClass: 'border-red-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-red-500 via-rose-700 to-stone-950 text-white font-black border border-red-300/40 shadow-xl',
+    heroBadgeTag: '🔥 VOLCANIC ASH & WOOD-FIRED PRIME STEAKS',
+    navHoverClass: 'hover:text-red-300',
+    navActiveClass: 'text-red-400 border-b-2 border-red-400',
+    primaryBtnClass: 'bg-gradient-to-r from-red-500 via-rose-500 to-red-600 hover:from-red-400 hover:to-rose-400 text-white font-black rounded-lg shadow-[0_0_25px_rgba(239,68,68,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-red-200 border border-red-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-red-500/60 rounded-2xl shadow-[0_0_35px_rgba(239,68,68,0.35)]',
+    searchFocusClass: 'focus:border-red-400 focus:ring-red-400',
+    bgGradientOverlay: 'from-[#2b0d0d]/85 via-[#381111]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2b0d0d]/95 via-[#2b0d0d]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #26 Lumecourt (Crisp White Linen & Slate Grey Typography)
+  'lumecourt': {
+    accentColor: '#a1a1aa',
+    accentTextClass: 'text-zinc-300',
+    accentBorderClass: 'border-zinc-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-zinc-200 via-zinc-400 to-zinc-800 text-zinc-950 font-black border border-white/60 shadow-xl',
+    heroBadgeTag: '✦ STARCHED WHITE LINEN & SLATE SERIF BISTRO',
+    navHoverClass: 'hover:text-zinc-200',
+    navActiveClass: 'text-zinc-100 border-b-2 border-zinc-100',
+    primaryBtnClass: 'bg-gradient-to-r from-zinc-100 via-zinc-200 to-zinc-300 hover:from-white hover:to-zinc-200 text-zinc-950 font-black rounded-lg shadow-[0_0_25px_rgba(161,161,170,0.4)]',
+    secondaryBtnClass: 'bg-zinc-950/85 hover:bg-black text-zinc-200 border border-zinc-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-zinc-400/50 rounded-2xl shadow-[0_0_35px_rgba(161,161,170,0.25)]',
+    searchFocusClass: 'focus:border-zinc-300 focus:ring-zinc-300',
+    bgGradientOverlay: 'from-[#121215]/85 via-[#18181b]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#121215]/95 via-[#121215]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop'
+  },
+  // #27 Sapphirenne (Flickering Candlelight & Dark Oak Chambers)
+  'sapphirenne': {
+    accentColor: '#f59e0b',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-500 via-[#451a03] to-[#1c0d02] text-amber-200 font-black border border-amber-400/50 shadow-xl',
+    heroBadgeTag: '🕯️ FLICKERING CANDLELIGHT & DARK OAK CELLARS',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(245,158,11,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(245,158,11,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#1e1005]/85 via-[#2b1708]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#1e1005]/95 via-[#1e1005]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop'
+  },
+  // #28 Bellavere (Midnight Ocean Sapphire & Star Gold)
+  'bellavere': {
+    accentColor: '#38bdf8',
+    accentTextClass: 'text-sky-300',
+    accentBorderClass: 'border-sky-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-sky-400 via-blue-600 to-slate-950 text-white font-black border border-sky-300/40 shadow-xl',
+    heroBadgeTag: '🌊 MIDNIGHT SAPPHIRE & COASTAL GASTRONOMY',
+    navHoverClass: 'hover:text-sky-300',
+    navActiveClass: 'text-sky-400 border-b-2 border-sky-400',
+    primaryBtnClass: 'bg-gradient-to-r from-sky-400 via-blue-500 to-sky-600 hover:from-sky-300 hover:to-blue-400 text-slate-950 font-black rounded-lg shadow-[0_0_25px_rgba(56,189,248,0.5)]',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-sky-200 border border-sky-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-sky-400/60 rounded-2xl shadow-[0_0_35px_rgba(56,189,248,0.35)]',
+    searchFocusClass: 'focus:border-sky-400 focus:ring-sky-400',
+    bgGradientOverlay: 'from-[#071d33]/85 via-[#0b2847]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#071d33]/95 via-[#071d33]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  },
+  // #29 Copriva (French Riviera Buttercream & Olive Green Terrace)
+  'copriva': {
+    accentColor: '#84cc16',
+    accentTextClass: 'text-lime-300',
+    accentBorderClass: 'border-lime-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-lime-400 via-emerald-600 to-stone-900 text-stone-950 font-black border border-lime-300/50 shadow-xl',
+    heroBadgeTag: '🌿 FRENCH RIVIERA BISTRO & OLIVE TERRACE',
+    navHoverClass: 'hover:text-lime-300',
+    navActiveClass: 'text-lime-400 border-b-2 border-lime-400',
+    primaryBtnClass: 'bg-gradient-to-r from-lime-400 via-emerald-400 to-lime-500 hover:from-lime-300 hover:to-emerald-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(132,204,22,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-lime-200 border border-lime-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-lime-500/60 rounded-2xl shadow-[0_0_35px_rgba(132,204,22,0.35)]',
+    searchFocusClass: 'focus:border-lime-400 focus:ring-lime-400',
+    bgGradientOverlay: 'from-[#17230b]/80 via-[#213210]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#17230b]/95 via-[#17230b]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1600&auto=format&fit=crop'
+  },
+  // #30 Degustara (Artisan Chemex Alchemy & Wild Berries)
+  'degustara': {
+    accentColor: '#ea580c',
+    accentTextClass: 'text-orange-400',
+    accentBorderClass: 'border-orange-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-orange-500 via-amber-700 to-stone-950 text-white font-black border border-orange-300/40 shadow-xl',
+    heroBadgeTag: '☕ HAND-BLOWN CHEMEX ALCHEMY & WILD BERRIES',
+    navHoverClass: 'hover:text-orange-300',
+    navActiveClass: 'text-orange-400 border-b-2 border-orange-400',
+    primaryBtnClass: 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-400 hover:to-amber-400 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(234,88,12,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-orange-200 border border-orange-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-orange-500/60 rounded-2xl shadow-[0_0_35px_rgba(234,88,12,0.35)]',
+    searchFocusClass: 'focus:border-orange-400 focus:ring-orange-400',
+    bgGradientOverlay: 'from-[#2a0e05]/80 via-[#3a1408]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2a0e05]/95 via-[#2a0e05]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600&auto=format&fit=crop'
+  },
+  // #31 Lumivara (Velvet Plum & Amaranth Golden Lounge)
+  'lumivara': {
+    accentColor: '#f43f5e',
+    accentTextClass: 'text-rose-400',
+    accentBorderClass: 'border-rose-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-rose-400 via-purple-700 to-[#3b0724] text-white font-black border border-rose-300/40 shadow-xl',
+    heroBadgeTag: '🍷 VELVET PLUM & GOLDEN AMARANTH LOUNGE',
+    navHoverClass: 'hover:text-rose-300',
+    navActiveClass: 'text-rose-400 border-b-2 border-rose-400',
+    primaryBtnClass: 'bg-gradient-to-r from-rose-400 via-purple-400 to-rose-500 hover:from-rose-300 hover:to-purple-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(244,63,94,0.5)]',
+    secondaryBtnClass: 'bg-[#3b0724]/85 hover:bg-black text-rose-200 border border-rose-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-rose-400/60 rounded-2xl shadow-[0_0_35px_rgba(244,63,94,0.35)]',
+    searchFocusClass: 'focus:border-rose-400 focus:ring-rose-400',
+    bgGradientOverlay: 'from-[#2e051c]/85 via-[#420828]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2e051c]/95 via-[#2e051c]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&auto=format&fit=crop'
+  },
+  // #32 Figavelle (Copper Cezve Brewed on Hot Golden Sands)
+  'figavelle': {
+    accentColor: '#d97706',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-500 via-amber-700 to-stone-950 text-white font-black border border-amber-300/50 shadow-xl',
+    heroBadgeTag: '☕ COPPER CEZVE ON HOT GOLDEN SANDS',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(217,119,6,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(217,119,6,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#231206]/85 via-[#311a09]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#231206]/95 via-[#231206]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1600&auto=format&fit=crop'
+  },
+  // #33 Zafravia (Noble Royal Crest & Navy Gold Foil)
+  'zafravia': {
+    accentColor: '#eab308',
+    accentTextClass: 'text-yellow-400',
+    accentBorderClass: 'border-yellow-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-yellow-400 via-blue-900 to-slate-950 text-yellow-300 font-black border border-yellow-200/50 shadow-xl',
+    heroBadgeTag: '👑 NOBLE ROYAL CREST & REGAL GOLD FOIL',
+    navHoverClass: 'hover:text-yellow-300',
+    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
+    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-300 hover:to-amber-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(234,179,8,0.5)]',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-yellow-200 border border-yellow-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-yellow-400/60 rounded-2xl shadow-[0_0_35px_rgba(234,179,8,0.35)]',
+    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
+    bgGradientOverlay: 'from-[#0e1329]/85 via-[#161d3d]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#0e1329]/95 via-[#0e1329]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop'
+  },
+  // #34 Hearthora (Electric Neon Purple & Late Night Supper Club)
+  'hearthora': {
+    accentColor: '#d946ef',
+    accentTextClass: 'text-fuchsia-400',
+    accentBorderClass: 'border-fuchsia-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-fuchsia-500 via-purple-700 to-stone-950 text-white font-black border border-fuchsia-300/40 shadow-xl',
+    heroBadgeTag: '✨ ELECTRIC NEON PURPLE SUPPER CLUB',
+    navHoverClass: 'hover:text-fuchsia-300',
+    navActiveClass: 'text-fuchsia-400 border-b-2 border-fuchsia-400',
+    primaryBtnClass: 'bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-600 hover:from-fuchsia-400 hover:to-purple-400 text-white font-black rounded-lg shadow-[0_0_25px_rgba(217,70,239,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-fuchsia-200 border border-fuchsia-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-fuchsia-500/60 rounded-2xl shadow-[0_0_35px_rgba(217,70,239,0.35)]',
+    searchFocusClass: 'focus:border-fuchsia-400 focus:ring-fuchsia-400',
+    bgGradientOverlay: 'from-[#2b0838]/85 via-[#3a0a4c]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2b0838]/95 via-[#2b0838]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  },
+  // #35 Luxevia (Aromatic Saffron Gold & Royal Persian Dining)
+  'luxevia': {
+    accentColor: '#fb923c',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-400 via-orange-600 to-[#2c0e03] text-stone-950 font-black border border-amber-200/50 shadow-xl',
+    heroBadgeTag: '👑 ROYAL PERSIAN SAFFRON & TERRACOTTA',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(251,146,60,0.5)]',
+    secondaryBtnClass: 'bg-[#2c0e03]/85 hover:bg-black text-amber-200 border border-amber-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_35px_rgba(251,146,60,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#270b02]/85 via-[#381003]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#270b02]/95 via-[#270b02]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop'
+  },
+  // #36 Rosavere (Deep Crimson Velvet & Irish Steak Cellar)
+  'rosavere': {
+    accentColor: '#f43f5e',
+    accentTextClass: 'text-rose-400',
+    accentBorderClass: 'border-rose-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-rose-500 via-red-800 to-stone-950 text-white font-black border border-rose-300/40 shadow-xl',
+    heroBadgeTag: '☘️ CRIMSON VELVET & IRISH STEAK CELLAR',
+    navHoverClass: 'hover:text-rose-300',
+    navActiveClass: 'text-rose-400 border-b-2 border-rose-400',
+    primaryBtnClass: 'bg-gradient-to-r from-rose-500 via-red-500 to-rose-600 hover:from-rose-400 hover:to-red-400 text-white font-black rounded-lg shadow-[0_0_25px_rgba(244,63,94,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-rose-200 border border-rose-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-rose-400/60 rounded-2xl shadow-[0_0_35px_rgba(244,63,94,0.35)]',
+    searchFocusClass: 'focus:border-rose-400 focus:ring-rose-400',
+    bgGradientOverlay: 'from-[#330816]/85 via-[#450a1e]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#330816]/95 via-[#330816]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #37 Marovian (Paper Lanterns & Serene Tea Izakaya)
+  'marovian': {
+    accentColor: '#fbbf24',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-400 via-yellow-600 to-stone-900 text-stone-950 font-black border border-amber-200/50 shadow-xl',
+    heroBadgeTag: '🏮 PAPER LANTERNS & SERENE TEA IZAKAYA',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(251,191,36,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_35px_rgba(251,191,36,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#231505]/85 via-[#331f08]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#231505]/95 via-[#231505]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop'
+  },
+  // #38 Solarienne (Warm Amber Glow & American Tavern)
+  'solarienne': {
+    accentColor: '#f59e0b',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-500 via-amber-700 to-stone-950 text-white font-black border border-amber-300/40 shadow-xl',
+    heroBadgeTag: '🍺 WARM AMBER GLOW & AMERICAN TAVERN',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(245,158,11,0.5)]',
+    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(245,158,11,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#271505]/85 via-[#381e07]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#271505]/95 via-[#271505]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&auto=format&fit=crop'
+  },
+  // #39 Nobravie (Maroon Velvet Steak Cellar & 5-Star Club)
+  'nobravie': {
+    accentColor: '#f59e0b',
+    accentTextClass: 'text-amber-400',
+    accentBorderClass: 'border-amber-500/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-500 via-rose-900 to-[#3b0817] text-white font-black border border-amber-300/50 shadow-xl',
+    heroBadgeTag: '🥩 MAROON VELVET STEAK CELLAR & 5-STAR CLUB',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(245,158,11,0.5)]',
+    secondaryBtnClass: 'bg-[#3b0817]/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(245,158,11,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#300612]/85 via-[#44081a]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#300612]/95 via-[#300612]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+  },
+  // #40 Veloura Table (Mediterranean Sunshine & Coastal Taverna)
+  'veloura-table': {
+    accentColor: '#facc15',
+    accentTextClass: 'text-yellow-300',
+    accentBorderClass: 'border-yellow-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-yellow-400 via-sky-600 to-blue-950 text-stone-950 font-black border border-yellow-200/50 shadow-xl',
+    heroBadgeTag: '☀️ MEDITERRANEAN SUNSHINE & COASTAL TAVERNA',
+    navHoverClass: 'hover:text-yellow-300',
+    navActiveClass: 'text-yellow-400 border-b-2 border-yellow-400',
+    primaryBtnClass: 'bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-300 hover:to-amber-300 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(250,204,21,0.5)]',
+    secondaryBtnClass: 'bg-slate-950/85 hover:bg-black text-yellow-200 border border-yellow-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-yellow-400/60 rounded-2xl shadow-[0_0_35px_rgba(250,204,21,0.35)]',
+    searchFocusClass: 'focus:border-yellow-400 focus:ring-yellow-400',
+    bgGradientOverlay: 'from-[#07243d]/85 via-[#0c3559]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#07243d]/95 via-[#07243d]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&auto=format&fit=crop'
+  },
+  // #41 Gildara (Garnet Red Wine & Haute French Dining)
+  'gildara': {
+    accentColor: '#fbbf24',
+    accentTextClass: 'text-amber-300',
+    accentBorderClass: 'border-amber-400/50',
+    logoBadgeClass: 'bg-gradient-to-br from-amber-300 via-rose-800 to-[#3b0817] text-amber-100 font-black border border-amber-200/50 shadow-xl',
+    heroBadgeTag: '🍷 GARNET RED WINE & HAUTE FRENCH DINING',
+    navHoverClass: 'hover:text-amber-300',
+    navActiveClass: 'text-amber-400 border-b-2 border-amber-400',
+    primaryBtnClass: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-yellow-400 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(251,191,36,0.5)]',
+    secondaryBtnClass: 'bg-[#3b0817]/85 hover:bg-black text-amber-200 border border-amber-400/40 rounded-lg backdrop-blur-md',
+    imageFrameClass: 'border-2 border-amber-400/60 rounded-2xl shadow-[0_0_35px_rgba(251,191,36,0.35)]',
+    searchFocusClass: 'focus:border-amber-400 focus:ring-amber-400',
+    bgGradientOverlay: 'from-[#2e0513]/85 via-[#42081c]/80 to-black/95',
+    headerBg: 'bg-gradient-to-b from-[#2e0513]/95 via-[#2e0513]/50 to-transparent',
+    heroBgImage: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop'
   }
 };
 
@@ -613,6 +1107,65 @@ export const KOPPEE_SLIDES = [
   }
 ];
 
+export function buildTierSlides(
+  presetId: string, 
+  tier: 'basic' | 'pro' | 'elite' | string, 
+  isCoffee: boolean
+): any[] {
+  // Option #15 / 15-number theme (Vellunara) or Basic ($15) tier:
+  // EXACTLY 1 hero section system (clean static presentation, no slider)
+  if (presetId === 'vellunara' || tier === 'basic' || tier === 'starter') {
+    const base = (CAFE_HERO_PRESETS[presetId] && CAFE_HERO_PRESETS[presetId][0]) 
+      ? CAFE_HERO_PRESETS[presetId][0] 
+      : (isCoffee ? KOPPEE_SLIDES[0] : LUXURY_PRO_3_SLIDES[0]);
+    return [{ ...base, id: 1, number: '01' }];
+  }
+
+  // 39 Dollar Plan / Pro tier:
+  // EXACTLY 3 hero section slides that slide through in rotation
+  if (tier === 'pro' || tier === 'professional') {
+    const slide1 = (CAFE_HERO_PRESETS[presetId] && CAFE_HERO_PRESETS[presetId][0]) 
+      ? { ...CAFE_HERO_PRESETS[presetId][0], id: 1, number: '01' } 
+      : (isCoffee ? KOPPEE_SLIDES[0] : LUXURY_PRO_3_SLIDES[0]);
+
+    if (isCoffee) {
+      return [
+        slide1,
+        { ...KOPPEE_SLIDES[1], id: 2, number: '02' },
+        { ...KOPPEE_SLIDES[2], id: 3, number: '03' }
+      ];
+    }
+
+    return [
+      slide1,
+      { ...LUXURY_PRO_3_SLIDES[1], id: 2, number: '02' },
+      { ...LUXURY_PRO_3_SLIDES[2], id: 3, number: '03' }
+    ];
+  }
+
+  // 99 Dollar Plan / Elite tier:
+  // EXACTLY 4 hero section slides that slide through in rotation
+  const slide1 = (CAFE_HERO_PRESETS[presetId] && CAFE_HERO_PRESETS[presetId][0]) 
+    ? { ...CAFE_HERO_PRESETS[presetId][0], id: 1, number: '01' } 
+    : (isCoffee ? COFFEE_ELITE_4_SLIDES[0] : LUXURY_ELITE_4_SLIDES[0]);
+
+  if (isCoffee) {
+    return [
+      slide1,
+      { ...COFFEE_ELITE_4_SLIDES[1], id: 2, number: '02' },
+      { ...COFFEE_ELITE_4_SLIDES[2], id: 3, number: '03' },
+      { ...COFFEE_ELITE_4_SLIDES[3], id: 4, number: '04' }
+    ];
+  }
+
+  return [
+    slide1,
+    { ...LUXURY_ELITE_4_SLIDES[1], id: 2, number: '02' },
+    { ...LUXURY_ELITE_4_SLIDES[2], id: 3, number: '03' },
+    { ...LUXURY_ELITE_4_SLIDES[3], id: 4, number: '04' }
+  ];
+}
+
 export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   brandName = 'My Restaurant',
   heroBackgroundImage,
@@ -670,13 +1223,19 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
 
   const isCoffeeTheme = COFFEE_SHOP_THEME_IDS.includes(activePresetId);
   const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
-  const activeTier = matchedTheme?.tier || 'basic'; // 'basic' ($15), 'pro' ($49), 'elite' ($99)
+  // Option #15 (Vellunara) is strictly basic/1-slide tier
+  const activeTier = (activePresetId === 'vellunara') ? 'basic' : (matchedTheme?.tier || 'basic'); // 'basic' ($15), 'pro' ($39), 'elite' ($99)
 
-  const defaultSlidesForTheme = isCoffeeTheme
-    ? (activeTier === 'elite' ? COFFEE_ELITE_4_SLIDES : KOPPEE_SLIDES)
-    : (activeTier === 'elite' ? LUXURY_ELITE_4_SLIDES : activeTier === 'pro' ? LUXURY_PRO_3_SLIDES : LUXURY_BASIC_2_SLIDES);
+  // Reset activeSlide whenever active theme changes
+  useEffect(() => {
+    setActiveSlide(0);
+  }, [activePresetId]);
 
-  const currentSlides = (heroSlides && heroSlides.length > 0) ? heroSlides : defaultSlidesForTheme;
+  const defaultSlidesForTheme = buildTierSlides(activePresetId, activeTier, isCoffeeTheme);
+
+  const currentSlides = (heroSlides && heroSlides.length > 0)
+    ? heroSlides
+    : defaultSlidesForTheme;
   const slide = currentSlides[activeSlide] || currentSlides[0] || defaultSlidesForTheme[0];
 
   // Check admin PIN/password logic (supports text, letters, numbers, symbols)

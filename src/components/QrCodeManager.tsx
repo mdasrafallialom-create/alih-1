@@ -1,4 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import coffeeBeansBg from '../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
+import coastalSunsetBg from '../assets/images/hero_coastal_1786551396930.jpg';
+import pizzaArtisanBg from '../assets/images/round_artisan_pizza_1790688885051.jpg';
+import michelinInteriorBg from '../assets/images/luxury_michelin_interior_1790508733625.jpg';
+import caviarSeafoodBg from '../assets/images/luxury_caviar_dish_1790508696808.jpg';
+import chefSteakChickenBg from '../assets/images/chef_marcus_closed_cloche_1790590238785.jpg';
 import { 
   QrCode, 
   Printer, 
@@ -19,13 +25,23 @@ import {
   Search,
   ShieldCheck,
   Grid,
-  Link as LinkIcon,
-  Palette
+  MapPin,
+  Crown,
+  Building2,
+  UserCheck,
+  Layers,
+  Palette,
+  Camera,
+  Tv,
+  Globe
 } from 'lucide-react';
 
 interface QrCodeManagerProps {
   brandName?: string;
   restaurantId?: string | null;
+  brandLocation?: string;
+  ownerName?: string;
+  onUpdateSettings?: (updates: any) => void;
 }
 
 interface BoundDish {
@@ -100,23 +116,163 @@ const DEFAULT_BOUND_DISHES: BoundDish[] = [
     category: 'Appetizers',
     popular: false,
   },
-  {
-    id: '7',
-    title: 'Golden Honey Velvet Cheesecake',
-    price: 18.00,
-    calories: '340 kcal',
-    desc: 'Organic wild berry compote, honey drizzle & 24k edible gold leaf crust.',
-    img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&auto=format&fit=crop',
-    category: 'Desserts',
-    popular: false,
-  },
 ];
 
-export default function QrCodeManager({ brandName = "My Restaurant", restaurantId }: QrCodeManagerProps) {
-  // Master Section Tabs:
-  // 1: 'binding_center' (QR & Menu Card Binding Center)
-  // 2: 'classic_generator' (Classic QR Code Generator & Stand Studio)
+// Card Theme Presets for Vibrant Restaurant QR Stand Cards
+type CardThemePreset = 
+  | 'royal_gold' 
+  | 'emerald_gold' 
+  | 'sapphire_cyan' 
+  | 'ruby_champagne' 
+  | 'flame_crimson' 
+  | 'parchment_wood';
+
+type CardFrameShape = 'arch' | 'oval' | 'hexagon' | 'brackets' | 'double_border' | 'modern_pill';
+
+interface ThemeConfig {
+  id: CardThemePreset;
+  name: string;
+  badgeTag: string;
+  bgClass: string;
+  borderClass: string;
+  textClass: string;
+  subTextClass: string;
+  accentBadge: string;
+  qrBoxBg: string;
+  qrBoxBorder: string;
+  previewGradient: string;
+  headerAccent: string;
+  footerText: string;
+  swatches: [string, string, string];
+}
+
+const CARD_THEMES: Record<CardThemePreset, ThemeConfig> = {
+  royal_gold: {
+    id: 'royal_gold',
+    name: 'Royal Gold & Onyx Filigree',
+    badgeTag: 'Luxury Gold Filigree',
+    bgClass: 'bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-amber-100',
+    borderClass: 'border-amber-500/70 shadow-amber-500/20',
+    textClass: 'text-amber-100 font-serif',
+    subTextClass: 'text-amber-300/80',
+    accentBadge: 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-600 text-slate-950 font-black',
+    qrBoxBg: 'bg-slate-900/90',
+    qrBoxBorder: 'border-amber-500/60',
+    previewGradient: 'from-amber-500 via-amber-400 to-yellow-600',
+    headerAccent: 'text-amber-400',
+    footerText: 'text-amber-400/80',
+    swatches: ['#d4af37', '#0f172a', '#eab308']
+  },
+  emerald_gold: {
+    id: 'emerald_gold',
+    name: 'Imperial Emerald & Gold',
+    badgeTag: 'Emerald Crest Filigree',
+    bgClass: 'bg-gradient-to-b from-emerald-950 via-teal-950 to-slate-950 text-emerald-100',
+    borderClass: 'border-emerald-500/70 shadow-emerald-500/20',
+    textClass: 'text-emerald-50 font-serif',
+    subTextClass: 'text-emerald-200/80',
+    accentBadge: 'bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-400 text-slate-950 font-black',
+    qrBoxBg: 'bg-emerald-950/90',
+    qrBoxBorder: 'border-emerald-400/60',
+    previewGradient: 'from-emerald-500 via-teal-400 to-amber-400',
+    headerAccent: 'text-emerald-300',
+    footerText: 'text-emerald-300/80',
+    swatches: ['#10b981', '#064e3b', '#fbbf24']
+  },
+  sapphire_cyan: {
+    id: 'sapphire_cyan',
+    name: 'Electric Sapphire & Azure Wave',
+    badgeTag: 'Sapphire Wave Frame',
+    bgClass: 'bg-gradient-to-b from-blue-950 via-indigo-950 to-slate-950 text-cyan-100',
+    borderClass: 'border-cyan-500/70 shadow-cyan-500/20',
+    textClass: 'text-cyan-50 font-sans',
+    subTextClass: 'text-cyan-200/80',
+    accentBadge: 'bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-black',
+    qrBoxBg: 'bg-indigo-950/90',
+    qrBoxBorder: 'border-cyan-400/60',
+    previewGradient: 'from-cyan-400 via-blue-500 to-indigo-600',
+    headerAccent: 'text-cyan-400',
+    footerText: 'text-cyan-300/80',
+    swatches: ['#06b6d4', '#1e1b4b', '#3b82f6']
+  },
+  ruby_champagne: {
+    id: 'ruby_champagne',
+    name: 'Ruby Burgundy & Champagne',
+    badgeTag: 'Burgundy Velvet Frame',
+    bgClass: 'bg-gradient-to-b from-purple-950 via-fuchsia-950 to-purple-950 text-pink-100',
+    borderClass: 'border-pink-500/70 shadow-pink-500/20',
+    textClass: 'text-pink-50 font-serif',
+    subTextClass: 'text-pink-200/80',
+    accentBadge: 'bg-gradient-to-r from-pink-400 via-purple-400 to-amber-300 text-slate-950 font-black',
+    qrBoxBg: 'bg-purple-900/90',
+    qrBoxBorder: 'border-pink-400/60',
+    previewGradient: 'from-pink-500 via-rose-400 to-amber-300',
+    headerAccent: 'text-amber-300',
+    footerText: 'text-pink-300/80',
+    swatches: ['#ec4899', '#581c87', '#fcd34d']
+  },
+  flame_crimson: {
+    id: 'flame_crimson',
+    name: 'Fiery Crimson & Copper Flame',
+    badgeTag: 'Crimson Flame Crest',
+    bgClass: 'bg-gradient-to-b from-rose-950 via-red-900 to-rose-950 text-rose-100',
+    borderClass: 'border-rose-500/70 shadow-rose-500/20',
+    textClass: 'text-rose-50 font-sans',
+    subTextClass: 'text-rose-200/80',
+    accentBadge: 'bg-gradient-to-r from-orange-500 to-rose-600 text-white font-black',
+    qrBoxBg: 'bg-rose-950/80',
+    qrBoxBorder: 'border-rose-400/60',
+    previewGradient: 'from-rose-500 via-orange-500 to-amber-500',
+    headerAccent: 'text-orange-400',
+    footerText: 'text-rose-300/80',
+    swatches: ['#f43f5e', '#881337', '#f97316']
+  },
+  parchment_wood: {
+    id: 'parchment_wood',
+    name: 'Artisanal Warm Parchment & Oak',
+    badgeTag: 'Warm Parchment Crest',
+    bgClass: 'bg-gradient-to-b from-[#fdfbf7] via-[#f7f2e8] to-[#f0e8d8] text-amber-950',
+    borderClass: 'border-amber-800/50 shadow-amber-900/10',
+    textClass: 'text-amber-950 font-serif',
+    subTextClass: 'text-amber-800/80',
+    accentBadge: 'bg-gradient-to-r from-amber-800 to-amber-950 text-amber-50 font-black',
+    qrBoxBg: 'bg-white/90',
+    qrBoxBorder: 'border-amber-700/40',
+    previewGradient: 'from-amber-700 via-orange-800 to-amber-900',
+    headerAccent: 'text-amber-800',
+    footerText: 'text-amber-900/80',
+    swatches: ['#92400e', '#fef3c7', '#78350f']
+  },
+};
+
+export default function QrCodeManager({ 
+  brandName = "Velmora Fine Dining", 
+  restaurantId,
+  brandLocation = "123 Culinary Boulevard, Downtown",
+  ownerName = "Md Ashraful",
+  onUpdateSettings
+}: QrCodeManagerProps) {
+  // Master Section Tabs
   const [activeTabMode, setActiveTabMode] = useState<'binding_center' | 'classic_generator'>('binding_center');
+
+  // Editable Restaurant Branding Information (Synced from System Settings Hub)
+  const [restaurantNameInput, setRestaurantNameInput] = useState<string>(brandName);
+  const [ownerNameInput, setOwnerNameInput] = useState<string>(ownerName);
+  const [restaurantLocationInput, setRestaurantLocationInput] = useState<string>(brandLocation);
+  const [taglineInput, setTaglineInput] = useState<string>("Scan with smartphone camera to view live 3D menu & order");
+
+  React.useEffect(() => {
+    if (brandName) setRestaurantNameInput(brandName);
+    if (ownerName) setOwnerNameInput(ownerName);
+    if (brandLocation) setRestaurantLocationInput(brandLocation);
+  }, [brandName, ownerName, brandLocation]);
+
+  // Selected Card Theme Preset
+  const [cardTheme, setCardTheme] = useState<CardThemePreset>('royal_gold');
+  // Interactive Frame & Card Shape Style state
+  const [cardFrameShape, setCardFrameShape] = useState<CardFrameShape>('arch');
+  // Table prefix: Table | TV Screen | VIP Table | Patio | Bar
+  const [tableTypePrefix, setTableTypePrefix] = useState<string>('Table');
 
   // Array of active table identifiers
   const [tables, setTables] = useState<(string | number)[]>(() => {
@@ -132,10 +288,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
     return Array.from({ length: 25 }, (_, i) => i + 1);
   });
 
-  const [selectedTable, setSelectedTable] = useState<string | number>(() => {
-    return tables[0] || 1;
-  });
-
+  const [selectedTable, setSelectedTable] = useState<string | number>(() => tables[0] || 1);
   const [newTableInput, setNewTableInput] = useState<string>('');
   const [customHost, setCustomHost] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -155,9 +308,9 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
 
   // Table search & zone filter
   const [tableSearchQuery, setTableSearchQuery] = useState('');
-  const [selectedZone, setSelectedZone] = useState<'all' | 'indoor' | 'vip' | 'rooftop'>('all');
+  const [selectedZone, setSelectedZone] = useState<'all' | 'indoor' | 'vip' | 'rooftop' | 'tv'>('all');
 
-  // Customizer state for printable cards
+  // Customizer state for QR colors
   const [qrColor, setQrColor] = useState<string>('0f172a');
   const [qrBgColor, setQrBgColor] = useState<string>('ffffff');
   const [qrSize, setQrSize] = useState<number>(300);
@@ -187,7 +340,6 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
       : `${customHost}?table=${encodeURIComponent(tableVal)}`;
   };
 
-  // Current selected table URL
   const currentComputedUrl = getComputedUrl(selectedTable);
 
   // QR code API link
@@ -214,7 +366,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
     saveTables(updated);
     setSelectedTable(val);
     setNewTableInput('');
-    setSyncSuccessToast(`Added Table #${val} successfully!`);
+    setSyncSuccessToast(`Added ${tableTypePrefix} #${val} successfully!`);
     setTimeout(() => setSyncSuccessToast(null), 2500);
   };
 
@@ -229,6 +381,19 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
     if (selectedTable === tableVal) {
       setSelectedTable(filtered[0]);
     }
+  };
+
+  // Sync settings when inputs change
+  const handleSaveBranding = () => {
+    if (onUpdateSettings) {
+      onUpdateSettings({
+        restaurantName: restaurantNameInput,
+        ownerName: ownerNameInput,
+        brandLocation: restaurantLocationInput,
+      });
+    }
+    setSyncSuccessToast('Saved Restaurant & Owner Details!');
+    setTimeout(() => setSyncSuccessToast(null), 2500);
   };
 
   // One-Click Sync All Tables
@@ -259,7 +424,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = `${brandName.replace(/\s+/g, '_')}_Table_${tableVal}_QR.png`;
+      link.download = `${restaurantNameInput.replace(/\s+/g, '_')}_${tableTypePrefix}_${tableVal}_QR.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -269,7 +434,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
     }
   };
 
-  // Batch download PNGs for ALL tables in a loop
+  // Batch download PNGs for ALL tables
   const handleDownloadAllPNGs = async () => {
     if (isDownloadingAll) return;
     setIsDownloadingAll(true);
@@ -290,7 +455,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
     window.print();
   };
 
-  // Print all stand cards as a PDF booklet
+  // Print all stand cards as a PDF booklet with selected Theme Preset!
   const handlePrintAllBooklet = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -298,18 +463,20 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
       return;
     }
 
+    const theme = CARD_THEMES[cardTheme];
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Dining Stands - All Tables Booklet</title>
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <title>${restaurantNameInput} - Table Stand Booklet</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
           body {
             margin: 0;
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #ffffff;
+            background-color: #090805;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -320,75 +487,111 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
             min-height: 100vh;
             page-break-after: always;
             box-sizing: border-box;
-            padding: 40px;
+            padding: 20px;
           }
           .stand-card {
-            width: 380px;
-            background: white;
-            border: 4px solid rgba(217, 119, 6, 0.2);
-            border-radius: 24px;
-            padding: 35px;
+            width: 420px;
+            background: #0f172a;
+            border: 4px solid #d97706;
+            border-radius: 28px;
+            padding: 36px 30px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            color: #fef3c7;
           }
-          .eyebrow {
+          .emblem {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d97706, #b45309);
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(217,119,6,0.3);
+          }
+          .owner-tag {
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.25em;
-            color: #64748b;
-            margin-bottom: 6px;
-            font-weight: 600;
+            color: #fbbf24;
+            font-weight: 700;
+            margin-bottom: 4px;
           }
           .title {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0 0 4px 0;
+            font-size: 26px;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 0 0 6px 0;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
           }
           .divider {
-            width: 50px;
-            height: 4px;
-            background: linear-gradient(90deg, #d97706, #b45309);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
             border-radius: 2px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
           }
-          .table-tag {
-            background-color: #0f172a;
-            color: white;
-            font-weight: 700;
-            padding: 8px 24px;
+          .table-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #020617;
+            font-weight: 900;
+            padding: 8px 28px;
             border-radius: 50px;
-            font-size: 14px;
+            font-size: 15px;
             letter-spacing: 0.15em;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 14px rgba(245,158,11,0.3);
+            text-transform: uppercase;
           }
-          .qr-box {
+          .qr-container {
             padding: 16px;
-            background: white;
-            border: 2px solid #f1f5f9;
-            border-radius: 16px;
-            margin-bottom: 24px;
+            background: #ffffff;
+            border: 3px solid #f59e0b;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
           }
           .qr-image {
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
             object-fit: contain;
+            display: block;
           }
           .tagline {
-            font-size: 14px;
-            color: #334155;
+            font-size: 13px;
+            color: #fde68a;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            max-width: 320px;
+          }
+          .location-footer {
+            font-size: 11px;
+            color: #fbbf24;
             font-weight: 600;
-            line-height: 1.5;
-            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+            border-top: 1px solid rgba(245,158,11,0.2);
+            padding-top: 14px;
+            width: 100%;
           }
           .meta {
-            font-size: 10px;
+            font-size: 9px;
             color: #94a3b8;
-            font-family: monospace;
+            font-mono;
+            margin-top: 6px;
           }
         </style>
       </head>
@@ -396,15 +599,18 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
         ${tables.map(t => `
           <div class="page-container">
             <div class="stand-card">
-              <div class="eyebrow">Welcome To</div>
-              <div class="title">${brandName.toUpperCase()}</div>
+              <div class="emblem">👑</div>
+              <div class="title">${restaurantNameInput.toUpperCase()}</div>
               <div class="divider"></div>
-              <div class="table-tag">TABLE ${t}</div>
-              <div class="qr-box">
-                <img src="${getQrCodeImgUrl(t, qrColor, qrBgColor, 400)}" class="qr-image" alt="QR Table ${t}" />
+              <div class="table-badge">${tableTypePrefix.toUpperCase()} #${t}</div>
+              <div class="qr-container">
+                <img src="${getQrCodeImgUrl(t, qrColor, qrBgColor, 450)}" class="qr-image" alt="${tableTypePrefix} ${t} QR" />
               </div>
-              <div class="tagline">Scan with smartphone camera to view live 3D/WebAR menu & order.</div>
-              <div class="meta">Instant Table Synchronization • Powered by WebAR OS</div>
+              <div class="tagline">📷 ${taglineInput}</div>
+              <div class="location-footer">
+                📍 ${restaurantLocationInput}
+              </div>
+              <div class="meta">⚡ Instant WebAR Live Sync • Powered by WebAR OS</div>
             </div>
           </div>
         `).join('')}
@@ -451,22 +657,24 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
     });
   }, [tables, tableSearchQuery, selectedZone]);
 
+  const activeTheme = CARD_THEMES[cardTheme];
+
   return (
     <div className="w-full bg-white text-slate-800 font-sans space-y-6">
       
-      {/* 1. MASTER HEADER & TOP BANNER (PURE WHITE STYLE) */}
+      {/* 1. MASTER HEADER & BRANDING CONTROLLER */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden">
         
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 font-mono text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                QR & Menu Binding Engine v3.2
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                QR & Menu Binding Engine v3.5
               </span>
               <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[10px] font-bold flex items-center gap-1 shadow-xs">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                100% Synced ({tables.length} Tables Active)
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                100% Synced ({tables.length} {tableTypePrefix}s Active)
               </span>
             </div>
 
@@ -474,7 +682,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
               QR & Menu Card Binding Center
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
-              Live table QR binding, menu card sync engine, and interactive scan preview. Whenever you update your menu card or dishes, one click guarantees every table QR is instantly linked.
+              Design vibrant table QR stands, customize restaurant location & owner details, and instantly bind your WebAR menu across all tables.
             </p>
           </div>
 
@@ -492,17 +700,17 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
               }`}
             >
               <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Synchronizing All QR Codes...' : `⚡ Sync Menu to All ${tables.length} Tables`}</span>
+              <span>{isSyncing ? 'Synchronizing All QR Codes...' : `⚡ Sync Menu to All ${tables.length} ${tableTypePrefix}s`}</span>
             </button>
 
             {/* Print Booklet Button */}
             <button
               type="button"
               onClick={handlePrintAllBooklet}
-              className="px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-2 border border-slate-200 transition-colors shadow-xs cursor-pointer"
+              className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 transition-colors shadow-sm cursor-pointer"
             >
-              <Printer className="w-4 h-4 text-slate-600" />
-              <span>Print All Stands</span>
+              <Printer className="w-4 h-4 text-amber-400" />
+              <span>Print All Stand Cards</span>
             </button>
           </div>
         </div>
@@ -520,7 +728,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
           </div>
         )}
 
-        {/* The Two Master Navigation Sections (White Styled) */}
+        {/* Master Navigation Tabs */}
         <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80">
             <button
@@ -545,8 +753,8 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <QrCode className="w-4 h-4 text-cyan-600" />
-              <span>2. QR Code Generator & Stand Studio</span>
+              <Palette className="w-4 h-4 text-cyan-600" />
+              <span>2. QR Stand Card Studio & Design Presets</span>
             </button>
           </div>
 
@@ -559,23 +767,23 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
       </div>
 
       {/* ========================================================================= */}
-      {/* SECTION 1: QR & MENU CARD BINDING CENTER (PURE WHITE BACKGROUND) */}
+      {/* SECTION 1: QR & MENU CARD BINDING CENTER */}
       {/* ========================================================================= */}
       {activeTabMode === 'binding_center' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* LEFT 7 COLS: TABLE CONTROLLER & GRID (WHITE CARDS) */}
+          {/* LEFT 7 COLS: TABLE CONTROLLER & GRID */}
           <div className="lg:col-span-7 space-y-6">
             
-            {/* Quick Table Presets (15, 25, 40 Tables) */}
+            {/* Quick Table Presets */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <Grid className="w-4 h-4 text-amber-500" />
-                  Quick Table Count Presets
+                  Quick Table Capacity Presets
                 </span>
                 <span className="text-[11px] text-slate-400">
-                  Select your restaurant's capacity in 1-click
+                  Configure active tables in 1-click
                 </span>
               </div>
 
@@ -590,7 +798,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                   }`}
                 >
                   <span className="text-sm font-black">15 Tables</span>
-                  <span className="text-[9px] opacity-80">Cafe & Bistro</span>
+                  <span className="text-[9px] opacity-80">Bistro / Cafe</span>
                 </button>
 
                 <button
@@ -621,75 +829,45 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
               </div>
             </div>
 
-            {/* Table Selector & Search Bar (White Background with clean white table tiles) */}
+            {/* Table Matrix */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-base font-black text-slate-900">
-                    Dining Table Matrix ({filteredTables.length} shown)
+                    Dining Table Matrix ({filteredTables.length} active)
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Click any table to view its live phone menu preview on the right.
+                    Click any table to view live phone menu preview.
                   </p>
                 </div>
 
-                {/* Zone Filter pills */}
+                {/* Table Prefix Type Switcher */}
                 <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-[11px] font-bold border border-slate-200/60">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedZone('all')}
-                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                      selectedZone === 'all' 
-                        ? 'bg-white text-slate-900 shadow-xs' 
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    All
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedZone('indoor')}
-                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                      selectedZone === 'indoor' 
-                        ? 'bg-white text-slate-900 shadow-xs' 
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    Indoor
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedZone('rooftop')}
-                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                      selectedZone === 'rooftop' 
-                        ? 'bg-white text-slate-900 shadow-xs' 
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    Rooftop
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedZone('vip')}
-                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                      selectedZone === 'vip' 
-                        ? 'bg-white text-slate-900 shadow-xs' 
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    VIP Lounge
-                  </button>
+                  {['Table', 'TV Screen', 'VIP Table', 'Patio'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setTableTypePrefix(type)}
+                      className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                        tableTypePrefix === type 
+                          ? 'bg-slate-900 text-white shadow-xs font-black' 
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Add Custom Table Input */}
+              {/* Add Custom Table Form */}
               <form onSubmit={handleCreateTable} className="flex gap-2">
                 <input
                   type="text"
                   value={newTableInput}
                   onChange={(e) => setNewTableInput(e.target.value)}
-                  placeholder="e.g. 26 or VIP-A or Patio-2"
+                  placeholder={`e.g. 26 or ${tableTypePrefix}-A`}
                   className="flex-1 px-4 py-2.5 text-xs rounded-xl bg-white border border-slate-200 text-slate-900 outline-none focus:border-amber-500 transition-colors shadow-xs"
                 />
                 <button
@@ -697,12 +875,12 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                   className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>+ Add Table</span>
+                  <span>+ Add {tableTypePrefix}</span>
                 </button>
               </form>
 
-              {/* Table Grid Cards (Clean White Tiles, Highlight in Warm Amber) */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[440px] overflow-y-auto p-1 pr-2 no-scrollbar">
+              {/* Table Grid Cards */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[420px] overflow-y-auto p-1 pr-2 no-scrollbar">
                 {filteredTables.map((tableVal) => {
                   const isSelected = selectedTable === tableVal;
                   return (
@@ -715,7 +893,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                           : 'bg-white hover:bg-amber-50/40 border-slate-200 text-slate-800 shadow-xs'
                       }`}
                     >
-                      {/* Delete button on hover */}
+                      {/* Delete button */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -743,7 +921,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                       <span className={`text-xs font-black block leading-tight ${
                         isSelected ? 'text-white' : 'text-slate-900'
                       }`}>
-                        Table #{tableVal}
+                        {tableTypePrefix} #{tableVal}
                       </span>
 
                       {/* Status indicator */}
@@ -761,7 +939,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
               {/* URL & Parameter bar */}
               <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">QR Binding Parameter:</span>
+                  <span className="text-slate-500">QR Link Parameter:</span>
                   <span className="px-2.5 py-1 rounded-md bg-amber-50 text-amber-900 border border-amber-200 font-mono font-bold text-[11px]">
                     ?table={selectedTable}
                   </span>
@@ -799,9 +977,9 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
             <div className="w-full max-w-sm">
               
               {/* Smartphone Case Mockup */}
-              <div className="relative mx-auto border-[10px] border-[#1e1c18] rounded-[3rem] shadow-2xl bg-[#090805] text-[#FBF8EE] overflow-hidden flex flex-col h-[650px] w-full max-w-[340px] select-none">
+              <div className="relative mx-auto border-[10px] border-[#1e1c18] rounded-[3rem] shadow-2xl bg-[#090805] text-[#FBF8EE] overflow-hidden flex flex-col h-[640px] w-full max-w-[340px] select-none">
                 
-                {/* Speaker Ear Notch / Dynamic Island */}
+                {/* Speaker Notch */}
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-4 bg-[#1e1c18] rounded-full z-40 flex items-center justify-center">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#090805] -mr-8" />
                 </div>
@@ -815,29 +993,26 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                   </div>
                 </div>
 
-                {/* Mini Top Bar inside Phone: Table Banner */}
+                {/* Mini Top Bar inside Phone */}
                 <div className="px-4 py-2.5 bg-[#14120B] border-b border-[#D4AF37]/30 flex items-center justify-between shrink-0 z-20">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-md bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 font-black text-[10px]">
-                      MR
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-md bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 font-black text-[10px] shrink-0">
+                      👑
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-[10px] font-bold text-white block leading-none truncate max-w-[120px]">
-                        {brandName}
-                      </span>
-                      <span className="text-[8px] text-amber-400 font-mono">
-                        Active WebAR Menu
+                        {restaurantNameInput}
                       </span>
                     </div>
                   </div>
 
-                  {/* Active Table Badge inside Phone */}
-                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-black text-[9px] uppercase tracking-wider shadow-xs">
-                    Table #{selectedTable}
+                  {/* Active Table Badge */}
+                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-black text-[9px] uppercase tracking-wider shrink-0 shadow-xs">
+                    {tableTypePrefix} #{selectedTable}
                   </span>
                 </div>
 
-                {/* Phone Search Bar */}
+                {/* Search Bar */}
                 <div className="p-3 bg-[#0d0c08] border-b border-stone-800 shrink-0">
                   <div className="relative">
                     <Search className="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -845,18 +1020,16 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                       type="text"
                       value={previewFoodSearch}
                       onChange={(e) => setPreviewFoodSearch(e.target.value)}
-                      placeholder="Search food by name..."
+                      placeholder="Search live food items..."
                       className="w-full pl-7 pr-3 py-1.5 text-[10px] bg-stone-900 border border-stone-800 rounded-lg text-white placeholder-stone-500 outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
 
-                {/* Phone Scrollable Menu Items Area */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-3 no-scrollbar">
-                  
-                  {/* Notice banner */}
-                  <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[10px] text-amber-200/90 leading-tight">
-                    🔥 <strong>Popular First:</strong> Top dishes appear automatically at the top for customers scanning Table #{selectedTable}.
+                {/* Scrollable Menu Items */}
+                <div className="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar">
+                  <div className="p-2 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[9px] text-amber-200/90 leading-tight">
+                    🔥 <strong>Live WebAR Sync:</strong> Customers scanning {tableTypePrefix} #{selectedTable} see this instant menu.
                   </div>
 
                   {phonePreviewDishes.map((dish) => (
@@ -864,7 +1037,7 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                       key={dish.id} 
                       className="p-2 rounded-xl bg-[#14120B] border border-stone-800/80 hover:border-amber-500/40 transition-all flex gap-2.5 items-center group"
                     >
-                      <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 border border-stone-800">
+                      <div className="w-13 h-13 rounded-lg overflow-hidden shrink-0 border border-stone-800">
                         <img 
                           src={dish.img} 
                           alt={dish.title} 
@@ -875,8 +1048,8 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           {dish.popular && (
-                            <span className="px-1.5 py-0.5 rounded bg-orange-950 border border-orange-500/50 text-[8px] font-bold text-orange-400 flex items-center gap-0.5">
-                              <Flame className="w-2.5 h-2.5" /> Popular
+                            <span className="px-1 py-0.2 rounded bg-orange-950 border border-orange-500/50 text-[7px] font-bold text-orange-400 flex items-center gap-0.5">
+                              <Flame className="w-2 h-2" /> Popular
                             </span>
                           )}
                           <span className="text-[10px] font-bold text-white truncate block">
@@ -892,39 +1065,38 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
                           <span className="text-[10px] font-mono font-black text-amber-400">
                             ${dish.price.toFixed(2)}
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-amber-500 text-stone-950 text-[9px] font-bold cursor-pointer hover:bg-amber-400">
-                            + Add
+                          <span className="px-2 py-0.5 rounded bg-amber-500 text-stone-950 text-[8px] font-bold cursor-pointer hover:bg-amber-400">
+                            + Order
                           </span>
                         </div>
                       </div>
                     </div>
                   ))}
-
                 </div>
 
-                {/* Bottom Phone Action bar */}
+                {/* Bottom Bar */}
                 <div className="p-3 bg-[#14120B] border-t border-stone-800 shrink-0">
                   <div className="w-full py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-stone-950 font-black text-xs text-center uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md">
                     <UtensilsCrossed className="w-3.5 h-3.5" />
-                    <span>Order To Table #{selectedTable}</span>
+                    <span>Send Order To {tableTypePrefix} #{selectedTable}</span>
                   </div>
                 </div>
 
               </div>
 
-              {/* QR Under Phone (Clean White Box) */}
+              {/* QR Under Phone */}
               <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 bg-white p-1 rounded-xl border border-slate-200 shadow-xs shrink-0">
                     <img 
                       src={currentQrCodeImgUrl} 
-                      alt={`Table ${selectedTable} QR`}
+                      alt={`${tableTypePrefix} ${selectedTable} QR`}
                       className="w-full h-full object-contain"
                     />
                   </div>
                   <div>
                     <span className="text-xs font-black text-slate-900 block">
-                      Table #{selectedTable} QR Code
+                      {tableTypePrefix} #{selectedTable} QR Code
                     </span>
                     <span className="text-[10px] text-slate-500 block truncate max-w-[160px]">
                       {currentComputedUrl}
@@ -950,131 +1122,104 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
       )}
 
       {/* ========================================================================= */}
-      {/* SECTION 2: CLASSIC QR GENERATOR, CUSTOMIZER & STAND STUDIO (ALL WHITE) */}
+      {/* SECTION 2: QR STAND CARD STUDIO & COLORFUL PRESETS */}
       {/* ========================================================================= */}
       {activeTabMode === 'classic_generator' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start" id="qr-manager-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Controls Column (Left 5 Cols) */}
-          <div className="lg:col-span-5 space-y-6" id="qr-controls-sidebar">
+          <div className="lg:col-span-5 space-y-6">
             
-            {/* Table Registration & Add Table */}
+            {/* 1. Card Theme Color & Luxury Presets */}
             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-cyan-600" />
-                  Table Identifiers ({tables.length} Registered)
+                  <Palette className="w-4 h-4 text-purple-600" />
+                  Select Stand Card Theme Preset
                 </h3>
               </div>
 
-              {/* Add Table Form */}
-              <form onSubmit={handleCreateTable} className="flex gap-2">
-                <input
-                  type="text"
-                  value={newTableInput}
-                  onChange={(e) => setNewTableInput(e.target.value)}
-                  placeholder="e.g. 13 or VIP-1"
-                  className="flex-1 px-3 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:border-cyan-500 text-slate-900 outline-none transition-all shadow-xs"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Table</span>
-                </button>
-              </form>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Object.values(CARD_THEMES).map((theme) => (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => setCardTheme(theme.id)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
+                      cardTheme === theme.id
+                        ? 'border-amber-500 ring-2 ring-amber-400/60 bg-amber-50/40 shadow-sm scale-[1.02]'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                    }`}
+                  >
+                    <div className="space-y-1 w-full">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-slate-900 block leading-tight">
+                          {theme.name}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-amber-700 block">
+                        {theme.badgeTag}
+                      </span>
 
-              {/* Table Selector Grid */}
-              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-56 overflow-y-auto p-1 pr-2 no-scrollbar">
-                {tables.map((tableVal) => (
-                  <div key={tableVal} className="relative group">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTable(tableVal)}
-                      className={`w-full py-2 px-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer truncate ${
-                        selectedTable === tableVal
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700'
-                      }`}
-                    >
-                      T-{tableVal}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteTable(tableVal)}
-                      className="absolute -top-1 -right-1 p-0.5 rounded-full bg-red-100 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 cursor-pointer"
-                      title="Delete table"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
+                      {/* Compact Square Color Swatches */}
+                      <div className="flex items-center justify-between pt-2 mt-2 border-t border-slate-100 w-full">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Swatches:</span>
+                        <div className="flex items-center gap-1.5">
+                          {theme.swatches.map((colorHex, idx) => (
+                            <div 
+                              key={idx} 
+                              style={{ backgroundColor: colorHex }} 
+                              className="w-4 h-4 rounded-md border border-slate-300 shadow-2xs shrink-0" 
+                              title={colorHex}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Base App URL settings */}
+            {/* 2. Interactive Card & QR Frame Shape Customizer */}
             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-              <label className="block text-xs font-mono uppercase tracking-wider text-slate-500">
-                Base App URL
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={customHost}
-                  onChange={(e) => setCustomHost(e.target.value)}
-                  placeholder="https://mysite.com/"
-                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 focus:border-cyan-500 text-xs font-mono text-slate-900 outline-none transition-all shadow-xs"
-                />
-                <button
-                  type="button"
-                  onClick={() => setCustomHost(window.location.origin + window.location.pathname)}
-                  className="absolute right-2.5 top-2 p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
-                  title="Reset to current live app URL"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Grid className="w-4 h-4 text-amber-500" />
+                Select Frame & Shape Geometry (শেপ ও ফ্রেম স্টাইল)
+              </h3>
 
-              {/* Active link preview */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-600">Active Link Parameter:</span>
-                  <span className="font-mono text-cyan-700 font-bold">?table={selectedTable}</span>
-                </div>
-                
-                <div className="break-all p-2.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 select-all">
-                  {currentComputedUrl}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {[
+                  { id: 'arch', name: 'Royal Arch', desc: 'Curved Arch Top', icon: '🏛️' },
+                  { id: 'oval', name: 'Luxury Oval', desc: 'Filigree Oval Emblem', icon: '⭕' },
+                  { id: 'hexagon', name: 'Hexagon Shape', desc: 'Chiseled Hexagon', icon: '⬡' },
+                  { id: 'brackets', name: 'Corner Brackets', desc: 'Metallic Corner Brackets', icon: '📐' },
+                  { id: 'double_border', name: 'Double Gold Line', desc: 'Dual Border Line', icon: '🖼️' },
+                  { id: 'modern_pill', name: 'Modern Pill', desc: 'Rounded Curved Pill', icon: '📱' },
+                ].map((s) => (
                   <button
+                    key={s.id}
                     type="button"
-                    onClick={handleCopyLink}
-                    className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-xs border border-slate-200 transition-all cursor-pointer shadow-xs"
+                    onClick={() => setCardFrameShape(s.id as CardFrameShape)}
+                    className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                      cardFrameShape === s.id
+                        ? 'border-amber-500 ring-2 ring-amber-400/60 bg-amber-50/50 shadow-sm font-black text-amber-900'
+                        : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-bold'
+                    }`}
                   >
-                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                    <span>{copied ? 'Copied' : 'Copy Link'}</span>
+                    <span className="text-xl select-none">{s.icon}</span>
+                    <span className="text-xs block leading-tight">{s.name}</span>
+                    <span className="text-[9px] text-slate-400 font-normal">{s.desc}</span>
                   </button>
-
-                  <a
-                    href={currentComputedUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-xs border border-slate-200 transition-all cursor-pointer shadow-xs"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Test Link</span>
-                  </a>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* Customizer Panel */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4" id="qr-color-customizer">
+            {/* 3. QR Code Colors */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-cyan-600" />
-                Customize QR Code Design
+                QR Code Foreground & Background Color
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -1116,49 +1261,99 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
 
           </div>
 
-          {/* Right Column: Printable Stand Preview (White Paper Stand Style) */}
+          {/* Right Column: Printable Stand Preview (Live Rich Design Card) */}
           <div className="lg:col-span-7 flex flex-col items-center gap-6">
             
-            <div className="w-full max-w-sm p-8 rounded-3xl bg-slate-50 border border-slate-200 shadow-xl relative overflow-hidden group">
+            <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden group">
               
-              <div className="print-slip flex flex-col items-center text-center p-6 bg-white text-slate-900 rounded-2xl shadow-md border-4 border-amber-600/20 relative" id="table-card-print-area">
-                <span className="text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase mb-1">
-                  Welcome to Luxurious Dining
-                </span>
-                <h4 className="text-xl font-display font-bold tracking-tight text-slate-900 mb-0.5">
-                  {brandName.toUpperCase()} RESTAURANT
-                </h4>
-                <div className="w-12 h-1 bg-gradient-to-r from-amber-500 to-amber-700 rounded-full mb-6" />
+              {/* Vibrant Decorative Table Stand Card with Selected Shape & Frame */}
+              <div 
+                id="table-card-print-area"
+                className={`w-full p-8 ${
+                  cardFrameShape === 'arch' ? 'rounded-t-[3.5rem] rounded-b-2xl border-4' :
+                  cardFrameShape === 'oval' ? 'rounded-[3rem] border-4' :
+                  cardFrameShape === 'hexagon' ? 'rounded-3xl border-4' :
+                  cardFrameShape === 'brackets' ? 'rounded-2xl border-4 relative' :
+                  cardFrameShape === 'double_border' ? 'rounded-2xl border-4 ring-2 ring-amber-400/50' :
+                  'rounded-[2.5rem] border-4'
+                } ${activeTheme.bgClass} ${activeTheme.borderClass} relative overflow-hidden flex flex-col items-center text-center shadow-2xl transition-all duration-300`}
+              >
+                {/* Background Filigree Accent */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)] pointer-events-none" />
 
-                <div className="px-6 py-2 rounded-full bg-slate-950 text-white font-display font-bold text-sm tracking-widest mb-6 shadow-sm">
-                  TABLE {selectedTable}
+                {/* Badge Tag */}
+                <div className="relative z-10 px-3.5 py-1 rounded-full bg-slate-900/90 border border-amber-400/40 text-[10px] font-black uppercase tracking-widest text-amber-300 mb-3 shadow-md flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>{activeTheme.badgeTag}</span>
                 </div>
 
-                <div className="p-4 bg-white rounded-2xl border-2 border-slate-100 shadow-sm mb-6 relative">
-                  <img
-                    src={currentQrCodeImgUrl}
-                    alt={`QR Code to scan for table ${selectedTable}`}
-                    className="w-48 h-48 object-contain rounded-lg"
-                    crossOrigin="anonymous"
-                  />
+                {/* Top Emblem / Monogram Logo */}
+                <div className="relative z-10 flex flex-col items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 via-amber-500 to-yellow-600 text-slate-950 flex items-center justify-center font-black text-xl shadow-lg border border-amber-300 mb-2">
+                    👑
+                  </div>
+                  
+                  {/* Restaurant Name */}
+                  <h3 className={`text-2xl sm:text-3xl font-black tracking-tight mt-1 mb-1 ${activeTheme.textClass}`}>
+                    {restaurantNameInput.toUpperCase()}
+                  </h3>
+
+                  <div className="w-16 h-1 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full my-1.5" />
                 </div>
 
-                <p className="text-sm font-sans text-slate-700 leading-relaxed font-semibold max-w-xs mb-3">
-                  Scan with your smartphone camera to load our immersive 3D/WebAR menu.
+                {/* Table / TV Screen Badge */}
+                <div className={`px-7 py-2.5 rounded-full ${activeTheme.accentBadge} text-sm tracking-widest uppercase mb-6 shadow-md border border-white/20`}>
+                  {tableTypePrefix} #{selectedTable}
+                </div>
+
+                {/* QR Code Container Box with Dynamic Shape Frame */}
+                <div className={`p-4 ${
+                  cardFrameShape === 'arch' ? 'rounded-t-3xl rounded-b-xl border-2' :
+                  cardFrameShape === 'oval' ? 'rounded-[2rem] border-2' :
+                  cardFrameShape === 'hexagon' ? 'rounded-xl border-2 ring-2 ring-amber-400/30' :
+                  cardFrameShape === 'brackets' ? 'rounded-xl border-2 outline outline-2 outline-amber-400/40 outline-offset-2' :
+                  cardFrameShape === 'double_border' ? 'rounded-xl border-4 ring-2 ring-amber-400/40' :
+                  'rounded-2xl border-2'
+                } ${activeTheme.qrBoxBg} ${activeTheme.qrBoxBorder} shadow-2xl relative mb-5 transition-all duration-300`}>
+                  
+                  {/* Camera Icon Banner Above QR */}
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider flex items-center gap-1 shadow-md z-20">
+                    <Camera className="w-3 h-3" />
+                    <span>SCAN HERE</span>
+                  </div>
+
+                  <div className="p-2 bg-white rounded-xl shadow-inner mt-1">
+                    <img
+                      src={currentQrCodeImgUrl}
+                      alt={`QR Code for ${tableTypePrefix} ${selectedTable}`}
+                      className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                </div>
+
+                {/* Tagline Instructions */}
+                <p className={`text-xs sm:text-sm font-bold leading-relaxed max-w-xs mb-4 ${activeTheme.subTextClass}`}>
+                  📷 {taglineInput}
                 </p>
-                <span className="text-[10px] font-mono text-slate-400">
-                  No App Install Required • Auto table synced
+
+                {/* Restaurant Location Footer */}
+                <div className="w-full pt-4 border-t border-amber-500/30 flex items-center justify-center gap-1.5 text-xs font-bold text-amber-300">
+                  <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="truncate">{restaurantLocationInput}</span>
+                </div>
+
+                {/* Tech Badge */}
+                <span className="text-[9px] font-mono text-slate-400 mt-2 block">
+                  ⚡ Instant WebAR Live Sync • Powered by WebAR OS
                 </span>
 
-                <div className="mt-8 pt-4 border-t border-slate-100 w-full text-[9px] font-mono text-slate-400 break-all select-all">
-                  {currentComputedUrl}
-                </div>
               </div>
 
             </div>
 
             {/* Print & Download Buttons */}
-            <div className="w-full max-w-sm grid grid-cols-2 gap-3">
+            <div className="w-full max-w-md grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => handleDownloadPNG(selectedTable)}
@@ -1171,18 +1366,18 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
               <button
                 type="button"
                 onClick={handlePrintCurrent}
-                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold border border-slate-200 transition-all cursor-pointer shadow-xs"
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black transition-all cursor-pointer shadow-md"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Table Stand</span>
               </button>
             </div>
 
-            {/* Batch actions (Booklet & Download all PNGs) */}
-            <div className="w-full max-w-sm p-4 rounded-2xl bg-amber-50/50 border border-amber-200 space-y-3">
+            {/* Batch Booklet Actions */}
+            <div className="w-full max-w-md p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-3">
               <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
                 <FileText className="w-4 h-4 text-amber-600" />
-                Batch Actions ({tables.length} tables)
+                Batch Booklet Actions ({tables.length} {tableTypePrefix}s)
               </span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1231,11 +1426,9 @@ export default function QrCodeManager({ brandName = "My Restaurant", restaurantI
             position: absolute;
             left: 50%;
             top: 40%;
-            transform: translate(-50%, -50%) scale(1.15);
-            width: 380px;
-            border: 4px solid rgba(217, 119, 6, 0.15) !important;
+            transform: translate(-50%, -50%) scale(1.1);
+            width: 400px;
             box-shadow: none !important;
-            background: white !important;
           }
         }
       `}</style>
