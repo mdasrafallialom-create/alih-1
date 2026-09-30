@@ -15,27 +15,53 @@ export const InteractivePizzaVisual: React.FC<InteractivePizzaVisualProps> = ({
   customImg
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [sliceCount, setSliceCount] = useState(1);
+  const [hoveredSliceIndex, setHoveredSliceIndex] = useState<number | null>(null);
 
   const pizzaImgSrc = customImg || roundArtisanPizzaImg;
 
-  // Geometry: 1000x1000 coordinate system
-  // Center at (500, 500), radius R = 455 (strictly encompasses only the round pizza crust, clipping all square dark borders away)
-  // Slice angle: from -65 deg to -10 deg (a classic 55-degree slice in top-right sector)
-  // Point 1 (-65 deg): (692.3, 87.6)
-  // Point 2 (-10 deg): (948.1, 421.0)
-  const slicePath = "M 500 500 L 692.3 87.6 A 455 455 0 0 1 948.1 421.0 Z";
-  const bodyPath = "M 500 500 L 948.1 421.0 A 455 455 0 1 1 692.3 87.6 Z";
+  // Function to calculate the SVG path of a 60-degree wedge (1/6th of a pizza)
+  // cx, cy are center coordinates, r is radius
+  // Angle starts from 12 o'clock (0 degrees), increasing clockwise
+  const getWedgePath = (startDeg: number, endDeg: number, cx = 500, cy = 500, r = 455) => {
+    const rad1 = (startDeg - 90) * Math.PI / 180;
+    const rad2 = (endDeg - 90) * Math.PI / 180;
+    const x1 = cx + r * Math.cos(rad1);
+    const y1 = cy + r * Math.sin(rad1);
+    const x2 = cx + r * Math.cos(rad2);
+    const y2 = cy + r * Math.sin(rad2);
+    
+    return `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
+  };
+
+  // Tracking mouse movement over the SVG container to determine the active 60-degree slice
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - (rect.left + rect.width / 2);
+    const y = e.clientY - (rect.top + rect.height / 2);
+    
+    // Calculate angle in degrees from -180 to 180, then map to 0 to 360 relative to 12 o'clock
+    let angle = Math.atan2(y, x) * (180 / Math.PI);
+    angle = (angle + 90 + 360) % 360;
+    
+    const sliceIndex = Math.floor(angle / 60);
+    setHoveredSliceIndex(sliceIndex);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredSliceIndex(null);
+  };
 
   return (
     <div 
       className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => setIsHovered(prev => !prev)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setHoveredSliceIndex(null);
+      }}
       role="button"
       tabIndex={0}
-      aria-label="Interactive Wood-Fired Pizza - Hover to lift a slice"
+      aria-label="Interactive Wood-Fired Pizza - Hover over slices to pull them out"
     >
       {/* 1. Soft Circular Ambient Halo Behind Pizza - Zero Square Boundaries */}
       <div 
@@ -56,17 +82,16 @@ export const InteractivePizzaVisual: React.FC<InteractivePizzaVisualProps> = ({
         <svg 
           viewBox="0 0 1000 1000" 
           className="w-full h-full overflow-visible drop-shadow-[0_20px_45px_rgba(0,0,0,0.85)]"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
           <defs>
-            {/* Main Pizza Body Clip Path (Whole circle minus the lifted slice) */}
-            <clipPath id="pizza-body-clip">
-              <path d={bodyPath} />
-            </clipPath>
-
-            {/* Lifted Slice Clip Path (The single 55-degree slice) */}
-            <clipPath id="pizza-slice-clip">
-              <path d={slicePath} />
-            </clipPath>
+            {/* 6 separate wedge clip-paths for 6 slices */}
+            {Array.from({ length: 6 }).map((_, i) => (
+              <clipPath id={`pizza-slice-clip-${i}`} key={i}>
+                <path d={getWedgePath(i * 60, (i + 1) * 60)} />
+              </clipPath>
+            ))}
 
             {/* Whole Pizza Circle Clip (to guarantee zero corners outside the round crust) */}
             <clipPath id="pizza-full-circle-clip">
@@ -87,142 +112,9 @@ export const InteractivePizzaVisual: React.FC<InteractivePizzaVisualProps> = ({
             </filter>
           </defs>
 
-          {/* LAYER A: Pizza Stone / Peel Base Underneath (Visible inside the empty cut slot) */}
-          <circle cx="500" cy="500" r="456" fill="url(#peel-void-gradient)" />
-          
-          {/* Subtle char marks and herb crumbs on the stone beneath where the slice lifted */}
-          <AnimatePresence>
-            {isHovered && (
-              <g className="transition-opacity duration-300">
-                <path 
-                  d={slicePath} 
-                  fill="#0f0804" 
-                  stroke="rgba(217,119,6,0.3)" 
-                  strokeWidth="2" 
-                />
-                {/* Crumb and melted oil residue */}
-                <circle cx="540" cy="460" r="6" fill="#ca8a04" opacity="0.7" />
-                <circle cx="590" cy="410" r="4" fill="#ea580c" opacity="0.6" />
-                <circle cx="670" cy="340" r="5" fill="#ca8a04" opacity="0.5" />
-                <circle cx="730" cy="270" r="8" fill="#1c1917" opacity="0.8" />
-                <circle cx="620" cy="480" r="3" fill="#15803d" opacity="0.7" />
-                <circle cx="780" cy="380" r="4.5" fill="#f59e0b" opacity="0.5" />
-                <path d="M 520 480 Q 560 450 600 440" stroke="#f59e0b" strokeWidth="2.5" fill="none" opacity="0.4" strokeDasharray="3 3" />
-              </g>
-            )}
-          </AnimatePresence>
-
-          {/* LAYER B: Main Pizza Body (The remaining 305 degrees of the pizza, stays anchored) */}
-          <g clipPath="url(#pizza-body-clip)">
-            <image 
-              href={pizzaImgSrc} 
-              x="0" 
-              y="0" 
-              width="1000" 
-              height="1000" 
-              preserveAspectRatio="xMidYMid slice"
-            />
-          </g>
-
-          {/* LAYER C: Melted Mozzarella Cheese Pull Strings (Stretch from pizza base to slice tip as it lifts) */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.g
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Stretchy string 1: Tip stretch */}
-                <motion.path
-                  initial={{ d: "M 500 500 Q 500 500 500 500" }}
-                  animate={{ d: "M 500 500 Q 530 460 565 440" }}
-                  transition={{ type: "spring", stiffness: 200, damping: 18 }}
-                  stroke="#fef08a"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  fill="none"
-                  filter="drop-shadow(0 2px 4px rgba(0,0,0,0.6))"
-                />
-                <motion.path
-                  initial={{ d: "M 505 495 Q 515 480 520 470" }}
-                  animate={{ d: "M 505 495 Q 545 440 575 425" }}
-                  transition={{ type: "spring", stiffness: 180, damping: 17, delay: 0.02 }}
-                  stroke="#fbbf24"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Stretchy string 2: Lower edge stretch */}
-                <motion.path
-                  initial={{ d: "M 650 470 Q 650 470 650 470" }}
-                  animate={{ d: "M 650 470 Q 690 440 725 410" }}
-                  transition={{ type: "spring", stiffness: 220, damping: 19, delay: 0.04 }}
-                  stroke="#fef9c3"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Stretchy string 3: Upper edge stretch */}
-                <motion.path
-                  initial={{ d: "M 560 320 Q 560 320 560 320" }}
-                  animate={{ d: "M 560 320 Q 590 280 625 260" }}
-                  transition={{ type: "spring", stiffness: 210, damping: 18, delay: 0.03 }}
-                  stroke="#fde047"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Hot savory steam wisps rising from the freshly pulled slice */}
-                <motion.circle 
-                  cx="570" 
-                  cy="430" 
-                  r="12" 
-                  fill="rgba(255,255,255,0.18)" 
-                  animate={{ y: [-5, -35], opacity: [0.6, 0], scale: [0.8, 1.8] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-                />
-                <motion.circle 
-                  cx="640" 
-                  cy="350" 
-                  r="15" 
-                  fill="rgba(255,255,255,0.14)" 
-                  animate={{ y: [-5, -45], opacity: [0.5, 0], scale: [0.9, 2] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut", delay: 0.4 }}
-                />
-              </motion.g>
-            )}
-          </AnimatePresence>
-
-          {/* LAYER D: The Lifted Pizza Slice (Slides away / lifts up backward with 3D angle like a hand picking it up) */}
-          <motion.g
-            animate={isHovered ? {
-              x: 72,
-              y: -58,
-              rotate: 8.5,
-              scale: 1.08,
-            } : {
-              x: 0,
-              y: 0,
-              rotate: 0,
-              scale: 1,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 220,
-              damping: 20,
-              mass: 0.8
-            }}
-            style={{
-              transformOrigin: "780px 250px", // Pivot near outer crust edge, tilting backward
-              filter: isHovered ? "url(#slice-lift-shadow)" : "none"
-            }}
-          >
-            {/* Slice texture clipped strictly to slice geometry */}
-            <g clipPath="url(#pizza-slice-clip)">
+          {hoveredSliceIndex === null ? (
+            /* Solid undivided whole round pizza with absolutely ZERO subpixel hairline seams */
+            <g clipPath="url(#pizza-full-circle-clip)">
               <image 
                 href={pizzaImgSrc} 
                 x="0" 
@@ -232,35 +124,119 @@ export const InteractivePizzaVisual: React.FC<InteractivePizzaVisualProps> = ({
                 preserveAspectRatio="xMidYMid slice"
               />
             </g>
-
-            {/* Cut-Edge Highlight & Melted Cheese Rim on Slice Edges when lifted */}
-            {isHovered && (
-              <g pointerEvents="none">
-                {/* Upper edge cut line cheese shine */}
-                <line 
-                  x1="500" 
-                  y1="500" 
-                  x2="692.3" 
-                  y2="87.6" 
-                  stroke="rgba(254, 240, 138, 0.8)" 
-                  strokeWidth="4" 
-                  strokeLinecap="round" 
-                  filter="drop-shadow(0 0 6px rgba(245,158,11,0.8))"
+          ) : (
+            /* Render individual slices ONLY when one of them is being lifted/pulled */
+            <>
+              {/* LAYER A: Pizza Stone / Peel Base Underneath (Visible inside the empty cut slots) */}
+              <circle cx="500" cy="500" r="456" fill="url(#peel-void-gradient)" />
+              
+              {/* Subtle char marks and herb crumbs on the stone beneath where any slice lifts */}
+              <g className="transition-opacity duration-300">
+                {/* Highlight the void of the lifted slice */}
+                <path 
+                  d={getWedgePath(hoveredSliceIndex * 60, (hoveredSliceIndex + 1) * 60)} 
+                  fill="#0f0804" 
+                  stroke="rgba(217,119,6,0.3)" 
+                  strokeWidth="2" 
                 />
-                {/* Lower edge cut line cheese shine */}
-                <line 
-                  x1="500" 
-                  y1="500" 
-                  x2="948.1" 
-                  y2="421.0" 
-                  stroke="rgba(254, 240, 138, 0.8)" 
-                  strokeWidth="4" 
-                  strokeLinecap="round" 
-                  filter="drop-shadow(0 0 6px rgba(245,158,11,0.8))"
-                />
+                {/* Crumb and melted oil residue centered relative to active slice wedge */}
+                {(() => {
+                  const midDeg = hoveredSliceIndex * 60 + 30;
+                  const midRad = (midDeg - 90) * Math.PI / 180;
+                  const rx = (dist: number) => 500 + dist * Math.cos(midRad);
+                  const ry = (dist: number) => 500 + dist * Math.sin(midRad);
+                  return (
+                    <>
+                      <circle cx={rx(80)} cy={ry(80)} r="6" fill="#ca8a04" opacity="0.7" />
+                      <circle cx={rx(140)} cy={ry(140)} r="4" fill="#ea580c" opacity="0.6" />
+                      <circle cx={rx(240)} cy={ry(240)} r="5" fill="#ca8a04" opacity="0.5" />
+                      <circle cx={rx(320)} cy={ry(320)} r="8" fill="#1c1917" opacity="0.8" />
+                      <circle cx={rx(180)} cy={ry(180)} r="3" fill="#15803d" opacity="0.7" />
+                      <circle cx={rx(280)} cy={ry(280)} r="4.5" fill="#f59e0b" opacity="0.5" />
+                    </>
+                  );
+                })()}
               </g>
-            )}
-          </motion.g>
+
+              {/* LAYER B: Render the 6 slices of pizza individually */}
+              {Array.from({ length: 6 }).map((_, i) => {
+                const isSliceHovered = hoveredSliceIndex === i;
+                const midDeg = i * 60 + 30;
+                const midRad = (midDeg - 90) * Math.PI / 180;
+                
+                // Slice moves outwards radially
+                const pullDistance = 50;
+                const targetX = isSliceHovered ? Math.cos(midRad) * pullDistance : 0;
+                const targetY = isSliceHovered ? Math.sin(midRad) * pullDistance : 0;
+                
+                // Pivot is located at the outer crust edge of the slice
+                const pivotX = 500 + 455 * Math.cos(midRad);
+                const pivotY = 500 + 455 * Math.sin(midRad);
+
+                return (
+                  <motion.g
+                    key={i}
+                    animate={{
+                      x: targetX,
+                      y: targetY,
+                      scale: isSliceHovered ? 1.06 : 1,
+                      rotate: isSliceHovered ? (i % 2 === 0 ? 3.5 : -3.5) : 0,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 240,
+                      damping: 18,
+                      mass: 0.6
+                    }}
+                    style={{
+                      transformOrigin: `${pivotX}px ${pivotY}px`,
+                      filter: isSliceHovered ? "url(#slice-lift-shadow)" : "none"
+                    }}
+                  >
+                    {/* Slices of pizza body clipped to its own 60-degree wedge */}
+                    <g clipPath={`url(#pizza-slice-clip-${i})`}>
+                      <image 
+                        href={pizzaImgSrc} 
+                        x="0" 
+                        y="0" 
+                        width="1000" 
+                        height="1000" 
+                        preserveAspectRatio="xMidYMid slice"
+                      />
+                    </g>
+
+                    {/* Glowing edge highlight and melted cheese rim on the active slice */}
+                    {isSliceHovered && (
+                      <g pointerEvents="none">
+                        {/* First cut line of the wedge */}
+                        <line 
+                          x1="500" 
+                          y1="500" 
+                          x2={(500 + 455 * Math.cos((i * 60 - 90) * Math.PI / 180)).toFixed(1)} 
+                          y2={(500 + 455 * Math.sin((i * 60 - 90) * Math.PI / 180)).toFixed(1)} 
+                          stroke="rgba(254, 240, 138, 0.9)" 
+                          strokeWidth="5.5" 
+                          strokeLinecap="round" 
+                          filter="drop-shadow(0 0 8px rgba(245,158,11,0.95))"
+                        />
+                        {/* Second cut line of the wedge */}
+                        <line 
+                          x1="500" 
+                          y1="500" 
+                          x2={(500 + 455 * Math.cos(((i + 1) * 60 - 90) * Math.PI / 180)).toFixed(1)} 
+                          y2={(500 + 455 * Math.sin(((i + 1) * 60 - 90) * Math.PI / 180)).toFixed(1)} 
+                          stroke="rgba(254, 240, 138, 0.9)" 
+                          strokeWidth="5.5" 
+                          strokeLinecap="round" 
+                          filter="drop-shadow(0 0 8px rgba(245,158,11,0.95))"
+                        />
+                      </g>
+                    )}
+                  </motion.g>
+                );
+              })}
+            </>
+          )}
 
           {/* Interactive Hit Area in center of pizza to make mouse interaction instant & intuitive */}
           <circle 
@@ -272,33 +248,6 @@ export const InteractivePizzaVisual: React.FC<InteractivePizzaVisualProps> = ({
           />
         </svg>
       </motion.div>
-
-      {/* 3. Floating Frameless Pill Badge - Ultra Clean with Zero Box */}
-      <div className="absolute -bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
-        <motion.div 
-          animate={isHovered ? { scale: 1.05, y: -2 } : { scale: 1, y: 0 }}
-          className="bg-stone-950/92 border border-amber-500/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2.5"
-        >
-          <div className="relative">
-            <Pizza className={`w-4 h-4 text-amber-400 ${isHovered ? 'animate-bounce' : 'animate-pulse'}`} />
-            {isHovered && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-orange-500 animate-ping" />
-            )}
-          </div>
-          <span className="text-xs sm:text-sm uppercase font-extrabold text-amber-200 font-serif tracking-widest">
-            {cupName || "Wood-Fired Neapolitan Artisan Pizza"}
-          </span>
-          {isHovered ? (
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 animate-pulse">
-              Freshly Sliced
-            </span>
-          ) : (
-            <span className="hidden sm:inline text-[10px] text-stone-400 italic">
-              (Hover to slice)
-            </span>
-          )}
-        </motion.div>
-      </div>
     </div>
   );
 };

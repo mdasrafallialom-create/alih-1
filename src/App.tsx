@@ -86,6 +86,7 @@ import {
   Heart,
   UtensilsCrossed,
   ChevronDown,
+  ChevronUp,
   ArrowLeft,
   ArrowRight,
   ChevronLeft,
@@ -211,6 +212,43 @@ export default function App() {
       setShowTopPlanPopup(true);
     }
   }, []);
+
+  const [globalScrolled, setGlobalScrolled] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleGlobalScroll = () => {
+      let maxScroll = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const scrollables = document.querySelectorAll('.overflow-y-auto, .overflow-auto');
+      scrollables.forEach(el => {
+        if (el.scrollTop > maxScroll) maxScroll = el.scrollTop;
+      });
+      setGlobalScrolled(maxScroll > 30);
+    };
+
+    handleGlobalScroll();
+    window.addEventListener('scroll', handleGlobalScroll, { capture: true, passive: true });
+    document.addEventListener('scroll', handleGlobalScroll, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleGlobalScroll, { capture: true });
+      document.removeEventListener('scroll', handleGlobalScroll, { capture: true });
+    };
+  }, []);
+
+  const handleGlobalScrollToTop = () => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+      document.body.scrollTo({ top: 0, behavior: 'smooth' });
+      const scrollables = document.querySelectorAll('.overflow-y-auto, .overflow-auto, main');
+      scrollables.forEach(el => {
+        try {
+          el.scrollTo({ top: 0, behavior: 'smooth' });
+          el.scrollTop = 0;
+        } catch (e) {}
+      });
+    } catch (e) {}
+  };
 
   useEffect(() => {
     const handleSwitchEvent = (e: any) => {
@@ -665,11 +703,15 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<'home' | 'menu' | 'cart' | 'wishlist'>('home');
   const [adminHeaderTitle, setAdminHeaderTitle] = useState<string>('ACTIVE DASHBOARD');
+  const [currentAdminTab, setCurrentAdminTab] = useState<string>('recent');
 
   useEffect(() => {
     const handleAdminTabChange = (e: any) => {
       if (e.detail && e.detail.label) {
         setAdminHeaderTitle(e.detail.label);
+      }
+      if (e.detail && e.detail.tab) {
+        setCurrentAdminTab(e.detail.tab);
       }
     };
     window.addEventListener('admin-active-tab-change', handleAdminTabChange);
@@ -869,6 +911,19 @@ export default function App() {
           if (isDemoBrand(parsed.restaurantName)) {
             parsed.restaurantName = 'My Restaurant';
           }
+          if (parsed.brandLocation) {
+            parsed.brandLocation = parsed.brandLocation
+              .replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '')
+              .replace(/Hyderabad,?\s*/gi, '')
+              .replace(/Sindh,?\s*/gi, '')
+              .replace(/Pakistan,?\s*/gi, '')
+              .replace(/^,\s*/, '')
+              .replace(/,\s*$/, '')
+              .trim();
+            if (!parsed.brandLocation || parsed.brandLocation.toLowerCase() === 'location not set') {
+              parsed.brandLocation = '742 Evergreen Terrace, New York, NY 10001';
+            }
+          }
           return parsed;
         } catch (e) {
           console.error('Failed to parse admin settings', e);
@@ -996,8 +1051,8 @@ export default function App() {
   const isStandaloneMode = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
   const effectiveThemeId = urlTheme || activeThemeId || 'velmora-dining';
   
-  // Custom theme renders ONLY in standalone/preview mode (e.g. in new tab)
-  const isCustomThemeActive = Boolean(urlTheme && isStandaloneMode) && viewMode === 'client';
+  // Custom theme is active in client view if in standalone or preview mode via query params
+  const isCustomThemeActive = viewMode === 'client' && (isStandaloneMode || !!urlTheme);
 
   const selectedThemePreset = useMemo(() => {
     return LUXURY_THEMES.find(t => t.id === effectiveThemeId) || LUXURY_THEMES[0];
@@ -1139,6 +1194,19 @@ export default function App() {
           data.subscriptionPlan = 'pro';
         } else if (planParam === '99' || planParam === 'elite' || planParam === 'premium') {
           data.subscriptionPlan = 'elite';
+        }
+        if (data.brandLocation) {
+          data.brandLocation = data.brandLocation
+            .replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '')
+            .replace(/Hyderabad,?\s*/gi, '')
+            .replace(/Sindh,?\s*/gi, '')
+            .replace(/Pakistan,?\s*/gi, '')
+            .replace(/^,\s*/, '')
+            .replace(/,\s*$/, '')
+            .trim();
+          if (!data.brandLocation || data.brandLocation.toLowerCase() === 'location not set') {
+            data.brandLocation = '742 Evergreen Terrace, New York, NY 10001';
+          }
         }
         setAdminSettings(data);
         localStorage.setItem('webar_admin_settings', JSON.stringify(data));
@@ -2249,7 +2317,7 @@ export default function App() {
       {/* =======================================================================
           TOP BAR: BRANDING & QUICK ACCESS
           ======================================================================= */}
-      {(viewMode === 'admin' || (!isCustomThemeActive && activeThemeId !== 'orivelle-house')) && (
+      {(viewMode === 'admin' || (viewMode === 'client' && !isCustomThemeActive)) && (
       <header 
         className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-transform duration-300 transform-gpu ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
         style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') }}
@@ -2743,61 +2811,7 @@ export default function App() {
         {viewMode === 'client' && (
           isCustomThemeActive ? (
             <>
-              {/* Standalone One-time Welcome/Plan Popup Modal */}
-              <AnimatePresence>
-                {showStandalonePlanPopup && (
-                  <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl p-6 space-y-5 text-left"
-                    >
-                      <div className="flex items-start justify-between border-b pb-4 border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg font-black text-xl">
-                            👑
-                          </div>
-                          <div>
-                            <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
-                              {urlParams?.get('plan') ? `$${urlParams?.get('plan')} Plan Theme` : '$15 / $49 / $99 Plan Theme'}
-                            </span>
-                            <h3 className="text-lg sm:text-xl font-display font-black text-slate-900 dark:text-white mt-1">
-                              {selectedThemePreset.name}
-                            </h3>
-                          </div>
-                        </div>
-                        <button
-                          onClick={handleDismissStandalonePlanPopup}
-                          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-all cursor-pointer"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
 
-                      <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
-                        <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                          Welcome to the live interactive theme view for {selectedThemePreset.name}.
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200">
-                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> 3D AR Dish Integration</div>
-                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Multi-Language Engine</div>
-                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Responsive Mobile & Desktop</div>
-                          <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> Instant Order Cart</div>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={handleDismissStandalonePlanPopup}
-                        className="w-full py-3 px-5 rounded-2xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>থিম দেখুন ও শুরু করুন (Continue to Theme)</span>
-                      </button>
-                    </motion.div>
-                  </div>
-                )}
-              </AnimatePresence>
 
               {effectiveThemeId === 'lunavere' ? (
                 <LunavereTheme 
@@ -2806,7 +2820,7 @@ export default function App() {
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
-                  onBack={handleExitThemeView}
+                  onBack={enterAdminPanel}
                   settings={adminSettings || {}}
                   lang={lang}
                 />
@@ -2817,7 +2831,7 @@ export default function App() {
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
-                  onBack={handleExitThemeView}
+                  onBack={enterAdminPanel}
                   settings={adminSettings || {}}
                   lang={lang}
                   themePresetId={selectedThemePreset?.id}
@@ -3371,10 +3385,10 @@ export default function App() {
       {/* About & Pricing Section (Consolidated to main render block) */}
 
       {/* =======================================================================
-          FOOTER & GOOGLE MAPS LOCATION SECTION (Customer view only)
+          FOOTER, CHEFS & GOOGLE MAPS LOCATION SECTION (Customer view only)
           ======================================================================= */}
-      {viewMode === 'client' && !isCustomThemeActive && (
-        <>
+      {viewMode === 'client' && (
+        <div className="w-full">
           <Suspense fallback={<LazyFallback />}>
             <AboutAndPricing 
               isDark={false} 
@@ -3401,9 +3415,6 @@ export default function App() {
             />
           </Suspense>
 
-          {/* =======================================================================
-              MASTER CHEFS SHOWCASE (Directly Below Plans, Above Store Location)
-              ======================================================================= */}
           {(adminSettings?.showChefSection ?? true) && (
             <Suspense fallback={<LazyFallback />}>
               <ChefSection 
@@ -3440,8 +3451,9 @@ export default function App() {
             contactEmail={adminSettings?.contactEmail}
             socialLinks={adminSettings?.socialLinks}
           />
-        </>
+        </div>
       )}
+
 
       <AnimatePresence>
         {selectedFood && (
@@ -3507,6 +3519,26 @@ export default function App() {
               />
             </Suspense>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* GLOBAL FLOATING SCROLL TO TOP BUTTON (Matching Screenshot) */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {globalScrolled && viewMode === 'client' && !isCustomThemeActive && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 15 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleGlobalScrollToTop}
+            className="fixed bottom-6 right-6 z-[99999] w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40"
+            aria-label="Scroll to top"
+            title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+          >
+            <ChevronUp className="w-6 h-6 stroke-[2.5]" />
+          </motion.button>
         )}
       </AnimatePresence>
 

@@ -610,7 +610,14 @@ export default function OrderManagementAdmin({
     ownerName: settings.ownerName || user?.displayName || managerSession?.name || 'Chef / Owner',
     restaurantName: settings.restaurantName || settings.brandName || '',
     brandName: settings.brandName || settings.restaurantName || '',
-    brandLocation: settings.brandLocation || '',
+    brandLocation: (settings.brandLocation || '')
+      .replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '')
+      .replace(/Hyderabad,?\s*/gi, '')
+      .replace(/Sindh,?\s*/gi, '')
+      .replace(/Pakistan,?\s*/gi, '')
+      .replace(/^,\s*/, '')
+      .replace(/,\s*$/, '')
+      .trim(),
     brandLogo: settings.brandLogo || '',
     brandColors: settings.brandColors || { primary: '#0ea5e9', secondary: '#0f172a', accent: '#f59e0b' },
     subscriptionPlan: getNormalizedPlan(settings.subscriptionPlan),
@@ -706,26 +713,35 @@ export default function OrderManagementAdmin({
 
   // Geographic Location details state
   const [selectedCountry, setSelectedCountry] = useState(() => {
-    const loc = settings.brandLocation || '';
-    const parts = loc.split(',').map(s => s.trim());
-    if (parts.length >= 3) return parts[2];
+    let loc = settings.brandLocation || '';
+    if (loc.toLowerCase().includes('pakistan')) {
+      loc = loc.replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '').replace(/Pakistan/gi, '').trim();
+    }
+    const parts = loc.split(',').map(s => s.trim()).filter(Boolean);
+    if (parts.length >= 3) return parts[parts.length - 1];
     if (parts.length === 2) return parts[1];
-    return parts[0] || '';
+    return parts[0] || 'United States';
   });
 
   const [selectedState, setSelectedState] = useState(() => {
-    const loc = settings.brandLocation || '';
-    const parts = loc.split(',').map(s => s.trim());
+    let loc = settings.brandLocation || '';
+    if (loc.toLowerCase().includes('pakistan') || loc.toLowerCase().includes('sindh')) {
+      loc = loc.replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '').replace(/Sindh/gi, '').replace(/Pakistan/gi, '').trim();
+    }
+    const parts = loc.split(',').map(s => s.trim()).filter(Boolean);
     if (parts.length >= 3) return parts[1];
     if (parts.length === 2) return parts[0];
-    return '';
+    return 'New York';
   });
 
   const [selectedDistrict, setSelectedDistrict] = useState(() => {
-    const loc = settings.brandLocation || '';
-    const parts = loc.split(',').map(s => s.trim());
+    let loc = settings.brandLocation || '';
+    if (loc.toLowerCase().includes('pakistan') || loc.toLowerCase().includes('hyderabad')) {
+      loc = loc.replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '').replace(/Hyderabad/gi, '').trim();
+    }
+    const parts = loc.split(',').map(s => s.trim()).filter(Boolean);
     if (parts.length >= 3) return parts[0];
-    return '';
+    return 'Manhattan';
   });
 
   // Automatically update the main brandLocation field and sync hero images when country changes

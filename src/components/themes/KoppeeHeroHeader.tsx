@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall, Edit3 } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
@@ -30,6 +30,7 @@ interface KoppeeHeroHeaderProps {
   lang?: string;
   themePresetId?: string;
   previewDeviceView?: 'desktop' | 'tablet' | 'mobile';
+  onEditClick?: (slideIndex: number) => void;
 }
 
 export interface ThemeHeroConfig {
@@ -1179,7 +1180,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   showAdminButton = true,
   lang = 'en',
   themePresetId,
-  previewDeviceView
+  previewDeviceView,
+  onEditClick
 }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1887,6 +1889,18 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           ? 'min-h-[580px] sm:min-h-[620px] pt-20 sm:pt-24 pb-8' 
           : 'min-h-[90vh] sm:min-h-screen pt-24 sm:pt-28 pb-12'
       } flex flex-col justify-between items-center overflow-hidden`}>
+        {/* Floating Edit Hero Content button */}
+        {onEditClick && (
+          <button
+            type="button"
+            onClick={() => onEditClick(activeSlide)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 p-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-stone-950 shadow-2xl transition-all cursor-pointer border border-white/20 flex items-center justify-center gap-1.5 active:scale-95 group/editHero"
+            title="Edit Hero Slide Content"
+          >
+            <Edit3 className="w-4 h-4 transition-transform group-hover/editHero:rotate-12" />
+            <span className="text-[10px] font-mono font-black uppercase tracking-wider pr-1 hidden sm:inline">Edit Hero Section</span>
+          </button>
+        )}
         {/* Full Theme Background Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img

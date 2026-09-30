@@ -552,6 +552,8 @@ export default function ThemeStoreManager({
   const [editingDishId, setEditingDishId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<string>('');
   const [editingPrice, setEditingPrice] = useState<string>('');
+  const [previewScrolled, setPreviewScrolled] = useState(false);
+  const previewScrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleMoveDishUp = (index: number) => {
     if (index <= 0) return;
@@ -1326,7 +1328,11 @@ export default function ThemeStoreManager({
               </div>
 
               {/* Scrollable Website Canvas */}
-              <div className="flex-1 overflow-y-auto bg-slate-950 p-0 flex justify-center scroll-smooth min-h-0">
+              <div 
+                ref={previewScrollContainerRef}
+                onScroll={(e) => setPreviewScrolled((e.currentTarget.scrollTop || 0) > 30)}
+                className="flex-1 overflow-y-auto bg-slate-950 p-0 flex justify-center scroll-smooth min-h-0 relative"
+              >
                 <div 
                   className={`transition-all duration-300 w-full flex flex-col min-h-full relative ${
                     previewDeviceView === 'mobile' 
@@ -1660,6 +1666,7 @@ export default function ThemeStoreManager({
                       brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
                       tagline={previewTagline || previewTheme.tagline}
                       dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
+                      deviceView={previewDeviceView}
                       onOrderDish={(dish) => {
                         setPreviewCartItems(prev => {
                           const existing = prev.find(i => i.dish.id === dish.id);
@@ -2321,6 +2328,28 @@ export default function ThemeStoreManager({
                   )}
                 </div>
               </div>
+
+              {/* Floating Scroll-to-Top Button inside Theme Preview Modal (Exact match to user screenshot) */}
+              <AnimatePresence>
+                {previewScrolled && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 15 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => {
+                      if (previewScrollContainerRef.current) {
+                        previewScrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className="fixed bottom-6 right-6 z-[9999] w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40"
+                    aria-label="Scroll to top"
+                    title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+                  >
+                    <ChevronUp className="w-6 h-6 stroke-[2.5]" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
 
               {/* PREVIEW CART DRAWER MODAL */}
               <AnimatePresence>

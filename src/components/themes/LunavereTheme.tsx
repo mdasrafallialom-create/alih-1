@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Coffee, Sparkles, Moon, Star, Clock, MapPin, Phone, Calendar, 
-  ChevronLeft, ChevronRight, Play, Pause, ShoppingBag, ArrowUpRight, 
+  ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, 
   Menu, X, Heart, Shield, QrCode, Check, Compass, Volume2, Search, Bell,
   Award, ChefHat, Utensils, Instagram, Facebook, Mail, ArrowRight, ArrowLeft,
-  Youtube, Linkedin
+  Youtube, Linkedin, Edit3, Save, ImageIcon
 } from 'lucide-react';
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
 import portafilterTrioImg from '../../assets/images/portafilter_trio_story_1789909656642.jpg';
@@ -35,6 +35,7 @@ interface LunavereThemeProps {
   onBack?: () => void;
   settings?: any;
   lang?: string;
+  deviceView?: 'desktop' | 'tablet' | 'mobile';
 }
 
 export const LUNAVERE_PALETTE = {
@@ -120,8 +121,21 @@ export default function LunavereTheme({
   onOpenAdmin,
   onBack,
   settings,
-  lang = 'en'
+  lang = 'en',
+  deviceView
 }: LunavereThemeProps) {
+  const [windowWidth, setWindowWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = deviceView === 'mobile' || (deviceView !== 'desktop' && deviceView !== 'tablet' && windowWidth < 640);
+  const isTablet = deviceView === 'tablet' || (deviceView !== 'desktop' && (windowWidth >= 640 && windowWidth < 1024));
+  const isDesktop = !isMobile && !isTablet;
   const isDemoOrPlaceholderBrand = (name?: string) => {
     if (!name) return true;
     const lower = name.trim().toLowerCase();
@@ -144,12 +158,73 @@ export default function LunavereTheme({
   const [showQrMenuModal, setShowQrMenuModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const [isTestimonialHovered, setIsTestimonialHovered] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedDishDetail, setSelectedDishDetail] = useState<FoodItem | null>(null);
+  const [editingSingleDish, setEditingSingleDish] = useState<FoodItem | null>(null);
+  const [detailOrderQty, setDetailOrderQty] = useState(1);
+  const [detailSpecialNote, setDetailSpecialNote] = useState('');
+  const [modalSearchTerm, setModalSearchTerm] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'GBP' | 'BDT' | 'EUR'>('USD');
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [reservationModalOpen, setReservationModalOpen] = useState(false);
   const [reservationSuccess, setReservationSuccess] = useState(false);
   const [resName, setResName] = useState('');
   const [resGuests, setResGuests] = useState('2');
   const [resTime, setResTime] = useState('20:00');
+
+  // Sanitize brandLocation to ensure no accidental "Pakistan", "Hyderabad", or "Sindh" remains
+  const getSanitizedLocation = (loc?: string) => {
+    if (!loc) return '';
+    let cleaned = loc
+      .replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '')
+      .replace(/Hyderabad,?\s*/gi, '')
+      .replace(/Sindh,?\s*/gi, '')
+      .replace(/Pakistan,?\s*/gi, '')
+      .replace(/^,\s*/, '')
+      .replace(/,\s*$/, '')
+      .trim();
+    if (!cleaned || cleaned.toLowerCase() === 'location not set') {
+      return '742 Evergreen Terrace, New York, NY 10001';
+    }
+    return cleaned;
+  };
+  const sanitizedBrandLocation = getSanitizedLocation(settings?.brandLocation);
+
+  // Subscription Plan & Social Access:
+  // $15 Basic Plan: ONLY Instagram
+  // $49 Pro Plan: Instagram, Facebook, YouTube
+  // $99 Elite Plan: Instagram, Facebook, YouTube, LinkedIn
+  const currentPlan = String(settings?.subscriptionPlan || 'basic').toLowerCase();
+  const isEliteTier = currentPlan === 'elite' || currentPlan === 'plan3' || currentPlan === '99';
+  const isProTier = currentPlan === 'pro' || currentPlan === 'plan2' || currentPlan === '49';
+  const isProOrElite = isProTier || isEliteTier;
+
+  // Auto-slide testimonial slider every 4.5 seconds (pauses on hover)
+  useEffect(() => {
+    if (isTestimonialHovered) return;
+    const interval = setInterval(() => {
+      setSlideDirection(1);
+      setActiveTestimonial((prev) => (prev + 1) % DEFAULT_TESTIMONIALS.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isTestimonialHovered]);
+
+  const handlePrevTestimonial = () => {
+    setSlideDirection(-1);
+    setActiveTestimonial((prev) => (prev - 1 + DEFAULT_TESTIMONIALS.length) % DEFAULT_TESTIMONIALS.length);
+  };
+
+  const handleNextTestimonial = () => {
+    setSlideDirection(1);
+    setActiveTestimonial((prev) => (prev + 1) % DEFAULT_TESTIMONIALS.length);
+  };
+
+  const handleSelectTestimonial = (idx: number) => {
+    setSlideDirection(idx > activeTestimonial ? 1 : -1);
+    setActiveTestimonial(idx);
+  };
 
   // Detect motion preference
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -162,17 +237,45 @@ export default function LunavereTheme({
     : DEFAULT_CHEF_PROFILES;
   const chefs = rawChefs.slice(0, 6);
 
+  const scrollToTop = () => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+      document.body.scrollTo({ top: 0, behavior: 'smooth' });
+      const scrollables = document.querySelectorAll('.overflow-y-auto, .overflow-auto, main');
+      scrollables.forEach(el => {
+        try {
+          el.scrollTo({ top: 0, behavior: 'smooth' });
+          el.scrollTop = 0;
+        } catch (e) {}
+      });
+    } catch (e) {}
+  };
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      setPrefersReducedMotion(mediaQuery.matches);
-      
-      const handleScroll = () => {
-        setIsScrolled(window.scrollY > 40);
-      };
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-    }
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handleScroll = (e?: Event) => {
+      let maxScroll = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      if (e && e.target && (e.target as HTMLElement).scrollTop !== undefined) {
+        maxScroll = Math.max(maxScroll, (e.target as HTMLElement).scrollTop);
+      }
+      const scrollables = document.querySelectorAll('.overflow-y-auto, .overflow-auto');
+      scrollables.forEach(el => {
+        if (el.scrollTop > maxScroll) maxScroll = el.scrollTop;
+      });
+      setIsScrolled(maxScroll > 30);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+      document.removeEventListener('scroll', handleScroll, { capture: true });
+    };
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -186,11 +289,91 @@ export default function LunavereTheme({
   // Categories
   const categories = ['all', 'coffee', 'pastries', 'brunch', 'desserts', 'tea'];
 
-  const effectiveDishes = (dishes && dishes.length > 0) ? dishes : DEFAULT_LUNAVERE_DISHES;
+  // Currency & Price Formatter
+  const formatPrice = (val: number, cur: string = selectedCurrency) => {
+    const sym = cur === 'BDT' ? '৳' : cur === 'GBP' ? '£' : cur === 'EUR' ? '€' : '$';
+    return cur === 'BDT' ? `${sym}${val.toFixed(0)}` : `${sym}${val.toFixed(2)}`;
+  };
 
-  const filteredDishes = activeCategory === 'all' 
-    ? effectiveDishes 
-    : effectiveDishes.filter(d => d.category?.toLowerCase().includes(activeCategory) || d.title.toLowerCase().includes(activeCategory));
+  // State-managed custom dishes with local persistence
+  const [customDishes, setCustomDishes] = useState<FoodItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('lunavere_custom_dishes');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return (dishes && dishes.length > 0) ? dishes : DEFAULT_LUNAVERE_DISHES;
+  });
+
+  useEffect(() => {
+    if (dishes && dishes.length > 0) {
+      setCustomDishes(prev => {
+        return dishes.map(d => prev.find(p => p.id === d.id) || d);
+      });
+    }
+  }, [dishes]);
+
+  const effectiveDishes = customDishes;
+
+  // File upload helper for live photo change from gallery
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        callback(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Save modified dish to customDishes and localStorage
+  const handleSaveDish = () => {
+    if (!editingSingleDish) return;
+    const updated = effectiveDishes.map(d => d.id === editingSingleDish.id ? editingSingleDish : d);
+    setCustomDishes(updated);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('lunavere_custom_dishes', JSON.stringify(updated));
+      } catch (e) {}
+    }
+    if (selectedDishDetail?.id === editingSingleDish.id) {
+      setSelectedDishDetail(editingSingleDish);
+    }
+    setEditingSingleDish(null);
+    setToastMsg(lang === 'bn' ? '✅ সেভ হয়েছে (Saved successfully)!' : '✅ Saved successfully!');
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  // Add dish to order with quantity
+  const handleOrderDish = (dish: FoodItem, qty: number = 1) => {
+    if (onOrderDish) {
+      for (let i = 0; i < qty; i++) {
+        onOrderDish(dish);
+      }
+    }
+    setToastMsg(lang === 'bn' ? `অর্ডারে ${qty}x "${dish.title}" যুক্ত হয়েছে!` : `Added ${qty}x "${dish.title}" to Table Order!`);
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const filteredDishes = effectiveDishes.filter(d => {
+    const matchesCategory = activeCategory === 'all' 
+      ? true 
+      : (d.category?.toLowerCase().includes(activeCategory) || d.title.toLowerCase().includes(activeCategory));
+    
+    if (!matchesCategory) return false;
+
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return d.title.toLowerCase().includes(q) || 
+      (d.desc && d.desc.toLowerCase().includes(q)) ||
+      (d.category && d.category.toLowerCase().includes(q));
+  });
 
   const dessertDishes = effectiveDishes.filter(d => 
     d.category?.toLowerCase().includes('dessert') || 
@@ -217,156 +400,301 @@ export default function LunavereTheme({
       {/* 1. LUNAVERE PARISIAN NAVIGATION BAR */}
       {/* ========================================================= */}
       <header 
-        className="absolute top-0 left-0 right-0 z-30 w-full transition-all duration-300 bg-[#F4E7D3]/90 backdrop-blur-md border-b border-[#C9A86A]/25 py-4"
+        className="absolute top-0 left-0 right-0 z-30 w-full transition-all duration-300 bg-[#F4E7D3]/95 backdrop-blur-md border-b border-[#C9A86A]/25 py-3 sm:py-4"
       >
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-between gap-3">
-          {/* Brand Logo & Name */}
-          <div className="flex items-center gap-3">
-            <a href="#hero" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-[#C9A86A]/60 flex items-center justify-center text-[#96722d] shadow-sm group-hover:border-[#96722d] transition-colors shrink-0">
-                <Moon className="w-5 h-5 text-[#96722d]" />
+        <div className="w-full max-w-[1800px] mx-auto px-3 sm:px-6 lg:px-12 flex items-center justify-between gap-2 sm:gap-4">
+          {/* Brand Logo & Name (Width-constrained to prevent pushing right controls off screen) */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 max-w-[55%] sm:max-w-[50%] md:max-w-[48%] lg:max-w-none">
+            <a href="#hero" className="flex items-center gap-2 sm:gap-2.5 min-w-0 group">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border border-[#C9A86A]/60 flex items-center justify-center text-[#96722d] shadow-sm group-hover:border-[#96722d] transition-colors shrink-0">
+                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-[#96722d]" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span 
-                  className="text-lg sm:text-2xl font-normal tracking-wider text-[#171522] group-hover:text-[#96722d] transition-colors block leading-tight"
+                  className="text-base sm:text-xl lg:text-2xl font-normal tracking-wider text-[#171522] group-hover:text-[#96722d] transition-colors block leading-tight truncate"
                   style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
                 >
                   {effectiveBrandName}
                 </span>
-                <span className="text-[9px] font-mono tracking-[0.25em] text-[#96722d] uppercase block font-bold">
+                <span className="text-[8px] sm:text-[9px] font-mono tracking-[0.14em] sm:tracking-[0.2em] text-[#96722d] uppercase block font-bold truncate">
                   {tagline || 'Parisian Starlight Cafe'}
                 </span>
               </div>
             </a>
           </div>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold tracking-widest uppercase text-[#171522]/80">
-            <button onClick={() => scrollToSection('menu')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-              {lang === 'bn' ? 'মেনু' : 'Menu'}
-            </button>
-            <button onClick={() => scrollToSection('story')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-              {lang === 'bn' ? 'গল্প' : 'Story'}
-            </button>
-            <button onClick={() => scrollToSection('desserts')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-              {lang === 'bn' ? 'প্যাটিসারি' : 'Pâtisserie'}
-            </button>
-            {isChefSectionVisible && (
-              <button onClick={() => scrollToSection('chefs')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                {lang === 'bn' ? 'মাস্টার শেফ' : 'Sommeliers'}
+          {/* Desktop Nav Links - Only displayed on spacious desktop screens */}
+          {!isMobile && !isTablet && (
+            <nav className="hidden xl:flex items-center gap-6 2xl:gap-8 text-xs font-semibold tracking-widest uppercase text-[#171522]/80">
+              <button onClick={() => scrollToSection('menu')} className="hover:text-[#96722d] transition-colors cursor-pointer">
+                {lang === 'bn' ? 'মেনু' : 'Menu'}
               </button>
+              <button onClick={() => scrollToSection('story')} className="hover:text-[#96722d] transition-colors cursor-pointer">
+                {lang === 'bn' ? 'গল্প' : 'Story'}
+              </button>
+              <button onClick={() => scrollToSection('desserts')} className="hover:text-[#96722d] transition-colors cursor-pointer">
+                {lang === 'bn' ? 'প্যাটিসারি' : 'Pâtisserie'}
+              </button>
+              {isChefSectionVisible && (
+                <button onClick={() => scrollToSection('chefs')} className="hover:text-[#96722d] transition-colors cursor-pointer">
+                  {lang === 'bn' ? 'মাস্টার শেফ' : 'Sommeliers'}
+                </button>
+              )}
+              <button onClick={() => scrollToSection('timeline')} className="hover:text-[#96722d] transition-colors cursor-pointer">
+                {lang === 'bn' ? 'অভিজ্ঞতা' : 'Ritual'}
+              </button>
+              <button onClick={() => scrollToSection('visit')} className="hover:text-[#96722d] transition-colors cursor-pointer">
+                {lang === 'bn' ? 'যোগাযোগ' : 'Visit'}
+              </button>
+            </nav>
+          )}
+
+          {/* Action Buttons: Desktop Search / Reserve & Mobile/Tablet Dropdown Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 z-20">
+            {/* Desktop-only Search Bar */}
+            {!isMobile && !isTablet && (
+              <div className="relative">
+                <div className="relative flex items-center">
+                  <Search className="w-3.5 h-3.5 text-[#96722d] absolute left-3 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value.trim().length > 0) {
+                        const menuEl = document.getElementById('menu');
+                        if (menuEl && window.scrollY < 300) {
+                          menuEl.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }
+                    }}
+                    placeholder={lang === 'bn' ? 'খুঁজুন...' : 'Search...'}
+                    className="pl-8 pr-6 py-2 rounded-full bg-white hover:bg-white/95 border border-[#C9A86A]/50 focus:border-[#96722d] focus:ring-1 focus:ring-[#96722d]/40 text-xs text-[#171522] placeholder-[#171522]/50 shadow-sm focus:outline-none transition-all w-44 md:w-56"
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2.5 w-4 h-4 rounded-full bg-[#171522]/10 hover:bg-[#171522]/20 text-[#171522] flex items-center justify-center text-[10px] leading-none transition-colors cursor-pointer"
+                      title="Clear search"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
-            <button onClick={() => scrollToSection('timeline')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-              {lang === 'bn' ? 'অভিজ্ঞতা' : 'Ritual'}
-            </button>
-            <button onClick={() => scrollToSection('visit')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-              {lang === 'bn' ? 'যোগাযোগ' : 'Visit'}
-            </button>
-          </nav>
 
-          {/* Action Buttons */}
-          <div className="hidden sm:flex items-center gap-3.5">
-            {/* QR Menu Card */}
-            <button 
-              onClick={() => setShowQrMenuModal(true)}
-              className="px-3.5 py-2 rounded-full bg-white hover:bg-white/80 border border-[#C9A86A]/50 text-[#171522] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-            >
-              <QrCode className="w-3.5 h-3.5 text-[#96722d]" />
-              <span>QR Menu</span>
-            </button>
-
-            {/* Reserve Button */}
+            {/* Reserve Button (Visible on desktop & tablet, compact on mobile) */}
             <button 
               onClick={() => setReservationModalOpen(true)}
-              className="px-5 py-2 rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+              className={`rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white font-black uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ${
+                isMobile ? 'hidden sm:inline-flex px-3 py-1.5 text-[11px]' : 'px-4 sm:px-5 py-2 text-xs'
+              }`}
             >
-              Reserve Table
+              {lang === 'bn' ? 'টেবিল বুকিং' : 'Reserve'}
             </button>
 
-            {/* Admin Key Button if enabled */}
-            {settings?.showAdminButton !== false && onOpenAdmin && (
+            {/* Mobile & Tablet Dropdown Menu Trigger Button */}
+            {(isMobile || isTablet) && (
               <button 
-                onClick={onOpenAdmin}
-                title="Admin Control"
-                className="w-8 h-8 rounded-full border border-[#C9A86A]/40 text-[#96722d] hover:border-[#96722d] flex items-center justify-center transition-colors text-xs cursor-pointer bg-white/80"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-[#C9A86A]/60 flex items-center gap-2 shadow-sm transition-all cursor-pointer active:scale-95 shrink-0 ${
+                  mobileMenuOpen 
+                    ? 'bg-[#171522] text-[#F4E7D3] border-[#171522]' 
+                    : 'bg-white hover:bg-white/90 text-[#171522]'
+                }`}
+                aria-label="Toggle navigation menu"
               >
-                ⚙️
+                {mobileMenuOpen ? (
+                  <X className="w-4 h-4 text-[#C9A86A]" />
+                ) : (
+                  <Menu className="w-4 h-4 text-[#96722d]" />
+                )}
+                <span className="text-xs font-bold uppercase tracking-wider font-mono">
+                  {mobileMenuOpen ? (lang === 'bn' ? 'বন্ধ' : 'Close') : (lang === 'bn' ? 'মেনু' : 'Menu')}
+                </span>
               </button>
             )}
-          </div>
-
-          {/* Mobile Menu Hamburger */}
-          <div className="flex lg:hidden items-center gap-2">
-            <button 
-              onClick={() => setReservationModalOpen(true)}
-              className="px-3 py-1.5 rounded-full bg-[#171522] text-white text-[10px] font-black uppercase tracking-wider cursor-pointer shadow-sm"
-            >
-              {lang === 'bn' ? 'বুক' : 'Book'}
-            </button>
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-[#171522] hover:text-[#96722d] cursor-pointer"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Nav */}
+        {/* Mobile & Tablet Dropdown Navigation Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-[#F4E7D3] border-b border-[#C9A86A]/30 px-6 py-5 space-y-4 shadow-xl text-[#171522]"
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="w-full bg-[#FAF3E8] border-b border-[#C9A86A]/35 shadow-2xl overflow-hidden text-[#171522]"
             >
-              <div className="flex flex-col space-y-3 text-sm font-semibold tracking-wider">
-                <button onClick={() => scrollToSection('menu')} className="text-left text-[#171522] hover:text-[#96722d]">
-                  Menu
-                </button>
-                <button onClick={() => scrollToSection('story')} className="text-left text-[#171522] hover:text-[#96722d]">
-                  Story & Philosophy
-                </button>
-                <button onClick={() => scrollToSection('desserts')} className="text-left text-[#171522] hover:text-[#96722d]">
-                  Pâtisserie & Desserts
-                </button>
-                {isChefSectionVisible && (
-                  <button onClick={() => scrollToSection('chefs')} className="text-left text-[#171522] hover:text-[#96722d]">
-                    Artisanal Masters
+              <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-5 space-y-5">
+                {/* 1. Search Bar inside Dropdown */}
+                <div className="relative flex items-center">
+                  <Search className="w-4 h-4 text-[#96722d] absolute left-3.5 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value.trim().length > 0) {
+                        const menuEl = document.getElementById('menu');
+                        if (menuEl) {
+                          menuEl.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }
+                    }}
+                    placeholder={lang === 'bn' ? 'মেনু, কফি বা খাবার খুঁজুন...' : 'Search menu, coffee, pâtisserie...'}
+                    className="w-full pl-10 pr-9 py-2.5 rounded-full bg-white border border-[#C9A86A]/50 focus:border-[#96722d] focus:ring-1 focus:ring-[#96722d]/40 text-xs text-[#171522] placeholder-[#171522]/50 shadow-sm focus:outline-none"
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 w-4 h-4 rounded-full bg-[#171522]/10 hover:bg-[#171522]/20 text-[#171522] flex items-center justify-center text-[10px] leading-none transition-colors cursor-pointer"
+                      title="Clear search"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* 2. All Navigation Links inside Dropdown */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 pt-1 border-t border-[#C9A86A]/20">
+                  {/* Menu */}
+                  <button 
+                    onClick={() => scrollToSection('menu')} 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/70 hover:bg-white border border-[#C9A86A]/30 text-left transition-all group cursor-pointer shadow-xs"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Coffee className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
+                        {lang === 'bn' ? 'মেনু' : 'Menu'}
+                      </span>
+                      <span className="text-[11px] text-[#171522]/65 truncate block">
+                        {lang === 'bn' ? 'সিগনেচার কফি ও ড্রিংকস' : 'Signature Parisian Coffees'}
+                      </span>
+                    </div>
                   </button>
-                )}
-                <button onClick={() => scrollToSection('timeline')} className="text-left text-[#171522] hover:text-[#96722d]">
-                  Evening Ritual
-                </button>
-                <button onClick={() => scrollToSection('visit')} className="text-left text-[#171522] hover:text-[#96722d]">
-                  Visit & Hours
-                </button>
-              </div>
 
-              <div className="pt-3 border-t border-[#C9A86A]/20 flex items-center justify-between">
-                <button 
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowQrMenuModal(true);
-                  }}
-                  className="text-xs font-bold text-[#96722d] flex items-center gap-1.5"
-                >
-                  <QrCode className="w-4 h-4" />
-                  <span>Scan QR Menu</span>
-                </button>
+                  {/* Story */}
+                  <button 
+                    onClick={() => scrollToSection('story')} 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/70 hover:bg-white border border-[#C9A86A]/30 text-left transition-all group cursor-pointer shadow-xs"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Moon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
+                        {lang === 'bn' ? 'গল্প' : 'Story'}
+                      </span>
+                      <span className="text-[11px] text-[#171522]/65 truncate block">
+                        {lang === 'bn' ? 'আমাদের দর্শন ও গল্প' : 'Philosophy & Rue de l\'Étoile'}
+                      </span>
+                    </div>
+                  </button>
 
-                {settings?.showAdminButton === true && onOpenAdmin && (
+                  {/* Pâtisserie */}
+                  <button 
+                    onClick={() => scrollToSection('desserts')} 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/70 hover:bg-white border border-[#C9A86A]/30 text-left transition-all group cursor-pointer shadow-xs"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
+                        {lang === 'bn' ? 'প্যাটিসারি' : 'Pâtisserie'}
+                      </span>
+                      <span className="text-[11px] text-[#171522]/65 truncate block">
+                        {lang === 'bn' ? 'ফ্রেঞ্চ পেস্ট্রি ও ডেজার্ট' : 'Artisan Pastries & Desserts'}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Sommeliers */}
+                  {isChefSectionVisible && (
+                    <button 
+                      onClick={() => scrollToSection('chefs')} 
+                      className="flex items-center gap-3 p-3 rounded-xl bg-white/70 hover:bg-white border border-[#C9A86A]/30 text-left transition-all group cursor-pointer shadow-xs"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <ChefHat className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
+                          {lang === 'bn' ? 'মাস্টার শেফ' : 'Sommeliers'}
+                        </span>
+                        <span className="text-[11px] text-[#171522]/65 truncate block">
+                          {lang === 'bn' ? 'সোমেলিয়ার ও মাস্টার বারিস্তা' : 'Artisanal Masters & Roasters'}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Ritual */}
+                  <button 
+                    onClick={() => scrollToSection('timeline')} 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/70 hover:bg-white border border-[#C9A86A]/30 text-left transition-all group cursor-pointer shadow-xs"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
+                        {lang === 'bn' ? 'অভিজ্ঞতা' : 'Ritual'}
+                      </span>
+                      <span className="text-[11px] text-[#171522]/65 truncate block">
+                        {lang === 'bn' ? 'সান্ধ্যকালীন রিচুয়াল (৫-৯ PM)' : 'Evening Starlight Ritual'}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Visit */}
+                  <button 
+                    onClick={() => scrollToSection('visit')} 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/70 hover:bg-white border border-[#C9A86A]/30 text-left transition-all group cursor-pointer shadow-xs"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
+                        {lang === 'bn' ? 'যোগাযোগ' : 'Visit'}
+                      </span>
+                      <span className="text-[11px] text-[#171522]/65 truncate block">
+                        {lang === 'bn' ? 'ঠিকানা ও সময়' : 'Hours, Location & Enquiries'}
+                      </span>
+                    </div>
+                  </button>
+                </div>
+
+                {/* 3. Dropdown Quick Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
                   <button 
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      onOpenAdmin();
+                      setReservationModalOpen(true);
                     }}
-                    className="text-xs text-[#171522]/70 hover:text-[#96722d]"
+                    className="flex-1 py-3 rounded-xl bg-[#171522] hover:bg-[#2e2a42] text-white font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
                   >
-                    Admin Access
+                    <Sparkles className="w-3.5 h-3.5 text-[#C9A86A]" />
+                    <span>{lang === 'bn' ? 'টেবিল রিজার্ভেশন করুন' : 'Reserve Evening Table'}</span>
                   </button>
-                )}
+
+                  <button 
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setShowQrMenuModal(true);
+                    }}
+                    className="flex-1 py-3 rounded-xl bg-white hover:bg-white/90 border border-[#C9A86A]/50 text-[#171522] font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all cursor-pointer"
+                  >
+                    <QrCode className="w-3.5 h-3.5 text-[#96722d]" />
+                    <span>{lang === 'bn' ? 'ডিজিটাল কিউআর মেনু' : 'Digital QR Menu Card'}</span>
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -382,6 +710,7 @@ export default function LunavereTheme({
         onOrderClick={() => scrollToSection('menu')}
         onReserveClick={() => setReservationModalOpen(true)}
         lang={lang}
+        deviceView={deviceView}
       />
 
       {/* ========================================================= */}
@@ -463,15 +792,17 @@ export default function LunavereTheme({
             <div className="w-16 h-0.5 bg-[#C9A86A] mx-auto mt-4" />
           </div>
 
-          {/* Feature Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Feature Cards Grid - 1 column on mobile, 2 on tablet, 3 on desktop */}
+          <div className={`grid gap-6 sm:gap-8 ${
+            isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'
+          }`}>
             {/* Card 1 */}
-            <div className="bg-white text-[#171522] rounded-2xl p-8 border border-[#C9A86A]/30 shadow-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 space-y-4 text-center group">
+            <div className="bg-white text-[#171522] rounded-2xl p-6 sm:p-8 border border-[#C9A86A]/30 shadow-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 space-y-4 text-center group">
               <div className="w-12 h-12 rounded-full bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center mx-auto shadow-sm group-hover:scale-110 transition-transform">
                 <Coffee className="w-6 h-6" />
               </div>
               <h3 
-                className="text-2xl font-semibold text-[#171522] group-hover:text-[#96722d] transition-colors"
+                className="text-xl sm:text-2xl font-semibold text-[#171522] group-hover:text-[#96722d] transition-colors"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 Espresso Ritual
@@ -482,12 +813,12 @@ export default function LunavereTheme({
             </div>
 
             {/* Card 2 */}
-            <div className="bg-white text-[#171522] rounded-2xl p-8 border border-[#C9A86A]/30 shadow-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 space-y-4 text-center group">
+            <div className="bg-white text-[#171522] rounded-2xl p-6 sm:p-8 border border-[#C9A86A]/30 shadow-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 space-y-4 text-center group">
               <div className="w-12 h-12 rounded-full bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center mx-auto shadow-sm group-hover:scale-110 transition-transform">
                 <Sparkles className="w-6 h-6" />
               </div>
               <h3 
-                className="text-2xl font-semibold text-[#171522] group-hover:text-[#96722d] transition-colors"
+                className="text-xl sm:text-2xl font-semibold text-[#171522] group-hover:text-[#96722d] transition-colors"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 House Pour-Over
@@ -498,12 +829,12 @@ export default function LunavereTheme({
             </div>
 
             {/* Card 3 */}
-            <div className="bg-white text-[#171522] rounded-2xl p-8 border border-[#C9A86A]/30 shadow-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 space-y-4 text-center group">
+            <div className="bg-white text-[#171522] rounded-2xl p-6 sm:p-8 border border-[#C9A86A]/30 shadow-md hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 space-y-4 text-center group">
               <div className="w-12 h-12 rounded-full bg-[#C9A86A]/20 text-[#96722d] flex items-center justify-center mx-auto shadow-sm group-hover:scale-110 transition-transform">
                 <Moon className="w-6 h-6" />
               </div>
               <h3 
-                className="text-2xl font-semibold text-[#171522] group-hover:text-[#96722d] transition-colors"
+                className="text-xl sm:text-2xl font-semibold text-[#171522] group-hover:text-[#96722d] transition-colors"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 Lunavere Signatures
@@ -522,98 +853,137 @@ export default function LunavereTheme({
       <section id="menu" className="py-20 px-6 sm:px-12 bg-[#F4E7D3] text-[#171522]">
         <div className="w-full max-w-[1800px] mx-auto space-y-10">
           {/* Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[#C9A86A]/30 pb-8">
-            <div className="space-y-2">
-              <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#96722d]">
+          <div className="flex flex-col xl:flex-row items-start xl:items-end justify-between gap-5 sm:gap-6 border-b border-[#C9A86A]/30 pb-6 sm:pb-8">
+            <div className="space-y-1.5 sm:space-y-2">
+              <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.25em] uppercase text-[#96722d]">
                 SELECTION DES BOISSONS & GASTRONOMIE
               </span>
               <h2 
-                className="text-3xl sm:text-5xl font-normal text-[#171522]"
+                className="text-3xl sm:text-4xl lg:text-5xl font-normal text-[#171522]"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 Favourites after dark
               </h2>
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
+            {/* Category Filter Pills (Fully visible on mobile & tablet without any clipping or text truncation) */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full xl:w-auto pt-1 xl:pt-0">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold capitalize tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-semibold capitalize tracking-wider transition-all cursor-pointer select-none active:scale-95 ${
                     activeCategory === cat
                       ? 'bg-[#171522] text-white font-bold shadow-md'
-                      : 'bg-white text-[#171522]/80 hover:text-[#171522] border border-[#C9A86A]/40 shadow-sm'
+                      : 'bg-white text-[#171522]/85 hover:text-[#171522] hover:bg-white/95 border border-[#C9A86A]/40 shadow-sm'
                   }`}
                 >
-                  {cat}
+                  {lang === 'bn' ? (
+                    cat === 'all' ? 'সবগুলো' :
+                    cat === 'coffee' ? 'কফি' :
+                    cat === 'pastries' ? 'পেস্ট্রি' :
+                    cat === 'brunch' ? 'ব্রাঞ্চ' :
+                    cat === 'desserts' ? 'ডেজার্ট' :
+                    cat === 'tea' ? 'চা' : cat
+                  ) : (
+                    cat.charAt(0).toUpperCase() + cat.slice(1)
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Editorial Food Cards Layout with Spacing */}
+          {/* Editorial Food Cards Layout with Spacing: 1 col on mobile, 2 on tablet, 3 on desktop (Screenshot 5) */}
           {filteredDishes.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+            <div className={`grid gap-6 sm:gap-8 lg:gap-8 ${
+              isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            }`}>
               {filteredDishes.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white text-[#171522] rounded-[22px] p-5 sm:p-6 border border-[#C9A86A]/35 shadow-lg hover:border-[#96722d] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group space-y-4"
+                  className="bg-[#15162B] text-white rounded-[22px] overflow-hidden border border-[#C9A86A]/40 shadow-xl hover:border-[#C9A86A] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group"
                 >
-                  {/* Image with rounded corners and spacing */}
-                  <div className="relative overflow-hidden rounded-xl bg-[#FAF3E8] aspect-[4/3] w-full">
+                  {/* Image with rounded corners and centered EDIT button (Screenshot 5) */}
+                  <div className="relative overflow-hidden aspect-[4/3] w-full bg-black/60">
                     <img 
                       src={item.img} 
                       alt={item.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-95"
                     />
-                    {item.calories && (
-                      <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-[#171522]/85 backdrop-blur-md text-white text-[10px] font-mono shadow-sm border border-[#C9A86A]/30">
-                        {item.calories}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#15162B] via-transparent to-transparent pointer-events-none" />
+
+                    {/* Top-left Artisan Roast / Category badge */}
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
+                      <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[#C9A86A] text-[9px] font-mono font-bold uppercase tracking-widest border border-[#C9A86A]/40 shadow-md flex items-center gap-1">
+                        ☕ {item.category?.toUpperCase() || 'ARTISAN ROAST'}
                       </span>
-                    )}
-                    {item.isPopular && (
-                      <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#C9A86A] text-[#171522] text-[10px] font-black tracking-wider uppercase shadow-md">
-                        Popular
+                    </div>
+
+                    {/* Floating Center EDIT Button (Screenshot 5) */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingSingleDish(item);
+                        }}
+                        className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                        title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
+                        <span>EDIT</span>
+                      </button>
+                    </div>
+
+                    {/* Calorie badge bottom-right */}
+                    {item.calories && (
+                      <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/80 text-[#C9A86A] text-[10px] font-mono border border-[#C9A86A]/40 backdrop-blur-md shadow-sm pointer-events-none">
+                        {item.calories}
                       </span>
                     )}
                   </div>
 
-                  {/* Content separated with padding */}
-                  <div className="flex flex-col justify-between flex-1 space-y-3 pt-1">
+                  {/* Content below image */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div className="space-y-2">
                       <div className="flex items-start justify-between gap-3">
                         <h3 
-                          className="text-lg sm:text-xl font-medium text-[#171522] leading-snug group-hover:text-[#96722d] transition-colors"
-                          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                          className="font-bold text-lg sm:text-xl text-[#F4E7D3] group-hover:text-[#C9A86A] transition-colors line-clamp-2 leading-snug"
+                          style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
                         >
                           {item.title}
                         </h3>
-                        <span className="text-base sm:text-lg font-bold text-[#96722d] font-mono shrink-0 bg-[#F4E7D3]/70 border border-[#C9A86A]/40 px-2.5 py-0.5 rounded-lg">
-                          ${item.price.toFixed(2)}
+                        <span className="font-mono font-black text-base sm:text-lg shrink-0 text-[#C9A86A]">
+                          {formatPrice(item.price)}
                         </span>
                       </div>
 
-                      <p className="text-xs text-[#171522]/75 leading-relaxed line-clamp-2">
+                      <p className="text-xs text-white/70 line-clamp-2 leading-relaxed font-light">
                         {item.desc}
                       </p>
                     </div>
 
-                    <div className="pt-4 border-t border-[#C9A86A]/20 flex items-center justify-between mt-auto">
+                    {/* Action buttons (Screenshot 5): DETAILS & ORDER */}
+                    <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-[#C9A86A]/25 mt-auto">
                       <button 
-                        onClick={() => setSelectedDishDetail(item)}
-                        className="text-xs font-semibold text-[#171522]/80 hover:text-[#96722d] underline underline-offset-4 cursor-pointer"
+                        type="button"
+                        onClick={() => {
+                          setDetailOrderQty(1);
+                          setDetailSpecialNote('');
+                          setSelectedDishDetail(item);
+                        }}
+                        className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-[#C9A86A]/40 text-[#F4E7D3] text-[11px] font-bold uppercase tracking-wider hover:text-white transition-all text-center cursor-pointer shadow-xs active:scale-95"
                       >
                         Details
                       </button>
 
                       <button 
-                        onClick={() => onOrderDish && onOrderDish(item)}
-                        className="px-4 py-2 rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm active:scale-95 cursor-pointer"
+                        type="button"
+                        onClick={() => handleOrderDish(item, 1)}
+                        className="py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-[11px] font-bold uppercase tracking-wider shadow-md hover:shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        <ShoppingBag className="w-3.5 h-3.5 text-[#C9A86A]" />
-                        <span>Order Now</span>
+                        <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                        <span>Order</span>
                       </button>
                     </div>
                   </div>
@@ -656,57 +1026,83 @@ export default function LunavereTheme({
           </div>
 
           {/* 3-column card grid matching screenshot */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          <div className={`grid gap-6 lg:gap-8 ${
+            isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'
+          }`}>
             {displayDesserts.slice(0, 3).map((dessert) => (
               <div 
                 key={dessert.id}
-                className="bg-white text-[#171522] rounded-2xl overflow-hidden shadow-lg border border-[#C9A86A]/30 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl group text-left"
+                className="bg-[#15162B] text-white rounded-[22px] overflow-hidden shadow-xl border border-[#C9A86A]/40 flex flex-col justify-between transition-all duration-300 hover:border-[#C9A86A] hover:shadow-2xl group text-left"
               >
-                <div className="h-60 sm:h-64 overflow-hidden relative bg-[#FAF3E8]">
+                <div className="h-60 sm:h-64 overflow-hidden relative bg-black/60">
                   <img 
                     src={dessert.img} 
                     alt={dessert.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-95"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#15162B] via-transparent to-transparent pointer-events-none" />
+
+                  {/* Floating EDIT button (Screenshot 5) */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingSingleDish(dessert);
+                      }}
+                      className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                      title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
+                      <span>EDIT</span>
+                    </button>
+                  </div>
+
                   {dessert.calories && (
-                    <span className="absolute bottom-3 left-3 px-2.5 py-1 rounded bg-[#171522]/85 text-white/90 text-[11px] font-mono font-medium backdrop-blur-sm shadow">
+                    <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/80 text-[#C9A86A] text-[10px] font-mono border border-[#C9A86A]/40 backdrop-blur-md shadow-sm pointer-events-none">
                       {dessert.calories}
                     </span>
                   )}
                 </div>
 
-                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                  <div>
+                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <h3 
-                        className="text-xl sm:text-2xl font-normal text-[#171522] leading-snug group-hover:text-[#96722d] transition-colors"
+                        className="text-lg sm:text-xl font-normal text-[#F4E7D3] group-hover:text-[#C9A86A] leading-snug transition-colors line-clamp-2"
                         style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
                       >
                         {dessert.title}
                       </h3>
-                      <span className="text-lg font-bold text-[#96722d] font-mono shrink-0">
-                        ${dessert.price.toFixed(2)}
+                      <span className="text-base sm:text-lg font-bold text-[#C9A86A] font-mono shrink-0">
+                        {formatPrice(dessert.price)}
                       </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#171522]/70 leading-relaxed mt-2 line-clamp-2">
+                    <p className="text-xs text-white/70 leading-relaxed line-clamp-2 font-light">
                       {dessert.desc}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-[#C9A86A]/25 mt-auto">
                     <button 
-                      onClick={() => setSelectedDishDetail(dessert)}
-                      className="text-xs font-semibold text-[#171522]/80 hover:text-[#96722d] underline underline-offset-4 cursor-pointer"
+                      type="button"
+                      onClick={() => {
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                        setSelectedDishDetail(dessert);
+                      }}
+                      className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-[#C9A86A]/40 text-[#F4E7D3] text-[11px] font-bold uppercase tracking-wider hover:text-white transition-all text-center cursor-pointer shadow-xs active:scale-95"
                     >
                       Details
                     </button>
 
                     <button 
-                      onClick={() => onOrderDish && onOrderDish(dessert)}
-                      className="px-5 py-2.5 rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
+                      type="button"
+                      onClick={() => handleOrderDish(dessert, 1)}
+                      className="py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-[11px] font-bold uppercase tracking-wider shadow-md hover:shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5 text-[#C9A86A]" />
-                      <span>ORDER NOW</span>
+                      <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                      <span>Order</span>
                     </button>
                   </div>
                 </div>
@@ -762,7 +1158,7 @@ export default function LunavereTheme({
               {[...chefs, ...chefs].map((chef, idx) => (
                 <div 
                   key={`${chef.id || idx}-${idx}`}
-                  className="w-[340px] sm:w-[380px] md:w-[410px] shrink-0 bg-white border border-[#C9A86A]/30 hover:border-[#96722d] rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-5 shadow-lg transition-all duration-300 group cursor-pointer text-[#171522]"
+                  className="w-[285px] xs:w-[330px] sm:w-[380px] md:w-[410px] shrink-0 bg-white border border-[#C9A86A]/30 hover:border-[#96722d] rounded-2xl p-5 sm:p-7 flex flex-col justify-between space-y-4 sm:space-y-5 shadow-lg transition-all duration-300 group cursor-pointer text-[#171522]"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
@@ -832,7 +1228,9 @@ export default function LunavereTheme({
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className={`grid gap-6 sm:gap-8 relative ${
+            isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'
+          }`}>
             {/* Timeline Item 1 */}
             <div className="bg-white border border-[#C9A86A]/30 p-8 rounded-2xl relative space-y-3 text-center shadow-md text-[#171522]">
               <div className="w-12 h-12 rounded-full bg-[#171522] text-white font-bold text-sm flex items-center justify-center mx-auto shadow-md">
@@ -870,46 +1268,85 @@ export default function LunavereTheme({
       </section>
 
       {/* ========================================================= */}
-      {/* 9. TESTIMONIALS */}
+      {/* 9. TESTIMONIALS / QUOTE SLIDER */}
       {/* ========================================================= */}
-      <section className="py-20 px-6 sm:px-12 bg-[#EDE2D0] text-[#171522]">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+      <section 
+        className="py-20 px-6 sm:px-12 bg-[#EDE2D0] text-[#171522] overflow-hidden select-none"
+        onMouseEnter={() => setIsTestimonialHovered(true)}
+        onMouseLeave={() => setIsTestimonialHovered(false)}
+      >
+        <div className="max-w-4xl mx-auto text-center space-y-8 relative">
           <div className="w-12 h-12 rounded-full bg-[#171522] text-[#C9A86A] flex items-center justify-center mx-auto shadow-md">
             <Sparkles className="w-5 h-5" />
           </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTestimonial}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              className="space-y-4"
+          <div className="relative flex items-center justify-center min-h-[220px] sm:min-h-[180px] overflow-hidden px-10 sm:px-14">
+            {/* Left Nav Arrow Button */}
+            <button
+              onClick={handlePrevTestimonial}
+              className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-[#171522]/10 hover:bg-[#171522] text-[#171522] hover:text-[#EDE2D0] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+              aria-label="Previous review"
             >
-              <p 
-                className="text-2xl sm:text-4xl font-normal leading-relaxed italic text-[#171522]"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                "{DEFAULT_TESTIMONIALS[activeTestimonial].quote}"
-              </p>
+              <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
+            </button>
 
-              <div>
-                <h4 className="text-sm font-bold tracking-widest uppercase text-[#171522]">
-                  {DEFAULT_TESTIMONIALS[activeTestimonial].author}
-                </h4>
-                <p className="text-xs text-[#171522]/75 mt-0.5">
-                  {DEFAULT_TESTIMONIALS[activeTestimonial].role}
-                </p>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+            {/* Sliding Quote Content */}
+            <div className="w-full max-w-2xl mx-auto overflow-hidden py-2 px-1">
+              <AnimatePresence mode="wait" custom={slideDirection}>
+                <motion.div
+                  key={activeTestimonial}
+                  custom={slideDirection}
+                  initial={{ opacity: 0, x: slideDirection > 0 ? 80 : -80 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: slideDirection > 0 ? -80 : 80 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -30 || info.velocity.x < -400) {
+                      handleNextTestimonial();
+                    } else if (info.offset.x > 30 || info.velocity.x > 400) {
+                      handlePrevTestimonial();
+                    }
+                  }}
+                  className="space-y-3 sm:space-y-4 cursor-grab active:cursor-grabbing"
+                >
+                  <p 
+                    className="text-lg xs:text-xl sm:text-3xl lg:text-4xl font-normal leading-relaxed italic text-[#171522]"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    "{DEFAULT_TESTIMONIALS[activeTestimonial].quote}"
+                  </p>
 
-          {/* Accessible Controls */}
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold tracking-widest uppercase text-[#171522]">
+                      {DEFAULT_TESTIMONIALS[activeTestimonial].author}
+                    </h4>
+                    <p className="text-[11px] sm:text-xs text-[#171522]/75 mt-0.5">
+                      {DEFAULT_TESTIMONIALS[activeTestimonial].role}
+                    </p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Right Nav Arrow Button */}
+            <button
+              onClick={handleNextTestimonial}
+              className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-[#171522]/10 hover:bg-[#171522] text-[#171522] hover:text-[#EDE2D0] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+              aria-label="Next review"
+            >
+              <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+
+          {/* Accessible Controls / Indicators */}
           <div className="flex items-center justify-center gap-3 pt-4">
             {DEFAULT_TESTIMONIALS.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveTestimonial(idx)}
+                onClick={() => handleSelectTestimonial(idx)}
                 className={`transition-all rounded-full cursor-pointer ${
                   idx === activeTestimonial 
                     ? 'w-8 h-2.5 bg-[#171522]' 
@@ -927,7 +1364,9 @@ export default function LunavereTheme({
       {/* ========================================================= */}
       <footer id="visit" className="bg-[#0f101d] text-white border-t border-white/20 pt-16 pb-12 px-6 sm:px-12">
         <div className="w-full max-w-[1800px] mx-auto space-y-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14">
+          <div className={`grid gap-8 lg:gap-14 ${
+            isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'
+          }`}>
             {/* Col 1: Brand & Socials (White styling, no email) */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -950,6 +1389,7 @@ export default function LunavereTheme({
                 {settings?.lunavereFooterDesc || 'An intimate Parisian coffee house for slow evenings, delicate pastries, and beautifully brewed single-origin coffee.'}
               </p>
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                {/* Instagram: Always available in all tiers ($15 Basic, $49 Pro, $99 Elite) */}
                 <a 
                   href={settings?.socialLinks?.instagram ? (settings.socialLinks.instagram.startsWith('http') ? settings.socialLinks.instagram : `https://${settings.socialLinks.instagram}`) : '#'} 
                   target="_blank" 
@@ -959,48 +1399,60 @@ export default function LunavereTheme({
                 >
                   <Instagram className="w-4 h-4" />
                 </a>
-                <a 
-                  href={settings?.socialLinks?.youtube ? (settings.socialLinks.youtube.startsWith('http') ? settings.socialLinks.youtube : `https://${settings.socialLinks.youtube}`) : '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  title="YouTube"
-                  className="w-9 h-9 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white hover:border-white hover:bg-white hover:text-[#0f101d] transition-all"
-                >
-                  <Youtube className="w-4 h-4" />
-                </a>
-                <a 
-                  href={settings?.socialLinks?.facebook ? (settings.socialLinks.facebook.startsWith('http') ? settings.socialLinks.facebook : `https://${settings.socialLinks.facebook}`) : '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  title="Facebook"
-                  className="w-9 h-9 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white hover:border-white hover:bg-white hover:text-[#0f101d] transition-all"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a 
-                  href={settings?.socialLinks?.linkedin ? (settings.socialLinks.linkedin.startsWith('http') ? settings.socialLinks.linkedin : `https://${settings.socialLinks.linkedin}`) : 'https://linkedin.com'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  title="LinkedIn"
-                  className="w-9 h-9 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white hover:border-white hover:bg-white hover:text-[#0f101d] transition-all"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
+
+                {/* YouTube: Available in $49 Pro & $99 Elite tiers only */}
+                {isProOrElite && (
+                  <a 
+                    href={settings?.socialLinks?.youtube ? (settings.socialLinks.youtube.startsWith('http') ? settings.socialLinks.youtube : `https://${settings.socialLinks.youtube}`) : '#'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    title="YouTube ($49 Pro / $99 Elite)"
+                    className="w-9 h-9 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white hover:border-white hover:bg-white hover:text-[#0f101d] transition-all"
+                  >
+                    <Youtube className="w-4 h-4" />
+                  </a>
+                )}
+
+                {/* Facebook: Available in $49 Pro & $99 Elite tiers only */}
+                {isProOrElite && (
+                  <a 
+                    href={settings?.socialLinks?.facebook ? (settings.socialLinks.facebook.startsWith('http') ? settings.socialLinks.facebook : `https://${settings.socialLinks.facebook}`) : '#'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    title="Facebook ($49 Pro / $99 Elite)"
+                    className="w-9 h-9 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white hover:border-white hover:bg-white hover:text-[#0f101d] transition-all"
+                  >
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                )}
+
+                {/* LinkedIn: Available in $99 Elite tier only */}
+                {isEliteTier && (
+                  <a 
+                    href={settings?.socialLinks?.linkedin ? (settings.socialLinks.linkedin.startsWith('http') ? settings.socialLinks.linkedin : `https://${settings.socialLinks.linkedin}`) : 'https://linkedin.com'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    title="LinkedIn ($99 Elite)"
+                    className="w-9 h-9 rounded-full bg-white/10 border border-white/25 flex items-center justify-center text-white hover:border-white hover:bg-white hover:text-[#0f101d] transition-all"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                  </a>
+                )}
               </div>
             </div>
 
             {/* Col 2: Contact & Enquiries */}
-            {(settings?.brandLocation || settings?.contactPhone) && (
+            {(sanitizedBrandLocation || settings?.contactPhone) && (
               <div className="space-y-4">
                 <h4 className="text-xs font-mono font-bold tracking-widest uppercase text-white">
-                  {settings?.brandLocation ? 'LOCATION & ENQUIRIES' : 'CONTACT & ENQUIRIES'}
+                  {sanitizedBrandLocation ? 'LOCATION & ENQUIRIES' : 'CONTACT & ENQUIRIES'}
                 </h4>
                 <div className="space-y-3 text-xs text-white/90">
-                  {settings?.brandLocation && (
+                  {sanitizedBrandLocation && (
                     <p className="flex items-start gap-2.5">
                       <MapPin className="w-4 h-4 text-white shrink-0 mt-0.5" />
                       <span className="leading-relaxed">
-                        {settings.brandLocation}
+                        {sanitizedBrandLocation}
                       </span>
                     </p>
                   )}
@@ -1249,6 +1701,507 @@ export default function LunavereTheme({
               )}
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* CUSTOMER FOOD ITEM DETAIL & ORDERING MODAL (Screenshots 1 & 2) */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {selectedDishDetail && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col justify-start overflow-hidden text-slate-900"
+          >
+            {/* Top Bar with Back, Search, Prev/Next Counter, Edit, Close (Screenshot 1 & 2) */}
+            <div className="bg-white/95 border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-3 shrink-0 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setSelectedDishDetail(null)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+              </button>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Quick dish search */}
+                <div className="relative hidden md:block w-48 lg:w-60">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder={lang === 'bn' ? "খাবার খুঁজুন..." : "Find dish..."}
+                    value={modalSearchTerm}
+                    onChange={(e) => {
+                      const q = e.target.value;
+                      setModalSearchTerm(q);
+                      if (q.trim()) {
+                        const match = effectiveDishes.find(d => 
+                          d.title.toLowerCase().includes(q.toLowerCase()) || 
+                          (d.category && d.category.toLowerCase().includes(q.toLowerCase()))
+                        );
+                        if (match) {
+                          setSelectedDishDetail(match);
+                          setDetailOrderQty(1);
+                        }
+                      }
+                    }}
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-500 transition-all shadow-xs"
+                  />
+                </div>
+
+                {/* Prev / Counter / Next Controls (Screenshot 1 & 2) */}
+                <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (effectiveDishes.length <= 1) return;
+                      const idx = effectiveDishes.findIndex(d => d.id === selectedDishDetail.id);
+                      const prevIdx = idx > 0 ? idx - 1 : effectiveDishes.length - 1;
+                      setSelectedDishDetail(effectiveDishes[prevIdx]);
+                      setDetailOrderQty(1);
+                    }}
+                    className="p-1.5 sm:px-3 sm:py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-xs"
+                    title="Previous"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  <span className="px-2 sm:px-3 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">
+                    {Math.max(1, effectiveDishes.findIndex(d => d.id === selectedDishDetail.id) + 1)} / {effectiveDishes.length}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (effectiveDishes.length <= 1) return;
+                      const idx = effectiveDishes.findIndex(d => d.id === selectedDishDetail.id);
+                      const nextIdx = idx < effectiveDishes.length - 1 ? idx + 1 : 0;
+                      setSelectedDishDetail(effectiveDishes[nextIdx]);
+                      setDetailOrderQty(1);
+                    }}
+                    className="px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-black flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-xs"
+                    title="Next"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                </div>
+
+                {/* Edit Button in detail view (Screenshot 1 & 2) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const d = selectedDishDetail;
+                    setSelectedDishDetail(null);
+                    setEditingSingleDish(d);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-slate-200 transition-all cursor-pointer shadow-xs"
+                  title="Edit Food Item"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="hidden sm:inline">EDIT</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedDishDetail(null)}
+                  className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer border border-slate-200 shadow-xs"
+                  title="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Container */}
+            <div id="dish-modal-scroll-body" className="flex-1 p-4 sm:p-8 md:p-10 overflow-y-auto space-y-10 scrollbar-thin bg-white max-w-7xl mx-auto w-full">
+              {/* 2-Column Main View */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                {/* Left Column: Image with Floating Arrows */}
+                <div className="lg:col-span-7 relative h-72 sm:h-96 md:h-[440px] w-full rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-slate-50 group select-none">
+                  <img 
+                    src={selectedDishDetail.img} 
+                    alt={selectedDishDetail.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+
+                  {/* Left & Right floating click arrows directly on the image */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (effectiveDishes.length <= 1) return;
+                      const idx = effectiveDishes.findIndex(d => d.id === selectedDishDetail.id);
+                      const prevIdx = idx > 0 ? idx - 1 : effectiveDishes.length - 1;
+                      setSelectedDishDetail(effectiveDishes[prevIdx]);
+                      setDetailOrderQty(1);
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/85 hover:bg-white text-slate-900 border border-slate-200 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
+                    title="Previous"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (effectiveDishes.length <= 1) return;
+                      const idx = effectiveDishes.findIndex(d => d.id === selectedDishDetail.id);
+                      const nextIdx = idx < effectiveDishes.length - 1 ? idx + 1 : 0;
+                      setSelectedDishDetail(effectiveDishes[nextIdx]);
+                      setDetailOrderQty(1);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/85 hover:bg-white text-slate-900 border border-slate-200 flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20"
+                    title="Next"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+
+                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-200 text-slate-800 font-mono text-xs font-bold shadow-sm">
+                    📸 High-Res Gourmet Selection
+                  </div>
+                </div>
+
+                {/* Right Column: Title, Details & Ordering */}
+                <div className="lg:col-span-5 space-y-6 flex flex-col justify-between h-full">
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 
+                        className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight"
+                        style={{ fontFamily: fontDisplay || "'Cormorant Garamond', serif" }}
+                      >
+                        {selectedDishDetail.title}
+                      </h3>
+                      <span className="font-mono text-2xl sm:text-3xl font-black text-amber-600 shrink-0">
+                        {formatPrice(selectedDishDetail.price)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-xs text-slate-600 font-mono bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 w-fit">
+                      <span>🔥 {selectedDishDetail.calories || '180 kcal'}</span>
+                      <span>•</span>
+                      <span>⏱️ Prep Time: 5-8 mins</span>
+                    </div>
+
+                    <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                      {selectedDishDetail.desc}
+                    </p>
+                  </div>
+
+                  {/* Quantity Controls & Order Button (Screenshot 2) */}
+                  <div className="space-y-4 pt-4 border-t border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-700 uppercase tracking-wider">ORDER QUANTITY</span>
+                      <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 shadow-2xs">
+                        <button 
+                          type="button"
+                          onClick={() => setDetailOrderQty(prev => Math.max(1, prev - 1))}
+                          className="text-slate-600 font-bold text-lg hover:text-slate-900 px-2 cursor-pointer active:scale-95 transition-transform"
+                        >
+                          -
+                        </button>
+                        <span className="font-mono text-sm font-black text-slate-900 w-6 text-center">{detailOrderQty}</span>
+                        <button 
+                          type="button"
+                          onClick={() => setDetailOrderQty(prev => prev + 1)}
+                          className="text-slate-600 font-bold text-lg hover:text-slate-900 px-2 cursor-pointer active:scale-95 transition-transform"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleOrderDish(selectedDishDetail, detailOrderQty);
+                        setSelectedDishDetail(null);
+                      }}
+                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-2 transition-all"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      <span>ADD TO ORDER ({formatPrice(selectedDishDetail.price * detailOrderQty)})</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* MORE DELICACIES GRID (Screenshot 1 & 2) */}
+              <div className="pt-8 border-t border-slate-200 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h4 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                      ✨ MORE DELICACIES — TAP ANY ITEM TO VIEW ENLARGED
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">Scroll down to explore all gourmet selections in our menu</p>
+                  </div>
+                  <span className="text-xs text-amber-700 font-mono bg-amber-50 border border-amber-200 px-3 py-1 rounded-full w-fit font-bold">
+                    {effectiveDishes.length - 1} More Items Available
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
+                  {effectiveDishes
+                    .filter(d => d.id !== selectedDishDetail.id)
+                    .map((otherDish) => (
+                      <div
+                        key={otherDish.id}
+                        onClick={() => {
+                          setSelectedDishDetail(otherDish);
+                          setDetailOrderQty(1);
+                          const scrollEl = document.getElementById('dish-modal-scroll-body');
+                          if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md hover:border-amber-400 transition-all cursor-pointer flex flex-col justify-between group"
+                      >
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                          <img src={otherDish.img} alt={otherDish.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/75 text-white font-mono text-[10px] font-bold">
+                            {formatPrice(otherDish.price)}
+                          </span>
+                        </div>
+                        <div className="p-3.5 space-y-1">
+                          <h5 className="font-bold text-xs text-slate-900 line-clamp-1 group-hover:text-amber-600 transition-colors">
+                            {otherDish.title}
+                          </h5>
+                          <p className="text-[11px] text-slate-500 line-clamp-1">
+                            {otherDish.desc}
+                          </p>
+                          <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block pt-1">
+                            TAP TO VIEW →
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* EDIT FOOD ITEM MODAL (Screenshots 3 & 4) */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {editingSingleDish && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+            onClick={() => setEditingSingleDish(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white text-stone-900 border-2 border-[#C9A86A] rounded-3xl p-6 sm:p-8 max-w-2xl md:max-w-3xl w-full shadow-2xl space-y-6 my-auto max-h-[90vh] overflow-y-auto scrollbar-thin"
+            >
+              {/* Modal Header (Screenshot 3 & 4) */}
+              <div className="flex items-center justify-between border-b border-stone-200 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700">
+                    <Edit3 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-stone-900">Edit Food Item</h3>
+                    <p className="text-xs text-stone-500 font-medium">Modify photo, title, price, and description</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingSingleDish(null)}
+                  className="p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors cursor-pointer border border-stone-300"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Hidden File Input for Photo Upload */}
+              <input
+                id="lunavere-single-dish-file-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, (url) => setEditingSingleDish({ ...editingSingleDish, img: url }))}
+              />
+
+              {/* TOP LIVE IMAGE PREVIEW WITH UPLOAD BUTTON (Screenshot 3 & 4) */}
+              <div className="space-y-2">
+                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden bg-stone-900 border-2 border-amber-400 shadow-xl flex items-center justify-center group">
+                  <img 
+                    src={editingSingleDish.img} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-85"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20" />
+                  
+                  {/* OVERLAY UPLOAD BUTTON INSIDE IMAGE BOX */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById('lunavere-single-dish-file-input');
+                      if (el) el.click();
+                    }}
+                    className="absolute z-20 px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-2xl flex items-center gap-2.5 border-2 border-amber-200 cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  >
+                    <ImageIcon className="w-5 h-5 text-stone-950" />
+                    <span>📁 UPLOAD PHOTO FROM GALLERY</span>
+                  </button>
+
+                  {/* BOTTOM LIVE OVERLAY TITLE & PRICE */}
+                  <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between z-10 pointer-events-none">
+                    <div>
+                      <span className="px-2.5 py-0.5 rounded-md bg-amber-400 text-stone-950 font-bold text-[10px] uppercase mb-1 inline-block shadow-md">
+                        {editingSingleDish.calories || '150 kcal'}
+                      </span>
+                      <h4 className="text-lg sm:text-2xl font-bold text-white drop-shadow-md leading-tight">
+                        {editingSingleDish.title || 'Untitled Item'}
+                      </h4>
+                    </div>
+                    <span className="font-mono text-xl sm:text-2xl font-black text-amber-300 drop-shadow-lg shrink-0">
+                      {formatPrice(editingSingleDish.price || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* FORM FIELDS (Screenshot 3 & 4) */}
+              <div className="space-y-4 text-xs">
+                {/* Store Display Currency */}
+                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">💱</span>
+                    <div>
+                      <span className="text-xs font-bold text-stone-800 uppercase tracking-wider block">STORE DISPLAY CURRENCY</span>
+                      <span className="text-[10px] text-stone-500 font-medium">Select currency symbol for prices</span>
+                    </div>
+                  </div>
+                  <select
+                    value={selectedCurrency}
+                    onChange={(e) => setSelectedCurrency(e.target.value as any)}
+                    className="bg-white text-stone-900 text-xs font-bold rounded-xl px-4 py-2 outline-none border-2 border-amber-400 cursor-pointer hover:border-amber-500 transition-colors shadow-sm"
+                  >
+                    <option value="USD">us US Dollar ($)</option>
+                    <option value="GBP">uk UK Pound (£)</option>
+                    <option value="BDT">bd BD Taka (৳)</option>
+                    <option value="EUR">eu Euro (€)</option>
+                  </select>
+                </div>
+
+                {/* Dish Title */}
+                <div className="space-y-1.5">
+                  <label className="text-stone-800 font-bold uppercase tracking-wider block text-[11px]">DISH TITLE</label>
+                  <input
+                    type="text"
+                    value={editingSingleDish.title}
+                    onChange={(e) => setEditingSingleDish({ ...editingSingleDish, title: e.target.value })}
+                    placeholder="Enter dish name..."
+                    className="w-full bg-stone-50 border-2 border-stone-200 focus:border-amber-500 rounded-xl px-4 py-2.5 text-stone-900 font-semibold text-sm outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Base Price */}
+                  <div className="space-y-1.5">
+                    <label className="text-stone-800 font-bold uppercase tracking-wider block text-[11px]">BASE PRICE (USD $)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={editingSingleDish.price}
+                      onChange={(e) => setEditingSingleDish({ ...editingSingleDish, price: parseFloat(e.target.value) || 0 })}
+                      className="w-full bg-stone-50 border-2 border-stone-200 focus:border-amber-500 rounded-xl px-4 py-2.5 text-stone-900 font-mono font-bold text-sm outline-none transition-colors"
+                    />
+                  </div>
+
+                  {/* Calories / Tag */}
+                  <div className="space-y-1.5">
+                    <label className="text-stone-800 font-bold uppercase tracking-wider block text-[11px]">CALORIES / TAG</label>
+                    <input
+                      type="text"
+                      value={editingSingleDish.calories || ''}
+                      onChange={(e) => setEditingSingleDish({ ...editingSingleDish, calories: e.target.value })}
+                      placeholder="e.g. 150 kcal"
+                      className="w-full bg-stone-50 border-2 border-stone-200 focus:border-amber-500 rounded-xl px-4 py-2.5 text-stone-900 font-medium text-sm outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-1.5">
+                  <label className="text-stone-800 font-bold uppercase tracking-wider block text-[11px]">DESCRIPTION</label>
+                  <textarea
+                    rows={3}
+                    value={editingSingleDish.desc}
+                    onChange={(e) => setEditingSingleDish({ ...editingSingleDish, desc: e.target.value })}
+                    placeholder="Describe ingredients and flavor notes..."
+                    className="w-full bg-stone-50 border-2 border-stone-200 focus:border-amber-500 rounded-xl px-4 py-2.5 text-stone-900 font-normal outline-none resize-none text-xs leading-relaxed transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex items-center justify-between pt-4 border-t border-stone-200 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingSingleDish(null)}
+                  className="px-6 py-2.5 rounded-xl bg-transparent border-2 border-red-500 text-red-600 font-bold text-xs uppercase hover:bg-red-600 hover:text-white transition-all duration-300 cursor-pointer shadow-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDish}
+                  className="px-8 py-2.5 rounded-xl bg-amber-500 border-2 border-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider shadow-md hover:bg-amber-600 hover:border-amber-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Toast Notification */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -25, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -25, scale: 0.95 }}
+            className="fixed top-8 left-1/2 -translate-x-1/2 z-[99999] px-6 py-3 rounded-2xl bg-amber-500 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-2xl border-2 border-amber-300 flex items-center gap-2.5 pointer-events-none"
+          >
+            <Sparkles className="w-4 h-4 text-stone-950" />
+            <span>{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* FLOATING SCROLL TO TOP BUTTON (Matching User's Screenshot 2) */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {isScrolled && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 15 }}
+            transition={{ duration: 0.2 }}
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-[99999] w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40"
+            aria-label="Scroll to top"
+            title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+          >
+            <ChevronUp className="w-6 h-6 stroke-[2.5]" />
+          </motion.button>
         )}
       </AnimatePresence>
     </div>

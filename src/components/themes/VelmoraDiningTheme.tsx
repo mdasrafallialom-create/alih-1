@@ -795,6 +795,17 @@ export default function VelmoraDiningTheme({
   const [editingAboutUsImage, setEditingAboutUsImage] = useState<string>('');
   const [editingAboutUsFeatures, setEditingAboutUsFeatures] = useState<string[]>([]);
 
+  // Hero Slide Editor Modal State
+  const [isHeroEditorOpen, setIsHeroEditorOpen] = useState<boolean>(false);
+  const [editingSlideIndex, setEditingSlideIndex] = useState<number>(0);
+  const [editingHeroSubtitle, setEditingHeroSubtitle] = useState<string>('');
+  const [editingHeroTitle, setEditingHeroTitle] = useState<string>('');
+  const [editingHeroDescription, setEditingHeroDescription] = useState<string>('');
+  const [editingHeroCupName, setEditingHeroCupName] = useState<string>('');
+  const [editingHeroPrice, setEditingHeroPrice] = useState<string>('');
+  const [editingHeroPrimaryBtn, setEditingHeroPrimaryBtn] = useState<string>('');
+  const [editingHeroSecondaryBtn, setEditingHeroSecondaryBtn] = useState<string>('');
+
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
@@ -1142,6 +1153,62 @@ export default function VelmoraDiningTheme({
     setTimeout(() => setToastMsg(null), 3000);
   };
 
+  const openHeroEditor = (slideIndex: number) => {
+    setEditingSlideIndex(slideIndex);
+    const targetSlide = activeHeroSlides[slideIndex] || {};
+    setEditingHeroSubtitle(targetSlide.subtitle || targetSlide.eyebrow || '');
+    setEditingHeroTitle(targetSlide.title || targetSlide.heading || '');
+    setEditingHeroDescription(targetSlide.description || targetSlide.tag || '');
+    setEditingHeroCupName(targetSlide.cupName || '');
+    setEditingHeroPrice(targetSlide.price || '');
+    setEditingHeroPrimaryBtn(targetSlide.primaryBtn || '');
+    setEditingHeroSecondaryBtn(targetSlide.secondaryBtn || '');
+    setIsHeroEditorOpen(true);
+  };
+
+  const saveHeroEdits = () => {
+    const updatedSlides = [...activeHeroSlides];
+    if (updatedSlides[editingSlideIndex]) {
+      updatedSlides[editingSlideIndex] = {
+        ...updatedSlides[editingSlideIndex],
+        subtitle: editingHeroSubtitle,
+        eyebrow: editingHeroSubtitle,
+        title: editingHeroTitle,
+        heading: editingHeroTitle,
+        description: editingHeroDescription,
+        tag: editingHeroDescription,
+        cupName: editingHeroCupName,
+        price: editingHeroPrice,
+        primaryBtn: editingHeroPrimaryBtn,
+        secondaryBtn: editingHeroSecondaryBtn,
+      };
+    }
+
+    const payload = {
+      ...(themeEdits || {}),
+      heroSlides: updatedSlides,
+    };
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`theme_edits_${activePresetId}`, JSON.stringify(payload));
+        const rawAdmin = localStorage.getItem('webar_restaurant_admin_settings');
+        if (rawAdmin) {
+          const parsedAdmin = JSON.parse(rawAdmin);
+          parsedAdmin.heroSlides = updatedSlides;
+          localStorage.setItem('webar_restaurant_admin_settings', JSON.stringify(parsedAdmin));
+        }
+      } catch (err) {
+        console.error('Failed to save hero edits:', err);
+      }
+    }
+
+    setThemeEditsState(payload);
+    setIsHeroEditorOpen(false);
+    setToastMsg(lang === 'bn' ? 'হিরো স্লাইডার সেকশনটি সফলভাবে আপডেট হয়েছে!' : 'Hero slider section updated successfully!');
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
   const openMenuSectionEditor = (targetTab: 'headings' | 'dishes' = 'headings') => {
     const currentTagline = themeEdits?.menuSectionTagline || settings?.menuSectionTagline || pageCfg.repertoireTag || '☕ — ARTISAN HAND-ROASTED SPECIALTY COFFEE —';
     const currentTitle = themeEdits?.menuSectionTitle || settings?.menuSectionTitle || defaultMenuTitle;
@@ -1187,6 +1254,7 @@ export default function VelmoraDiningTheme({
           lang={lang}
           themePresetId={activePresetId}
           previewDeviceView={previewDeviceView}
+          onEditClick={openHeroEditor}
         />
       </section>
 
@@ -3125,6 +3193,176 @@ export default function VelmoraDiningTheme({
                 <button
                   type="button"
                   onClick={saveAboutUsEdits}
+                  className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#b58f27] hover:brightness-110 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{lang === 'bn' ? 'সংরক্ষণ করুন (Save)' : 'Save Changes'}</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* HERO SLIDE EDITOR MODAL (Luxurious Theme Blend) */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {isHeroEditorOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden"
+            onClick={() => setIsHeroEditorOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#14120B] border-2 border-[#D4AF37] rounded-3xl overflow-hidden max-w-3xl w-full shadow-2xl flex flex-col max-h-[92vh] my-auto select-text"
+            >
+              {/* Header */}
+              <div className="px-6 py-4 bg-[#090805] border-b border-[#D4AF37]/30 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm text-[#FBF8EE] uppercase tracking-wider">
+                      {lang === 'bn' ? `হিরো স্লাইডার এডিটর (স্লাইড #${editingSlideIndex + 1})` : `Edit Hero Slider (Slide #${editingSlideIndex + 1})`}
+                    </h3>
+                    <p className="text-[11px] text-[#FBF8EE]/60 font-light">
+                      {lang === 'bn' ? 'এই স্লাইডের শিরোনাম, ট্যাগলাইন, বিবরণ ও বাটনের লেখাগুলো পরিবর্তন করুন' : 'Change titles, descriptions, tags, and button texts for this slide'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsHeroEditorOpen(false)}
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer border border-white/10"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scrollable Form Body */}
+              <div className="p-6 overflow-y-auto space-y-6 scrollbar-thin scrollbar-thumb-amber-500/30">
+                {/* 1. Subtitle & Main Title */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'সাবটাইটেল / আইব্রো (Subtitle)' : 'Subtitle / Eyebrow'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeroSubtitle}
+                      onChange={(e) => setEditingHeroSubtitle(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-medium"
+                      placeholder="e.g. Wood-Fired Artisanal Specialty"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'প্রধান শিরোনাম (Main Title)' : 'Main Title'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeroTitle}
+                      onChange={(e) => setEditingHeroTitle(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-bold"
+                      placeholder="e.g. TRUFFLE PIZZA"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Description */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                    {lang === 'bn' ? 'সংক্ষিপ্ত বিবরণ (Description)' : 'Slide Description / Story'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingHeroDescription}
+                    onChange={(e) => setEditingHeroDescription(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-medium leading-relaxed resize-none"
+                    placeholder="Describe the dish or slide features..."
+                  />
+                </div>
+
+                {/* 3. Badge Cup Name & Price */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'সেকেন্ডারি ব্যাজ নাম (Secondary Badge)' : 'Secondary Badge Text (Dish/Item)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeroCupName}
+                      onChange={(e) => setEditingHeroCupName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-medium"
+                      placeholder="e.g. Wood-Fired Truffle Pizza"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'মূল্য বা স্পেশাল লেবেল (Price/Label)' : 'Price or Special Label'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeroPrice}
+                      onChange={(e) => setEditingHeroPrice(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-medium"
+                      placeholder="e.g. Gourmet Selection or $4.50"
+                    />
+                  </div>
+                </div>
+
+                {/* 4. Action Buttons Text */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'অর্ডার বাটনের লেখা (Primary CTA Button)' : 'Primary Button Text'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeroPrimaryBtn}
+                      onChange={(e) => setEditingHeroPrimaryBtn(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-semibold"
+                      placeholder="e.g. Order Online"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                      {lang === 'bn' ? 'বুকিং বাটনের লেখা (Secondary CTA Button)' : 'Secondary Button Text'}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeroSecondaryBtn}
+                      onChange={(e) => setEditingHeroSecondaryBtn(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-[#FBF8EE] text-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all font-semibold"
+                      placeholder="e.g. View Menu"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="px-6 py-4 bg-[#090805] border-t border-[#D4AF37]/30 flex items-center justify-between shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsHeroEditorOpen(false)}
+                  className="px-5 py-2.5 rounded-xl border border-white/20 text-white/70 hover:text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveHeroEdits}
                   className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#b58f27] hover:brightness-110 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-2 active:scale-95"
                 >
                   <Save className="w-4 h-4" />
