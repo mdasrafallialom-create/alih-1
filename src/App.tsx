@@ -2319,7 +2319,7 @@ export default function App() {
           ======================================================================= */}
       {(viewMode === 'admin' || (viewMode === 'client' && !isCustomThemeActive)) && (
       <header 
-        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-transform duration-300 transform-gpu ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
+        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b no-print transition-transform duration-300 transform-gpu ${(viewMode === 'admin' || isHeaderVisible) ? 'translate-y-0' : '-translate-y-full'} ${viewMode === 'admin' ? (adminSettings?.theme === 'dark' ? 'bg-[#0f0f0f] border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-900 shadow-xs') : 'bg-white border-slate-200 text-slate-900 shadow-xs'}`} 
         style={{ backgroundColor: viewMode === 'client' ? '#ffffff' : (adminSettings?.theme === 'dark' ? '#0f0f0f' : '#ffffff') }}
       >
         <div className="max-w-full mx-auto px-4 sm:px-8 md:px-12 lg:px-16 py-3 flex items-center justify-between relative">
@@ -3523,24 +3523,8 @@ export default function App() {
       </AnimatePresence>
 
       {/* ========================================================= */}
-      {/* GLOBAL FLOATING SCROLL TO TOP BUTTON (Matching Screenshot) */}
+      {/* GLOBAL FLOATING SCROLL TO TOP BUTTON REMOVED (THEMES RENDER THEIR OWN TO PREVENT DUPLICATES) */}
       {/* ========================================================= */}
-      <AnimatePresence>
-        {globalScrolled && viewMode === 'client' && !isCustomThemeActive && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 15 }}
-            transition={{ duration: 0.2 }}
-            onClick={handleGlobalScrollToTop}
-            className="fixed bottom-6 right-6 z-[99999] w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40"
-            aria-label="Scroll to top"
-            title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
-          >
-            <ChevronUp className="w-6 h-6 stroke-[2.5]" />
-          </motion.button>
-        )}
-      </AnimatePresence>
 
     </div>
   );

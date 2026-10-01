@@ -17,7 +17,8 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
 }) => {
   // All themes EXCEPT the 13 coffee shop themes receive the 5-Star Michelin Luxury styling
   const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
-  const isOrivelle = isLuxuryTheme;
+  const isAurelisse = themePresetId === 'aurelisse';
+  const isOrivelle = isLuxuryTheme && !isAurelisse;
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
 
   const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -35,9 +36,11 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
     <section 
       id="delivery" 
       className={`relative w-full overflow-hidden transition-colors duration-500 ${
-        isOrivelle 
-          ? 'bg-[#0a0907] text-[#FBF8EE] border-t border-amber-400/30' 
-          : 'bg-white text-[#2c1e13]'
+        isAurelisse
+          ? 'bg-[#EDF7E7] text-[#142412] border-t border-[#2e7d32]/20'
+          : isOrivelle 
+            ? 'bg-[#0a0907] text-[#FBF8EE] border-t border-amber-400/30' 
+            : 'bg-white text-[#2c1e13]'
       }`}
     >
       <div className={`w-full max-w-[1800px] mx-auto ${
@@ -48,15 +51,17 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
         <div className="text-center space-y-2.5 sm:space-y-3 mb-8 sm:mb-12 max-w-3xl mx-auto px-2">
           <span 
             className={`text-xs sm:text-sm font-bold uppercase tracking-widest block ${
-              isOrivelle ? 'text-amber-400 font-mono tracking-[0.25em]' : ''
+              isAurelisse ? 'text-[#2e7d32] font-mono tracking-[0.25em]' : isOrivelle ? 'text-amber-400 font-mono tracking-[0.25em]' : ''
             }`}
-            style={{ color: isOrivelle ? '#e5c158' : cfg.accentColor }}
+            style={{ color: isAurelisse ? '#2e7d32' : isOrivelle ? '#e5c158' : cfg.accentColor }}
           >
-            {isOrivelle ? '✦ DELIVERY & CASH ON DELIVERY ✦' : (lang === 'bn' ? 'ডেলিভারি ও ক্যাশ অন ডেলিভারি সিস্টেম' : 'DELIVERY & CASH ON DELIVERY SYSTEM')}
+            {isAurelisse ? '✦ EXPRESS GOURMET DELIVERY & COD ✦' : isOrivelle ? '✦ DELIVERY & CASH ON DELIVERY ✦' : (lang === 'bn' ? 'ডেলিভারি ও ক্যাশ অন ডেলিভারি সিস্টেম' : 'DELIVERY & CASH ON DELIVERY SYSTEM')}
           </span>
           <h3 
             className={`text-2xl sm:text-4xl lg:text-5xl font-black leading-tight ${
-              isOrivelle 
+              isAurelisse
+                ? 'text-[#142412]'
+                : isOrivelle 
                 ? 'bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent' 
                 : 'text-[#1e140d]'
             }`}
@@ -65,7 +70,7 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             {lang === 'bn' ? 'ক্যাশ অন ডেলিভারি ও দ্রুত হোম সার্ভিস' : 'Express Delivery & Cash On Delivery'}
           </h3>
           <p className={`text-xs sm:text-sm md:text-base leading-relaxed ${
-            isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/80'
+            isAurelisse ? 'text-[#2a3e26] font-medium' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/80'
           }`}>
             {lang === 'bn' 
               ? 'পছন্দের খাবার সরাসরি অনলাইনে বা টেবিলে বসে অর্ডার করুন এবং সহজে ক্যাশ অন ডেলিভারি (COD) অথবা বিকাশ/নগদে নিশ্চিন্তে মূল্য পরিশোধ করুন।' 
@@ -84,122 +89,138 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
         }`}>
           {/* Card 1: Cash on Delivery */}
           <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
-            isOrivelle 
+            isAurelisse
+              ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/35 shadow-lg hover:shadow-2xl hover:border-[#2e7d32]/70 text-[#142412]'
+              : isOrivelle 
               ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : `bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl`
           }`}>
             <div 
               className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-                isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : ''
+                isAurelisse
+                  ? 'bg-[#2e7d32]/15 text-[#2e7d32] border border-[#2e7d32]/30'
+                  : isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : ''
               }`}
-              style={!isOrivelle ? { backgroundColor: `${cfg.accentColor}20`, color: cfg.accentColor } : undefined}
+              style={!isOrivelle && !isAurelisse ? { backgroundColor: `${cfg.accentColor}20`, color: cfg.accentColor } : undefined}
             >
               <Banknote className="w-6 h-6" />
             </div>
             <h4 className={`text-base sm:text-lg font-bold ${
-              isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
+              isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
               {lang === 'bn' ? 'ক্যাশ অন ডেলিভারি (COD)' : 'Cash On Delivery (COD)'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
-              isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
+              isAurelisse ? 'text-[#2a3e26] font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
               {lang === 'bn' ? 'খাবার হাতে পাওয়ার পর নিশ্চিন্তে ক্যাশে বা বিকাশ/নগদে বিল পরিশোধের সুবিধা।' : 'Pay conveniently upon receiving your hot meal directly at home or at table.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
-              isOrivelle ? 'text-amber-400' : ''
-            }`} style={!isOrivelle ? { color: cfg.accentColor } : undefined}>
-              <CheckCircle2 className="w-3.5 h-3.5" style={{ color: isOrivelle ? '#fef08a' : cfg.accentColor }} />
+              isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-400' : ''
+            }`} style={!isOrivelle && !isAurelisse ? { color: cfg.accentColor } : undefined}>
+              <CheckCircle2 className="w-3.5 h-3.5" style={{ color: isAurelisse ? '#2e7d32' : isOrivelle ? '#fef08a' : cfg.accentColor }} />
               <span>{lang === 'bn' ? '১০০% বিশ্বস্ত পেমেন্ট' : '100% Secure Payment'}</span>
             </div>
           </div>
 
           {/* Card 2: Doorstep Express Delivery */}
           <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
-            isOrivelle 
+            isAurelisse
+              ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/35 shadow-lg hover:shadow-2xl hover:border-[#2e7d32]/70 text-[#142412]'
+              : isOrivelle 
               ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : `bg-white border ${cfg.accentBorderClass} shadow-md hover:shadow-xl`
           }`}>
             <div 
               className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-                isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : ''
+                isAurelisse
+                  ? 'bg-[#2e7d32]/15 text-[#2e7d32] border border-[#2e7d32]/30'
+                  : isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : ''
               }`}
-              style={!isOrivelle ? { backgroundColor: `${cfg.accentColor}20`, color: cfg.accentColor } : undefined}
+              style={!isOrivelle && !isAurelisse ? { backgroundColor: `${cfg.accentColor}20`, color: cfg.accentColor } : undefined}
             >
               <Truck className="w-6 h-6" />
             </div>
             <h4 className={`text-base sm:text-lg font-bold ${
-              isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
+              isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
               {lang === 'bn' ? 'হোম ও টেবিল ডেলিভারি' : 'Doorstep & Table Express'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
-              isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
+              isAurelisse ? 'text-[#2a3e26] font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
               {lang === 'bn' ? 'রেস্তোরাঁর সেরা স্বাদের খাবার আপনার বাসা কিংবা রেস্তোরাঁর টেবিলে পৌঁছে যাবে দ্রুত।' : 'Fast hot delivery right to your home, office, or designated dining table.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
-              isOrivelle ? 'text-amber-400' : 'text-[#3e271a]'
+              isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-400' : 'text-[#3e271a]'
             }`}>
-              <CheckCircle2 className={`w-3.5 h-3.5 ${isOrivelle ? 'text-amber-300' : 'text-[#DA9F93]'}`} />
+              <CheckCircle2 className={`w-3.5 h-3.5 ${isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-300' : 'text-[#DA9F93]'}`} />
               <span>{lang === 'bn' ? 'সর্বোচ্চ গতি ও যত্ন' : 'Fast Kitchen Dispatch'}</span>
             </div>
           </div>
 
           {/* Card 3: Safe & Sealed Packaging */}
           <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
-            isOrivelle 
+            isAurelisse
+              ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/35 shadow-lg hover:shadow-2xl hover:border-[#2e7d32]/70 text-[#142412]'
+              : isOrivelle 
               ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : 'bg-white border border-[#DA9F93]/30 shadow-md hover:shadow-xl'
           }`}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-              isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-emerald-500/15 text-emerald-700'
+              isAurelisse
+                ? 'bg-[#2e7d32]/15 text-[#2e7d32] border border-[#2e7d32]/30'
+                : isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-emerald-500/15 text-emerald-700'
             }`}>
               <ShieldCheck className="w-6 h-6" />
             </div>
             <h4 className={`text-base sm:text-lg font-bold ${
-              isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
+              isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
               {lang === 'bn' ? '১০০% হাইজিন প্যাকেজিং' : 'Sealed Hygienic Packaging'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
-              isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
+              isAurelisse ? 'text-[#2a3e26] font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
               {lang === 'bn' ? 'পরিবেশবান্ধব ও সিলড প্যাকেজিং যা খাবারের উষ্ণতা এবং তাজা স্বাদ বজায় রাখে।' : 'Thermal eco-friendly sealed packaging preserving heat, freshness, and original flavor.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
-              isOrivelle ? 'text-amber-400' : 'text-emerald-800'
+              isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-400' : 'text-emerald-800'
             }`}>
-              <CheckCircle2 className={`w-3.5 h-3.5 ${isOrivelle ? 'text-amber-300' : 'text-emerald-600'}`} />
+              <CheckCircle2 className={`w-3.5 h-3.5 ${isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-300' : 'text-emerald-600'}`} />
               <span>{lang === 'bn' ? 'ফুড-গ্রেড সিলড বক্স' : 'Food-Grade Sealed'}</span>
             </div>
           </div>
 
           {/* Card 4: Instant Status Updates */}
           <div className={`p-6 sm:p-7 rounded-3xl transition-all space-y-3 relative group hover:-translate-y-1 ${
-            isOrivelle 
+            isAurelisse
+              ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/35 shadow-lg hover:shadow-2xl hover:border-[#2e7d32]/70 text-[#142412]'
+              : isOrivelle 
               ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]' 
               : 'bg-white border border-[#DA9F93]/30 shadow-md hover:shadow-xl'
           }`}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-              isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-cyan-500/15 text-cyan-700'
+              isAurelisse
+                ? 'bg-[#2e7d32]/15 text-[#2e7d32] border border-[#2e7d32]/30'
+                : isOrivelle ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-cyan-500/15 text-cyan-700'
             }`}>
               <Clock className="w-6 h-6" />
             </div>
             <h4 className={`text-base sm:text-lg font-bold ${
-              isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
+              isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
               {lang === 'bn' ? 'লাইভ অর্ডার ট্র্যাকিং' : 'Real-time Order Status'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
-              isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
+              isAurelisse ? 'text-[#2a3e26] font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
               {lang === 'bn' ? 'রান্নাঘর থেকে ডেলিভারি পর্যন্ত প্রতিটি ধাপ সরাসরি ফোন স্ক্রিনে দেখুন।' : 'Live status tracking from kitchen chef prep to rider delivery dispatch.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
-              isOrivelle ? 'text-amber-400' : 'text-cyan-800'
+              isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-400' : 'text-cyan-800'
             }`}>
-              <CheckCircle2 className={`w-3.5 h-3.5 ${isOrivelle ? 'text-amber-300' : 'text-cyan-600'}`} />
+              <CheckCircle2 className={`w-3.5 h-3.5 ${isAurelisse ? 'text-[#2e7d32]' : isOrivelle ? 'text-amber-300' : 'text-cyan-600'}`} />
               <span>{lang === 'bn' ? 'রিয়েল-টাইম আপডেট' : 'Live SMS & Screen Tracking'}</span>
             </div>
           </div>

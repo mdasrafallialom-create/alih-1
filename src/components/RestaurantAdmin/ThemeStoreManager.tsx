@@ -92,7 +92,7 @@ export interface ThemePreset {
   id: string;
   name: string;
   tagline: string;
-  category: 'luxury' | 'cafe' | 'asian' | 'bistro' | 'casual' | 'minimal';
+  category: 'luxury' | 'cafe' | 'asian' | 'bistro' | 'casual' | 'minimal' | 'burgers';
   categoryLabel: string;
   tier: 'basic' | 'pro' | 'elite';
   tierLabel: string;
@@ -496,8 +496,25 @@ export default function ThemeStoreManager({
     setTimeout(() => setSuccessToast(null), 3000);
   };
 
+  const getThemeFormattedSerial = (preset: ThemePreset | null) => {
+    if (!preset) return '#01';
+    if ((preset as any).formattedSerial) return (preset as any).formattedSerial;
+    const themeIndex = THEME_PRESETS.findIndex((t) => t.id === preset.id);
+    const serialNumber = themeIndex >= 0 ? themeIndex + 1 : 1;
+    return `#${String(serialNumber).padStart(2, '0')}`;
+  };
+
   const handleOpenPreviewTheme = (preset: ThemePreset | null) => {
     if (preset) {
+      const themeIndex = THEME_PRESETS.findIndex((t) => t.id === preset.id);
+      const realSerialNumber = themeIndex >= 0 ? themeIndex + 1 : 1;
+      const formattedSerial = `#${String(realSerialNumber).padStart(2, '0')}`;
+      const enrichedPreset = {
+        ...preset,
+        serialNumber: realSerialNumber,
+        formattedSerial
+      };
+
       if (typeof window !== 'undefined') {
         try {
           localStorage.setItem('admin_active_nav_tab', 'theme_store');
@@ -523,7 +540,7 @@ export default function ThemeStoreManager({
       setPreviewFontDisplay(savedEdits?.fontDisplay || preset.fontDisplay || 'Cormorant Garamond');
       setPreviewFontBody(savedEdits?.fontBody || preset.fontBody || 'Manrope');
       setModalDishes(savedEdits?.dishes || userAddedDishes);
-      setPreviewTheme(preset);
+      setPreviewTheme(enrichedPreset);
     } else {
       if (typeof window !== 'undefined') {
         try {
@@ -1260,7 +1277,7 @@ export default function ThemeStoreManager({
                   </button>
 
                   <span className="px-2.5 py-1 rounded-lg bg-orange-500 font-mono font-black text-xs text-white">
-                    {(previewTheme as any).formattedSerial || '#01'}
+                    {getThemeFormattedSerial(previewTheme)}
                   </span>
                   <div>
                     <h3 className="text-base font-black flex items-center gap-2 font-display">
@@ -2328,28 +2345,6 @@ export default function ThemeStoreManager({
                   )}
                 </div>
               </div>
-
-              {/* Floating Scroll-to-Top Button inside Theme Preview Modal (Exact match to user screenshot) */}
-              <AnimatePresence>
-                {previewScrolled && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, y: 15 }}
-                    transition={{ duration: 0.2 }}
-                    onClick={() => {
-                      if (previewScrollContainerRef.current) {
-                        previewScrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }}
-                    className="fixed bottom-6 right-6 z-[9999] w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40"
-                    aria-label="Scroll to top"
-                    title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
-                  >
-                    <ChevronUp className="w-6 h-6 stroke-[2.5]" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
 
               {/* PREVIEW CART DRAWER MODAL */}
               <AnimatePresence>

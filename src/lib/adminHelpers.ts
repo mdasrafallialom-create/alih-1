@@ -27,7 +27,7 @@ export const getThemeAdminButtonVisibility = (themeId?: string, settings?: any):
     return Boolean(settings.showAdminButton);
   }
 
-  return true;
+  return false;
 };
 
 export const setThemeAdminButtonVisibility = (

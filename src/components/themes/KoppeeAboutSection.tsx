@@ -1,7 +1,9 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Coffee, CheckCircle2, ArrowRight, Edit3, Crown, Sparkles, Award } from 'lucide-react';
 import { THEME_HERO_CONFIGS, COFFEE_SHOP_THEME_IDS } from './KoppeeHeroHeader';
 import luxuryInteriorImg from '../../assets/images/luxury_michelin_interior_1790508733625.jpg';
+import realAssembledPlateImg from '../../assets/images/real_assembled_wagyu_plate_1790864314074.jpg';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 
 interface KoppeeAboutSectionProps {
@@ -59,14 +61,26 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   // All themes EXCEPT the 13 coffee shop themes receive the 5-Star Michelin Luxury styling
   const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
   const isOrivelle = isLuxuryTheme;
+  const isAurelisse = themePresetId === 'aurelisse';
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
-  const displayTitle = aboutUsTitle || (lang === 'bn' ? (isLuxuryTheme ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : 'কেন আমাদের কাছে খাবেন?') : (isLuxuryTheme ? `Why Dine at ${effectiveBrandName}?` : 'Why Dine With Us?'));
   
-  const defaultStory = brandDescription || (isLuxuryTheme
+  const displayTitle = isAurelisse
+    ? (lang === 'bn' ? 'কেন অরেলিস গুরমে বার্গার লাউঞ্জে খাবেন?' : 'Why Feast at Aurelisse Gourmet Burger Lounge?')
+    : (aboutUsTitle || (lang === 'bn' ? (isLuxuryTheme ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : 'কেন আমাদের কাছে খাবেন?') : (isLuxuryTheme ? `Why Dine at ${effectiveBrandName}?` : 'Why Dine With Us?')));
+  
+  const displaySubtitle = isAurelisse
+    ? (lang === 'bn' ? '✦ দ্য ফ্লেম-গ্রিলড লেজেন্ড ✦' : '✦ THE FLAME-GRILLED LEGEND ✦')
+    : aboutUsSubtitle;
+
+  const defaultStory = isAurelisse
     ? (lang === 'bn'
-        ? `মিশেলিন ৩-স্টার মাস্টার শেফদের নেতৃত্বে এক অনন্য গুরমে ডাইনিং অভিজ্ঞতা। ${effectiveBrandName}-এ উপভোগ করুন ২৪ ক্যারেট ভোজ্য গোল্ড লিফ, গ্র্যান্ড রিজার্ভ অসিয়াত্রা ক্যাভিয়ার, মিয়াজাকি এ৫ ওয়াগিউ এবং এক্সক্লুসিভ থ্রিডি ইন্টারেক্টিভ ওয়েব-এআর প্রিভিউ।`
-        : `Redefining haute cuisine and 5-star Michelin luxury. Discover our exclusive master chef-curated tasting courses, 24k gold leaf infusions, and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared grand reserve meals crafted with precision and passion.`)
-    : `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`);
+        ? `আমরা সাধারণ কোনো ফাস্ট ফুড পরিবেশন করি না। অরেলিস লাউঞ্জে আমরা তৈরি করি পৃথিবীর সবচেয়ে বিলাসবহুল ও জুসি ওয়াগিউ বার্গার। প্রতিটি প্রিমিয়াম প্যাট্রি প্রতিদিন ফ্রেশ ১০০% জাপানি এ৫ ওয়াগিউ বিফ থেকে আমাদের অভিজ্ঞ পিটমাস্টারদের তত্ত্বাবধানে পিষে তৈরি করা হয় এবং ওক কাঠের জ্বলন্ত আগুনে নিখুঁতভাবে স্মোকি করে সেঁকা হয়।`
+        : `We do not serve ordinary fast food. At Aurelisse, we craft the world's most luxurious, oak-charcoal seared Wagyu burgers. Each premium patty is freshly ground daily from 100% Japanese A5 Wagyu beef and seared over natural wood fires for a perfect, smokey crunch.`)
+    : (brandDescription || (isLuxuryTheme
+        ? (lang === 'bn'
+            ? `মিশেলিন ৩-স্টার মাস্টার শেফদের নেতৃত্বে এক অনন্য গুরমে ডাইনিং অভিজ্ঞতা। ${effectiveBrandName}-এ উপভোগ করুন ২৪ ক্যারেট ভোজ্য গোল্ড লিফ, গ্র্যান্ড রিজার্ভ অসিয়াত্রা ক্যাভিয়ার, মিয়াজাকি এ৫ ওয়াগিউ এবং এক্সক্লুসিভ থ্রিডি ইন্টারেক্টিভ ওয়েব-এআর প্রিভিউ।`
+            : `Redefining haute cuisine and 5-star Michelin luxury. Discover our exclusive master chef-curated tasting courses, 24k gold leaf infusions, and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared grand reserve meals crafted with precision and passion.`)
+        : `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`));
   
   const storyText = aboutUsText || defaultStory;
   const imageSrc = aboutUsImage || (isLuxuryTheme 
@@ -86,33 +100,49 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
 
   // Default features with tick marks
-  const defaultFeatures = isOrivelle
-    ? (lang === 'bn'
-        ? [
-            '২৪ ক্যারেট গোল্ড ক্যাভিয়ার ও আলবা ট্রাফেল',
-            '৩-স্টার মিশেলিন শেফ-কিউরেটেড মেনু',
-            '৩ডি ইন্টারেক্টিভ ওয়েব-এআর হলোগ্রাম',
-            'প্রাইভেট ভিআইপি সেলন ও সোমেলিয়ার ওয়াইন'
-          ]
-        : [
-            '24K Gold Caviar & White Alba Truffle',
-            '3-Star Michelin Chef-Curated Repertoire',
-            '3D WebAR Interactive Table Holograms',
-            'Private VIP Salon & Grand Reserve Sommelier'
-          ])
-    : (lang === 'bn' 
-        ? [
-            '১০০% তাজা অর্গানিক উপাদান',
-            'শেফ-কিউরেটেড গুরমে মেনু',
-            '৩ডি ইন্টারেক্টিভ ওয়েব-এআর ফুড প্রিভিউ',
-            'দ্রুত হোম ডেলিভারি ও টেবিল অর্ডারিং'
-          ]
-        : [
-            '100% Fresh Organic Ingredients',
-            'Chef-Curated Gourmet Menu',
-            '3D Interactive WebAR Food Previews',
-            'Fast Home Delivery & Table Ordering'
-          ]);
+  const aurelisseFeatures = lang === 'bn'
+    ? [
+        '১০০% জাপানি এ৫ ওয়াগিউ বিফ (প্রতিদিন ফ্রেশ)',
+        'স্বর্ণ-ধূলিকণাযুক্ত ব্রিওশ বানের কারিগরী',
+        '১২ ঘণ্টার ওক-চারকোল স্মোকি ফ্লেম সিয়ার',
+        'শেফের সিগনেচার ট্রাফেল চিজ ইনফিউশন'
+      ]
+    : [
+        '100% Authentic Japanese A5 Wagyu Beef',
+        'House-Baked Gold-Dusted Sesame Brioche Buns',
+        '12-Hour Oak-Charcoal Flame Sear & Smokey Flavor',
+        'Pitmaster Signature Black Truffle Cheese Infusion'
+      ];
+
+  const defaultFeatures = isAurelisse
+    ? aurelisseFeatures
+    : (isOrivelle
+        ? (lang === 'bn'
+            ? [
+                '২৪ ক্যারেট গোল্ড ক্যাভিয়ার ও আলবা ট্রাফেল',
+                '৩-স্টার মিশেলিন শেফ-কিউরেটেড মেনু',
+                '৩ডি ইন্টারেক্টিভ ওয়েব-এআর হলোগ্রাম',
+                'প্রাইভেট ভিআইপি সেলন ও সোমেলিয়ার ওয়াইন'
+              ]
+            : [
+                '24K Gold Caviar & White Alba Truffle',
+                '3-Star Michelin Chef-Curated Repertoire',
+                '3D WebAR Interactive Table Holograms',
+                'Private VIP Salon & Grand Reserve Sommelier'
+              ])
+        : (lang === 'bn' 
+            ? [
+                '১০০% তাজা অর্গানিক উপাদান',
+                'শেফ-কিউরেটেড গুরমে মেনু',
+                '৩ডি ইন্টারেক্টিভ ওয়েব-এআর ফুড প্রিভিউ',
+                'দ্রুত হোম ডেলিভারি ও টেবিল অর্ডারিং'
+              ]
+            : [
+                '100% Fresh Organic Ingredients',
+                'Chef-Curated Gourmet Menu',
+                '3D Interactive WebAR Food Previews',
+                'Fast Home Delivery & Table Ordering'
+              ]));
 
   const featuresList = (aboutUsFeatures && aboutUsFeatures.length > 0) ? aboutUsFeatures : defaultFeatures;
 
@@ -135,9 +165,15 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
 
   return (
     <section id="about" className={`relative w-full overflow-hidden transition-colors duration-500 ${
-      isOrivelle ? 'bg-[#0a0907] text-[#FBF8EE]' : 'bg-white text-[#2c1e13]'
+      isAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : isOrivelle ? 'bg-[#0a0907] text-[#FBF8EE]' : 'bg-white text-[#2c1e13]'
     }`}>
-      {isOrivelle && (
+      {isAurelisse && (
+        <>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(129,199,132,0.15),_transparent_70%)] pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-600/20 to-transparent" />
+        </>
+      )}
+      {(isOrivelle && !isAurelisse) && (
         <>
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(229,193,88,0.1),_transparent_65%)] pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0907] via-[#12100d] to-[#0a0907] opacity-98 -z-10" />
@@ -175,64 +211,95 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
         {isTablet ? (
           <div className="grid grid-cols-12 gap-6 items-center">
             {/* Left Column: Image with Overlay Badge */}
-            <div className="col-span-5 relative">
-              <div className={`relative rounded-2xl overflow-hidden shadow-2xl ${
-                isOrivelle 
-                  ? 'border-2 border-amber-400/60 shadow-[0_0_35px_rgba(229,193,88,0.25)] bg-stone-950' 
-                  : `border-2 ${cfg.accentBorderClass} bg-white`
-              }`}>
-                {/* 24K Gold Corner Geometric Brackets for Orivelle */}
-                {isOrivelle && (
-                  <>
-                    <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
-                  </>
-                )}
-                <img 
-                  src={imageSrc} 
-                  alt={displayTitle}
-                  className="w-full h-[320px] sm:h-[360px] object-cover hover:scale-105 transition-transform duration-700" 
-                />
-                
-                {/* Bottom Overlay Badge: 24k Gold Imperial Crest for Orivelle vs Artisanal Badge for Theme #1 */}
-                {isOrivelle ? (
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-stone-950/95 backdrop-blur-md border border-amber-400/50 text-amber-100 shadow-2xl flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 flex items-center justify-center text-stone-950 font-black text-xs shrink-0 shadow-lg">
-                      👑
+            <div className="col-span-5 relative flex items-center justify-center p-4">
+              {isAurelisse ? (
+                /* PRESTINE FLOATING RECTANGULAR WAGYU BURGER PHOTO CARD FOR AURELISSE TABLET */
+                <motion.div 
+                  animate={{ y: [-6, 6, -8] }}
+                  transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#2e7d32]/25 shadow-[0_15px_35px_rgba(46,125,50,0.18)] bg-white w-full group cursor-pointer"
+                >
+                  <img 
+                    src={imageSrc || realAssembledPlateImg} 
+                    alt={displayTitle}
+                    className="w-full h-[280px] sm:h-[320px] object-cover group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/15 to-transparent pointer-events-none" />
+                  
+                  {/* Floating Luxury Badge */}
+                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-stone-950/95 backdrop-blur-md border border-[#2e7d32]/40 text-white shadow-xl flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#2e7d32] flex items-center justify-center text-white text-xs font-black shrink-0 shadow-md">
+                      🍔
                     </div>
                     <div className="min-w-0">
-                      <span className="text-[9px] font-mono tracking-widest text-amber-300 uppercase block truncate">
-                        {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
-                      </span>
-                      <p className="text-xs font-bold text-amber-100 leading-tight line-clamp-1" style={{ fontFamily: "'Cinzel', serif" }}>
-                        {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#1e140d]/92 backdrop-blur-md border border-white/10 text-white shadow-lg flex items-center gap-2.5">
-                    <div 
-                      className="w-9 h-9 rounded-lg font-black text-xs flex items-center justify-center shrink-0 shadow select-none uppercase"
-                      style={{ backgroundColor: cfg.accentColor, color: '#1e140d' }}
-                    >
-                      {initial1}{initial2}
-                    </div>
-                    <div className="min-w-0">
-                      <span 
-                        className="text-[9px] font-extrabold uppercase tracking-wider block truncate"
-                        style={{ color: cfg.accentColor }}
-                      >
-                        {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                      <span className="text-[9px] font-mono tracking-widest text-emerald-400 uppercase block truncate font-bold">
+                        {lang === 'bn' ? '✦ অরেলিস শেফ রিজার্ভ ✦' : '✦ AURELISSE CHEF RESERVE ✦'}
                       </span>
                       <p className="text-xs font-bold text-white leading-tight line-clamp-1">
-                        {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                        {lang === 'bn' ? '১০০% ফ্লেম-গ্রিলড এ৫ ওয়াগিউ' : '100% Flame-Grilled A5 Wagyu'}
                       </p>
                     </div>
                   </div>
-                )}
-              </div>
+                </motion.div>
+              ) : (
+                <div className={`relative rounded-2xl overflow-hidden shadow-2xl ${
+                  isOrivelle 
+                    ? 'border-2 border-amber-400/60 shadow-[0_0_35px_rgba(229,193,88,0.25)] bg-stone-950' 
+                    : `border-2 ${cfg.accentBorderClass} bg-white`
+                }`}>
+                  {/* 24K Gold Corner Geometric Brackets for Orivelle */}
+                  {isOrivelle && (
+                    <>
+                      <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
+                    </>
+                  )}
+                  <img 
+                    src={imageSrc} 
+                    alt={displayTitle}
+                    className="w-full h-[320px] sm:h-[360px] object-cover hover:scale-105 transition-transform duration-700" 
+                  />
+                  
+                  {/* Bottom Overlay Badge: 24k Gold Imperial Crest for Orivelle vs Artisanal Badge for Theme #1 */}
+                  {isOrivelle ? (
+                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-stone-950/95 backdrop-blur-md border border-amber-400/50 text-amber-100 shadow-2xl flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 flex items-center justify-center text-stone-950 font-black text-xs shrink-0 shadow-lg">
+                        👑
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[9px] font-mono tracking-widest text-amber-300 uppercase block truncate">
+                          {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                        </span>
+                        <p className="text-xs font-bold text-amber-100 leading-tight line-clamp-1" style={{ fontFamily: "'Cinzel', serif" }}>
+                          {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#1e140d]/92 backdrop-blur-md border border-white/10 text-white shadow-lg flex items-center gap-2.5">
+                      <div 
+                        className="w-9 h-9 rounded-lg font-black text-xs flex items-center justify-center shrink-0 shadow select-none uppercase"
+                        style={{ backgroundColor: cfg.accentColor, color: '#1e140d' }}
+                      >
+                        {initial1}{initial2}
+                      </div>
+                      <div className="min-w-0">
+                        <span 
+                          className="text-[9px] font-extrabold uppercase tracking-wider block truncate"
+                          style={{ color: cfg.accentColor }}
+                        >
+                          {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                        </span>
+                        <p className="text-xs font-bold text-white leading-tight line-clamp-1">
+                          {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right Column: Title, Features Checklist & CTA Buttons */}
@@ -244,7 +311,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   }`}
                   style={{ color: isOrivelle ? '#e5c158' : cfg.accentColor }}
                 >
-                  {isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle}
+                  {isAurelisse ? displaySubtitle : (isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle)}
                 </span>
                 <h2 
                   className={`text-2xl sm:text-3xl font-black leading-tight ${
@@ -330,62 +397,92 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
         ) : isMobile ? (
           /* B. MOBILE VIEW */
           <div className="flex flex-col gap-6">
-            <div className="relative">
-              <div className={`relative rounded-2xl overflow-hidden shadow-lg ${
-                isOrivelle 
-                  ? 'border-2 border-amber-400/60 shadow-[0_0_25px_rgba(229,193,88,0.2)] bg-stone-950' 
-                  : `border ${cfg.accentBorderClass} bg-white`
-              }`}>
-                {/* 24K Gold Corner Brackets for Orivelle */}
-                {isOrivelle && (
-                  <>
-                    <div className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
-                  </>
-                )}
-                <img 
-                  src={imageSrc} 
-                  alt={displayTitle}
-                  className="w-full h-[260px] object-cover" 
-                />
-                {isOrivelle ? (
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-stone-950/95 backdrop-blur-md border border-amber-400/50 text-amber-100 shadow-md flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 flex items-center justify-center text-stone-950 font-black text-xs shrink-0 shadow">
-                      👑
+            <div className="relative flex items-center justify-center p-4">
+              {isAurelisse ? (
+                /* PRESTINE FLOATING WAGYU BURGER PHOTO CARD FOR AURELISSE MOBILE */
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  className="relative rounded-2xl overflow-hidden shadow-xl border-2 border-[#2e7d32]/25 shadow-[0_10px_25px_rgba(46,125,50,0.15)] bg-white w-full group cursor-pointer"
+                >
+                  <img 
+                    src={imageSrc || realAssembledPlateImg} 
+                    alt={displayTitle}
+                    className="w-full h-[260px] object-cover group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/15 to-transparent pointer-events-none" />
+                  
+                  {/* Floating Luxury Badge */}
+                  <div className="absolute bottom-3 left-3 right-3 p-2.5 rounded-xl bg-stone-950/95 backdrop-blur-md border border-[#2e7d32]/40 text-white shadow-lg flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#2e7d32] flex items-center justify-center text-white text-xs font-black shrink-0">
+                      🍔
                     </div>
                     <div className="min-w-0">
-                      <span className="text-[8px] font-mono tracking-widest text-amber-300 uppercase block truncate">
-                        {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                      <span className="text-[8px] font-mono tracking-widest text-emerald-400 uppercase block truncate font-bold">
+                        {lang === 'bn' ? '✦ অরেলিস শেফ রিজার্ভ ✦' : '✦ AURELISSE CHEF RESERVE ✦'}
                       </span>
-                      <p className="text-[11px] font-bold text-amber-100 leading-tight truncate" style={{ fontFamily: "'Cinzel', serif" }}>
-                        {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                      <p className="text-[11px] font-bold text-white leading-tight line-clamp-1">
+                        {lang === 'bn' ? '১০০% ফ্লেম-গ্রিলড এ৫ ওয়াগিউ' : '100% Flame-Grilled A5 Wagyu'}
                       </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#1e140d]/92 backdrop-blur-md border border-white/10 text-white shadow-md flex items-center gap-2.5">
-                    <div 
-                      className="w-8 h-8 rounded-lg font-black text-xs flex items-center justify-center shrink-0 shadow select-none uppercase"
-                      style={{ backgroundColor: cfg.accentColor, color: '#1e140d' }}
-                    >
-                      {initial1}{initial2}
+                </motion.div>
+              ) : (
+                <div className={`relative rounded-2xl overflow-hidden shadow-lg ${
+                  isOrivelle 
+                    ? 'border-2 border-amber-400/60 shadow-[0_0_25px_rgba(229,193,88,0.2)] bg-stone-950' 
+                    : `border ${cfg.accentBorderClass} bg-white`
+                }`}>
+                  {/* 24K Gold Corner Brackets for Orivelle */}
+                  {isOrivelle && (
+                    <>
+                      <div className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
+                    </>
+                  )}
+                  <img 
+                    src={imageSrc} 
+                    alt={displayTitle}
+                    className="w-full h-[260px] object-cover" 
+                  />
+                  {isOrivelle ? (
+                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-stone-950/95 backdrop-blur-md border border-amber-400/50 text-amber-100 shadow-md flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 flex items-center justify-center text-stone-950 font-black text-xs shrink-0 shadow">
+                        👑
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[8px] font-mono tracking-widest text-amber-300 uppercase block truncate">
+                          {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                        </span>
+                        <p className="text-[11px] font-bold text-amber-100 leading-tight truncate" style={{ fontFamily: "'Cinzel', serif" }}>
+                          {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <span 
-                        className="text-[8px] font-extrabold uppercase tracking-wider block truncate"
-                        style={{ color: cfg.accentColor }}
+                  ) : (
+                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-[#1e140d]/92 backdrop-blur-md border border-white/10 text-white shadow-md flex items-center gap-2.5">
+                      <div 
+                        className="w-8 h-8 rounded-lg font-black text-xs flex items-center justify-center shrink-0 shadow select-none uppercase"
+                        style={{ backgroundColor: cfg.accentColor, color: '#1e140d' }}
                       >
-                        {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
-                      </span>
-                      <p className="text-[11px] font-bold text-white leading-tight truncate">
-                        {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
-                      </p>
+                        {initial1}{initial2}
+                      </div>
+                      <div className="min-w-0">
+                        <span 
+                          className="text-[8px] font-extrabold uppercase tracking-wider block truncate"
+                          style={{ color: cfg.accentColor }}
+                        >
+                          {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                        </span>
+                        <p className="text-[11px] font-bold text-white leading-tight truncate">
+                          {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4 text-left">
@@ -396,7 +493,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   }`}
                   style={{ color: isOrivelle ? '#e5c158' : cfg.accentColor }}
                 >
-                  {isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle}
+                  {isAurelisse ? displaySubtitle : (isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle)}
                 </span>
                 <h2 
                   className={`text-2xl font-black leading-tight ${
@@ -479,64 +576,99 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
           /* C. DESKTOP VIEW */
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-16 items-center">
             {/* Left Column: Image with Overlay Badge */}
-            <div className="md:col-span-6 relative">
-              <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${
-                isOrivelle 
-                  ? 'border-2 border-amber-400/60 shadow-[0_0_45px_rgba(229,193,88,0.3)] bg-stone-950' 
-                  : `border-2 ${cfg.accentBorderClass} bg-white`
-              }`}>
-                {/* 24K Gold Corner Architectural Flourishes for Orivelle */}
-                {isOrivelle && (
-                  <>
-                    <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
-                    <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
-                  </>
-                )}
-                <img 
-                  src={imageSrc} 
-                  alt={displayTitle}
-                  className="w-full h-[280px] min-[400px]:h-[320px] sm:h-[380px] md:h-[420px] lg:h-[460px] object-cover hover:scale-105 transition-transform duration-700" 
-                />
-                
-                {/* Bottom Left Artisanal / Imperial Badge */}
-                {isOrivelle ? (
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-auto sm:max-w-sm p-4 rounded-2xl bg-stone-950/95 backdrop-blur-md border border-amber-400/60 text-amber-100 shadow-2xl flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 font-black text-lg flex items-center justify-center shrink-0 shadow-lg text-stone-950 select-none">
-                      👑
+            <div className="md:col-span-6 relative flex items-center justify-center p-8">
+              {isAurelisse ? (
+                /* DELUXE FLOATING WAGYU BURGER PHOTO CARD FOR AURELISSE DESKTOP */
+                <motion.div 
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 18 }}
+                  className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-[#2e7d32]/25 shadow-[0_20px_50px_rgba(46,125,50,0.18)] bg-white w-full max-w-[540px] group cursor-pointer mx-auto"
+                >
+                  <img 
+                    src={imageSrc || realAssembledPlateImg} 
+                    alt={displayTitle}
+                    className="w-full h-[380px] lg:h-[430px] object-cover group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/15 to-transparent pointer-events-none" />
+                  
+                  {/* Luxury Corner Accents */}
+                  <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-[#2e7d32]/60 z-10 pointer-events-none rounded-tl" />
+                  <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-[#2e7d32]/60 z-10 pointer-events-none rounded-tr" />
+                  
+                  {/* Floating Luxury Badge */}
+                  <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-stone-950/95 backdrop-blur-md border border-[#2e7d32]/40 text-white shadow-2xl flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#2e7d32] to-[#43a047] flex items-center justify-center text-white text-xl font-black shrink-0 shadow-lg select-none">
+                      🍔
                     </div>
                     <div>
-                      <span className="text-[10px] font-mono tracking-widest text-amber-300 uppercase block font-extrabold">
-                        {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                      <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase block font-extrabold">
+                        {lang === 'bn' ? '✦ অরেলিস শেফ রিজার্ভ ✦' : '✦ AURELISSE CHEF RESERVE ✦'}
                       </span>
-                      <p className="text-sm font-black text-amber-100 leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-                        {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                      <p className="text-sm font-black text-white leading-tight">
+                        {lang === 'bn' ? '১০০% ওক-স্মোকড এ৫ ওয়াগিউ বার্গার' : '100% Oak-Smoked A5 Wagyu Burger'}
                       </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-auto sm:max-w-xs p-3.5 sm:p-4 rounded-2xl bg-[#1e140d]/92 backdrop-blur-md border border-white/10 text-white shadow-xl flex items-center gap-3">
-                    <div 
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow select-none uppercase"
-                      style={{ backgroundColor: cfg.accentColor, color: '#1e140d' }}
-                    >
-                      {initial1}{initial2}
+                </motion.div>
+              ) : (
+                <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${
+                  isOrivelle 
+                    ? 'border-2 border-amber-400/60 shadow-[0_0_45px_rgba(229,193,88,0.3)] bg-stone-950' 
+                    : `border-2 ${cfg.accentBorderClass} bg-white`
+                }`}>
+                  {/* 24K Gold Corner Architectural Flourishes for Orivelle */}
+                  {isOrivelle && (
+                    <>
+                      <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-amber-300 z-10 pointer-events-none" />
+                      <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-amber-300 z-10 pointer-events-none" />
+                    </>
+                  )}
+                  <img 
+                    src={imageSrc} 
+                    alt={displayTitle}
+                    className="w-full h-[280px] min-[400px]:h-[320px] sm:h-[380px] md:h-[420px] lg:h-[460px] object-cover hover:scale-105 transition-transform duration-700" 
+                  />
+                  
+                  {/* Bottom Left Artisanal / Imperial Badge */}
+                  {isOrivelle ? (
+                    <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-auto sm:max-w-sm p-4 rounded-2xl bg-stone-950/95 backdrop-blur-md border border-amber-400/60 text-amber-100 shadow-2xl flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 font-black text-lg flex items-center justify-center shrink-0 shadow-lg text-stone-950 select-none">
+                        👑
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-mono tracking-widest text-amber-300 uppercase block font-extrabold">
+                          {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                        </span>
+                        <p className="text-sm font-black text-amber-100 leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
+                          {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <span 
-                        className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest block"
-                        style={{ color: cfg.accentColor }}
+                  ) : (
+                    <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-auto sm:max-w-xs p-3.5 sm:p-4 rounded-2xl bg-[#1e140d]/92 backdrop-blur-md border border-white/10 text-white shadow-xl flex items-center gap-3">
+                      <div 
+                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow select-none uppercase"
+                        style={{ backgroundColor: cfg.accentColor, color: '#1e140d' }}
                       >
-                        {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
-                      </span>
-                      <p className="text-xs sm:text-sm font-black text-white leading-tight">
-                        {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
-                      </p>
+                        {initial1}{initial2}
+                      </div>
+                      <div>
+                        <span 
+                          className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest block"
+                          style={{ color: cfg.accentColor }}
+                        >
+                          {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                        </span>
+                        <p className="text-xs sm:text-sm font-black text-white leading-tight">
+                          {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right Column: Title, Features Checklist & CTA Buttons */}
@@ -544,25 +676,31 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
               <div className="space-y-2">
                 <span 
                   className={`text-xs sm:text-sm font-bold uppercase tracking-widest block ${
-                    isOrivelle ? 'text-amber-400 font-mono tracking-[0.3em]' : ''
+                    isAurelisse 
+                      ? 'text-[#2e7d32] font-mono tracking-[0.25em]' 
+                      : isOrivelle ? 'text-amber-400 font-mono tracking-[0.3em]' : ''
                   }`}
-                  style={{ color: isOrivelle ? '#e5c158' : cfg.accentColor }}
+                  style={!isAurelisse ? { color: isOrivelle ? '#e5c158' : cfg.accentColor } : undefined}
                 >
-                  {isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle}
+                  {isAurelisse ? displaySubtitle : (isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle)}
                 </span>
                 <h2 
                   className={`text-2xl sm:text-4xl lg:text-5xl font-black leading-tight ${
-                    isOrivelle 
-                      ? 'bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent' 
-                      : 'text-[#1e140d]'
+                    isAurelisse
+                      ? 'text-[#142412]'
+                      : isOrivelle 
+                        ? 'bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent' 
+                        : 'text-[#1e140d]'
                   }`}
-                  style={isOrivelle ? { fontFamily: "'Cinzel', serif" } : undefined}
+                  style={(!isAurelisse && isOrivelle) ? { fontFamily: "'Cinzel', serif" } : undefined}
                 >
                   {displayTitle}
                 </h2>
                 {storyText && (
                   <p className={`text-xs sm:text-sm md:text-base leading-relaxed pt-1 ${
-                    isOrivelle ? 'text-stone-300 font-light' : 'text-[#3e2c1e]/80'
+                    isAurelisse 
+                      ? 'text-[#2a3e26] font-medium' 
+                      : isOrivelle ? 'text-stone-300 font-light' : 'text-[#3e2c1e]/80'
                   }`}>
                     {storyText}
                   </p>
@@ -574,17 +712,21 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 {featuresList.map((feat, idx) => (
                   <div key={idx} className="flex items-center gap-3">
                     <div 
-                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-xl flex items-center justify-center shrink-0 border ${
-                        isOrivelle
-                          ? 'bg-amber-400/15 border-amber-400/50 shadow-[0_0_10px_rgba(229,193,88,0.25)]'
-                          : ''
+                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 border ${
+                        isAurelisse
+                          ? 'bg-emerald-100 border-emerald-600/30 shadow-xs'
+                          : isOrivelle
+                            ? 'bg-amber-400/15 border-amber-400/50 shadow-[0_0_10px_rgba(229,193,88,0.25)]'
+                            : ''
                       }`}
-                      style={!isOrivelle ? { backgroundColor: `${cfg.accentColor}20`, borderColor: `${cfg.accentColor}50` } : undefined}
+                      style={(!isOrivelle && !isAurelisse) ? { backgroundColor: `${cfg.accentColor}20`, borderColor: `${cfg.accentColor}50` } : undefined}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: isOrivelle ? '#fef08a' : cfg.accentColor }} />
+                      <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: isAurelisse ? '#2e7d32' : isOrivelle ? '#fef08a' : cfg.accentColor }} />
                     </div>
                     <span className={`text-xs sm:text-sm md:text-base font-bold ${
-                      isOrivelle ? 'text-amber-50' : 'text-[#2c1e13]'
+                      isAurelisse 
+                        ? 'text-[#142412]' 
+                        : isOrivelle ? 'text-amber-50' : 'text-[#2c1e13]'
                     }`}>
                       {feat}
                     </span>
@@ -597,9 +739,11 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 <button
                   type="button"
                   onClick={onReserveClick}
-                  className={isOrivelle
-                    ? "px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-600 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(229,193,88,0.4)] hover:brightness-110 flex items-center gap-2 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95"
-                    : `px-6 sm:px-8 py-3 sm:py-4 ${cfg.primaryBtnClass} text-xs sm:text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer rounded-xl`
+                  className={isAurelisse
+                    ? "px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl bg-[#2e7d32] hover:bg-[#1b5e20] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md hover:brightness-110 flex items-center gap-2 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95"
+                    : isOrivelle
+                      ? "px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-600 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(229,193,88,0.4)] hover:brightness-110 flex items-center gap-2 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95"
+                      : `px-6 sm:px-8 py-3 sm:py-4 ${cfg.primaryBtnClass} text-xs sm:text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer rounded-xl`
                   }
                 >
                   <span>{lang === 'bn' ? 'টেবিল বুক করুন' : 'BOOK A TABLE'}</span>
@@ -609,9 +753,11 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 <button
                   type="button"
                   onClick={onMenuClick}
-                  className={isOrivelle
-                    ? "px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-stone-950/80 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black uppercase tracking-wider hover:bg-stone-900 transition-all hover:-translate-y-0.5 cursor-pointer"
-                    : `px-6 sm:px-8 py-3 sm:py-4 ${cfg.secondaryBtnClass} text-xs sm:text-sm transition-all hover:-translate-y-0.5 cursor-pointer rounded-xl`
+                  className={isAurelisse
+                    ? "px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl bg-white border-2 border-[#2e7d32]/40 text-[#1b5e20] text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-emerald-50 transition-all hover:-translate-y-0.5 cursor-pointer shadow-sm"
+                    : isOrivelle
+                      ? "px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-stone-950/80 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black uppercase tracking-wider hover:bg-stone-900 transition-all hover:-translate-y-0.5 cursor-pointer"
+                      : `px-6 sm:px-8 py-3 sm:py-4 ${cfg.secondaryBtnClass} text-xs sm:text-sm transition-all hover:-translate-y-0.5 cursor-pointer rounded-xl`
                   }
                 >
                   <span>{lang === 'bn' ? 'মেনু দেখুন' : 'EXPLORE MENU'}</span>
@@ -621,10 +767,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   <button
                     type="button"
                     onClick={onEditClick || onOpenAdmin}
-                    className="px-5 sm:px-6 py-3 sm:py-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 hover:-translate-y-0.5"
+                    className={`px-5 sm:px-6 py-3 sm:py-4 rounded-xl ${isAurelisse ? 'bg-[#2e7d32]/10 hover:bg-[#2e7d32]/20 text-[#2e7d32] border border-[#2e7d32]/30' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40'} text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 hover:-translate-y-0.5`}
                     title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit "Why Dine With Us?" Section'}
                   >
-                    <Edit3 className="w-4 h-4 text-amber-400" />
+                    <Edit3 className={`w-4 h-4 ${isAurelisse ? 'text-[#2e7d32]' : 'text-amber-400'}`} />
                     <span>{lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section'}</span>
                   </button>
                 )}

@@ -67,38 +67,52 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
     }
   ],
 
-  // #04 Aurelisse (5-Star Royal Gastronomy)
+  // #04 Aurelisse (Gourmet Wagyu Burgers & Flame-Grilled Feast)
   'aurelisse': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'ROYAL MONARCH BANQUETS',
-      heading: 'IMPERIAL PURPLE & GOLD',
-      description: 'Monarch-grade banquets featuring dry-aged prime chops, gold-leaf canapés, and sovereign vintage reserves.',
-      primaryBtn: 'Book Royal Feast',
-      secondaryBtn: 'View Imperial Menu',
-      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
-      actionTarget: 'reservation',
-      cupName: 'Royal Caspian Beluga Caviar',
-      price: 'Imperial Choice',
-      type: 'caviar'
+      eyebrow: 'FLAME-GRILLED WAGYU HOUSE',
+      heading: 'SMOKEY CHEDDAR WAGYU BURGERS',
+      description: 'Hand-crafted 100% Wagyu beef patties, seared over open white-oak charcoal, topped with melted Vermont cheddar, crispy bacon & house secret sauce on warm brioche.',
+      primaryBtn: 'Order Burger Feast',
+      secondaryBtn: 'View Burger Menu',
+      img: '/src/assets/images/hero_gourmet_burger_artisan_1790839016081.jpg',
+      actionTarget: 'menu',
+      cupName: 'Double Flame-Grilled Wagyu Cheeseburger',
+      price: '$18.50',
+      type: 'burger'
+    },
+    {
+      id: 2,
+      number: '02',
+      eyebrow: 'ARTISAN BRIOCHE & CRAFT SIDES',
+      heading: 'LACE-EDGE DOUBLE SMASHBURGER',
+      description: 'Crispy lace-edged double smashed beef patties with melted American cheese, house special sauce & dill pickles on toasted sesame brioche.',
+      primaryBtn: 'Explore Gourmet Burgers',
+      secondaryBtn: 'View Loaded Sides',
+      img: '/src/assets/images/burger_artisan_smashburger_1790839032894.jpg',
+      actionTarget: 'menu',
+      cupName: 'Lace-Edge Double Smashburger',
+      price: '$16.00',
+      type: 'burger'
     }
   ],
 
-  // #05 Palatiora (5-Star Cellar & Steakhouse)
+  // #05 Palatiora (5-Star Smokey Ash Cellar & Steakhouse)
   'palatiora': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'WARM MAHOGANY CELLAR',
-      heading: 'VINTAGE ROAST & PRIME STEAKS',
-      description: 'Dark espresso roasts, slow siphon brews, and dry-aged wagyu served within our heritage brick and timber cellar.',
+      eyebrow: 'SMOKEY SLATE ASH CELLAR',
+      heading: '45-DAY DRY-AGED PRIME STEAKHOUSE',
+      description: 'Opulent smokey slate ash aesthetic, rare cellar reserves, and prime Black Angus dry-aged over white oak charcoal.',
       primaryBtn: 'Explore Cellar Menu',
       secondaryBtn: 'Reserve Wine Table',
-      img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop',
+      img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
       actionTarget: 'menu',
-      cupName: 'Dry-Aged Miyazaki Wagyu Tomahawk',
-      price: 'Sommelier Choice',
+      cupName: 'Dry-Aged Tomahawk Steak',
+      price: '$150.00',
       type: 'steak'
     }
   ],

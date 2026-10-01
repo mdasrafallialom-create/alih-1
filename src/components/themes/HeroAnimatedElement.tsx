@@ -4,6 +4,7 @@ import { Sparkles, Utensils, ChefHat, Crown, Wine, Flame, Star, Coffee, Pizza, S
 import { CoffeeBeanSculptedVisual } from './CoffeeBeanSculptedVisual';
 import { OrivelleGoldClocheVisual } from './OrivelleGoldClocheVisual';
 import { InteractivePizzaVisual } from './InteractivePizzaVisual';
+import { InteractiveDeconstructedBurgerVisual } from './InteractiveDeconstructedBurgerVisual';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
@@ -86,34 +87,14 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
     );
   }
 
-  // 2. Burger Visual (Seamless Background Blended Double Truffle Wagyu Burger)
-  if (activeType === 'burger') {
+  // 2. Interactive Deconstructed Burger Visual on Gold-Trimmed Ceramic Plate
+  if (normId === 'aurelisse' || activeType === 'burger') {
     return (
-      <div className="relative w-full max-w-[540px] aspect-square flex flex-col items-center justify-center select-none group">
-        <div className="absolute inset-0 rounded-full blur-3xl bg-amber-600/30 pointer-events-none scale-125" />
-        <motion.div
-          animate={{ y: [-8, 8, -8] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none"
-          style={seamlessMaskStyle}
-        >
-          <img
-            src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1000&auto=format&fit=crop"
-            alt={cupName || "Double Truffle A5 Wagyu Gourmet Burger"}
-            className="w-full h-full object-cover filter brightness-[1.08] contrast-[1.12] group-hover:scale-108 transition-transform duration-700"
-          />
-        </motion.div>
-
-        {/* Floating Frameless Pill Badge */}
-        <div className="absolute bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
-          <div className="bg-stone-950/90 border border-amber-400/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] text-center flex items-center gap-2">
-            <Sandwich className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span className="text-xs sm:text-sm uppercase font-extrabold text-amber-200 font-serif tracking-widest">
-              {cupName || "Double Truffle A5 Wagyu Gourmet Burger"}
-            </span>
-          </div>
-        </div>
-      </div>
+      <InteractiveDeconstructedBurgerVisual
+        accentColor={accentColor}
+        cupName={cupName}
+        customImg={cupImg}
+      />
     );
   }
 

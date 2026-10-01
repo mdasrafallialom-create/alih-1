@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, 
   Menu, X, Heart, Shield, QrCode, Check, Compass, Volume2, Search, Bell,
   Award, ChefHat, Utensils, Instagram, Facebook, Mail, ArrowRight, ArrowLeft,
-  Youtube, Linkedin, Edit3, Save, ImageIcon
+  Youtube, Linkedin, Edit3, Save, ImageIcon, ShoppingCart, Plus, Minus, Trash2, CheckCircle2, Eye, Sliders, Receipt
 } from 'lucide-react';
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
 import portafilterTrioImg from '../../assets/images/portafilter_trio_story_1789909656642.jpg';
@@ -174,6 +174,41 @@ export default function LunavereTheme({
   const [resGuests, setResGuests] = useState('2');
   const [resTime, setResTime] = useState('20:00');
 
+  // View Mode: 'customer' (clean customer view without edit buttons) vs 'edit' (owner edit mode with EDIT buttons)
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
+  // Table Order System State
+  interface CartItem {
+    dish: FoodItem;
+    qty: number;
+    specialNote?: string;
+  }
+  const [orderCart, setOrderCart] = useState<CartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('lunavere_order_cart');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [isOrderDrawerOpen, setIsOrderDrawerOpen] = useState(false);
+  const [orderTableNumber, setOrderTableNumber] = useState('Table 3');
+  const [orderCustomerName, setOrderCustomerName] = useState('');
+  const [orderCustomerPhone, setOrderCustomerPhone] = useState('');
+  const [orderSpecialNotes, setOrderSpecialNotes] = useState('');
+  const [orderSuccessModalOpen, setOrderSuccessModalOpen] = useState(false);
+  const [latestPlacedOrder, setLatestPlacedOrder] = useState<any>(null);
+
+  // Sync orderCart with localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('lunavere_order_cart', JSON.stringify(orderCart));
+      } catch (e) {}
+    }
+  }, [orderCart]);
+
   // Sanitize brandLocation to ensure no accidental "Pakistan", "Hyderabad", or "Sindh" remains
   const getSanitizedLocation = (loc?: string) => {
     if (!loc) return '';
@@ -332,11 +367,15 @@ export default function LunavereTheme({
     reader.readAsDataURL(file);
   };
 
+  // Saved Dish IDs so EDIT button disappears after saving an item
+  const [savedDishIds, setSavedDishIds] = useState<Set<string>>(new Set());
+
   // Save modified dish to customDishes and localStorage
   const handleSaveDish = () => {
     if (!editingSingleDish) return;
     const updated = effectiveDishes.map(d => d.id === editingSingleDish.id ? editingSingleDish : d);
     setCustomDishes(updated);
+    setSavedDishIds(prev => new Set(prev).add(editingSingleDish.id));
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('lunavere_custom_dishes', JSON.stringify(updated));
@@ -350,8 +389,16 @@ export default function LunavereTheme({
     setTimeout(() => setToastMsg(null), 3000);
   };
 
-  // Add dish to order with quantity
-  const handleOrderDish = (dish: FoodItem, qty: number = 1) => {
+  // Add dish to order with quantity and special note
+  const handleOrderDish = (dish: FoodItem, qty: number = 1, note: string = '') => {
+    setOrderCart(prev => {
+      const existing = prev.find(item => item.dish.id === dish.id);
+      if (existing) {
+        return prev.map(item => item.dish.id === dish.id ? { ...item, qty: item.qty + qty } : item);
+      }
+      return [...prev, { dish, qty, specialNote: note }];
+    });
+
     if (onOrderDish) {
       for (let i = 0; i < qty; i++) {
         onOrderDish(dish);
@@ -359,6 +406,46 @@ export default function LunavereTheme({
     }
     setToastMsg(lang === 'bn' ? `অর্ডারে ${qty}x "${dish.title}" যুক্ত হয়েছে!` : `Added ${qty}x "${dish.title}" to Table Order!`);
     setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const updateCartQty = (dishId: string, delta: number) => {
+    setOrderCart(prev => {
+      return prev.map(item => {
+        if (item.dish.id === dishId) {
+          const newQty = item.qty + delta;
+          return newQty > 0 ? { ...item, qty: newQty } : null;
+        }
+        return item;
+      }).filter(Boolean) as CartItem[];
+    });
+  };
+
+  const removeCartItem = (dishId: string) => {
+    setOrderCart(prev => prev.filter(item => item.dish.id !== dishId));
+  };
+
+  const handleConfirmOrder = () => {
+    if (orderCart.length === 0) return;
+    const orderId = `#LUN-${Math.floor(1000 + Math.random() * 9000)}`;
+    const totalAmount = orderCart.reduce((sum, item) => sum + (item.dish.price * item.qty), 0);
+    const newOrder = {
+      id: orderId,
+      table: orderTableNumber,
+      customerName: orderCustomerName || (lang === 'bn' ? 'টেবিল গেস্ট' : 'Table Guest'),
+      customerPhone: orderCustomerPhone,
+      items: [...orderCart],
+      totalAmount,
+      currency: selectedCurrency,
+      specialNotes: orderSpecialNotes,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      date: new Date().toLocaleDateString(),
+      status: 'received'
+    };
+
+    setLatestPlacedOrder(newOrder);
+    setOrderCart([]);
+    setIsOrderDrawerOpen(false);
+    setOrderSuccessModalOpen(true);
   };
 
   const filteredDishes = effectiveDishes.filter(d => {
@@ -484,10 +571,30 @@ export default function LunavereTheme({
               </div>
             )}
 
+
+
+            {/* Cart / Order Drawer Trigger Button */}
+            <button 
+              type="button"
+              onClick={() => setIsOrderDrawerOpen(true)}
+              className="relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white border border-[#C9A86A]/50 flex items-center gap-1.5 sm:gap-2 shadow-md transition-all cursor-pointer active:scale-95 shrink-0"
+              title={lang === 'bn' ? 'টেবিল অর্ডার ও কার্ট দেখুন' : 'View Table Order & Cart'}
+            >
+              <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C9A86A]" />
+              <span className="text-[11px] sm:text-xs font-bold font-mono">
+                {lang === 'bn' ? 'অর্ডার' : 'Cart'}
+              </span>
+              {orderCart.length > 0 && (
+                <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 text-[10px] font-black flex items-center justify-center shadow-md animate-pulse">
+                  {orderCart.reduce((sum, item) => sum + item.qty, 0)}
+                </span>
+              )}
+            </button>
+
             {/* Reserve Button (Visible on desktop & tablet, compact on mobile) */}
             <button 
               onClick={() => setReservationModalOpen(true)}
-              className={`rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white font-black uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`rounded-full bg-white hover:bg-white/90 border border-[#C9A86A]/60 text-[#171522] font-black uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ${
                 isMobile ? 'hidden sm:inline-flex px-3 py-1.5 text-[11px]' : 'px-4 sm:px-5 py-2 text-xs'
               }`}
             >
@@ -901,7 +1008,12 @@ export default function LunavereTheme({
               {filteredDishes.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[#15162B] text-white rounded-[22px] overflow-hidden border border-[#C9A86A]/40 shadow-xl hover:border-[#C9A86A] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group"
+                  onClick={() => {
+                    setDetailOrderQty(1);
+                    setDetailSpecialNote('');
+                    setSelectedDishDetail(item);
+                  }}
+                  className="bg-[#15162B] text-white rounded-[22px] overflow-hidden border border-[#C9A86A]/40 shadow-xl hover:border-[#C9A86A] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                 >
                   {/* Image with rounded corners and centered EDIT button (Screenshot 5) */}
                   <div className="relative overflow-hidden aspect-[4/3] w-full bg-black/60">
@@ -919,21 +1031,23 @@ export default function LunavereTheme({
                       </span>
                     </div>
 
-                    {/* Floating Center EDIT Button (Screenshot 5) */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingSingleDish(item);
-                        }}
-                        className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
-                        title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
-                      >
-                        <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
-                        <span>EDIT</span>
-                      </button>
-                    </div>
+                    {/* Floating Center EDIT Button - Automatically disappears when item is saved */}
+                    {isEditMode && !savedDishIds.has(item.id) && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto animate-fade-in">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingSingleDish(item);
+                          }}
+                          className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                          title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
+                          <span>EDIT</span>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Calorie badge bottom-right */}
                     {item.calories && (
@@ -963,27 +1077,18 @@ export default function LunavereTheme({
                       </p>
                     </div>
 
-                    {/* Action buttons (Screenshot 5): DETAILS & ORDER */}
-                    <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-[#C9A86A]/25 mt-auto">
+                    {/* Action button: Full-Width ORDER Button (Clicking anywhere else opens details) */}
+                    <div className="pt-3 border-t border-[#C9A86A]/25 mt-auto">
                       <button 
                         type="button"
-                        onClick={() => {
-                          setDetailOrderQty(1);
-                          setDetailSpecialNote('');
-                          setSelectedDishDetail(item);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOrderDish(item, 1);
                         }}
-                        className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-[#C9A86A]/40 text-[#F4E7D3] text-[11px] font-bold uppercase tracking-wider hover:text-white transition-all text-center cursor-pointer shadow-xs active:scale-95"
+                        className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                       >
-                        Details
-                      </button>
-
-                      <button 
-                        type="button"
-                        onClick={() => handleOrderDish(item, 1)}
-                        className="py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-[11px] font-bold uppercase tracking-wider shadow-md hover:shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                        <span>Order</span>
+                        <ShoppingBag className="w-4 h-4 text-white" />
+                        <span>Order Now</span>
                       </button>
                     </div>
                   </div>
@@ -1032,7 +1137,12 @@ export default function LunavereTheme({
             {displayDesserts.slice(0, 3).map((dessert) => (
               <div 
                 key={dessert.id}
-                className="bg-[#15162B] text-white rounded-[22px] overflow-hidden shadow-xl border border-[#C9A86A]/40 flex flex-col justify-between transition-all duration-300 hover:border-[#C9A86A] hover:shadow-2xl group text-left"
+                onClick={() => {
+                  setDetailOrderQty(1);
+                  setDetailSpecialNote('');
+                  setSelectedDishDetail(dessert);
+                }}
+                className="bg-[#15162B] text-white rounded-[22px] overflow-hidden shadow-xl border border-[#C9A86A]/40 flex flex-col justify-between transition-all duration-300 hover:border-[#C9A86A] hover:shadow-2xl group text-left cursor-pointer"
               >
                 <div className="h-60 sm:h-64 overflow-hidden relative bg-black/60">
                   <img 
@@ -1042,21 +1152,23 @@ export default function LunavereTheme({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#15162B] via-transparent to-transparent pointer-events-none" />
 
-                  {/* Floating EDIT button (Screenshot 5) */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingSingleDish(dessert);
-                      }}
-                      className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
-                      title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
-                    >
-                      <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
-                      <span>EDIT</span>
-                    </button>
-                  </div>
+                  {/* Floating EDIT button - Automatically disappears when item is saved */}
+                  {isEditMode && !savedDishIds.has(dessert.id) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1px] opacity-90 group-hover:opacity-100 transition-opacity z-20 pointer-events-auto animate-fade-in">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingSingleDish(dessert);
+                        }}
+                        className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                        title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
+                        <span>EDIT</span>
+                      </button>
+                    </div>
+                  )}
 
                   {dessert.calories && (
                     <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/80 text-[#C9A86A] text-[10px] font-mono border border-[#C9A86A]/40 backdrop-blur-md shadow-sm pointer-events-none">
@@ -1083,26 +1195,18 @@ export default function LunavereTheme({
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-[#C9A86A]/25 mt-auto">
+                  {/* Action button: Full-Width ORDER Button (Clicking anywhere else opens details) */}
+                  <div className="pt-3 border-t border-[#C9A86A]/25 mt-auto">
                     <button 
                       type="button"
-                      onClick={() => {
-                        setDetailOrderQty(1);
-                        setDetailSpecialNote('');
-                        setSelectedDishDetail(dessert);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOrderDish(dessert, 1);
                       }}
-                      className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-[#C9A86A]/40 text-[#F4E7D3] text-[11px] font-bold uppercase tracking-wider hover:text-white transition-all text-center cursor-pointer shadow-xs active:scale-95"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      Details
-                    </button>
-
-                    <button 
-                      type="button"
-                      onClick={() => handleOrderDish(dessert, 1)}
-                      className="py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-[11px] font-bold uppercase tracking-wider shadow-md hover:shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5 text-white" />
-                      <span>Order</span>
+                      <ShoppingBag className="w-4 h-4 text-white" />
+                      <span>Order Now</span>
                     </button>
                   </div>
                 </div>
@@ -1713,10 +1817,10 @@ export default function LunavereTheme({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col justify-start overflow-hidden text-slate-900"
+            className="fixed inset-0 z-50 bg-white flex flex-col justify-start overflow-hidden text-slate-900"
           >
-            {/* Top Bar with Back, Search, Prev/Next Counter, Edit, Close (Screenshot 1 & 2) */}
-            <div className="bg-white/95 border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-3 shrink-0 shadow-sm">
+            {/* Top Bar with Back, Search, Prev/Next Counter, Close */}
+            <div className="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-3 shrink-0 shadow-xs w-full max-w-[1800px] mx-auto">
               <button
                 type="button"
                 onClick={() => setSelectedDishDetail(null)}
@@ -1752,7 +1856,7 @@ export default function LunavereTheme({
                   />
                 </div>
 
-                {/* Prev / Counter / Next Controls (Screenshot 1 & 2) */}
+                {/* Prev / Counter / Next Controls */}
                 <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-xs">
                   <button
                     type="button"
@@ -1790,21 +1894,6 @@ export default function LunavereTheme({
                   </button>
                 </div>
 
-                {/* Edit Button in detail view (Screenshot 1 & 2) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const d = selectedDishDetail;
-                    setSelectedDishDetail(null);
-                    setEditingSingleDish(d);
-                  }}
-                  className="px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-slate-200 transition-all cursor-pointer shadow-xs"
-                  title="Edit Food Item"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="hidden sm:inline">EDIT</span>
-                </button>
-
                 <button
                   type="button"
                   onClick={() => setSelectedDishDetail(null)}
@@ -1817,7 +1906,7 @@ export default function LunavereTheme({
             </div>
 
             {/* Scrollable Container */}
-            <div id="dish-modal-scroll-body" className="flex-1 p-4 sm:p-8 md:p-10 overflow-y-auto space-y-10 scrollbar-thin bg-white max-w-7xl mx-auto w-full">
+            <div id="dish-modal-scroll-body" className="flex-1 p-4 sm:p-8 md:p-10 overflow-y-auto space-y-10 scrollbar-thin bg-white max-w-[1800px] mx-auto w-full">
               {/* 2-Column Main View */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 {/* Left Column: Image with Floating Arrows */}
@@ -2170,6 +2259,308 @@ export default function LunavereTheme({
         )}
       </AnimatePresence>
 
+      {/* ========================================================= */}
+      {/* FLOATING ORDER SUMMARY BAR */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {orderCart.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            className="fixed bottom-6 left-4 right-20 sm:left-auto sm:right-22 z-40 max-w-md w-full bg-[#15162B] text-white p-3.5 sm:p-4 rounded-2xl border-2 border-[#C9A86A] shadow-2xl backdrop-blur-md flex items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-[#C9A86A] text-[#15162B] flex items-center justify-center shrink-0 font-black shadow-md">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono font-bold text-[#C9A86A] uppercase tracking-wider truncate">
+                    {orderTableNumber}
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C9A86A] shrink-0" />
+                  <span className="text-xs font-bold text-[#F4E7D3] truncate">
+                    {orderCart.reduce((sum, i) => sum + i.qty, 0)} {lang === 'bn' ? 'টি আইটেম' : 'items'}
+                  </span>
+                </div>
+                <span className="text-sm font-black font-mono text-white block">
+                  {formatPrice(orderCart.reduce((sum, i) => sum + (i.dish.price * i.qty), 0))}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsOrderDrawerOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <span>{lang === 'bn' ? 'বিল ও অর্ডার' : 'View Order'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* TABLE ORDER DRAWER / MODAL */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {isOrderDrawerOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex justify-end"
+            onClick={() => setIsOrderDrawerOpen(false)}
+          >
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg bg-[#15162B] text-white h-full shadow-2xl flex flex-col justify-between border-l-2 border-[#C9A86A]"
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-[#C9A86A]/30 flex items-center justify-between bg-[#111222]">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-[#C9A86A]/20 border border-[#C9A86A]/40 text-[#C9A86A]">
+                    <ShoppingCart className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#F4E7D3] uppercase tracking-wider font-serif">
+                      {lang === 'bn' ? 'টেবিল অর্ডার ও বিল' : 'Table Order & Checkout'}
+                    </h3>
+                    <p className="text-[11px] text-white/60 font-mono">
+                      Lunavere Starlight Table Service
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOrderDrawerOpen(false)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 flex-1 overflow-y-auto space-y-5 scrollbar-thin">
+                {/* Table & Guest Selector */}
+                <div className="p-4 rounded-2xl bg-white/5 border border-[#C9A86A]/30 space-y-3">
+                  <label className="text-[11px] font-bold text-[#C9A86A] uppercase tracking-widest block">
+                    {lang === 'bn' ? 'টেবিল নম্বর সিলেক্ট করুন' : 'SELECT TABLE / LOCATION'}
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={orderTableNumber}
+                      onChange={(e) => setOrderTableNumber(e.target.value)}
+                      className="bg-[#15162B] text-[#F4E7D3] font-bold text-xs rounded-xl px-3 py-2.5 border border-[#C9A86A]/50 outline-none cursor-pointer focus:border-[#C9A86A]"
+                    >
+                      <option value="Table 1">🪑 Table 1 (Window)</option>
+                      <option value="Table 2">🪑 Table 2 (Starlight)</option>
+                      <option value="Table 3">🪑 Table 3 (Garden)</option>
+                      <option value="Table 4">🪑 Table 4 (VIP Booth)</option>
+                      <option value="Table 5">🪑 Table 5 (Terrace)</option>
+                      <option value="Takeaway Counter">🛍️ Takeaway / Counter</option>
+                    </select>
+
+                    <input
+                      type="text"
+                      value={orderCustomerName}
+                      onChange={(e) => setOrderCustomerName(e.target.value)}
+                      placeholder={lang === 'bn' ? 'গেস্ট এর নাম...' : 'Guest Name (Optional)'}
+                      className="bg-[#15162B] text-white text-xs rounded-xl px-3 py-2.5 border border-[#C9A86A]/30 outline-none focus:border-[#C9A86A]"
+                    />
+                  </div>
+                </div>
+
+                {/* Cart Items List */}
+                {orderCart.length === 0 ? (
+                  <div className="py-16 text-center space-y-3 bg-white/5 rounded-2xl border border-dashed border-[#C9A86A]/20">
+                    <ShoppingBag className="w-12 h-12 text-[#C9A86A]/50 mx-auto" />
+                    <p className="text-sm font-bold text-[#F4E7D3]">
+                      {lang === 'bn' ? 'অর্ডারে কোনো খাবার যুক্ত করা হয়নি' : 'Your order tray is currently empty'}
+                    </p>
+                    <p className="text-xs text-white/50">
+                      {lang === 'bn' ? 'মেনু থেকে খাবারের "Order" বাটনে ক্লিক করুন' : 'Click "Order" on menu cards to add items.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider block">
+                      {lang === 'bn' ? 'অর্ডারকৃত আইটেমসমূহ:' : 'ORDERED ITEMS'}
+                    </span>
+                    {orderCart.map((item) => (
+                      <div key={item.dish.id} className="p-3.5 rounded-2xl bg-white/5 border border-[#C9A86A]/30 flex items-center justify-between gap-3">
+                        <img src={item.dish.img} alt={item.dish.title} className="w-14 h-14 rounded-xl object-cover bg-black/60 shrink-0 border border-[#C9A86A]/30" />
+                        
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-bold text-[#F4E7D3] truncate">{item.dish.title}</h4>
+                          <p className="text-[11px] text-[#C9A86A] font-mono font-bold">{formatPrice(item.dish.price)}</p>
+                        </div>
+
+                        {/* Quantity controls */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => updateCartQty(item.dish.id, -1)}
+                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="text-xs font-bold font-mono text-[#F4E7D3] w-5 text-center">{item.qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateCartQty(item.dish.id, 1)}
+                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeCartItem(item.dish.id)}
+                            className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 cursor-pointer ml-1 transition-colors"
+                            title="Remove item"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Special Instructions Input */}
+                    <div className="pt-2">
+                      <label className="text-[11px] font-bold text-[#C9A86A] uppercase tracking-wider block mb-1">
+                        {lang === 'bn' ? 'বিশেষ বার্তা / রিকোয়েস্ট' : 'SPECIAL INSTRUCTIONS'}
+                      </label>
+                      <input
+                        type="text"
+                        value={orderSpecialNotes}
+                        onChange={(e) => setOrderSpecialNotes(e.target.value)}
+                        placeholder={lang === 'bn' ? 'যেমন: চিনি কম, এক্সট্রা হট...' : 'e.g. Less sugar, extra hot, oat milk...'}
+                        className="w-full bg-white/5 border border-[#C9A86A]/30 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-[#C9A86A]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Checkout */}
+              {orderCart.length > 0 && (
+                <div className="p-5 border-t border-[#C9A86A]/30 bg-[#111222] space-y-3">
+                  <div className="flex justify-between items-center text-xs text-white/70">
+                    <span>{lang === 'bn' ? 'আইটেম মোট:' : 'Subtotal:'}</span>
+                    <span className="font-mono font-bold text-[#F4E7D3]">
+                      {formatPrice(orderCart.reduce((sum, item) => sum + (item.dish.price * item.qty), 0))}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm font-bold text-white pt-1 border-t border-white/10">
+                    <span>{lang === 'bn' ? 'সর্বমোট প্রদেয় বিল:' : 'Total Payable:'}</span>
+                    <span className="font-mono text-lg text-[#C9A86A] font-black">
+                      {formatPrice(orderCart.reduce((sum, item) => sum + (item.dish.price * item.qty), 0))}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleConfirmOrder}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider shadow-xl active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-stone-950" />
+                    <span>{lang === 'bn' ? 'অর্ডার কনফার্ম করুন' : 'Confirm & Send Order to Kitchen'}</span>
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================= */}
+      {/* ORDER CONFIRMATION & LIVE TRACKER MODAL */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {orderSuccessModalOpen && latestPlacedOrder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setOrderSuccessModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#15162B] text-white border-2 border-[#C9A86A] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center relative overflow-hidden"
+            >
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border-2 border-emerald-400 flex items-center justify-center mx-auto shadow-lg animate-bounce">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[11px] font-mono font-bold text-[#C9A86A] uppercase tracking-widest block">
+                  ORDER CONFIRMED • {latestPlacedOrder.id}
+                </span>
+                <h3 className="text-2xl font-bold text-[#F4E7D3] font-serif">
+                  {lang === 'bn' ? 'অর্ডার সফলভাবে গ্রহন করা হয়েছে!' : 'Order Sent to Kitchen!'}
+                </h3>
+                <p className="text-xs text-white/70 font-light">
+                  {lang === 'bn' ? 'আপনার টেবিলে বারিস্তা খাবার পরিবেশন করবে।' : `Thank you! Your order for ${latestPlacedOrder.table} is being prepared.`}
+                </p>
+              </div>
+
+              {/* Status Tracker Steps */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-[#C9A86A]/30 space-y-3 text-left">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500 text-stone-950 font-black text-xs flex items-center justify-center">✓</div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Order Received</h4>
+                    <p className="text-[10px] text-white/50">{latestPlacedOrder.timestamp}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-[#C9A86A] text-stone-950 font-black text-xs flex items-center justify-center animate-pulse">☕</div>
+                  <div>
+                    <h4 className="text-xs font-bold text-[#C9A86A]">Barista Brewing & Crafting</h4>
+                    <p className="text-[10px] text-white/50">Est. 8-12 mins</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 opacity-50">
+                  <div className="w-6 h-6 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center">🛎️</div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Served to Table</h4>
+                    <p className="text-[10px] text-white/50">{latestPlacedOrder.table}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-[#C9A86A]/20">
+                <span className="text-white/70">Total Bill:</span>
+                <span className="font-mono text-base font-black text-[#C9A86A]">
+                  {formatPrice(latestPlacedOrder.totalAmount, latestPlacedOrder.currency)}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setOrderSuccessModalOpen(false)}
+                className="w-full py-3 rounded-xl bg-[#C9A86A] hover:bg-[#b89557] text-[#15162B] font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer"
+              >
+                {lang === 'bn' ? 'ঠিক আছে (মেনুতে ফিরুন)' : 'Back to Menu'}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Floating Toast Notification */}
       <AnimatePresence>
         {toastMsg && (
@@ -2190,18 +2581,30 @@ export default function LunavereTheme({
       {/* ========================================================= */}
       <AnimatePresence>
         {isScrolled && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 15 }}
-            transition={{ duration: 0.2 }}
-            onClick={scrollToTop}
-            className="fixed bottom-6 right-6 z-[99999] w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40"
-            aria-label="Scroll to top"
-            title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
-          >
-            <ChevronUp className="w-6 h-6 stroke-[2.5]" />
-          </motion.button>
+          <div className={
+            deviceView === 'mobile' || (!deviceView && isMobile)
+              ? "sticky bottom-3.5 flex justify-end px-3 pointer-events-none z-50 -mt-12 w-full"
+              : deviceView === 'tablet'
+              ? "sticky bottom-5 flex justify-end px-4 sm:px-6 pointer-events-none z-50 -mt-16 w-full"
+              : "fixed bottom-6 right-6 z-[99999]"
+          }>
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 15 }}
+              transition={{ duration: 0.2 }}
+              onClick={scrollToTop}
+              className={
+                isMobile
+                  ? "w-8 h-8 rounded-full bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40 pointer-events-auto"
+                  : "w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40 pointer-events-auto"
+              }
+              aria-label="Scroll to top"
+              title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+            >
+              <ChevronUp className={isMobile ? "w-4 h-4 stroke-[2.5]" : "w-6 h-6 stroke-[2.5]"} />
+            </motion.button>
+          </div>
         )}
       </AnimatePresence>
     </div>

@@ -8,6 +8,7 @@ import cleanCoffeeBg from '../../assets/images/clean_coffee_bg_1790179641546.jpg
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
+import heroGourmetBurgerImg from '../../assets/images/hero_gourmet_burger_banner_1790837881809.jpg';
 import { HeroAnimatedElement } from './HeroAnimatedElement';
 import { BotanicalCoffeeLeaves } from './BotanicalCoffeeLeaves';
 import { checkAdminPasswordInput, getThemeAdminButtonVisibility } from '../../lib/adminHelpers';
@@ -102,39 +103,39 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     headerBg: 'bg-gradient-to-b from-[#15162B]/95 via-[#15162B]/50 to-transparent',
     heroBgImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop'
   },
-  // #04 Aurelisse (Imperial Monarch Velvet & Caviar)
+  // #04 Aurelisse (Gourmet Wagyu Burgers & Flame-Grilled Feast)
   'aurelisse': {
-    accentColor: '#a855f7',
-    accentTextClass: 'text-purple-300',
-    accentBorderClass: 'border-purple-400/50',
-    logoBadgeClass: 'bg-gradient-to-br from-purple-500 via-indigo-600 to-purple-900 text-white font-black border border-purple-300/50 shadow-xl',
-    heroBadgeTag: '⚜️ ROYAL MONARCH DINING & CAVIAR',
-    navHoverClass: 'hover:text-purple-300',
-    navActiveClass: 'text-purple-400 border-b-2 border-purple-400',
-    primaryBtnClass: 'bg-gradient-to-r from-purple-500 via-fuchsia-600 to-amber-500 hover:from-purple-600 hover:to-amber-600 text-white font-black rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-purple-200/40',
-    secondaryBtnClass: 'bg-stone-950/80 hover:bg-black text-purple-200 border border-purple-400/40 rounded-xl backdrop-blur-md',
-    imageFrameClass: 'border-2 border-purple-400/60 rounded-3xl shadow-[0_0_40px_rgba(168,85,247,0.4)]',
-    searchFocusClass: 'focus:border-purple-400 focus:ring-purple-400',
-    bgGradientOverlay: 'from-purple-950/75 via-stone-950/85 to-black/95',
-    headerBg: 'bg-gradient-to-b from-purple-950/90 via-stone-950/50 to-transparent',
-    heroBgImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop'
+    accentColor: '#2e7d32',
+    accentTextClass: 'text-[#2e7d32]',
+    accentBorderClass: 'border-[#2e7d32]/30',
+    logoBadgeClass: 'bg-[#2e7d32] text-white font-black border border-[#1b5e20] shadow-md',
+    heroBadgeTag: '🍔 SMOKEY FLAME-GRILLED WAGYU BURGERS',
+    navHoverClass: 'hover:text-[#2e7d32]',
+    navActiveClass: 'text-[#2e7d32] border-b-2 border-[#2e7d32]',
+    primaryBtnClass: 'bg-[#2e7d32] hover:bg-[#1b5e20] text-white font-bold rounded-xl shadow-md border border-[#1b5e20]',
+    secondaryBtnClass: 'bg-white hover:bg-emerald-50 text-[#1b5e20] border-2 border-[#2e7d32]/30 rounded-xl shadow-sm',
+    imageFrameClass: 'border-2 border-[#2e7d32]/30 rounded-3xl shadow-xl',
+    searchFocusClass: 'focus:border-[#2e7d32] focus:ring-[#2e7d32]',
+    bgGradientOverlay: 'from-[#EDF7E7] via-[#EDF7E7] to-[#EDF7E7]',
+    headerBg: 'bg-[#EDF7E7]/95 backdrop-blur-md border-b border-[#2e7d32]/10',
+    heroBgImage: ''
   },
-  // #05 Palatiora (Heritage Cellar & Dry-Aged Wagyu)
+  // #05 Palatiora (Smokey Slate Ash Cellar & Dry-Aged Steaks)
   'palatiora': {
-    accentColor: '#f59e0b',
-    accentTextClass: 'text-amber-400',
-    accentBorderClass: 'border-amber-500/50',
-    logoBadgeClass: 'bg-gradient-to-br from-amber-600 via-stone-800 to-stone-950 text-amber-100 font-black border border-amber-400/50 shadow-xl',
-    heroBadgeTag: '🍷 DRY-AGED WAGYU & VINTAGE CELLAR',
-    navHoverClass: 'hover:text-amber-400',
-    navActiveClass: 'text-amber-500 border-b-2 border-amber-500',
-    primaryBtnClass: 'bg-gradient-to-r from-amber-500 via-amber-600 to-orange-700 hover:from-amber-600 hover:to-orange-800 text-stone-950 font-black rounded-lg shadow-[0_0_25px_rgba(245,158,11,0.45)] border border-amber-300/50',
-    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-amber-200 border border-amber-500/40 rounded-lg backdrop-blur-md',
-    imageFrameClass: 'border-2 border-amber-500/60 rounded-2xl shadow-[0_0_35px_rgba(245,158,11,0.35)]',
-    searchFocusClass: 'focus:border-amber-500 focus:ring-amber-500',
-    bgGradientOverlay: 'from-stone-950/75 via-amber-950/65 to-black/95',
-    headerBg: 'bg-gradient-to-b from-stone-950/90 via-stone-950/50 to-transparent',
-    heroBgImage: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop'
+    accentColor: '#334155',
+    accentTextClass: 'text-slate-800',
+    accentBorderClass: 'border-slate-300',
+    logoBadgeClass: 'bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 text-white font-black border border-slate-500 shadow-xl',
+    heroBadgeTag: '🥩 SMOKEY ASH CELLAR & DRY-AGED STEAKHOUSE',
+    navHoverClass: 'hover:text-slate-900',
+    navActiveClass: 'text-slate-900 border-b-2 border-slate-800',
+    primaryBtnClass: 'bg-slate-900 hover:bg-slate-800 text-white font-black rounded-lg shadow-lg border border-slate-700',
+    secondaryBtnClass: 'bg-[#dce1e7] hover:bg-[#cfd5de] text-slate-900 border border-slate-400/50 rounded-lg shadow-sm',
+    imageFrameClass: 'border-2 border-slate-400/60 rounded-2xl shadow-xl',
+    searchFocusClass: 'focus:border-slate-600 focus:ring-slate-600',
+    bgGradientOverlay: 'from-[#E9ECEF] via-[#E2E6EA] to-[#E9ECEF]',
+    headerBg: 'bg-[#E9ECEF]/95 backdrop-blur-md border-b border-slate-300',
+    heroBgImage: ''
   },
   // #06 Opalune (Modern White Granite & Nitro Cold Brew)
   'opalune': {
@@ -1177,7 +1178,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   onNavigate,
   onOpenAdmin,
   onBack,
-  showAdminButton = true,
+  showAdminButton = false,
   lang = 'en',
   themePresetId,
   previewDeviceView,
@@ -1341,9 +1342,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   };
 
   const [initial1, initial2] = getLogoInitials(effectiveBrandName);
+  const isLightAurelisse = activePresetId === 'aurelisse';
 
   return (
-    <div className="relative w-full overflow-x-clip bg-[#120a06] text-white font-sans selection:bg-[#DA9F93]/30">
+    <div className={`relative w-full overflow-x-clip ${isLightAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : 'bg-[#120a06] text-white'} font-sans selection:bg-[#2e7d32]/30`}>
       {/* ========================================================================= */}
       {/* 1. TOP HEADER NAVBAR (KOPPEE STYLE WITH SEARCH BAR) */}
       {/* ========================================================================= */}
@@ -1354,7 +1356,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${cfg.logoBadgeClass} text-[10px] sm:text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
               {initial1}{initial2}
             </div>
-            <span className={`font-black text-white tracking-wider uppercase font-sans drop-shadow-md truncate ${
+            <span className={`font-black ${isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-md'} tracking-wider uppercase font-sans truncate ${
               isMobile ? 'text-xs sm:text-sm max-w-[120px] sm:max-w-[180px]' : isTablet ? 'text-sm sm:text-base md:text-lg max-w-[180px] sm:max-w-[260px]' : 'text-xl sm:text-2xl md:text-3xl'
             }`}>
               {effectiveBrandName}
@@ -1389,10 +1391,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   onClick={() => {
                     if (onOpenAdmin) onOpenAdmin();
                   }}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${cfg.primaryBtnClass} text-xs font-extrabold shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none ml-1`}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none ml-1 relative z-40 border border-amber-300/80"
                   title="Open Admin Panel"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-stone-950 stroke-[2.5]" />
                   <span>Admin</span>
                 </button>
               )}
@@ -1554,8 +1556,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
 
         {/* B. DESKTOP NAVIGATION MENU & SEARCH BAR */}
         {isDesktop && (
-          <div className="flex items-center gap-5 lg:gap-7">
-            <nav className="flex items-center space-x-5 lg:space-x-7 text-sm font-medium">
+          <div className="flex items-center justify-between gap-4 shrink-0 max-w-full flex-1 ml-4">
+            <nav className="flex items-center space-x-2.5 lg:space-x-5 text-xs lg:text-sm font-medium whitespace-nowrap shrink-0">
               <button
                 type="button"
                 onClick={() => scrollToSection('hero')}
@@ -1566,14 +1568,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => scrollToSection('about')}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 About
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('services')}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 Service
               </button>
@@ -1584,20 +1586,20 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   else if (onMenuClick) onMenuClick();
                   else scrollToSection('menu');
                 }}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 Menu
               </button>
 
               {/* Dropdown Menu for Pages */}
-              <div className="relative">
+              <div className="relative z-40">
                 <button
                   type="button"
                   onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
-                  className={`flex items-center gap-1 text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
+                  className={`flex items-center gap-1 ${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
                 >
                   <span>Pages</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -1607,7 +1609,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 5 }}
                       transition={{ duration: 0.15 }}
-                      className={`absolute right-0 mt-2 w-48 bg-[#1e140d] border ${cfg.accentBorderClass} rounded-lg shadow-2xl py-2 z-50 text-left`}
+                      className={`absolute right-0 lg:left-0 mt-2 w-44 ${isLightAurelisse ? 'bg-white border border-[#2e7d32]/20 text-[#142412]' : 'bg-[#1a0905] border ' + cfg.accentBorderClass + ' text-white'} rounded-xl shadow-2xl py-2 z-50 text-left`}
                     >
                       <button
                         type="button"
@@ -1616,21 +1618,21 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                           else scrollToSection('reservation');
                           setPagesDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
                         Reservation
                       </button>
                       <button
                         type="button"
                         onClick={() => scrollToSection('testimonials')}
-                        className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
                         Testimonials
                       </button>
                       <button
                         type="button"
                         onClick={() => scrollToSection('specials')}
-                        className={`w-full text-left px-4 py-2 text-xs text-white/90 hover:bg-[#2c1e13] ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
                         Chef's Specials
                       </button>
@@ -1642,17 +1644,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => scrollToSection('contact')}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 Contact
               </button>
             </nav>
 
             {/* Desktop Search Bar & Admin Button */}
-            <div className="flex items-center gap-3">
-              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-                <div className="relative flex items-center group">
-                  <Search className={`w-4 h-4 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-white transition-colors`} />
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 z-50 relative ml-auto">
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center shrink-0 z-50">
+                <div className="relative flex items-center group shrink-0">
+                  <Search className={`w-3.5 h-3.5 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-[#2e7d32] transition-colors`} />
                   <input
                     type="text"
                     value={searchTerm}
@@ -1661,14 +1663,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       setSearchTerm(val);
                       checkAdminPin(val);
                     }}
-                    placeholder={lang === 'bn' ? 'খাবার বা পাসওয়ার্ড...' : 'Search menu or password...'}
-                    className={`w-44 lg:w-56 pl-9 pr-8 py-1.5 text-xs rounded-full bg-black/60 border ${cfg.accentBorderClass} text-white placeholder-white/40 focus:outline-none ${cfg.searchFocusClass} focus:ring-1 focus:w-60 transition-all duration-300 shadow-inner`}
+                    placeholder={lang === 'bn' ? 'খাবার বা পিন...' : 'Search menu or PIN...'}
+                    className={`w-28 sm:w-32 lg:w-40 pl-8 pr-7 py-1.5 text-[11px] rounded-full ${isLightAurelisse ? 'bg-white/90 border border-[#2e7d32]/30 text-[#142412] placeholder-stone-500' : 'bg-black/90 border ' + cfg.accentBorderClass + ' text-white placeholder-white/50'} focus:outline-none ${cfg.searchFocusClass} focus:ring-1 transition-all duration-300 shadow-inner shrink-0 truncate z-50`}
                   />
                   {searchTerm && (
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
-                      className="absolute right-2.5 text-white/50 hover:text-white"
+                      className="absolute right-2 text-white/50 hover:text-white z-50"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -1676,17 +1678,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 </div>
               </form>
 
-              {/* Header Admin Button */}
+              {/* Opaque Isolated Header Admin Button */}
               {showAdminButton === true && (
                 <button
                   type="button"
                   onClick={() => {
                     if (onOpenAdmin) onOpenAdmin();
                   }}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full ${cfg.primaryBtnClass} text-xs font-extrabold shadow-md transition-all cursor-pointer shrink-0 active:scale-95 select-none`}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider shadow-xl border border-amber-300/80 cursor-pointer shrink-0 active:scale-95 select-none relative z-50"
                   title="Open Admin Panel"
                 >
-                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-stone-950 stroke-[2.5]" />
                   <span>Admin</span>
                 </button>
               )}
@@ -1889,41 +1891,92 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
           ? 'min-h-[580px] sm:min-h-[620px] pt-20 sm:pt-24 pb-8' 
           : 'min-h-[90vh] sm:min-h-screen pt-24 sm:pt-28 pb-12'
       } flex flex-col justify-between items-center overflow-hidden`}>
-        {/* Floating Edit Hero Content button */}
-        {onEditClick && (
-          <button
-            type="button"
-            onClick={() => onEditClick(activeSlide)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 p-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-stone-950 shadow-2xl transition-all cursor-pointer border border-white/20 flex items-center justify-center gap-1.5 active:scale-95 group/editHero"
-            title="Edit Hero Slide Content"
-          >
-            <Edit3 className="w-4 h-4 transition-transform group-hover/editHero:rotate-12" />
-            <span className="text-[10px] font-mono font-black uppercase tracking-wider pr-1 hidden sm:inline">Edit Hero Section</span>
-          </button>
-        )}
         {/* Full Theme Background Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <img
-            src={heroBackgroundImage || cfg.heroBgImage || COFFEE_BEANS_BG}
-            alt="Theme Hero Background"
-            referrerPolicy="no-referrer"
-            className={`w-full h-full object-cover ${
-              isMobile 
-                ? 'object-center' 
-                : isTablet 
-                ? 'object-center' 
-                : 'object-center filter brightness-[0.88] contrast-[1.12]'
-            }`}
-          />
-          {/* Botanical Coffee Leaves in Bottom-Left Corner for Coffee Theme #01 */}
-          {activePresetId === 'velmora-dining' && (
-            <div className="absolute bottom-0 left-0 z-10 pointer-events-none">
-              <BotanicalCoffeeLeaves className="w-56 sm:w-72 md:w-84 h-auto opacity-45 drop-shadow-lg" color="#f5ebe0" />
-            </div>
+          {isLightAurelisse ? (
+            <>
+              {/* Fresh Pastel Mint Cream Background from Screenshot */}
+              <div className="absolute inset-0 bg-[#EDF7E7]" />
+
+              {/* Decorative Top-Left Fresh Mint / Basil Leaves Garnish (matching Screenshot) */}
+              <div className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 z-10 pointer-events-none select-none opacity-90 drop-shadow-md">
+                <svg className="w-28 h-28 sm:w-40 sm:h-40" viewBox="0 0 160 160" fill="none">
+                  <path 
+                    d="M10,10 C45,2 95,25 110,65 C120,95 85,125 55,115 C25,105 5,55 10,10 Z" 
+                    fill="url(#mintGrad1)" 
+                  />
+                  <path 
+                    d="M10,10 Q60,65 90,85" 
+                    stroke="#1b5e20" 
+                    strokeWidth="2.5" 
+                    opacity="0.6" 
+                  />
+                  <path 
+                    d="M25,5 C10,35 15,75 45,95 C70,110 95,85 85,55 C75,25 45,5 25,5 Z" 
+                    fill="url(#mintGrad2)" 
+                  />
+                  <defs>
+                    <linearGradient id="mintGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#81c784" />
+                      <stop offset="50%" stopColor="#4caf50" />
+                      <stop offset="100%" stopColor="#2e7d32" />
+                    </linearGradient>
+                    <linearGradient id="mintGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#a5d6a7" />
+                      <stop offset="60%" stopColor="#43a047" />
+                      <stop offset="100%" stopColor="#1b5e20" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+
+              {/* Decorative Bottom-Right Fresh Tomato Slice (matching Screenshot) */}
+              <div className="absolute -bottom-8 -right-8 sm:-bottom-12 sm:-right-12 z-10 pointer-events-none select-none drop-shadow-xl">
+                <svg className="w-32 h-32 sm:w-48 sm:h-48" viewBox="0 0 200 200" fill="none">
+                  <circle cx="150" cy="150" r="95" fill="url(#tomatoSkin)" />
+                  <circle cx="150" cy="150" r="82" fill="url(#tomatoPulp)" />
+                  <ellipse cx="120" cy="120" rx="16" ry="10" transform="rotate(-30 120 120)" fill="#ffd54f" opacity="0.8" />
+                  <ellipse cx="170" cy="125" rx="16" ry="10" transform="rotate(30 170 125)" fill="#ffd54f" opacity="0.8" />
+                  <ellipse cx="130" cy="170" rx="16" ry="10" transform="rotate(20 130 170)" fill="#ffd54f" opacity="0.8" />
+                  <defs>
+                    <radialGradient id="tomatoSkin" cx="50%" cy="50%" r="50%">
+                      <stop offset="70%" stopColor="#d32f2f" />
+                      <stop offset="100%" stopColor="#b71c1c" />
+                    </radialGradient>
+                    <radialGradient id="tomatoPulp" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#ef5350" />
+                      <stop offset="85%" stopColor="#e53935" />
+                      <stop offset="100%" stopColor="#c62828" />
+                    </radialGradient>
+                  </defs>
+                </svg>
+              </div>
+            </>
+          ) : (
+            <>
+              <img
+                src={heroBackgroundImage || cfg.heroBgImage || COFFEE_BEANS_BG}
+                alt="Theme Hero Background"
+                referrerPolicy="no-referrer"
+                className={`w-full h-full object-cover ${
+                  isMobile 
+                    ? 'object-center' 
+                    : isTablet 
+                    ? 'object-center' 
+                    : 'object-center filter brightness-[0.88] contrast-[1.12]'
+                }`}
+              />
+              {/* Botanical Coffee Leaves in Bottom-Left Corner for Coffee Theme #01 */}
+              {activePresetId === 'velmora-dining' && (
+                <div className="absolute bottom-0 left-0 z-10 pointer-events-none">
+                  <BotanicalCoffeeLeaves className="w-56 sm:w-72 md:w-84 h-auto opacity-45 drop-shadow-lg" color="#f5ebe0" />
+                </div>
+              )}
+              {/* Subtle Ambient Vignette - Styled dynamically per theme */}
+              <div className={`absolute inset-0 bg-gradient-to-b ${cfg.bgGradientOverlay} pointer-events-none`} />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(10,5,2,0.60)_100%)] pointer-events-none" />
+            </>
           )}
-          {/* Subtle Ambient Vignette - Styled dynamically per theme */}
-          <div className={`absolute inset-0 bg-gradient-to-b ${cfg.bgGradientOverlay} pointer-events-none`} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(10,5,2,0.60)_100%)] pointer-events-none" />
         </div>
 
         {/* HERO CONTENT AREA */}
@@ -2060,13 +2113,19 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     : "md:col-span-7 lg:col-span-6 text-center md:text-left flex flex-col items-center md:items-start space-y-3 sm:space-y-4 md:pr-4 lg:pr-8"
                 }>
                   {/* Theme Badge Tag */}
-                  <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} text-[10px] sm:text-xs font-bold uppercase tracking-wider ${cfg.accentTextClass} shadow-xl backdrop-blur-md max-w-[92vw] text-center`}>
+                  <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full ${
+                    isLightAurelisse
+                      ? 'bg-[#dbeef0]/80 border border-[#2e7d32]/30 text-[#1b5e20]'
+                      : `bg-black/80 border ${cfg.accentBorderClass} ${cfg.accentTextClass}`
+                  } text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-md backdrop-blur-md max-w-[92vw] text-center`}>
                     <Sparkles className="w-3.5 h-3.5 shrink-0" />
                     <span className="leading-tight">{cfg.heroBadgeTag}</span>
                   </div>
 
                   {/* Subtitle / Eyebrow */}
-                  <span className={`text-base sm:text-2xl md:text-2xl lg:text-3xl font-serif ${cfg.accentTextClass} tracking-wide font-normal drop-shadow-md block`}>
+                  <span className={`text-base sm:text-2xl md:text-2xl lg:text-3xl font-serif ${
+                    isLightAurelisse ? 'text-[#2e7d32]' : cfg.accentTextClass
+                  } tracking-wide font-normal drop-shadow-sm block`}>
                     {(slide as any).eyebrow || (slide as any).subtitle}
                   </span>
 
@@ -2077,28 +2136,36 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       : isTablet 
                       ? 'text-4xl sm:text-5xl' 
                       : 'text-3xl sm:text-5xl md:text-5xl lg:text-7xl'
-                  } font-black text-white tracking-tight uppercase leading-tight md:leading-none font-sans drop-shadow-2xl`}>
+                  } font-black ${
+                    isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-2xl'
+                  } tracking-tight uppercase leading-tight md:leading-none font-sans`}>
                     {(slide as any).heading || (slide as any).title}
                   </h1>
 
                   {/* Description / Tagline */}
                   {((slide as any).description || (slide as any).tag) && (
-                    <p className="text-xs sm:text-sm md:text-base text-[#FBF8EE]/90 max-w-xl font-medium leading-relaxed drop-shadow">
+                    <p className={`text-xs sm:text-sm md:text-base ${
+                      isLightAurelisse ? 'text-[#2a3e26]' : 'text-[#FBF8EE]/90'
+                    } max-w-xl font-medium leading-relaxed`}>
                       {(slide as any).description || (slide as any).tag}
                     </p>
                   )}
 
                   {/* Item / Price Badge if available */}
                   {((slide as any).cupName || (slide as any).price) && (
-                    <div className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-black/80 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`}>
+                    <div className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full ${
+                      isLightAurelisse
+                        ? 'bg-white/90 border border-[#2e7d32]/25 shadow-md'
+                        : `bg-black/80 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`
+                    }`}>
                       <Sparkles className={`w-3.5 h-3.5 ${cfg.accentTextClass}`} />
                       {(slide as any).cupName && (
-                        <span className="text-xs sm:text-sm font-bold tracking-wider text-[#FBF8EE] uppercase">
+                        <span className={`text-xs sm:text-sm font-bold tracking-wider ${isLightAurelisse ? 'text-[#142412]' : 'text-[#FBF8EE]'} uppercase`}>
                           {(slide as any).cupName}
                         </span>
                       )}
                       {(slide as any).price && (
-                        <span className={`text-xs sm:text-sm font-extrabold ${cfg.accentTextClass}`}>
+                        <span className={`text-xs sm:text-sm font-extrabold ${isLightAurelisse ? 'text-[#2e7d32]' : cfg.accentTextClass}`}>
                           {(slide as any).price}
                         </span>
                       )}
