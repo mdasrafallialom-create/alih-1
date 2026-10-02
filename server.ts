@@ -114,6 +114,17 @@ async function startServer() {
     }
   });
 
+  // Explicit routes for superadmin / master admin paths to prevent 404s
+  app.get(["/superadmin", "/master-admin", "/asraf-ali-sm-arif-billah", "/admin5321"], (req, res) => {
+    const indexPath = path.resolve(__dirname, "index.html");
+    if (fs.existsSync(indexPath)) {
+      const html = fs.readFileSync(indexPath, "utf-8");
+      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    } else {
+      res.status(404).send("Index.html not found");
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

@@ -112,23 +112,27 @@ export default function App() {
   // Active viewing modes: 'client' (Customer portal), 'admin' (Enterprise console), or 'superadmin'
   const [viewMode, setViewMode] = useState<'client' | 'admin' | 'superadmin'>(() => {
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      // Explicit Client Theme view requested via URL -> MUST force client mode
-      if (params.get('theme') || params.get('standalone') === 'true' || params.get('preview') === 'true') {
-        return 'client';
-      }
+      const searchStr = window.location.search.toLowerCase();
+      const pathStr = window.location.pathname.toLowerCase();
+      // Only open superadmin if explicitly requested via master / asraf url parameters or path
       if (
-        params.get('admin') === 'true' || 
-        params.get('admin') === '5321' || 
-        params.get('portal') === 'manager' ||
-        window.location.pathname === '/admin5321' || 
-        window.location.hash === '#admin5321'
+        searchStr.includes('master') ||
+        searchStr.includes('asraf') ||
+        searchStr.includes('arif') ||
+        searchStr.includes('superadmin') ||
+        pathStr.includes('superadmin') ||
+        pathStr.includes('asraf') ||
+        pathStr.includes('master-admin')
       ) {
+        return 'superadmin';
+      }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('admin') === 'true' || params.get('admin') === '5321' || window.location.pathname === '/admin5321') {
         return 'admin';
       }
     }
-    // ABSOLUTE DEFAULT: MASTER ADMIN PANEL FOR ASRAF ALI SM ARIF BILLAH HQ
-    return 'superadmin';
+    // Default to client website storefront view
+    return 'client';
   });
   // Persist current viewMode to avoid flicker on page reload
   useEffect(() => {
@@ -1281,14 +1285,15 @@ export default function App() {
 
   // COMPLETELY ISOLATED SUPER ADMIN VIEW
   const isSuperAdminRoute = typeof window !== 'undefined' && (
+    viewMode === 'superadmin' ||
     window.location.pathname.toLowerCase().includes('superadmin') ||
     window.location.pathname.toLowerCase().includes('asraf') ||
+    window.location.pathname.toLowerCase().includes('master') ||
     window.location.search.toLowerCase().includes('asraf') ||
     window.location.search.toLowerCase().includes('arif') ||
     window.location.search.toLowerCase().includes('superadmin') ||
-    window.location.search.includes('master=admin') ||
-    window.location.search.includes('locked=true') ||
-    viewMode === 'superadmin'
+    window.location.search.toLowerCase().includes('master') ||
+    window.location.search.toLowerCase().includes('locked')
   );
 
   if (isSuperAdminRoute) {
