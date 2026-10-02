@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall, Edit3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall, Edit3, ArrowUpRight, Star, Flame } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
@@ -32,6 +32,7 @@ interface KoppeeHeroHeaderProps {
   themePresetId?: string;
   previewDeviceView?: 'desktop' | 'tablet' | 'mobile';
   onEditClick?: (slideIndex: number) => void;
+  subscriptionPlan?: 'basic' | 'pro' | 'elite' | string;
 }
 
 export interface ThemeHeroConfig {
@@ -120,22 +121,22 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
     headerBg: 'bg-[#EDF7E7]/95 backdrop-blur-md border-b border-[#2e7d32]/10',
     heroBgImage: ''
   },
-  // #05 Palatiora (Smokey Slate Ash Cellar & Dry-Aged Steaks)
+  // #05 Palatiora (Savorelle Dark Textured & Vibrant Orange Dining)
   'palatiora': {
-    accentColor: '#334155',
-    accentTextClass: 'text-slate-800',
-    accentBorderClass: 'border-slate-300',
-    logoBadgeClass: 'bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 text-white font-black border border-slate-500 shadow-xl',
-    heroBadgeTag: '🥩 SMOKEY ASH CELLAR & DRY-AGED STEAKHOUSE',
-    navHoverClass: 'hover:text-slate-900',
-    navActiveClass: 'text-slate-900 border-b-2 border-slate-800',
-    primaryBtnClass: 'bg-slate-900 hover:bg-slate-800 text-white font-black rounded-lg shadow-lg border border-slate-700',
-    secondaryBtnClass: 'bg-[#dce1e7] hover:bg-[#cfd5de] text-slate-900 border border-slate-400/50 rounded-lg shadow-sm',
-    imageFrameClass: 'border-2 border-slate-400/60 rounded-2xl shadow-xl',
-    searchFocusClass: 'focus:border-slate-600 focus:ring-slate-600',
-    bgGradientOverlay: 'from-[#E9ECEF] via-[#E2E6EA] to-[#E9ECEF]',
-    headerBg: 'bg-[#E9ECEF]/95 backdrop-blur-md border-b border-slate-300',
-    heroBgImage: ''
+    accentColor: '#F97316',
+    accentTextClass: 'text-[#F97316]',
+    accentBorderClass: 'border-orange-500/40',
+    logoBadgeClass: 'bg-gradient-to-br from-[#F97316] via-[#EA580C] to-[#C2410C] text-white font-black border border-orange-400/40 shadow-xl',
+    heroBadgeTag: '✦ SAVORELLE GOURMET DINING ✦',
+    navHoverClass: 'hover:text-[#F97316]',
+    navActiveClass: 'text-[#F97316] border-b-2 border-[#F97316]',
+    primaryBtnClass: 'bg-[#F97316] hover:bg-[#EA580C] text-white font-bold rounded-full shadow-lg shadow-orange-600/30 border border-orange-400/30',
+    secondaryBtnClass: 'bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full backdrop-blur-md',
+    imageFrameClass: 'border-2 border-orange-500/40 rounded-full shadow-2xl',
+    searchFocusClass: 'focus:border-orange-500 focus:ring-orange-500',
+    bgGradientOverlay: 'from-black/95 via-[#0d0d0d]/80 to-black/95',
+    headerBg: 'bg-black/70 backdrop-blur-md border-b border-white/10',
+    heroBgImage: 'https://images.unsplash.com/photo-1604147706283-d7119b5b822c?w=1600&auto=format&fit=crop'
   },
   // #06 Opalune (Modern White Granite & Nitro Cold Brew)
   'opalune': {
@@ -1115,7 +1116,6 @@ export function buildTierSlides(
   isCoffee: boolean
 ): any[] {
   // Option #15 / 15-number theme (Vellunara) or Basic ($15) tier:
-  // EXACTLY 1 hero section system (clean static presentation, no slider)
   if (presetId === 'vellunara' || tier === 'basic' || tier === 'starter') {
     const base = (CAFE_HERO_PRESETS[presetId] && CAFE_HERO_PRESETS[presetId][0]) 
       ? CAFE_HERO_PRESETS[presetId][0] 
@@ -1126,6 +1126,14 @@ export function buildTierSlides(
   // 39 Dollar Plan / Pro tier:
   // EXACTLY 3 hero section slides that slide through in rotation
   if (tier === 'pro' || tier === 'professional') {
+    if (presetId === 'palatiora') {
+      return (CAFE_HERO_PRESETS['palatiora'] || []).slice(0, 3).map((s, index) => ({
+        ...s,
+        id: index + 1,
+        number: `0${index + 1}`
+      }));
+    }
+
     const slide1 = (CAFE_HERO_PRESETS[presetId] && CAFE_HERO_PRESETS[presetId][0]) 
       ? { ...CAFE_HERO_PRESETS[presetId][0], id: 1, number: '01' } 
       : (isCoffee ? KOPPEE_SLIDES[0] : LUXURY_PRO_3_SLIDES[0]);
@@ -1145,8 +1153,16 @@ export function buildTierSlides(
     ];
   }
 
-  // 99 Dollar Plan / Elite tier:
-  // EXACTLY 4 hero section slides that slide through in rotation
+  // 99 Dollar Plan / Elite tier (or default for palatiora):
+  // Renders all 6 signature animated shapes for Theme #05 (Palatiora)
+  if (presetId === 'palatiora') {
+    return (CAFE_HERO_PRESETS['palatiora'] || []).slice(0, 6).map((s, index) => ({
+      ...s,
+      id: index + 1,
+      number: `0${index + 1}`
+    }));
+  }
+
   const slide1 = (CAFE_HERO_PRESETS[presetId] && CAFE_HERO_PRESETS[presetId][0]) 
     ? { ...CAFE_HERO_PRESETS[presetId][0], id: 1, number: '01' } 
     : (isCoffee ? COFFEE_ELITE_4_SLIDES[0] : LUXURY_ELITE_4_SLIDES[0]);
@@ -1182,7 +1198,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   lang = 'en',
   themePresetId,
   previewDeviceView,
-  onEditClick
+  onEditClick,
+  subscriptionPlan
 }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1227,7 +1244,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const isCoffeeTheme = COFFEE_SHOP_THEME_IDS.includes(activePresetId);
   const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
   // Option #15 (Vellunara) is strictly basic/1-slide tier
-  const activeTier = (activePresetId === 'vellunara') ? 'basic' : (matchedTheme?.tier || 'basic'); // 'basic' ($15), 'pro' ($39), 'elite' ($99)
+  const activeTier = (activePresetId === 'vellunara') ? 'basic' : (subscriptionPlan || matchedTheme?.tier || 'basic'); // 'basic' ($15), 'pro' ($39), 'elite' ($99)
 
   // Reset activeSlide whenever active theme changes
   useEffect(() => {
@@ -1343,9 +1360,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
 
   const [initial1, initial2] = getLogoInitials(effectiveBrandName);
   const isLightAurelisse = activePresetId === 'aurelisse';
+  const isSavorellePalatiora = activePresetId === 'palatiora';
+  const isAshPalatiora = false;
+  const activeAccentColor = isLightAurelisse ? '#2e7d32' : isSavorellePalatiora ? '#F97316' : '#DA9F93';
 
   return (
-    <div className={`relative w-full overflow-x-clip ${isLightAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : 'bg-[#120a06] text-white'} font-sans selection:bg-[#2e7d32]/30`}>
+    <div className={`relative w-full overflow-x-clip ${
+      isLightAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : isSavorellePalatiora ? 'bg-[#0a0a0c] text-white' : 'bg-[#120a06] text-white'
+    } font-sans selection:bg-slate-400/30`}>
       {/* ========================================================================= */}
       {/* 1. TOP HEADER NAVBAR (KOPPEE STYLE WITH SEARCH BAR) */}
       {/* ========================================================================= */}
@@ -1353,11 +1375,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
         {/* Brand Logo with 2-Letter Initials Badge */}
         <div className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0" onClick={() => scrollToSection('hero')}>
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${cfg.logoBadgeClass} text-[10px] sm:text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
-              {initial1}{initial2}
-            </div>
-            <span className={`font-black ${isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-md'} tracking-wider uppercase font-sans truncate ${
-              isMobile ? 'text-xs sm:text-sm max-w-[120px] sm:max-w-[180px]' : isTablet ? 'text-sm sm:text-base md:text-lg max-w-[180px] sm:max-w-[260px]' : 'text-xl sm:text-2xl md:text-3xl'
+            {!isSavorellePalatiora && (
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${cfg.logoBadgeClass} text-[10px] sm:text-xs flex items-center justify-center shrink-0 shadow-lg border uppercase select-none`}>
+                {initial1}{initial2}
+              </div>
+            )}
+            <span className={`${
+              isSavorellePalatiora 
+                ? 'font-serif text-2xl sm:text-3xl text-white font-normal tracking-tight' 
+                : 'font-black uppercase font-sans tracking-wider ' + (isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-md')
+            } truncate ${
+              isMobile ? 'text-base max-w-[150px]' : isTablet ? 'text-lg max-w-[200px]' : 'text-xl sm:text-2xl md:text-3xl'
             }`}>
               {effectiveBrandName}
             </span>
@@ -1462,10 +1490,11 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => setTabletMoreDropdownOpen(!tabletMoreDropdownOpen)}
-                  className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 border border-white/20 text-[#DA9F93] hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-sm active:scale-95"
+                  className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 border border-white/20 hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-sm active:scale-95"
+                  style={{ color: activeAccentColor }}
                   title="More Pages"
                 >
-                  <MoreHorizontal className="w-4 h-4 text-[#DA9F93]" />
+                  <MoreHorizontal className="w-4 h-4" style={{ color: activeAccentColor }} />
                 </button>
 
                 <AnimatePresence>
@@ -1485,7 +1514,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
-                        <Sparkles className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <Sparkles className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
                         <span>Service</span>
                       </button>
                       <button
@@ -1498,7 +1527,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
-                        <Utensils className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <Utensils className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
                         <span>Menu</span>
                       </button>
                       <button
@@ -1510,7 +1539,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
-                        <Calendar className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <Calendar className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
                         <span>Reservation</span>
                       </button>
                       <button
@@ -1521,7 +1550,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
-                        <Sparkles className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <Sparkles className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
                         <span>Testimonials</span>
                       </button>
                       <button
@@ -1532,7 +1561,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
-                        <Utensils className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <Utensils className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
                         <span>Chef's Specials</span>
                       </button>
                       <button
@@ -1543,7 +1572,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
-                        <PhoneCall className="w-4 h-4 text-[#DA9F93] shrink-0" />
+                        <PhoneCall className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
                         <span>Contact</span>
                       </button>
                     </motion.div>
@@ -1568,14 +1597,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => scrollToSection('about')}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 About
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('services')}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 Service
               </button>
@@ -1586,7 +1615,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   else if (onMenuClick) onMenuClick();
                   else scrollToSection('menu');
                 }}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 Menu
               </button>
@@ -1596,7 +1625,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
-                  className={`flex items-center gap-1 ${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
+                  className={`flex items-center gap-1 ${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
                 >
                   <span>Pages</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
@@ -1609,7 +1638,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 5 }}
                       transition={{ duration: 0.15 }}
-                      className={`absolute right-0 lg:left-0 mt-2 w-44 ${isLightAurelisse ? 'bg-white border border-[#2e7d32]/20 text-[#142412]' : 'bg-[#1a0905] border ' + cfg.accentBorderClass + ' text-white'} rounded-xl shadow-2xl py-2 z-50 text-left`}
+                      className={`absolute right-0 lg:left-0 mt-2 w-44 ${isLightAurelisse ? 'bg-white border border-[#2e7d32]/20 text-[#142412]' : isAshPalatiora ? 'bg-white border border-slate-300 text-slate-800' : 'bg-[#1a0905] border ' + cfg.accentBorderClass + ' text-white'} rounded-xl shadow-2xl py-2 z-50 text-left`}
                     >
                       <button
                         type="button"
@@ -1618,21 +1647,21 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                           else scrollToSection('reservation');
                           setPagesDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
                         Reservation
                       </button>
                       <button
                         type="button"
                         onClick={() => scrollToSection('testimonials')}
-                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
                         Testimonials
                       </button>
                       <button
                         type="button"
                         onClick={() => scrollToSection('specials')}
-                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
                         Chef's Specials
                       </button>
@@ -1644,7 +1673,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => scrollToSection('contact')}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
               >
                 Contact
               </button>
@@ -1652,9 +1681,21 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
 
             {/* Desktop Search Bar & Admin Button */}
             <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 z-50 relative ml-auto">
+              {/* Savorelle Prominent Pill CTA Button (Screenshot 1) */}
+              {isSavorellePalatiora && (
+                <button
+                  type="button"
+                  onClick={onOrderClick || onMenuClick || (() => scrollToSection('tasting-menu'))}
+                  className="bg-[#F97316] hover:bg-[#EA580C] text-white px-5 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-orange-600/30 cursor-pointer active:scale-95 transition-all select-none"
+                >
+                  <span>Order Now</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+              )}
+
               <form onSubmit={handleSearchSubmit} className="relative flex items-center shrink-0 z-50">
                 <div className="relative flex items-center group shrink-0">
-                  <Search className={`w-3.5 h-3.5 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-[#2e7d32] transition-colors`} />
+                  <Search className={`w-3.5 h-3.5 ${cfg.accentTextClass} absolute left-3 pointer-events-none group-focus-within:text-slate-800 transition-colors`} />
                   <input
                     type="text"
                     value={searchTerm}
@@ -1664,7 +1705,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       checkAdminPin(val);
                     }}
                     placeholder={lang === 'bn' ? 'খাবার বা পিন...' : 'Search menu or PIN...'}
-                    className={`w-28 sm:w-32 lg:w-40 pl-8 pr-7 py-1.5 text-[11px] rounded-full ${isLightAurelisse ? 'bg-white/90 border border-[#2e7d32]/30 text-[#142412] placeholder-stone-500' : 'bg-black/90 border ' + cfg.accentBorderClass + ' text-white placeholder-white/50'} focus:outline-none ${cfg.searchFocusClass} focus:ring-1 transition-all duration-300 shadow-inner shrink-0 truncate z-50`}
+                    className={`w-28 sm:w-32 lg:w-40 pl-8 pr-7 py-1.5 text-[11px] rounded-full ${isLightAurelisse ? 'bg-white/90 border border-[#2e7d32]/30 text-[#142412] placeholder-stone-500' : isSavorellePalatiora ? 'bg-white/10 border border-white/20 text-white placeholder-stone-400' : 'bg-black/90 border ' + cfg.accentBorderClass + ' text-white placeholder-white/50'} focus:outline-none ${cfg.searchFocusClass} focus:ring-1 transition-all duration-300 shadow-inner shrink-0 truncate z-50`}
                   />
                   {searchTerm && (
                     <button
@@ -1702,23 +1743,27 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             <button
               type="button"
               onClick={() => setIsSearchOpenMobile(!isSearchOpenMobile)}
-              className="p-2 text-white hover:text-[#DA9F93] transition-colors rounded-full bg-black/50 border border-[#DA9F93]/30 shadow-md"
+              className={`p-2 text-white transition-colors rounded-full bg-black/50 border shadow-md ${
+                isLightAurelisse ? 'hover:text-[#2e7d32] border-[#2e7d32]/30' : isSavorellePalatiora ? 'hover:text-[#F97316] border-[#F97316]/30' : 'hover:text-[#DA9F93] border-[#DA9F93]/30'
+              }`}
               title="Search or Admin Access"
             >
-              <Search className="w-5 h-5 text-[#DA9F93]" />
+              <Search className="w-5 h-5" style={{ color: activeAccentColor }} />
             </button>
 
           {/* Three Dots / Menu Drawer Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-white hover:text-[#DA9F93] transition-colors rounded-full bg-black/60 border border-[#DA9F93]/40 flex items-center justify-center shadow-md active:scale-90 cursor-pointer"
+            className={`p-2 text-white transition-colors rounded-full bg-black/60 border flex items-center justify-center shadow-md active:scale-90 cursor-pointer ${
+              isLightAurelisse ? 'hover:text-[#2e7d32] border-[#2e7d32]/40' : isSavorellePalatiora ? 'hover:text-[#F97316] border-[#F97316]/40' : 'hover:text-[#DA9F93] border-[#DA9F93]/40'
+            }`}
             title="Toggle Menu"
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-[#DA9F93]" />
+              <X className="w-6 h-6" style={{ color: activeAccentColor }} />
             ) : (
-              <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-[#DA9F93]" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: activeAccentColor }} />
             )}
           </button>
         </div>
@@ -1732,10 +1777,16 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-20 left-4 right-4 z-50 bg-[#1e140d]/95 border border-[#DA9F93]/40 rounded-2xl p-3 shadow-2xl backdrop-blur-md"
+            className={`absolute top-20 left-4 right-4 z-50 rounded-2xl p-3 shadow-2xl backdrop-blur-md border ${
+              isSavorellePalatiora 
+                ? 'bg-[#0a0a0c]/95 border-white/15 text-white' 
+                : isLightAurelisse 
+                ? 'bg-[#142412]/95 border-[#2e7d32]/30 text-white' 
+                : 'bg-[#1e140d]/95 border-[#DA9F93]/40 text-white'
+            }`}
           >
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-              <Search className="w-4 h-4 text-[#DA9F93] absolute left-3" />
+              <Search className="w-4 h-4 absolute left-3" style={{ color: activeAccentColor }} />
               <input
                 type="text"
                 autoFocus
@@ -1746,7 +1797,13 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   checkAdminPin(val);
                 }}
                 placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা পাসওয়ার্ড...' : 'Search menu or password...'}
-                className="w-full pl-9 pr-10 py-2 text-sm rounded-xl bg-black/70 border border-[#DA9F93]/30 text-white placeholder-white/40 focus:outline-none focus:border-[#DA9F93]"
+                className={`w-full pl-9 pr-10 py-2 text-sm rounded-xl bg-black/70 text-white placeholder-white/40 focus:outline-none border ${
+                  isLightAurelisse 
+                    ? 'border-[#2e7d32]/30 focus:border-[#2e7d32]' 
+                    : isSavorellePalatiora 
+                    ? 'border-white/20 focus:border-[#F97316]' 
+                    : 'border-[#DA9F93]/30 focus:border-[#DA9F93]'
+                }`}
               />
               <button
                 type="button"
@@ -1767,7 +1824,13 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -20 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 bg-[#DA9F93] text-[#120a06] px-5 py-2.5 rounded-full font-bold shadow-2xl text-xs uppercase tracking-wider"
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 px-5 py-2.5 rounded-full font-bold shadow-2xl text-xs uppercase tracking-wider ${
+              isLightAurelisse
+                ? 'bg-[#2e7d32] text-white'
+                : isSavorellePalatiora
+                ? 'bg-[#F97316] text-black'
+                : 'bg-[#DA9F93] text-[#120a06]'
+            }`}
           >
             <ShieldCheck className="w-4 h-4" />
             <span>Admin Panel Unlocked! Opening...</span>
@@ -1782,11 +1845,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute top-20 left-0 right-0 z-50 bg-[#180e07]/98 backdrop-blur-2xl border-b border-[#DA9F93]/30 px-5 py-5 flex flex-col space-y-2.5 text-center font-medium shadow-2xl max-h-[85vh] overflow-y-auto"
+            className={`absolute top-20 left-0 right-0 z-50 backdrop-blur-2xl px-5 py-5 flex flex-col space-y-2.5 text-center font-medium shadow-2xl max-h-[85vh] overflow-y-auto border-b ${
+              isSavorellePalatiora
+                ? 'bg-[#0a0a0c]/98 border-white/10 text-white'
+                : isLightAurelisse
+                ? 'bg-[#142412]/98 border-[#2e7d32]/30 text-white'
+                : 'bg-[#180e07]/98 border-[#DA9F93]/30 text-[#DA9F93]'
+            }`}
           >
             {/* Search input in Mobile/Tablet Menu */}
             <form onSubmit={handleSearchSubmit} className="relative w-full mb-1">
-              <Search className="w-4 h-4 text-[#DA9F93] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: activeAccentColor }} />
               <input
                 type="text"
                 value={searchTerm}
@@ -1796,7 +1865,13 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   checkAdminPin(val);
                 }}
                 placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা পাসওয়ার্ড...' : 'Search menu or password...'}
-                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-black/70 border border-[#DA9F93]/40 text-white placeholder-white/40 focus:outline-none focus:border-[#DA9F93]"
+                className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-black/70 text-white placeholder-white/40 focus:outline-none border ${
+                  isLightAurelisse
+                    ? 'border-[#2e7d32]/30 focus:border-[#2e7d32]'
+                    : isSavorellePalatiora
+                    ? 'border-white/20 focus:border-[#F97316]'
+                    : 'border-[#DA9F93]/40 focus:border-[#DA9F93]'
+                }`}
               />
             </form>
 
@@ -1806,7 +1881,13 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 scrollToSection('hero');
                 setMobileMenuOpen(false);
               }}
-              className="text-[#DA9F93] py-2.5 text-sm font-bold bg-white/5 rounded-xl transition-colors border border-[#DA9F93]/20"
+              className={`py-2.5 text-sm font-bold bg-white/5 rounded-xl transition-colors border ${
+                isLightAurelisse
+                  ? 'text-[#2e7d32] border-[#2e7d32]/30'
+                  : isSavorellePalatiora
+                  ? 'text-[#F97316] border-[#F97316]/20'
+                  : 'text-[#DA9F93] border-[#DA9F93]/20'
+              }`}
             >
               Home
             </button>
@@ -1871,9 +1952,15 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   if (onOpenAdmin) onOpenAdmin();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center justify-center gap-2 text-[#DA9F93] py-3 text-sm font-bold bg-[#DA9F93]/20 border border-[#DA9F93]/50 rounded-xl active:scale-95 transition-transform mt-1"
+                className={`flex items-center justify-center gap-2 py-3 text-sm font-bold rounded-xl active:scale-95 transition-transform mt-1 border ${
+                  isLightAurelisse
+                    ? 'text-[#2e7d32] bg-[#2e7d32]/10 border-[#2e7d32]/45'
+                    : isSavorellePalatiora
+                    ? 'text-[#F97316] bg-[#F97316]/10 border-[#F97316]/30'
+                    : 'text-[#DA9F93] bg-[#DA9F93]/20 border-[#DA9F93]/50'
+                }`}
               >
-                <ShieldCheck className="w-4 h-4 text-[#DA9F93]" />
+                <ShieldCheck className="w-4 h-4" style={{ color: activeAccentColor }} />
                 <span>{lang === 'bn' ? 'এডমিন প্যানেল' : 'Admin Panel'}</span>
               </button>
             )}
@@ -1951,6 +2038,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   </defs>
                 </svg>
               </div>
+            </>
+          ) : isSavorellePalatiora ? (
+            <>
+              {/* Deep Charcoal Stone Texture Background (Screenshot 4) */}
+              <img
+                src={heroBackgroundImage || "https://images.unsplash.com/photo-1604147706283-d7119b5b822c?w=1600&auto=format&fit=crop"}
+                alt="Palatiora Stone Texture"
+                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.45] contrast-[1.25] pointer-events-none select-none z-0"
+              />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(249,115,22,0.25),_transparent_65%)] pointer-events-none z-0" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-0" />
             </>
           ) : (
             <>
@@ -2112,19 +2210,91 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     ? "col-span-7 text-left flex flex-col items-start space-y-3 pr-2"
                     : "md:col-span-7 lg:col-span-6 text-center md:text-left flex flex-col items-center md:items-start space-y-3 sm:space-y-4 md:pr-4 lg:pr-8"
                 }>
-                  {/* Theme Badge Tag */}
-                  <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full ${
-                    isLightAurelisse
-                      ? 'bg-[#dbeef0]/80 border border-[#2e7d32]/30 text-[#1b5e20]'
-                      : `bg-black/80 border ${cfg.accentBorderClass} ${cfg.accentTextClass}`
-                  } text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-md backdrop-blur-md max-w-[92vw] text-center`}>
-                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                    <span className="leading-tight">{cfg.heroBadgeTag}</span>
-                  </div>
+                  {isSavorellePalatiora ? (
+                    <>
+                      {/* Savorelle Headline with Hand-drawn Doodle Arrow (Screenshot 1) */}
+                      <div className="relative w-full text-left">
+                        <h1 
+                          className="text-4xl sm:text-6xl md:text-6xl lg:text-7xl font-light text-white tracking-tight leading-[1.08]"
+                          style={{ fontFamily: "'Playfair Display', 'DM Serif Display', serif" }}
+                        >
+                          Savor Every<br />
+                          Moment with<br />
+                          <span className="text-[#F97316] font-normal">Every Bite</span>
+                        </h1>
+
+                        {/* Hand-drawn white curved doodle arrow pointing from 'Every' to the food plate */}
+                        <svg className="hidden sm:block absolute -top-1 sm:-top-2 left-64 md:left-72 lg:left-80 w-28 sm:w-32 h-14 pointer-events-none opacity-85 select-none" viewBox="0 0 120 50" fill="none">
+                          <path d="M5,42 Q45,5 95,20 Q105,25 110,32" stroke="white" strokeWidth="1.6" strokeDasharray="3 3" />
+                          <path d="M102,26 L110,33 L105,40" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+
+                      {/* Tagline / Subtitle */}
+                      <p className="text-stone-300 text-xs sm:text-sm md:text-base max-w-md font-normal leading-relaxed text-left">
+                        Experience gourmet dining crafted with passion, fresh ingredients, and unforgettable flavors.
+                      </p>
+
+                      {/* Pill-shaped Reserve Table Button with Arrow in black circle (Screenshot 1) */}
+                      <div className="pt-1 flex items-center justify-start w-full">
+                        <button
+                          type="button"
+                          onClick={onReserveClick || onOrderClick || (() => scrollToSection('reservation'))}
+                          className="bg-[#F97316] hover:bg-[#EA580C] text-white px-7 py-3.5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-xl shadow-orange-600/30 transition-all cursor-pointer active:scale-95 group"
+                        >
+                          <span>Reserve Your Table</span>
+                          <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* Glassmorphic 3-Row Feature Pod (Screenshot 1) */}
+                      <div className="bg-[#181818]/85 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 max-w-sm w-full space-y-3.5 shadow-2xl text-left mt-2 select-none">
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <Star className="w-3.5 h-3.5 text-white fill-white" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white">Special Events</div>
+                            <div className="text-[11px] text-stone-400">Let us bring luxury to your special event</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <Utensils className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white">Chef's Experience</div>
+                            <div className="text-[11px] text-stone-400">Enjoy a front-row seat to culinary excellence</div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <Flame className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white">Teriyaki Wings</div>
+                            <div className="text-[11px] text-stone-400">Crispy, saucy wings with a hint of sesame</div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Theme Badge Tag */}
+                      <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full ${
+                        isLightAurelisse
+                          ? 'bg-[#dbeef0]/80 border border-[#2e7d32]/30 text-[#1b5e20]'
+                          : `bg-black/80 border ${cfg.accentBorderClass} ${cfg.accentTextClass}`
+                      } text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-md backdrop-blur-md max-w-[92vw] text-center`}>
+                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                        <span className="leading-tight">{cfg.heroBadgeTag}</span>
+                      </div>
 
                   {/* Subtitle / Eyebrow */}
                   <span className={`text-base sm:text-2xl md:text-2xl lg:text-3xl font-serif ${
-                    isLightAurelisse ? 'text-[#2e7d32]' : cfg.accentTextClass
+                    isLightAurelisse ? 'text-[#2e7d32]' : isAshPalatiora ? 'text-slate-700' : cfg.accentTextClass
                   } tracking-wide font-normal drop-shadow-sm block`}>
                     {(slide as any).eyebrow || (slide as any).subtitle}
                   </span>
@@ -2137,7 +2307,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       ? 'text-4xl sm:text-5xl' 
                       : 'text-3xl sm:text-5xl md:text-5xl lg:text-7xl'
                   } font-black ${
-                    isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-2xl'
+                    isLightAurelisse ? 'text-[#142412]' : isAshPalatiora ? 'text-slate-900' : 'text-white drop-shadow-2xl'
                   } tracking-tight uppercase leading-tight md:leading-none font-sans`}>
                     {(slide as any).heading || (slide as any).title}
                   </h1>
@@ -2145,7 +2315,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   {/* Description / Tagline */}
                   {((slide as any).description || (slide as any).tag) && (
                     <p className={`text-xs sm:text-sm md:text-base ${
-                      isLightAurelisse ? 'text-[#2a3e26]' : 'text-[#FBF8EE]/90'
+                      isLightAurelisse ? 'text-[#2a3e26]' : isAshPalatiora ? 'text-slate-600' : 'text-[#FBF8EE]/90'
                     } max-w-xl font-medium leading-relaxed`}>
                       {(slide as any).description || (slide as any).tag}
                     </p>
@@ -2156,16 +2326,18 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     <div className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full ${
                       isLightAurelisse
                         ? 'bg-white/90 border border-[#2e7d32]/25 shadow-md'
+                        : isAshPalatiora
+                        ? 'bg-white/90 border border-slate-300 shadow-md'
                         : `bg-black/80 border ${cfg.accentBorderClass} shadow-2xl backdrop-blur-md`
                     }`}>
-                      <Sparkles className={`w-3.5 h-3.5 ${cfg.accentTextClass}`} />
+                      <Sparkles className={`w-3.5 h-3.5 ${isAshPalatiora ? 'text-slate-700' : cfg.accentTextClass}`} />
                       {(slide as any).cupName && (
-                        <span className={`text-xs sm:text-sm font-bold tracking-wider ${isLightAurelisse ? 'text-[#142412]' : 'text-[#FBF8EE]'} uppercase`}>
+                        <span className={`text-xs sm:text-sm font-bold tracking-wider ${isLightAurelisse ? 'text-[#142412]' : isAshPalatiora ? 'text-slate-900' : 'text-[#FBF8EE]'} uppercase`}>
                           {(slide as any).cupName}
                         </span>
                       )}
                       {(slide as any).price && (
-                        <span className={`text-xs sm:text-sm font-extrabold ${isLightAurelisse ? 'text-[#2e7d32]' : cfg.accentTextClass}`}>
+                        <span className={`text-xs sm:text-sm font-extrabold ${isLightAurelisse ? 'text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800' : cfg.accentTextClass}`}>
                           {(slide as any).price}
                         </span>
                       )}
@@ -2190,7 +2362,9 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       {(slide as any).secondaryBtn || "Explore Blends"}
                     </button>
                   </div>
-                </div>
+                </>
+              )}
+            </div>
 
                 {/* RIGHT COLUMN: Theme-Specific Animated Visual Element */}
                 <div className={
@@ -2203,7 +2377,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   <HeroAnimatedElement
                     themeId={activePresetId}
                     accentColor={cfg.accentColor}
-                    cupImg={(slide as any).cupImg}
+                    cupImg={(slide as any).img || (slide as any).cupImg}
                     cupName={(slide as any).cupName}
                     slideType={(slide as any).type}
                     slideIndex={activeSlide}

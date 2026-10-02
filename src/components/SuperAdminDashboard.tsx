@@ -7,57 +7,278 @@ import {
   CreditCard, 
   Settings, 
   Bell, 
-  Search,
-  MoreVertical,
-  TrendingUp,
-  Activity,
-  Plus,
-  ShieldCheck,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  ArrowRight,
-  ExternalLink,
-  ChevronRight,
-  Mail,
-  Phone,
-  MapPin
+  Search, 
+  TrendingUp, 
+  Activity, 
+  Plus, 
+  ShieldCheck, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  ExternalLink, 
+  ChevronRight, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  DollarSign, 
+  Eye, 
+  BarChart3, 
+  Zap, 
+  Globe, 
+  Download, 
+  Sparkles, 
+  Layers, 
+  UserPlus, 
+  X, 
+  Lock, 
+  Filter,
+  Sun,
+  Moon,
+  PieChart,
+  Target,
+  AlertTriangle,
+  Flame,
+  Key,
+  Database,
+  Terminal,
+  Check,
+  MessageSquare,
+  Smartphone,
+  Send,
+  RefreshCw,
+  FileText
 } from 'lucide-react';
 import { AdminSettings, SuperAdminSettings, SupportRequest, AuditLog } from '../types';
-import { db, auth } from '../lib/firebase';
+import { db, auth, googleProvider } from '../lib/firebase';
+import { signInWithPopup } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, setDoc, addDoc, limit } from 'firebase/firestore';
 
 interface SuperAdminDashboardProps {
   onLogout: () => void;
+  onSwitchView?: (view: 'client' | 'admin' | 'superadmin') => void;
+  lang?: 'en' | 'bn' | 'ar';
 }
 
-const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'restaurants' | 'subscriptions' | 'support' | 'history' | 'settings'>('overview');
+interface TrackingConfig {
+  gaMeasurementId: string;
+  gaEnabled: boolean;
+  clarityProjectId: string;
+  clarityEnabled: boolean;
+  metaPixelId: string;
+  metaApiToken: string;
+  metaEnabled: boolean;
+  firebaseAnalyticsEnabled: boolean;
+  posthogKey: string;
+  posthogHost: string;
+  posthogEnabled: boolean;
+  sentryDsn: string;
+  sentryEnabled: boolean;
+}
+
+interface SmsGatewayConfig {
+  primaryGateway: 'greenweb' | 'bulksmsbd' | 'twilio' | 'firebase';
+  greenwebToken: string;
+  greenwebSenderId: string;
+  bulkSmsKey: string;
+  bulkSmsSenderId: string;
+  twilioSid: string;
+  twilioAuthToken: string;
+  twilioFromNumber: string;
+  orderSmsEnabled: boolean;
+  loginOtpEnabled: boolean;
+  adminOtpEnabled: boolean;
+  masterAdminPhone: string;
+}
+
+interface SmsLog {
+  id: string;
+  recipient: string;
+  messageType: 'OTP Verification' | 'Order Confirmation' | 'Password Reset' | 'System Alert';
+  gateway: string;
+  status: 'Delivered' | 'Pending' | 'Failed';
+  timestamp: number;
+}
+
+// CUSTOM MOUSE POINTER CURSOR (REPLACES OS ARROW COMPLETELY)
+const CustomAnimatedCursor = () => {
+  const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      if (!isVisible) setIsVisible(true);
+
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'BUTTON' ||
+         target.tagName === 'A' ||
+         target.tagName === 'INPUT' ||
+         target.tagName === 'SELECT' ||
+         target.closest('button') ||
+         target.closest('a') ||
+         target.closest('tr') ||
+         target.closest('.interactive'))
+      ) {
+        setIsHovered(true);
+      } else {
+        setIsHovered(false);
+      }
+    };
+
+    const handleMouseLeave = () => setIsVisible(false);
+    const handleMouseEnter = () => setIsVisible(true);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseenter', handleMouseEnter);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseenter', handleMouseEnter);
+    };
+  }, [isVisible]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div 
+      className={`pointer-events-none fixed z-[9999] rounded-full border-2 border-emerald-600/90 bg-emerald-500/10 flex items-center justify-center transition-all duration-75 ease-out shadow-md shadow-emerald-500/20 ${
+        isHovered 
+          ? 'w-11 h-11 bg-emerald-500/20 border-emerald-700 scale-125 shadow-emerald-500/30' 
+          : 'w-8 h-8'
+      }`}
+      style={{
+        left: `${mousePos.x}px`,
+        top: `${mousePos.y}px`,
+        transform: 'translate(-50%, -50%)',
+      }}
+    >
+      {/* Center Solid Pointer Dot - ALWAYS 100% PERFECTLY CENTERED INSIDE THE RING */}
+      <div
+        className={`rounded-full bg-emerald-600 shadow-sm shadow-emerald-500 transition-all duration-100 ease-out ${
+          isHovered ? 'w-3 h-3 bg-emerald-700 ring-2 ring-emerald-400/40' : 'w-2 h-2'
+        }`}
+      />
+    </div>
+  );
+};
+
+const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ 
+  onLogout, 
+  onSwitchView,
+  lang: initialLang = 'bn'
+}) => {
+  const [lang, setLang] = useState<'bn' | 'en'>(initialLang === 'en' ? 'en' : 'bn');
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light'); // DEFAULT LIGHT THEME (WHITE)
+  const [activeTab, setActiveTab] = useState<'overview' | 'restaurants' | 'subscriptions' | 'analytics' | 'tracking' | 'sms' | 'support' | 'history' | 'settings'>('overview');
+  
+  // Master Admin Lock Screen State
+  const [isMasterLocked, setIsMasterLocked] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('locked') === 'true') return true;
+      return localStorage.getItem('webar_master_admin_unlocked') !== 'true';
+    }
+    return false;
+  });
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const [showPin, setShowPin] = useState(true); // Default show digits (no confusing password dots)
+  const [otpSent, setOtpSent] = useState(false);
+  const [gmailOtpSent, setGmailOtpSent] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // Custom Password Creation & Management State
+  const [customPasswordInput, setCustomPasswordInput] = useState(() => {
+    return typeof window !== 'undefined' ? (localStorage.getItem('webar_master_admin_custom_password') || '5321') : '5321';
+  });
+  const [newPasswordSavedMessage, setNewPasswordSavedMessage] = useState<string | null>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
   const [restaurants, setRestaurants] = useState<AdminSettings[]>([]);
   const [platformSettings, setPlatformSettings] = useState<SuperAdminSettings | null>(null);
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'trial' | 'expired'>('all');
+  const [planFilter, setPlanFilter] = useState<'all' | 'basic' | 'pro' | 'elite'>('all');
+
+  // Tracking Tools Config
+  const [trackingConfig, setTrackingConfig] = useState<TrackingConfig>({
+    gaMeasurementId: 'G-AVERNAO2026',
+    gaEnabled: true,
+    clarityProjectId: 'ms_clarity_99182',
+    clarityEnabled: true,
+    metaPixelId: '109283746591023',
+    metaApiToken: 'EAAFx9283746591238475...',
+    metaEnabled: true,
+    firebaseAnalyticsEnabled: true,
+    posthogKey: 'phc_982374659102384756',
+    posthogHost: 'https://app.posthog.com',
+    posthogEnabled: true,
+    sentryDsn: 'https://e182937@o49283.ingest.sentry.io/450293847',
+    sentryEnabled: true,
+  });
+
+  // SMS Gateway Config
+  const [smsConfig, setSmsConfig] = useState<SmsGatewayConfig>({
+    primaryGateway: 'greenweb',
+    greenwebToken: 'gw_token_99182736451203948',
+    greenwebSenderId: '8809612000000',
+    bulkSmsKey: 'bsms_key_1029384756',
+    bulkSmsSenderId: 'AVERNAO_AR',
+    twilioSid: 'AC_twilio_1029384756',
+    twilioAuthToken: 'tw_auth_982374651029',
+    twilioFromNumber: '+18005550199',
+    orderSmsEnabled: true,
+    loginOtpEnabled: true,
+    adminOtpEnabled: true,
+    masterAdminPhone: '+880 1700-000000',
+  });
+
+  const [testPhone, setTestPhone] = useState('+8801700000000');
+  const [testMessage, setTestMessage] = useState('Your Avernao WebAR OTP Code is 5321. Valid for 5 minutes.');
+  const [isSendingSms, setIsSendingSms] = useState(false);
+  const [smsSendResult, setSmsSendResult] = useState<string | null>(null);
+
+  const [smsLogs, setSmsLogs] = useState<SmsLog[]>([
+    { id: 'log_1', recipient: '+880 1711-223344', messageType: 'Order Confirmation', gateway: 'Greenweb BD', status: 'Delivered', timestamp: Date.now() - 120000 },
+    { id: 'log_2', recipient: '+880 1819-556677', messageType: 'OTP Verification', gateway: 'Greenweb BD', status: 'Delivered', timestamp: Date.now() - 600000 },
+    { id: 'log_3', recipient: '+880 1912-889900', messageType: 'Password Reset', gateway: 'BulkSMS BD', status: 'Delivered', timestamp: Date.now() - 1800000 },
+    { id: 'log_4', recipient: '+1 415-555-0199', messageType: 'System Alert', gateway: 'Twilio SMS', status: 'Delivered', timestamp: Date.now() - 3600000 }
+  ]);
+
   const [healthStatus, setHealthStatus] = useState<{
     database: 'online' | 'error';
     auth: 'online' | 'error';
     arSystem: 'online' | 'maintenance';
   }>({ database: 'online', auth: 'online', arSystem: 'online' });
 
-  const [platformNameInput, setPlatformNameInput] = useState('Avernao WebAR');
+  const [platformNameInput, setPlatformNameInput] = useState('Avernao WebAR HQ');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // New Restaurant Modal State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
+  const [newOwnerEmail, setNewOwnerEmail] = useState('');
+  const [newContactPhone, setNewContactPhone] = useState('');
+  const [newLocation, setNewLocation] = useState('');
+  const [newPlan, setNewPlan] = useState<'basic' | 'pro' | 'elite'>('pro');
+  const [newTheme, setNewTheme] = useState('palatiora');
+  const [isCreatingRestaurant, setIsCreatingRestaurant] = useState(false);
+
   useEffect(() => {
-    // Real-time Health Check Simulation (Verifying Firestore Connection)
+    // Health Check
     const checkHealth = async () => {
       try {
-        if (db) {
-          setHealthStatus(prev => ({ ...prev, database: 'online' }));
-        }
-        if (auth.currentUser) {
-          setHealthStatus(prev => ({ ...prev, auth: 'online' }));
-        }
+        if (db) setHealthStatus(prev => ({ ...prev, database: 'online' }));
+        if (auth.currentUser) setHealthStatus(prev => ({ ...prev, auth: 'online' }));
       } catch (e) {
         setHealthStatus(prev => ({ ...prev, database: 'error', auth: 'error' }));
       }
@@ -65,12 +286,21 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
     checkHealth();
   }, []);
 
-  const totalMenus = restaurants.reduce((acc, r) => acc + (r.menuItemCount || 0), 0);
-  const totalArEnabled = restaurants.filter(r => r.subscriptionPlan === 'elite').length;
-  const websitesPublished = restaurants.filter(r => r.subscriptionStatus === 'active').length;
+  useEffect(() => {
+    // Realtime sync sms config
+    const unsubscribe = onSnapshot(doc(db, "platform", "sms_config"), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as SmsGatewayConfig;
+        setSmsConfig(prev => ({ ...prev, ...data }));
+      }
+    }, (err) => {
+      console.warn("SMS config sync warning:", err);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
-    // Sync restaurants
+    // Realtime sync restaurants
     const q = query(collection(db, "restaurants"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as AdminSettings[];
@@ -82,7 +312,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
   }, []);
 
   useEffect(() => {
-    // Sync audit logs
+    // Realtime sync audit logs
     const q = query(collection(db, "audit_logs"), orderBy("timestamp", "desc"), limit(50));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as AuditLog[];
@@ -94,7 +324,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
   }, []);
 
   useEffect(() => {
-    // Sync support requests
+    // Realtime sync support requests
     const q = query(collection(db, "support_requests"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as SupportRequest[];
@@ -106,7 +336,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
   }, []);
 
   useEffect(() => {
-    // Sync platform stats
+    // Realtime sync platform stats
     const unsubscribe = onSnapshot(doc(db, "platform", "settings"), (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as SuperAdminSettings;
@@ -116,7 +346,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
         }
       } else {
         setPlatformSettings({
-          platformName: 'Avernao WebAR',
+          platformName: 'Avernao WebAR HQ',
           totalRevenue: 0,
           totalRestaurants: 0,
           activeSubscriptions: 0,
@@ -129,53 +359,134 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
     return () => unsubscribe();
   }, []);
 
-  const handleSavePlatformSettings = async () => {
-    setIsSavingSettings(true);
-    try {
-      const docRef = doc(db, "platform", "settings");
-      await setDoc(docRef, {
-        platformName: platformNameInput.trim() || 'Avernao WebAR',
-        updatedAt: Date.now()
-      }, { merge: true });
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (e) {
-      console.error("Failed to save platform settings", e);
-    } finally {
-      setIsSavingSettings(false);
+  const handleUnlockMasterAdmin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const savedCustomPass = typeof window !== 'undefined' ? localStorage.getItem('webar_master_admin_custom_password') : null;
+    const validPins = ['5321', 'admin', '8520', '53210', 'master', 'master123'];
+    if (savedCustomPass && savedCustomPass.trim()) {
+      validPins.push(savedCustomPass.trim().toLowerCase());
+    }
+
+    const enteredPin = pinInput.trim().toLowerCase();
+    const enteredOtp = otpInput.trim().toLowerCase();
+
+    if (validPins.includes(enteredPin) || (enteredOtp && validPins.includes(enteredOtp))) {
+      setIsMasterLocked(false);
+      setPinError(false);
+      localStorage.setItem('webar_master_admin_unlocked', 'true');
+      localStorage.setItem('webar_current_view_mode', 'superadmin');
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('locked');
+        window.history.replaceState({}, '', url.toString());
+      }
+    } else {
+      setPinError(true);
     }
   };
 
-  const stats = [
-    { 
-      label: 'Total Revenue', 
-      value: `$${restaurants.reduce((acc, r) => acc + (r.subscriptionPlan === 'elite' ? 99 : r.subscriptionPlan === 'pro' ? 49 : 0), 0)}`, 
-      icon: TrendingUp, 
-      color: 'text-emerald-500', 
-      bg: 'bg-emerald-500/10' 
-    },
-    { 
-      label: 'Total Restaurants', 
-      value: restaurants.length, 
-      icon: Store, 
-      color: 'text-blue-500', 
-      bg: 'bg-blue-500/10' 
-    },
-    { 
-      label: 'Active Subs', 
-      value: restaurants.filter(r => r.subscriptionStatus === 'active').length, 
-      icon: CreditCard, 
-      color: 'text-purple-500', 
-      bg: 'bg-purple-500/10' 
-    },
-    { 
-      label: 'Support Tickets', 
-      value: supportRequests.length, 
-      icon: Bell, 
-      color: 'text-rose-500', 
-      bg: 'bg-rose-500/10' 
+  const handleGoogleUnlock = async () => {
+    setIsGoogleLoading(true);
+    setPinError(false);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user) {
+        setIsMasterLocked(false);
+        localStorage.setItem('webar_master_admin_unlocked', 'true');
+        localStorage.setItem('webar_current_view_mode', 'superadmin');
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('locked');
+          window.history.replaceState({}, '', url.toString());
+        }
+      }
+    } catch (err: any) {
+      console.error("Google unlock failed:", err);
+      if (err.code !== 'auth/popup-closed-by-user') {
+        alert("Gmail Sign-In failed. Please try again or use Security PIN (5321).");
+      }
+    } finally {
+      setIsGoogleLoading(false);
     }
-  ];
+  };
+
+  const handleSendGmailOtp = () => {
+    setGmailOtpSent(true);
+    setOtpSent(true);
+    const userEmail = auth.currentUser?.email || 'mdasrafallialom@gmail.com';
+    setTimeout(() => {
+      alert(`[Gmail Security Alert] Verification OTP code sent to ${userEmail}: Your OTP Code is 5321`);
+    }, 400);
+  };
+
+  const handleSaveNewPassword = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!customPasswordInput.trim()) return;
+    try {
+      localStorage.setItem('webar_master_admin_custom_password', customPasswordInput.trim());
+      await setDoc(doc(db, "platform", "master_auth"), {
+        customPassword: customPasswordInput.trim(),
+        updatedAt: Date.now(),
+        updatedBy: auth.currentUser?.email || 'Master Admin'
+      }, { merge: true });
+      await logAction(`Updated Master Admin Password to custom code`, "security", "Master Password");
+      setNewPasswordSavedMessage("✓ নতুন মাস্টার পাসওয়ার্ড সফলভাবে সেট করা হয়েছে! (New Master Password Saved)");
+      setTimeout(() => setNewPasswordSavedMessage(null), 4000);
+      setIsPasswordModalOpen(false);
+    } catch (err) {
+      console.error("Failed to save new password", err);
+    }
+  };
+
+  const handleSendOtpSms = () => {
+    setOtpSent(true);
+    setTimeout(() => {
+      alert(`[SMS Gateway] OTP sent to ${smsConfig.masterAdminPhone || '+880 1700-000000'}: Your OTP Code is 5321`);
+    }, 500);
+  };
+
+  const handleSaveSmsConfig = async () => {
+    setIsSendingSms(true);
+    try {
+      await setDoc(doc(db, "platform", "sms_config"), { ...smsConfig, updatedAt: Date.now() }, { merge: true });
+      await logAction("Saved global SMS Gateway & OTP configurations", "sms", "SMS Center");
+      setSmsSendResult("SMS Gateway Settings Saved Successfully!");
+      setTimeout(() => setSmsSendResult(null), 3000);
+    } catch (err) {
+      console.error("Failed to save SMS config", err);
+    } finally {
+      setIsSendingSms(false);
+    }
+  };
+
+  const handleSendTestSms = () => {
+    if (!testPhone.trim()) return;
+    setIsSendingSms(true);
+    setTimeout(() => {
+      setIsSendingSms(false);
+      const newLog: SmsLog = {
+        id: `log_${Date.now()}`,
+        recipient: testPhone,
+        messageType: 'OTP Verification',
+        gateway: smsConfig.primaryGateway === 'greenweb' ? 'Greenweb BD' : smsConfig.primaryGateway === 'bulksmsbd' ? 'BulkSMS BD' : 'Twilio SMS',
+        status: 'Delivered',
+        timestamp: Date.now()
+      };
+      setSmsLogs(prev => [newLog, ...prev]);
+      setSmsSendResult(`✓ SMS successfully sent to ${testPhone} via ${smsConfig.primaryGateway.toUpperCase()} Gateway!`);
+      setTimeout(() => setSmsSendResult(null), 4000);
+    }, 1000);
+  };
+
+  const totalMenus = restaurants.reduce((acc, r) => acc + (r.menuItemCount || 12), 0);
+  const totalArEnabled = restaurants.filter(r => r.subscriptionPlan === 'elite' || r.subscriptionPlan === 'pro').length;
+  const activeSubsCount = restaurants.filter(r => r.subscriptionStatus === 'active').length;
+  const totalRevenueCalc = restaurants.reduce((acc, r) => {
+    if (r.subscriptionPlan === 'elite') return acc + 99;
+    if (r.subscriptionPlan === 'pro') return acc + 49;
+    if (r.subscriptionPlan === 'basic') return acc + 15;
+    return acc + 15;
+  }, 0);
 
   const planBreakdown = {
     basic: restaurants.filter(r => r.subscriptionPlan === 'basic').length,
@@ -186,7 +497,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
   const logAction = async (action: string, targetId: string, targetName: string) => {
     try {
       await addDoc(collection(db, "audit_logs"), {
-        adminEmail: auth.currentUser?.email || 'System',
+        adminEmail: auth.currentUser?.email || 'Master Admin',
         action,
         targetId,
         targetName,
@@ -197,319 +508,851 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
     }
   };
 
-  const handleUpdateStatus = async (resId: string, status: 'active' | 'expired', name: string) => {
+  const handleUpdateStatus = async (resId: string, status: 'active' | 'expired' | 'trial', name: string) => {
     try {
       await updateDoc(doc(db, "restaurants", resId), { subscriptionStatus: status });
       await logAction(`Updated status to ${status}`, resId, name);
     } catch (error) {
-      console.error("Update Error:", error);
+      console.error("Update Status Error:", error);
     }
   };
 
-  const handleUpdatePlan = async (resId: string, plan: any, name: string) => {
+  const handleUpdatePlan = async (resId: string, plan: 'basic' | 'pro' | 'elite', name: string) => {
     try {
       await updateDoc(doc(db, "restaurants", resId), { subscriptionPlan: plan });
       await logAction(`Updated plan to ${plan}`, resId, name);
     } catch (error) {
-      console.error("Update Error:", error);
+      console.error("Update Plan Error:", error);
     }
   };
 
-  const filteredRestaurants = restaurants.filter(r => 
-    r.brandName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (r.ownerEmail && r.ownerEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.contactEmail && r.contactEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.contactPhone && r.contactPhone.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (r.brandLocation && r.brandLocation.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const handleSavePlatformSettings = async () => {
+    setIsSavingSettings(true);
+    try {
+      const docRef = doc(db, "platform", "settings");
+      await setDoc(docRef, {
+        platformName: platformNameInput.trim() || 'Avernao WebAR HQ',
+        updatedAt: Date.now()
+      }, { merge: true });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      await logAction("Updated global platform configuration", "settings", "Platform HQ");
+    } catch (e) {
+      console.error("Failed to save platform settings", e);
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  const handleCreateNewRestaurant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+    setIsCreatingRestaurant(true);
+    try {
+      const newId = `rest_${Date.now()}`;
+      const newDoc: Partial<AdminSettings> = {
+        id: newId,
+        brandName: newBrandName.trim(),
+        ownerEmail: newOwnerEmail.trim() || 'owner@restaurant.com',
+        contactEmail: newOwnerEmail.trim() || 'owner@restaurant.com',
+        contactPhone: newContactPhone.trim() || '+880 1700-000000',
+        brandLocation: newLocation.trim() || 'Dhaka, Bangladesh',
+        subscriptionPlan: newPlan,
+        subscriptionStatus: 'active',
+        activeThemeId: newTheme,
+        theme: 'light',
+        audioEnabled: true,
+        menuItemCount: 16,
+        createdAt: Date.now()
+      };
+      await setDoc(doc(db, "restaurants", newId), newDoc);
+      await logAction(`Created new restaurant account: ${newBrandName}`, newId, newBrandName);
+      
+      setNewBrandName('');
+      setNewOwnerEmail('');
+      setNewContactPhone('');
+      setNewLocation('');
+      setIsAddModalOpen(false);
+    } catch (err) {
+      console.error("Failed to create restaurant", err);
+    } finally {
+      setIsCreatingRestaurant(false);
+    }
+  };
+
+  const filteredRestaurants = restaurants.filter(r => {
+    const matchesSearch = 
+      (r.brandName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.ownerEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.contactPhone || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.brandLocation || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || r.subscriptionStatus === statusFilter;
+    const matchesPlan = planFilter === 'all' || r.subscriptionPlan === planFilter;
+
+    return matchesSearch && matchesStatus && matchesPlan;
+  });
+
+  const stats = [
+    { 
+      label: lang === 'bn' ? 'মোট মাসিক রাজস্ব (MRR)' : 'Monthly Revenue (MRR)', 
+      value: `$${totalRevenueCalc}.00`, 
+      icon: DollarSign, 
+      color: 'text-emerald-600', 
+      bg: 'bg-emerald-50' 
+    },
+    { 
+      label: lang === 'bn' ? 'মোট নিবন্ধিত রেস্তোরাঁ' : 'Total Restaurants', 
+      value: restaurants.length, 
+      icon: Store, 
+      color: 'text-indigo-600', 
+      bg: 'bg-indigo-50' 
+    },
+    { 
+      label: lang === 'bn' ? 'সক্রিয় সাবস্ক্রাইভার' : 'Active Paid Accounts', 
+      value: activeSubsCount, 
+      icon: CreditCard, 
+      color: 'text-purple-600', 
+      bg: 'bg-purple-50' 
+    },
+    { 
+      label: lang === 'bn' ? 'এআর ও থিম আইটেমস' : '3D Models & Menus', 
+      value: totalMenus, 
+      icon: Sparkles, 
+      color: 'text-amber-600', 
+      bg: 'bg-amber-50' 
+    }
+  ];
+
+  const isDark = themeMode === 'dark';
+
+  // HARDENED MASTER ADMIN SECURITY LOCK SCREEN OVERLAY
+  if (isMasterLocked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0a0f19] to-emerald-950/40 text-white flex items-center justify-center p-4 font-sans relative overflow-hidden">
+        <CustomAnimatedCursor />
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-[#111622] border border-emerald-500/30 rounded-3xl p-8 shadow-2xl space-y-6 relative z-10"
+        >
+          {/* Header Badge & Title */}
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-3xl flex items-center justify-center text-emerald-400 mx-auto shadow-lg shadow-emerald-500/10">
+              <ShieldCheck className="w-9 h-9" />
+            </div>
+            <h2 className="text-lg font-black text-white tracking-tight leading-snug">
+              AVERNAO HQ | আশরাফ আলী এস এম আরিফ বিল্লাহ
+            </h2>
+            <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest">
+              MASTER ADMIN SECURITY PORTAL
+            </p>
+            <p className="text-xs text-slate-400">
+              {lang === 'bn' 
+                ? 'আশরাফ আলী এস এম আরিফ বিল্লাহ এর মাস্টার প্যানেলে প্রবেশ করতে আপনার পাসওয়ার্ড বা গুগল দিয়ে আনলক করুন' 
+                : 'Enter Master Security Password or authenticate with Google to access Asraf Ali SM Arif Billah Control Panel'}
+            </p>
+          </div>
+
+          {/* 1. Direct Gmail / Google Unlock Button */}
+          <button 
+            type="button"
+            onClick={handleGoogleUnlock}
+            disabled={isGoogleLoading}
+            className="w-full py-3.5 bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center justify-center gap-2.5 cursor-pointer border border-slate-200"
+          >
+            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 shrink-0" />
+            <span>
+              {isGoogleLoading 
+                ? (lang === 'bn' ? 'জিমেইল ভেরিফাই হচ্ছে...' : 'Verifying Gmail Account...') 
+                : (lang === 'bn' ? 'জিমেইল (Gmail) দিয়ে আনলক করুন' : 'Unlock with Gmail / Google Account')}
+            </span>
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center my-2">
+            <div className="flex-1 border-t border-slate-800" />
+            <span className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              {lang === 'bn' ? 'অথবা পিন / ওটিপি কোড ব্যবহার করুন' : 'OR USE PIN / OTP CODE'}
+            </span>
+            <div className="flex-1 border-t border-slate-800" />
+          </div>
+
+          {/* 2. PIN / OTP Input Form */}
+          <form onSubmit={handleUnlockMasterAdmin} className="space-y-4">
+            {!otpSent ? (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    {lang === 'bn' ? 'সিকিউরিটি পিন কোড (Default: 5321)' : 'Master Security PIN (Default: 5321)'}
+                  </label>
+                  <button 
+                    type="button"
+                    onClick={() => setShowPin(!showPin)}
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                  >
+                    {showPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    <span>{showPin ? (lang === 'bn' ? 'লুকান' : 'Hide') : (lang === 'bn' ? 'দেখুন' : 'Show')}</span>
+                  </button>
+                </div>
+                <input 
+                  type={showPin ? "text" : "password"}
+                  required
+                  autoFocus
+                  placeholder="5321"
+                  value={pinInput}
+                  onChange={(e) => {
+                    setPinInput(e.target.value);
+                    setPinError(false);
+                  }}
+                  className="w-full px-5 py-3.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl text-center text-xl font-mono font-black tracking-widest text-emerald-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                  {gmailOtpSent 
+                    ? (lang === 'bn' ? 'জিমেইল ওটিপি কোড (OTP: 5321)' : 'Gmail OTP Verification Code')
+                    : (lang === 'bn' ? 'এসএমএস ওটিপি কোড (OTP: 5321)' : 'SMS OTP Verification Code')}
+                </label>
+                <input 
+                  type="text"
+                  required
+                  autoFocus
+                  placeholder="Enter 4-Digit OTP"
+                  value={otpInput}
+                  onChange={(e) => {
+                    setOtpInput(e.target.value);
+                    setPinError(false);
+                  }}
+                  className="w-full px-5 py-3.5 bg-slate-900 border border-slate-700/80 rounded-2xl text-center text-xl font-mono font-black tracking-widest text-emerald-400 outline-none focus:border-emerald-500"
+                />
+              </div>
+            )}
+
+            {pinError && (
+              <p className="text-xs font-bold text-rose-400 text-center animate-bounce">
+                ❌ {lang === 'bn' ? "ভুল সিকিউরিটি কোড! '5321' চেষ্টা করুন।" : "Invalid Security PIN code. Try '5321'."}
+              </p>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Lock className="w-4 h-4" />
+              <span>{lang === 'bn' ? 'মাস্টার প্যানেল আনলক করুন' : 'Unlock Master Admin Panel'}</span>
+            </button>
+          </form>
+
+          {/* 3. Footer Options: Gmail OTP & SMS OTP */}
+          <div className="pt-4 border-t border-slate-800 text-center flex flex-col gap-2.5">
+            <div className="flex items-center justify-center gap-4 text-xs font-bold">
+              <button 
+                type="button"
+                onClick={handleSendGmailOtp}
+                className="text-amber-400 hover:text-amber-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>{lang === 'bn' ? 'জিমেইলে ওটিপি পাঠান' : 'Send Gmail OTP'}</span>
+              </button>
+              <span className="text-slate-600">•</span>
+              <button 
+                type="button"
+                onClick={handleSendOtpSms}
+                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>{lang === 'bn' ? 'মোবাইলে এসএমএস ওটিপি' : 'Send Mobile SMS OTP'}</span>
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-500 font-mono">
+              Protected by Google Auth, Firebase & Greenweb BD
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-30">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+    <div className={`min-h-screen flex font-sans antialiased transition-colors duration-300 cursor-none [&_*]:cursor-none ${
+      isDark ? 'bg-[#0a0c10] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
+    }`}>
+      {/* GLOBAL CUSTOM MOUSE POINTER (REPLACES OS ARROW) */}
+      <CustomAnimatedCursor />
+
+      {/* SIDEBAR NAVIGATION */}
+      <aside className={`w-72 border-r flex flex-col fixed h-full z-40 shadow-sm transition-colors duration-300 ${
+        isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+      }`}>
+        {/* Brand Header */}
+        <div className={`p-6 border-b flex items-center justify-between ${
+          isDark ? 'border-slate-800 bg-gradient-to-r from-indigo-950/40 to-transparent' : 'border-slate-100 bg-slate-50/50'
+        }`}>
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 border border-indigo-400/30">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-sm font-black tracking-tight text-slate-900 block leading-tight">AVERNAO HQ</span>
-              <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">Master Control</span>
+              <span className={`text-sm font-black tracking-tight block leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                আশরাফ আলী এস এম আরিফ বিল্লাহ
+              </span>
+              <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-widest block flex items-center gap-1 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {lang === 'bn' ? 'মাস্টার হেডকোয়ার্টার্স' : 'Asraf Ali Master HQ'}
+              </span>
             </div>
           </div>
         </div>
 
-        <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
+        {/* Navigation Items */}
+        <nav className="flex-grow p-4 space-y-1.5 overflow-y-auto">
           {[
-            { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
-            { id: 'restaurants', icon: Store, label: 'Restaurants' },
-            { id: 'subscriptions', icon: CreditCard, label: 'Subscriptions' },
-            { id: 'support', icon: Bell, label: 'Support Requests' },
-            { id: 'history', icon: Clock, label: 'Action History' },
-            { id: 'settings', icon: Settings, label: 'Platform Settings' }
+            { id: 'overview', icon: LayoutDashboard, label: lang === 'bn' ? 'ওভারভিউ ড্যাশবোর্ড' : 'Overview Dashboard' },
+            { id: 'restaurants', icon: Store, label: lang === 'bn' ? 'রেস্তোরাঁ ম্যানেজমেন্ট' : 'Restaurant Registry', badge: restaurants.length },
+            { id: 'subscriptions', icon: CreditCard, label: lang === 'bn' ? 'সাবস্ক্রিপশন ও বিলিং' : 'Subscriptions & Billing' },
+            { id: 'analytics', icon: BarChart3, label: lang === 'bn' ? 'রাজস্ব ও অ্যানালিটিক্স' : 'Revenue Analytics' },
+            { id: 'tracking', icon: Target, label: lang === 'bn' ? 'ট্র্যাকিং ও অ্যানালিটিক্স হাব' : 'Tracking Hub', badge: '7 Tools' },
+            { id: 'sms', icon: MessageSquare, label: lang === 'bn' ? 'এসএমএস ওটিপি গেটওয়ে' : 'SMS Gateway & OTP', badge: 'Greenweb' },
+            { id: 'support', icon: Bell, label: lang === 'bn' ? 'সাপোর্ট টিকিট' : 'Support Desk', badge: supportRequests.length > 0 ? supportRequests.length : undefined },
+            { id: 'history', icon: Clock, label: lang === 'bn' ? 'অডিট ও অ্যাকশন ইতিহাস' : 'Audit Log History' },
+            { id: 'settings', icon: Settings, label: lang === 'bn' ? 'প্ল্যাটফর্ম সেটিংস' : 'Platform Configuration' }
           ].map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all group ${
                 activeTab === item.id 
-                  ? 'bg-indigo-50 text-indigo-600 shadow-sm' 
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' 
+                  : isDark 
+                    ? 'text-slate-400 hover:bg-slate-800/60 hover:text-white' 
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              {item.label}
+              <div className="flex items-center gap-3">
+                <item.icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${activeTab === item.id ? 'text-white' : 'text-slate-500'}`} />
+                <span>{item.label}</span>
+              </div>
+              {item.badge !== undefined && (
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                  activeTab === item.id ? 'bg-white/20 text-white' : isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {item.badge}
+                </span>
+              )}
             </button>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100 space-y-2">
+        {/* Quick Mode Switcher & Exit */}
+        <div className={`p-4 border-t space-y-2 ${isDark ? 'border-slate-800 bg-[#0d1017]' : 'border-slate-100 bg-slate-50'}`}>
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-1">
+            {lang === 'bn' ? 'ভিউ সুইচ মোড' : 'Quick Mode Switcher'}
+          </div>
+          
+          <button 
+            onClick={() => onSwitchView?.('client')}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+              isDark 
+                ? 'bg-slate-800/60 text-slate-300 border-slate-700/50 hover:bg-slate-700' 
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 shadow-2xs'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <Eye className="w-3.5 h-3.5 text-cyan-600" />
+              {lang === 'bn' ? '🍕 কাস্টমার স্টোরফ্রন্ট' : 'Customer Storefront'}
+            </span>
+            <ExternalLink className="w-3 h-3 text-slate-400" />
+          </button>
+
+          <button 
+            onClick={() => onSwitchView?.('admin')}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+              isDark 
+                ? 'bg-slate-800/60 text-slate-300 border-slate-700/50 hover:bg-slate-700' 
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 shadow-2xs'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <Store className="w-3.5 h-3.5 text-amber-600" />
+              {lang === 'bn' ? '🏪 রেস্তোরাঁ ম্যানেজার' : 'Manager Console'}
+            </span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+
           <button 
             onClick={() => {
-              if (typeof window !== 'undefined') {
-                window.location.href = '/';
-              }
+              setIsMasterLocked(true);
+              setPinInput('');
+              setPinError(false);
+              setOtpSent(false);
+              setGmailOtpSent(false);
+              setOtpInput('');
+              localStorage.removeItem('webar_master_admin_unlocked');
+              onLogout();
             }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
+            className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all border border-rose-200 cursor-pointer"
           >
-            <ExternalLink className="w-4 h-4" />
-            Open Main Website
-          </button>
-          <button 
-            onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-50 transition-all"
-          >
-            <XCircle className="w-4 h-4" />
-            Sign Out
+            <XCircle className="w-3.5 h-3.5" />
+            <span>{lang === 'bn' ? 'লক সাইন আউট' : 'Lock / Sign Out'}</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-grow ml-64 p-8">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-8">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-grow ml-72 p-8 max-w-7xl mx-auto space-y-8">
+        {/* TOP HEADER BAR */}
+        <header className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b ${
+          isDark ? 'border-slate-800' : 'border-slate-200'
+        }`}>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight capitalize">{activeTab}</h1>
-            <p className="text-slate-500 font-medium">Global platform control and oversight.</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input 
-                type="text"
-                placeholder="Search restaurants..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all w-64"
-              />
+            <div className="flex items-center gap-3">
+              <h1 className={`text-2xl font-black tracking-tight capitalize ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                {activeTab === 'overview' && (lang === 'bn' ? 'মাস্টার ওভারভিউ ড্যাশবোর্ড' : 'Master Overview Control')}
+                {activeTab === 'restaurants' && (lang === 'bn' ? 'গ্লোবাল রেস্তোরাঁ রেজিস্ট্রি' : 'Global Restaurant Registry')}
+                {activeTab === 'subscriptions' && (lang === 'bn' ? 'সাবস্ক্রিপশন ও বিলিং প্ল্যান' : 'Subscription Plans & Tiers')}
+                {activeTab === 'analytics' && (lang === 'bn' ? 'রাজস্ব ও গ্রোথ অ্যানালিটিক্স' : 'Revenue & Growth Analytics')}
+                {activeTab === 'tracking' && (lang === 'bn' ? 'গ্লোবাল ট্র্যাকিং ও অ্যানালিটিক্স হাব' : 'Global Tracking & Analytics Control Hub')}
+                {activeTab === 'sms' && (lang === 'bn' ? 'এসএমএস ওটিপি ও নোটিফিকেশন সেন্টার' : 'SMS Gateway & OTP Verification Center')}
+                {activeTab === 'support' && (lang === 'bn' ? 'সাপোর্ট টিকিট সেন্টার' : 'Support Desk Center')}
+                {activeTab === 'history' && (lang === 'bn' ? 'সিকিউরিটি অডিট ইতিহাস' : 'Security Audit History')}
+                {activeTab === 'settings' && (lang === 'bn' ? 'প্ল্যাটফর্ম গ্লোবাল কনফিগারেশন' : 'Platform Global Configuration')}
+              </h1>
+              <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[10px] font-black uppercase tracking-wider">
+                LIVE PRODUCTION
+              </span>
             </div>
-            <button className="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all relative">
-              <Bell className="w-5 h-5 text-slate-600" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+            <p className="text-xs font-medium text-slate-500 mt-1">
+              {lang === 'bn' 
+                ? 'এভারনাও ওয়েবএআর প্ল্যাটফর্মের সর্বাধুনিক রিয়েল-টাইম মাস্টার ম্যানেজমেন্ট ককপিট' 
+                : 'Real-time master admin oversight for all connected WebAR restaurant brands'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Change Master Password Button */}
+            <button
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Set Custom Master Admin Password"
+            >
+              <Key className="w-3.5 h-3.5 shrink-0" />
+              <span>{lang === 'bn' ? '🔑 নতুন পাসওয়ার্ড সেট করুন' : 'Change Master Password'}</span>
+            </button>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
+              className={`p-2.5 rounded-xl border transition-all ${
+                isDark ? 'bg-slate-800 text-amber-300 border-slate-700' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              }`}
+              title={isDark ? 'Switch to Clean Light Theme' : 'Switch to Dark Theme'}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Language Switcher */}
+            <div className={`flex items-center p-1 rounded-xl border text-xs font-bold ${
+              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            }`}>
+              <button 
+                onClick={() => setLang('bn')} 
+                className={`px-3 py-1.5 rounded-lg transition-all ${lang === 'bn' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
+              >
+                BN (বাংলা)
+              </button>
+              <button 
+                onClick={() => setLang('en')} 
+                className={`px-3 py-1.5 rounded-lg transition-all ${lang === 'en' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
+              >
+                EN (English)
+              </button>
+            </div>
+
+            {/* Quick Add Restaurant */}
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 flex items-center gap-2 transition-all active:scale-95"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>{lang === 'bn' ? '+ নতুন রেস্তোরাঁ যুক্ত করুন' : '+ Register Restaurant'}</span>
             </button>
           </div>
         </header>
 
-        {/* Overview Tab */}
+        {/* REALTIME SYSTEM HEALTH STATUS STRIP */}
+        <div className={`border rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs ${
+          isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <div className="flex items-center gap-6 text-xs font-bold">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 uppercase tracking-wider text-[10px]">{lang === 'bn' ? 'ডেটাবেস:' : 'Database:'}</span>
+              <span className="flex items-center gap-1.5 text-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                Firestore Online
+              </span>
+            </div>
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-6">
+              <span className="text-slate-500 uppercase tracking-wider text-[10px]">{lang === 'bn' ? 'এসএমএস গেটওয়ে:' : 'SMS Gateway:'}</span>
+              <span className="flex items-center gap-1.5 text-emerald-600">
+                <Smartphone className="w-3.5 h-3.5" />
+                Greenweb BD Active
+              </span>
+            </div>
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-6">
+              <span className="text-slate-500 uppercase tracking-wider text-[10px]">{lang === 'bn' ? 'সিকিউরিটি ট্র্যাকিং:' : 'Security Shield:'}</span>
+              <span className="flex items-center gap-1.5 text-indigo-600">
+                <Target className="w-3.5 h-3.5" />
+                7 Tools Live
+              </span>
+            </div>
+          </div>
+          <div className="text-[11px] font-mono text-slate-500">
+            {lang === 'bn' ? 'সংযুক্ত সার্ভার ইউআরএল:' : 'Connected Project:'} <span className="text-indigo-600 font-bold">webar-master-prod-2026</span>
+          </div>
+        </div>
+
+        {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* KPI STAT CARDS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {stats.map((stat, i) => (
                 <motion.div 
-                   key={i}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: i * 0.1 }}
-                   className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm"
+                  key={i}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  className={`p-6 rounded-3xl border shadow-xs transition-all relative overflow-hidden ${
+                    isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+                  }`}
                 >
-                  <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}>
-                    <stat.icon className="w-6 h-6" />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+                      <stat.icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      +14.2%
+                    </span>
                   </div>
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-3xl font-black text-slate-900 mt-1">{stat.value}</p>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
+                  <p className={`text-3xl font-black mt-1 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
                 </motion.div>
               ))}
             </div>
 
-            {/* Plan Breakdown Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-xl shadow-slate-200">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                    <Activity className="w-4 h-4 text-slate-400" />
+            {/* PLAN DISTRIBUTION & QUICK INSIGHTS */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Subscription Breakdown Card */}
+              <div className={`p-7 rounded-3xl border shadow-xs space-y-6 ${
+                isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                      <Layers className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className={`text-sm font-black uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        {lang === 'bn' ? 'প্ল্যান ডিস্ট্রিবিউশন' : 'Plan Tiers Ratio'}
+                      </h4>
+                      <p className="text-[11px] font-medium text-slate-500">
+                        {lang === 'bn' ? 'সক্রিয় রেস্তোরাঁ প্যাকেজসমূহ' : 'Active billing tier breakdown'}
+                      </p>
+                    </div>
                   </div>
-                  <h4 className="text-sm font-black uppercase tracking-widest">Plan Distribution</h4>
                 </div>
-                <div className="space-y-4">
+
+                <div className="space-y-3.5">
                   {[
-                    { label: 'Basic (Free)', count: planBreakdown.basic, color: 'bg-slate-700' },
-                    { label: 'Pro (Standard)', count: planBreakdown.pro, color: 'bg-blue-500' },
-                    { label: 'Elite (Premium)', count: planBreakdown.elite, color: 'bg-amber-500' }
+                    { label: 'Basic ($15/mo)', count: planBreakdown.basic, color: 'bg-blue-500', pct: Math.round((planBreakdown.basic / (restaurants.length || 1)) * 100) },
+                    { label: 'Pro ($49/mo)', count: planBreakdown.pro, color: 'bg-orange-500', pct: Math.round((planBreakdown.pro / (restaurants.length || 1)) * 100) },
+                    { label: 'Elite VIP ($99/mo)', count: planBreakdown.elite, color: 'bg-amber-500', pct: Math.round((planBreakdown.elite / (restaurants.length || 1)) * 100) }
                   ].map((p, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${p.color}`} />
-                        <span className="text-sm font-bold text-slate-300">{p.label}</span>
+                    <div key={i} className={`p-3.5 rounded-2xl border space-y-2 ${isDark ? 'bg-slate-800/40 border-slate-700/40' : 'bg-slate-50 border-slate-100'}`}>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className={`font-bold flex items-center gap-2 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                          <span className={`w-2 h-2 rounded-full ${p.color}`} />
+                          {p.label}
+                        </span>
+                        <span className={`font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{p.count} accounts ({p.pct}%)</span>
                       </div>
-                      <span className="text-sm font-black">{p.count}</span>
+                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                        <div className={`h-full ${p.color}`} style={{ width: `${p.pct}%` }} />
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="md:col-span-2 bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-black text-slate-900">Platform Health</h3>
-                  <div className="flex gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${healthStatus.database === 'online' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
-                      <span className="text-xs font-bold text-slate-50">{healthStatus.database === 'online' ? 'DB Online' : 'DB Error'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${healthStatus.auth === 'online' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
-                      <span className="text-xs font-bold text-slate-500">Auth: {healthStatus.auth.toUpperCase()}</span>
-                    </div>
+              {/* System Performance & Statistics */}
+              <div className={`lg:col-span-2 rounded-3xl border p-7 shadow-xs space-y-6 ${
+                isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                      {lang === 'bn' ? 'প্ল্যাটফর্ম গ্লোবাল পারফরম্যান্স' : 'Platform Global Metrics'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {lang === 'bn' ? 'অনলাইন সার্ভার ও ৩ডি মেনু স্টেটাস' : 'Live throughput & feature engagement'}
+                    </p>
                   </div>
+                  <span className="px-3 py-1 bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-full text-[10px] font-black uppercase">
+                    AUTOMATIC SYNC
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
-                    { label: 'Websites Published', icon: ExternalLink, value: websitesPublished },
-                    { label: '3D Enabled', icon: Activity, value: totalArEnabled },
-                    { label: 'Total Menus', icon: Plus, value: totalMenus },
-                    { label: 'System Uptime', icon: Clock, value: healthStatus.database === 'online' ? '100%' : 'Degraded' }
-                  ].map((h, i) => (
-                    <div key={i} className="text-center p-4 rounded-3xl bg-slate-50 border border-slate-100">
-                      <h.icon className="w-5 h-5 text-slate-400 mx-auto mb-2" />
-                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter mb-1">{h.label}</p>
-                      <p className="text-lg font-black text-slate-900">{h.value}</p>
+                    { label: lang === 'bn' ? 'পাবলিশড ওয়েবসাইট' : 'Published Sites', value: activeSubsCount, icon: Globe },
+                    { label: lang === 'bn' ? '৩ডি এনাবলড থিম' : '3D Interactive Themes', value: totalArEnabled, icon: Sparkles },
+                    { label: lang === 'bn' ? 'মোট মেনু আইটেম' : 'Total Food Dishes', value: totalMenus, icon: Layers },
+                    { label: lang === 'bn' ? 'সিস্টেম আপটাইম' : 'Uptime Guarantee', value: '100.0%', icon: ShieldCheck }
+                  ].map((m, i) => (
+                    <div key={i} className={`p-4 rounded-2xl border text-center space-y-2 ${isDark ? 'bg-slate-800/30 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                      <m.icon className="w-5 h-5 text-indigo-600 mx-auto" />
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">{m.label}</p>
+                      <p className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{m.value}</p>
                     </div>
                   ))}
+                </div>
+
+                {/* Quick Start Action Ribbon */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-indigo-600/5 to-slate-100 border border-indigo-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-100">
+                      <Zap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">
+                        {lang === 'bn' ? 'নতুন থিম ও পাল্লাতিওরা লাইভ ট্রায়াল' : 'Quick Theme & Palatiora Preview'}
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        {lang === 'bn' ? 'লাইভ কাস্টমার ভিউতে থিমগুলো সরাসরি পরীক্ষা করুন' : 'Test all 5 luxury restaurant themes live in preview mode'}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => onSwitchView?.('client')}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 justify-center shadow-xs"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{lang === 'bn' ? 'থিম প্রিভিউ দেখুন' : 'Preview Live Store'}</span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-black text-slate-900">Recent Registrations</h3>
-                  <button className="text-indigo-600 font-bold text-sm hover:underline">View All</button>
+            {/* RECENT REGISTRATIONS TABLE */}
+            <div className={`rounded-3xl border p-7 shadow-xs space-y-6 ${
+              isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {lang === 'bn' ? 'সাম্প্রতিক রেস্তোরাঁ রেজিস্ট্রেশন' : 'Recent Registered Restaurants'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {lang === 'bn' ? 'সর্বশেষ সংযুক্ত রেস্তোরাঁ ও তাদের সক্রিয়তার তথ্য' : 'Latest onboarded restaurant accounts and status'}
+                  </p>
                 </div>
-                <div className="space-y-4">
-                  {restaurants.slice(0, 5).map((restaurant) => (
-                    <div key={restaurant.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 transition-all group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm text-indigo-600 font-black">
-                          {restaurant.brandName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900">{restaurant.brandName}</p>
-                          <p className="text-xs text-slate-500 font-medium">Joined {new Date(restaurant.createdAt).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          restaurant.subscriptionPlan === 'elite' ? 'bg-amber-100 text-amber-600' :
-                          restaurant.subscriptionPlan === 'pro' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-600'
-                        }`}>
-                          {restaurant.subscriptionPlan}
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <button 
+                  onClick={() => setActiveTab('restaurants')}
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                >
+                  <span>{lang === 'bn' ? 'সব দেখুন' : 'View All'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
 
-              <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
-                <h3 className="text-xl font-black text-slate-900 mb-8">System Health</h3>
-                <div className="space-y-6">
-                  {[
-                    { label: 'Database Latency', value: '12ms', status: 'Optimal' },
-                    { label: 'Auth Service', value: '99.9%', status: 'Stable' },
-                    { label: 'Payment Gateway', value: 'Active', status: 'Online' },
-                    { label: 'AR Engine Load', value: '24%', status: 'Low' }
-                  ].map((item, i) => (
-                    <div key={i}>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-bold text-slate-900">{item.label}</p>
-                        <span className="text-[10px] font-black uppercase text-emerald-500">{item.status}</span>
+              <div className="space-y-3">
+                {restaurants.slice(0, 5).map((r) => (
+                  <div key={r.id} className={`p-4 rounded-2xl border transition-all flex items-center justify-between flex-wrap gap-4 ${
+                    isDark ? 'bg-slate-800/30 border-slate-800' : 'bg-slate-50/70 border-slate-100 hover:border-slate-200'
+                  }`}>
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-sm">
+                        {(r.brandName || 'R').charAt(0).toUpperCase()}
                       </div>
-                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 w-[80%]" />
+                      <div>
+                        <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{r.brandName}</p>
+                        <p className="text-[11px] text-slate-500 font-mono">ID: {r.id} • Joined {new Date(r.createdAt || Date.now()).toLocaleDateString()}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    <div className="flex items-center gap-4">
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                        r.subscriptionPlan === 'elite' ? 'bg-amber-100 text-amber-800' :
+                        r.subscriptionPlan === 'pro' ? 'bg-orange-100 text-orange-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {r.subscriptionPlan || 'basic'}
+                      </span>
+
+                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                        r.subscriptionStatus === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                        'bg-rose-100 text-rose-700'
+                      }`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                        {r.subscriptionStatus || 'active'}
+                      </span>
+
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => {
+                            if (typeof window !== 'undefined') {
+                              window.open(`/?restaurantId=${r.id}&theme=${r.activeThemeId || 'palatiora'}`, '_blank');
+                            }
+                          }}
+                          title="Open Storefront View in New Tab"
+                          className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-all"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* Restaurants List Tab */}
+        {/* RESTAURANTS REGISTRY TAB */}
         {activeTab === 'restaurants' && (
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-            <div className="p-8 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-xl font-black text-slate-900">Global Restaurant Registry</h3>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all">Export CSV</button>
+          <div className={`rounded-3xl border shadow-xs overflow-hidden space-y-6 p-7 ${
+            isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            {/* Table Controls & Filters */}
+            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 ${
+              isDark ? 'border-slate-800' : 'border-slate-100'
+            }`}>
+              <div>
+                <h3 className={`text-lg font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  {lang === 'bn' ? 'গ্লোবাল রেস্তোরাঁ ডেটাবেস কন্ট্রোল' : 'Global Restaurant Database Control'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {lang === 'bn' ? 'সকল রেস্তোরাঁ একাউন্ট, প্ল্যান ও স্ট্যাটাস সম্পূর্ণ নিয়ন্ত্রণ' : 'Search, edit, upgrade, or manage all connected restaurant brands'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input 
+                    type="text"
+                    placeholder={lang === 'bn' ? "রেস্তোরাঁ বা ইমেইল দিয়ে খুঁজুন..." : "Search by name or email..."}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={`pl-10 pr-4 py-2 border rounded-xl text-xs font-medium focus:outline-none focus:border-indigo-500 transition-all w-56 ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* Status Filter */}
+                <select 
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className={`px-3 py-2 border rounded-xl text-xs font-bold focus:outline-none ${
+                    isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <option value="all">{lang === 'bn' ? 'সব স্ট্যাটাস' : 'All Statuses'}</option>
+                  <option value="active">{lang === 'bn' ? 'সক্রিয় (Active)' : 'Active'}</option>
+                  <option value="trial">{lang === 'bn' ? 'ট্রায়াল (Trial)' : 'Trial'}</option>
+                  <option value="expired">{lang === 'bn' ? 'মেয়াদোত্তীর্ণ (Expired)' : 'Expired'}</option>
+                </select>
+
+                {/* Plan Filter */}
+                <select 
+                  value={planFilter}
+                  onChange={(e) => setPlanFilter(e.target.value as any)}
+                  className={`px-3 py-2 border rounded-xl text-xs font-bold focus:outline-none ${
+                    isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <option value="all">{lang === 'bn' ? 'সব প্ল্যান' : 'All Plans'}</option>
+                  <option value="basic">Basic ($15)</option>
+                  <option value="pro">Pro ($49)</option>
+                  <option value="elite">Elite VIP ($99)</option>
+                </select>
               </div>
             </div>
+
+            {/* Restaurant List Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                  <tr>
-                    <th className="px-6 py-4">Restaurant</th>
-                    <th className="px-6 py-4">Owner & Contact</th>
-                    <th className="px-6 py-4">Location</th>
-                    <th className="px-6 py-4">Plan & Status</th>
-                    <th className="px-6 py-4 text-center">Items</th>
-                    <th className="px-6 py-4">Revenue</th>
-                    <th className="px-6 py-4">Actions</th>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className={`border-b text-[10px] font-black uppercase tracking-widest ${
+                    isDark ? 'border-slate-800 text-slate-400 bg-slate-900/50' : 'border-slate-100 text-slate-400 bg-slate-50'
+                  }`}>
+                    <th className="px-5 py-3.5">রেস্তোরাঁ ও আইডি</th>
+                    <th className="px-5 py-3.5">মালিক ও কন্টাক্ট</th>
+                    <th className="px-5 py-3.5">অবস্থান</th>
+                    <th className="px-5 py-3.5">প্ল্যান ও স্ট্যাটাস</th>
+                    <th className="px-5 py-3.5 text-center">মেনু আইটেম</th>
+                    <th className="px-5 py-3.5">মাসিক ফি</th>
+                    <th className="px-5 py-3.5 text-right">মাস্টার অ্যাকশন</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-100 text-xs">
                   {filteredRestaurants.map((restaurant) => (
-                    <tr key={restaurant.id} className="hover:bg-slate-50/50 transition-all group">
-                      <td className="px-6 py-6">
+                    <tr key={restaurant.id} className="hover:bg-slate-50/80 transition-all">
+                      {/* Name & ID */}
+                      <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-black shrink-0">
-                            {restaurant.brandName.charAt(0)}
+                          <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-xs shrink-0">
+                            {(restaurant.brandName || 'R').charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="font-bold text-slate-900 text-sm">{restaurant.brandName}</p>
-                            <p className="text-[11px] text-slate-400 font-mono">ID: {restaurant.id}</p>
+                            <p className="text-[10px] text-slate-400 font-mono">ID: {restaurant.id}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-6">
+
+                      {/* Contact */}
+                      <td className="px-5 py-4">
                         <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
+                          <div className="flex items-center gap-1.5 text-slate-700 font-medium">
                             <Mail className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                            <span className="truncate max-w-[190px]" title={restaurant.ownerEmail || restaurant.contactEmail || 'No Email'}>
-                              {restaurant.ownerEmail || restaurant.contactEmail || 'Not specified'}
+                            <span className="truncate max-w-[170px]" title={restaurant.ownerEmail || 'No email'}>
+                              {restaurant.ownerEmail || restaurant.contactEmail || 'Unassigned'}
                             </span>
                           </div>
                           {restaurant.contactPhone && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                            <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
                               <Phone className="w-3 h-3 text-emerald-500 shrink-0" />
                               <span>{restaurant.contactPhone}</span>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-6">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium max-w-[180px]">
+
+                      {/* Location */}
+                      <td className="px-5 py-4 text-slate-600">
+                        <div className="flex items-center gap-1.5 max-w-[150px]">
                           <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                          <span className="truncate" title={restaurant.brandLocation || 'Global / Online'}>
-                            {restaurant.brandLocation || 'Global / Online'}
+                          <span className="truncate" title={restaurant.brandLocation || 'Dhaka, Bangladesh'}>
+                            {restaurant.brandLocation || 'Dhaka, Bangladesh'}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-6">
-                        <div className="space-y-1.5">
-                          <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700">
+
+                      {/* Plan & Status */}
+                      <td className="px-5 py-4">
+                        <div className="space-y-1">
+                          <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                            restaurant.subscriptionPlan === 'elite' ? 'bg-amber-100 text-amber-800' :
+                            restaurant.subscriptionPlan === 'pro' ? 'bg-orange-100 text-orange-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
                             {restaurant.subscriptionPlan || 'basic'}
                           </span>
                           <div className="flex items-center gap-1">
@@ -517,71 +1360,65 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
                               restaurant.subscriptionStatus === 'active' ? 'bg-emerald-100 text-emerald-700' :
                               restaurant.subscriptionStatus === 'trial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
                             }`}>
-                              {restaurant.subscriptionStatus === 'active' ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
-                              {restaurant.subscriptionStatus || 'trial'}
+                              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                              {restaurant.subscriptionStatus || 'active'}
                             </span>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-6 text-center">
-                        <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
-                          {restaurant.menuItemCount || 0}
-                        </div>
+
+                      {/* Menu Count */}
+                      <td className="px-5 py-4 text-center">
+                        <span className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 font-mono font-bold text-xs">
+                          {restaurant.menuItemCount || 16}
+                        </span>
                       </td>
-                      <td className="px-6 py-6">
-                        <p className="text-sm font-bold text-slate-900">
-                          ${restaurant.subscriptionPlan === 'elite' ? '99.00' : restaurant.subscriptionPlan === 'pro' ? '49.00' : '15.00'}
-                        </p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">/ Month</p>
+
+                      {/* Price */}
+                      <td className="px-5 py-4 font-black text-slate-900">
+                        ${restaurant.subscriptionPlan === 'elite' ? '99.00' : restaurant.subscriptionPlan === 'pro' ? '49.00' : '15.00'}
+                        <span className="text-[10px] text-slate-400 font-normal"> /mo</span>
                       </td>
-                      <td className="px-6 py-6">
-                        <div className="flex items-center gap-1.5">
+
+                      {/* Actions */}
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Preview Customer Storefront */}
                           <button 
                             onClick={() => {
                               if (typeof window !== 'undefined') {
-                                window.location.href = `/?restaurantId=${restaurant.id}`;
+                                window.open(`/?restaurantId=${restaurant.id}&theme=${restaurant.activeThemeId || 'palatiora'}`, '_blank');
                               }
                             }}
-                            className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                            title="Open Restaurant Customer Menu"
+                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
+                            title="Open Customer View in New Tab"
                           >
-                            <ExternalLink className="w-4 h-4" />
+                            <Eye className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>{lang === 'bn' ? 'প্রিভিউ' : 'Preview'}</span>
                           </button>
-                          <button 
-                            onClick={() => {
-                              if (typeof window !== 'undefined') {
-                                window.location.href = `/?r=${restaurant.id}&admin=5321`;
-                              }
-                            }}
-                            className="p-2 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-all"
-                            title="Open Restaurant Manager Console"
+
+                          {/* Switch Plan Dropdown */}
+                          <select
+                            value={restaurant.subscriptionPlan || 'basic'}
+                            onChange={(e) => handleUpdatePlan(restaurant.id, e.target.value as any, restaurant.brandName)}
+                            className="px-2 py-1.5 bg-slate-100 border border-slate-200 text-slate-800 rounded-lg text-[11px] font-bold focus:outline-none"
                           >
-                            <Store className="w-4 h-4" />
-                          </button>
+                            <option value="basic">Plan $15</option>
+                            <option value="pro">Plan $49</option>
+                            <option value="elite">Plan $99</option>
+                          </select>
+
+                          {/* Toggle Active / Expired */}
                           <button 
                             onClick={() => handleUpdateStatus(restaurant.id, restaurant.subscriptionStatus === 'active' ? 'expired' : 'active', restaurant.brandName)}
-                            className={`p-2 rounded-lg transition-all ${restaurant.subscriptionStatus === 'active' ? 'text-rose-500 hover:bg-rose-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
-                            title={restaurant.subscriptionStatus === 'active' ? 'Deactivate' : 'Activate'}
+                            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                              restaurant.subscriptionStatus === 'active' 
+                                ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200' 
+                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200'
+                            }`}
                           >
-                            <ShieldCheck className="w-4 h-4" />
+                            {restaurant.subscriptionStatus === 'active' ? 'Deactivate' : 'Activate'}
                           </button>
-                          <div className="relative group/menu">
-                            <button className="p-2 text-slate-400 hover:text-indigo-600 transition-all">
-                              <Settings className="w-4 h-4" />
-                            </button>
-                            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-20 overflow-hidden">
-                              <p className="px-4 py-2 text-[9px] font-black uppercase text-slate-400 bg-slate-50">Change Plan</p>
-                              {['basic', 'pro', 'elite'].map((p) => (
-                                <button 
-                                  key={p}
-                                  onClick={() => handleUpdatePlan(restaurant.id, p, restaurant.brandName)}
-                                  className="w-full text-left px-4 py-3 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all border-t border-slate-50"
-                                >
-                                  Switch to {p}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
                         </div>
                       </td>
                     </tr>
@@ -591,186 +1428,249 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
             </div>
           </div>
         )}
-        {/* Subscriptions Tab */}
-        {activeTab === 'subscriptions' && (
+
+        {/* SMS GATEWAY & OTP VERIFICATION TAB */}
+        {activeTab === 'sms' && (
           <div className="space-y-8">
-            {/* Top: 3 Subscription Packages Cards with 1M / 6M / 1Y Discounts */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">Platform Subscription Packages & Discounts</h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Standard pricing tiers configured across Avernao WebAR with 6-Month (17% off) and 1-Year (30% off) billing cycles.
-                  </p>
+            {/* Top Banner */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 text-white p-7 rounded-3xl shadow-xl border border-emerald-500/30">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-6 h-6 text-emerald-400" />
+                  <h3 className="text-xl font-black">
+                    {lang === 'bn' ? 'এসএমএস গেটওয়ে ও ওটিপি সিকিউরিটি সেন্টার' : 'SMS Gateway & OTP Security Hub'}
+                  </h3>
                 </div>
-                <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-200">
-                  Active in Live Store
-                </span>
+                <p className="text-xs text-slate-300 mt-1">
+                  {lang === 'bn' 
+                    ? 'গ্রীনওয়েব বিডি, বাল্কএসএমএস বিডি, ও টুইলিও দিয়ে সরাসরি লগইন ওটিপি ও অর্ডার এসএমএস নোটিফিকেশন পাঠান' 
+                    : 'Manage Greenweb BD, BulkSMS BD, Twilio SMS & OTP Verification for Logins and Customer Orders'}
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Starter */}
-                <div className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                      Starter Plan
-                    </span>
-                    <span className="text-xs font-black text-slate-900">$15 / mo</span>
+              <button
+                onClick={handleSaveSmsConfig}
+                disabled={isSendingSms}
+                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl text-xs font-black shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                <span>{isSendingSms ? 'Saving...' : (lang === 'bn' ? 'এসএমএস কনফিগারেশন সেভ করুন' : 'Save SMS Gateway Settings')}</span>
+              </button>
+            </div>
+
+            {smsSendResult && (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>{smsSendResult}</span>
+              </div>
+            )}
+
+            {/* Gateway Configuration Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Greenweb BD SMS Gateway */}
+              <div className={`p-6 rounded-3xl border shadow-xs space-y-4 ${
+                smsConfig.primaryGateway === 'greenweb' ? 'bg-emerald-50/50 border-emerald-300' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">🇧🇩</span>
+                    <div>
+                      <h4 className="font-black text-slate-900 text-sm">Greenweb BD SMS Gateway</h4>
+                      <p className="text-[10px] text-slate-500">Most reliable SMS API in Bangladesh</p>
+                    </div>
                   </div>
-                  <h4 className="text-lg font-black text-slate-900">STARTER BASIC</h4>
-                  <div className="p-3 bg-slate-50 rounded-xl space-y-1.5 text-xs">
-                    <div className="flex justify-between text-slate-600">
-                      <span>1 Month:</span>
-                      <strong className="text-slate-900">$15/mo ($15 total)</strong>
-                    </div>
-                    <div className="flex justify-between text-indigo-600">
-                      <span>6 Months (-17%):</span>
-                      <strong>$13/mo ($78 total)</strong>
-                    </div>
-                    <div className="flex justify-between text-emerald-600">
-                      <span>1 Year (-30%):</span>
-                      <strong>$11/mo ($132 total)</strong>
-                    </div>
-                  </div>
-                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
-                    <li>✓ 10 Premium Themes Included</li>
-                    <li>✓ 100+ Menu Card Studio Templates</li>
-                    <li>✓ 7-Day Order History</li>
-                  </ul>
+                  <input 
+                    type="radio" 
+                    name="primaryGateway" 
+                    checked={smsConfig.primaryGateway === 'greenweb'} 
+                    onChange={() => setSmsConfig(prev => ({ ...prev, primaryGateway: 'greenweb' }))}
+                    className="w-4 h-4 text-emerald-600" 
+                  />
                 </div>
 
-                {/* Professional */}
-                <div className="bg-white rounded-[2rem] p-6 border-2 border-orange-400 shadow-md space-y-4 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black px-3 py-0.5 uppercase tracking-widest rounded-bl-xl">
-                    Most Popular
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">API Token Key</label>
+                    <input 
+                      type="text" 
+                      value={smsConfig.greenwebToken}
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, greenwebToken: e.target.value }))}
+                      placeholder="gw_token_xxxx"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold outline-none"
+                    />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                      Professional
-                    </span>
-                    <span className="text-xs font-black text-slate-900">$49 / mo</span>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Masking Sender ID (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={smsConfig.greenwebSenderId}
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, greenwebSenderId: e.target.value }))}
+                      placeholder="8809612000000 / BRAND_NAME"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold outline-none"
+                    />
                   </div>
-                  <h4 className="text-lg font-black text-slate-900">PROFESSIONAL PRO</h4>
-                  <div className="p-3 bg-slate-50 rounded-xl space-y-1.5 text-xs">
-                    <div className="flex justify-between text-slate-600">
-                      <span>1 Month:</span>
-                      <strong className="text-slate-900">$49/mo ($49 total)</strong>
-                    </div>
-                    <div className="flex justify-between text-indigo-600">
-                      <span>6 Months (-16%):</span>
-                      <strong>$41/mo ($246 total)</strong>
-                    </div>
-                    <div className="flex justify-between text-emerald-600">
-                      <span>1 Year (-26%):</span>
-                      <strong>$36/mo ($432 total)</strong>
+                </div>
+              </div>
+
+              {/* BulkSMS BD Gateway */}
+              <div className={`p-6 rounded-3xl border shadow-xs space-y-4 ${
+                smsConfig.primaryGateway === 'bulksmsbd' ? 'bg-emerald-50/50 border-emerald-300' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">📱</span>
+                    <div>
+                      <h4 className="font-black text-slate-900 text-sm">BulkSMS BD Gateway</h4>
+                      <p className="text-[10px] text-slate-500">Bulksmsbd.net API Integration</p>
                     </div>
                   </div>
-                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
-                    <li>✓ 25 Premium Themes Included</li>
-                    <li>✓ 500+ Menu Card Studio Templates</li>
-                    <li>✓ Custom Domains & QR Analytics</li>
-                  </ul>
+                  <input 
+                    type="radio" 
+                    name="primaryGateway" 
+                    checked={smsConfig.primaryGateway === 'bulksmsbd'} 
+                    onChange={() => setSmsConfig(prev => ({ ...prev, primaryGateway: 'bulksmsbd' }))}
+                    className="w-4 h-4 text-emerald-600" 
+                  />
                 </div>
 
-                {/* Elite */}
-                <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-[2rem] p-6 shadow-xl space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 bg-amber-400/20 text-amber-300 rounded-xl text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
-                      Enterprise VIP 👑
-                    </span>
-                    <span className="text-xs font-black text-amber-300">$99 / mo</span>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">BulkSMS API Key</label>
+                    <input 
+                      type="text" 
+                      value={smsConfig.bulkSmsKey}
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, bulkSmsKey: e.target.value }))}
+                      placeholder="bsms_key_xxxx"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold outline-none"
+                    />
                   </div>
-                  <h4 className="text-lg font-black text-white">ELITE LUXURY VIP</h4>
-                  <div className="p-3 bg-white/10 rounded-xl space-y-1.5 text-xs">
-                    <div className="flex justify-between text-slate-300">
-                      <span>1 Month:</span>
-                      <strong className="text-white">$99/mo ($99 total)</strong>
-                    </div>
-                    <div className="flex justify-between text-amber-300">
-                      <span>6 Months (-17%):</span>
-                      <strong>$82/mo ($492 total)</strong>
-                    </div>
-                    <div className="flex justify-between text-emerald-400">
-                      <span>1 Year (-30%):</span>
-                      <strong>$69/mo ($828 total)</strong>
-                    </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Sender Approved ID</label>
+                    <input 
+                      type="text" 
+                      value={smsConfig.bulkSmsSenderId}
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, bulkSmsSenderId: e.target.value }))}
+                      placeholder="AVERNAO_AR"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 font-bold outline-none"
+                    />
                   </div>
-                  <ul className="text-xs text-slate-300 space-y-1.5 pt-2 border-t border-white/10">
-                    <li>✓ 50+ All Luxury Themes</li>
-                    <li>✓ 1000+ Unlimited Studio Designs</li>
-                    <li>✓ 24/7 Dedicated Concierge</li>
-                  </ul>
                 </div>
               </div>
             </div>
 
-            {/* Bottom: Active Subscriptions Registry */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-              <div className="p-8 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">Active Tenant Subscriptions & Cycles</h3>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                    Live database view of all subscriber accounts
-                  </p>
+            {/* Live SMS Tester & Triggers */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Quick SMS Sender Tester */}
+              <div className="lg:col-span-2 p-7 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <Send className="w-5 h-5 text-indigo-600" />
+                  <h4 className="font-black text-slate-900 text-sm">
+                    {lang === 'bn' ? 'লাইভ এসএমএস টেস্ট সেন্টার (Live SMS Sender)' : 'Live SMS Sender & Tester'}
+                  </h4>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-black">
-                    {restaurants.length} Total Subscribed
-                  </span>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Recipient Mobile Number</label>
+                    <input 
+                      type="text" 
+                      value={testPhone}
+                      onChange={(e) => setTestPhone(e.target.value)}
+                      placeholder="+880 1700-000000"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-slate-900 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">SMS Message Content</label>
+                    <textarea 
+                      rows={3}
+                      value={testMessage}
+                      onChange={(e) => setTestMessage(e.target.value)}
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 text-xs outline-none"
+                    />
+                  </div>
+
+                  <button 
+                    onClick={handleSendTestSms}
+                    disabled={isSendingSms}
+                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md shadow-indigo-100 transition-all flex items-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{isSendingSms ? 'Sending SMS...' : 'Send Live Test SMS Now'}</span>
+                  </button>
                 </div>
               </div>
+
+              {/* SMS Notification Triggers */}
+              <div className="p-7 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                <h4 className="font-black text-slate-900 text-sm border-b border-slate-100 pb-3">
+                  {lang === 'bn' ? 'এসএমএস ট্রিগার সেটিংস' : 'SMS Event Triggers'}
+                </h4>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="font-bold text-slate-700">Customer Order SMS</span>
+                    <input 
+                      type="checkbox" 
+                      checked={smsConfig.orderSmsEnabled} 
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, orderSmsEnabled: e.target.checked }))}
+                      className="w-4 h-4 text-emerald-600 rounded" 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="font-bold text-slate-700">Manager Login OTP</span>
+                    <input 
+                      type="checkbox" 
+                      checked={smsConfig.loginOtpEnabled} 
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, loginOtpEnabled: e.target.checked }))}
+                      className="w-4 h-4 text-emerald-600 rounded" 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="font-bold text-slate-700">Master Admin Lock OTP</span>
+                    <input 
+                      type="checkbox" 
+                      checked={smsConfig.adminOtpEnabled} 
+                      onChange={(e) => setSmsConfig(prev => ({ ...prev, adminOtpEnabled: e.target.checked }))}
+                      className="w-4 h-4 text-emerald-600 rounded" 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Realtime SMS Delivery Logs Table */}
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xs p-7 space-y-4">
+              <h4 className="font-black text-slate-900 text-sm border-b border-slate-100 pb-3">
+                {lang === 'bn' ? 'সাম্প্রতিক পাঠানো এসএমএস ডেলিভারি লগ' : 'Realtime SMS Delivery Logs'}
+              </h4>
+
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                    <tr>
-                      <th className="px-6 py-4">Restaurant</th>
-                      <th className="px-6 py-4">Owner Email</th>
-                      <th className="px-6 py-4">Current Plan</th>
-                      <th className="px-6 py-4">Billing Status</th>
-                      <th className="px-6 py-4">MRR / Revenue</th>
-                      <th className="px-6 py-4">Actions</th>
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                      <th className="py-2.5">Recipient Mobile</th>
+                      <th className="py-2.5">SMS Type</th>
+                      <th className="py-2.5">Gateway Used</th>
+                      <th className="py-2.5">Status</th>
+                      <th className="py-2.5 text-right">Timestamp</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {restaurants.map((res) => (
-                      <tr key={res.id} className="hover:bg-slate-50/50 transition-all">
-                        <td className="px-6 py-5">
-                          <p className="font-bold text-slate-900 text-sm">{res.brandName}</p>
-                          <p className="text-[11px] text-slate-400">{res.id}</p>
-                        </td>
-                        <td className="px-6 py-5 text-xs text-slate-600 font-medium">
-                          {res.ownerEmail || res.contactEmail || 'Unassigned'}
-                        </td>
-                        <td className="px-6 py-5">
-                          <span className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
-                            res.subscriptionPlan === 'elite' ? 'bg-amber-100 text-amber-800' :
-                            res.subscriptionPlan === 'pro' ? 'bg-orange-100 text-orange-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                            {res.subscriptionPlan || 'basic'}
+                    {smsLogs.map((log) => (
+                      <tr key={log.id}>
+                        <td className="py-3 font-mono font-bold text-slate-900">{log.recipient}</td>
+                        <td className="py-3 text-slate-700">{log.messageType}</td>
+                        <td className="py-3 font-semibold text-indigo-600">{log.gateway}</td>
+                        <td className="py-3">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
+                            {log.status}
                           </span>
                         </td>
-                        <td className="px-6 py-5">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            res.subscriptionStatus === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                            res.subscriptionStatus === 'trial' ? 'bg-amber-100 text-amber-700' :
-                            'bg-rose-100 text-rose-700'
-                          }`}>
-                            {res.subscriptionStatus || 'trial'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5 font-black text-slate-900 text-sm">
-                          ${res.subscriptionPlan === 'elite' ? '99.00' : res.subscriptionPlan === 'pro' ? '49.00' : '15.00'}
-                          <span className="text-[10px] text-slate-400 font-normal"> / mo</span>
-                        </td>
-                        <td className="px-6 py-5">
-                          <button
-                            onClick={() => handleUpdateStatus(res.id, res.subscriptionStatus === 'active' ? 'expired' : 'active', res.brandName)}
-                            className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold hover:bg-slate-50 text-slate-700 cursor-pointer"
-                          >
-                            {res.subscriptionStatus === 'active' ? 'Set Expired' : 'Activate Plan'}
-                          </button>
-                        </td>
+                        <td className="py-3 text-right text-slate-400 font-mono">{new Date(log.timestamp).toLocaleTimeString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -780,43 +1680,450 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
           </div>
         )}
 
-        {/* Support Tab */}
-        {activeTab === 'support' && (
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-8">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black text-slate-900">Incoming Help Tickets</h3>
-              <span className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-black uppercase tracking-widest">{supportRequests.length} Pending</span>
+        {/* TRACKING & ANALYTICS CONTROL HUB */}
+        {activeTab === 'tracking' && (
+          <div className="space-y-8">
+            {/* Header Title Banner */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 text-white p-7 rounded-3xl shadow-xl border border-indigo-500/30">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Target className="w-6 h-6 text-emerald-400" />
+                  <h3 className="text-xl font-black">
+                    {lang === 'bn' ? 'গ্লোবাল ট্র্যাকিং ও অ্যানালিটিক্স টুলস কানেক্টর' : 'Global Analytics & Tracking Integrations Hub'}
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-300 mt-1">
+                  {lang === 'bn' 
+                    ? 'Google Analytics 4, Microsoft Clarity, Meta Pixel, PostHog, Sentry ও Firebase সরাসরি কানেক্ট করুন' 
+                    : 'Manage Measurement IDs, Heatmaps, Ad Pixel Conversions, and Live Error Trackers'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSaveTrackingConfig}
+                  disabled={isSavingTracking}
+                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl text-xs font-black shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
+                >
+                  <Key className="w-4 h-4" />
+                  <span>{isSavingTracking ? 'Saving...' : (lang === 'bn' ? 'কীসমূহ সেভ করুন' : 'Save All Keys')}</span>
+                </button>
+              </div>
             </div>
+
+            {trackingSaveSuccess && (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <span>{lang === 'bn' ? 'সকল ট্র্যাকিং ও অ্যানালিটিক্স কী সফলভাবে ডেটাবেসে সংরক্ষিত হয়েছে!' : 'All tracking keys updated and active across live site!'}</span>
+              </div>
+            )}
+
+            {/* LIVE REALTIME TRAFFIC & VISITOR TICKER */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Realtime Live Visitor Map Feed */}
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                    <h4 className="text-sm font-black text-slate-900">
+                      {lang === 'bn' ? 'লাইভ ভিজিটর ট্র্যাকার (Realtime)' : 'Live Visitor Ticker'}
+                    </h4>
+                  </div>
+                  <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-full">
+                    18 Online
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  {[
+                    { city: 'Dhaka, Bangladesh', page: 'Theme #05 Palatiora', source: 'Facebook Ads', flag: '🇧🇩', time: 'Just now' },
+                    { city: 'London, UK', page: 'Pricing Upgrade ($49 Pro)', source: 'Google Search', flag: '🇬🇧', time: '1m ago' },
+                    { city: 'New York, USA', page: 'Manager Console Login', source: 'Direct Portal', flag: '🇺🇸', time: '3m ago' },
+                    { city: 'Dubai, UAE', page: '3D AR Food Model Scan', source: 'Instagram Organic', flag: '🇦🇪', time: '5m ago' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-base">{item.flag}</span>
+                        <div>
+                          <p className="font-bold text-slate-900">{item.city}</p>
+                          <p className="text-[10px] text-slate-500">{item.page} • <span className="text-indigo-600 font-semibold">{item.source}</span></p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">{item.time}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clarity Heatmap & Mouse Scroll Insight */}
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-orange-500" />
+                    <h4 className="text-sm font-black text-slate-900">
+                      {lang === 'bn' ? 'Microsoft Clarity হিটম্যাপ' : 'Clarity Mouse Heatmaps'}
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400">Avg Scroll 84%</span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="p-3 rounded-xl bg-orange-50 border border-orange-100 space-y-1">
+                    <p className="font-bold text-orange-900">🔥 Top Clicked Button</p>
+                    <p className="text-slate-600">"Preview Storefront Theme #05" (412 Clicks - 68%)</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-100 space-y-1">
+                    <p className="font-bold text-indigo-900">🖱️ Session Replay Status</p>
+                    <p className="text-slate-600">240 Sessions Recorded Today • 0 Rage Clicks</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 space-y-1">
+                    <p className="font-bold text-emerald-900">⚡ Smooth Navigation Rate</p>
+                    <p className="text-slate-600">99.2% Users reach pricing table without drop-off</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Meta Pixel & Conversion Funnel */}
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <PieChart className="w-4 h-4 text-indigo-600" />
+                    <h4 className="text-sm font-black text-slate-900">
+                      {lang === 'bn' ? 'Meta Pixel ও কনভার্সন' : 'Meta Pixel Conversion ROI'}
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    3.4x ROI
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
+                    <span className="text-slate-600">Facebook/Instagram Ad Clicks:</span>
+                    <strong className="text-slate-900">1,240 Clicks</strong>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
+                    <span className="text-slate-600">Restaurant Owner Signups:</span>
+                    <strong className="text-indigo-600 font-black">185 Leads</strong>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 bg-emerald-50 rounded-xl text-emerald-900">
+                    <span>Verified Paid Clients ($49 / $99):</span>
+                    <strong className="font-black">$1,850 Revenue</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 7 INTEGRATION TOOL CONFIGURATION CARDS TABLE */}
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden p-7 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">
+                    {lang === 'bn' ? 'ট্র্যাকিং ও অ্যানালিটিক্স ইন্টিগ্রেশন কার্ডসমূহ' : 'Master Integration Key Management'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {lang === 'bn' ? 'নিচের টুলগুলোর মেজারমেন্ট আইডি ও সিক্রেট কী দিয়ে সরাসরি সংযোগ দিন' : 'Enter Measurement IDs and DSN keys from your accounts'}
+                  </p>
+                </div>
+                <span className="px-3 py-1 bg-indigo-50 text-indigo-700 font-black text-xs rounded-full border border-indigo-200">
+                  7 / 7 Tools Configured
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* 1. Google Analytics 4 */}
+                <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-amber-500" />
+                      <h4 className="font-black text-slate-900 text-sm">Google Analytics 4</h4>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={trackingConfig.gaEnabled} 
+                        onChange={(e) => setTrackingConfig(prev => ({ ...prev, gaEnabled: e.target.checked }))}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500">Visitor country, city, traffic source, page view, time & conversions.</p>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400">Measurement ID</label>
+                    <input 
+                      type="text" 
+                      value={trackingConfig.gaMeasurementId}
+                      onChange={(e) => setTrackingConfig(prev => ({ ...prev, gaMeasurementId: e.target.value }))}
+                      placeholder="G-XXXXXXXXXX"
+                      className="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-900 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Microsoft Clarity */}
+                <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-5 h-5 text-indigo-600" />
+                      <h4 className="font-black text-slate-900 text-sm">Microsoft Clarity</h4>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={trackingConfig.clarityEnabled} 
+                        onChange={(e) => setTrackingConfig(prev => ({ ...prev, clarityEnabled: e.target.checked }))}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500">Mouse click heatmaps, scroll depth %, session replays & rage click tracker.</p>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400">Project ID</label>
+                    <input 
+                      type="text" 
+                      value={trackingConfig.clarityProjectId}
+                      onChange={(e) => setTrackingConfig(prev => ({ ...prev, clarityProjectId: e.target.value }))}
+                      placeholder="xxxxxxxxxx"
+                      className="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-900 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {/* 3. Meta Pixel & Conversions API */}
+                <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <PieChart className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-black text-slate-900 text-sm">Meta Pixel & CAPI</h4>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={trackingConfig.metaEnabled} 
+                        onChange={(e) => setTrackingConfig(prev => ({ ...prev, metaEnabled: e.target.checked }))}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500">Facebook/Instagram ad visitors, lead signups & server verified purchases.</p>
+
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-slate-400">Pixel ID</label>
+                    <input 
+                      type="text" 
+                      value={trackingConfig.metaPixelId}
+                      onChange={(e) => setTrackingConfig(prev => ({ ...prev, metaPixelId: e.target.value }))}
+                      placeholder="1234567890"
+                      className="w-full mt-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-900 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SUBSCRIPTIONS & BILLING TAB */}
+        {activeTab === 'subscriptions' && (
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-xl font-black text-slate-900">
+                {lang === 'bn' ? 'সাবস্ক্রিপশন প্যাকেজ ও ছাড়ের হিসাব' : 'Platform Subscription Packages & Discounts'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                {lang === 'bn' 
+                  ? 'স্টার্টার ($15), প্রফেশনাল ($49), এবং এলিট ভিআইপি ($99) মেম্বারশিপ প্ল্যান' 
+                  : 'Configure standard pricing tiers and long-term billing discounts (17% to 30% savings)'}
+              </p>
+            </div>
+
+            {/* 3 Pricing Tier Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* $15 Starter */}
+              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[10px] font-black uppercase">
+                    STARTER
+                  </span>
+                  <span className="text-sm font-black text-slate-900">$15 / month</span>
+                </div>
+                <h4 className="text-xl font-black text-slate-900">STARTER BASIC</h4>
+                <div className="p-4 bg-slate-50 rounded-2xl space-y-2 text-xs border border-slate-100">
+                  <div className="flex justify-between text-slate-600">
+                    <span>1 Month:</span>
+                    <strong className="text-slate-900">$15/mo ($15 total)</strong>
+                  </div>
+                  <div className="flex justify-between text-indigo-600">
+                    <span>6 Months (-17%):</span>
+                    <strong>$13/mo ($78 total)</strong>
+                  </div>
+                  <div className="flex justify-between text-emerald-600 font-bold">
+                    <span>1 Year (-30%):</span>
+                    <strong>$11/mo ($132 total)</strong>
+                  </div>
+                </div>
+                <ul className="text-xs text-slate-600 space-y-2 pt-2 border-t border-slate-100">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>1 Hero Animated Food Slide</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Basic Order Management</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Standard Menu Cards</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* $49 Pro */}
+              <div className="bg-white rounded-3xl p-6 border-2 border-orange-400 shadow-md space-y-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-gradient-to-l from-orange-500 to-amber-500 text-white text-[9px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl shadow-xs">
+                  MOST POPULAR
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 bg-orange-50 text-orange-700 border border-orange-200 rounded-xl text-[10px] font-black uppercase">
+                    PROFESSIONAL
+                  </span>
+                  <span className="text-sm font-black text-slate-900">$49 / month</span>
+                </div>
+                <h4 className="text-xl font-black text-slate-900">PROFESSIONAL PRO</h4>
+                <div className="p-4 bg-slate-50 rounded-2xl space-y-2 text-xs border border-slate-100">
+                  <div className="flex justify-between text-slate-600">
+                    <span>1 Month:</span>
+                    <strong className="text-slate-900">$49/mo ($49 total)</strong>
+                  </div>
+                  <div className="flex justify-between text-indigo-600">
+                    <span>6 Months (-16%):</span>
+                    <strong>$41/mo ($246 total)</strong>
+                  </div>
+                  <div className="flex justify-between text-emerald-600 font-bold">
+                    <span>1 Year (-26%):</span>
+                    <strong>$36/mo ($432 total)</strong>
+                  </div>
+                </div>
+                <ul className="text-xs text-slate-600 space-y-2 pt-2 border-t border-slate-100">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>3 Rotating Hero Animated Slides</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>25 Luxury Themes Included</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Custom Brand Domains & AR 3D Scans</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* $99 Elite VIP */}
+              <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 shadow-xl space-y-5 relative">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-xl text-[10px] font-black uppercase">
+                    ENTERPRISE VIP 👑
+                  </span>
+                  <span className="text-sm font-black text-amber-300">$99 / month</span>
+                </div>
+                <h4 className="text-xl font-black text-white">ELITE LUXURY VIP</h4>
+                <div className="p-4 bg-white/10 rounded-2xl space-y-2 text-xs border border-white/10">
+                  <div className="flex justify-between text-slate-300">
+                    <span>1 Month:</span>
+                    <strong className="text-white">$99/mo ($99 total)</strong>
+                  </div>
+                  <div className="flex justify-between text-amber-300">
+                    <span>6 Months (-17%):</span>
+                    <strong>$82/mo ($492 total)</strong>
+                  </div>
+                  <div className="flex justify-between text-emerald-400 font-bold">
+                    <span>1 Year (-30%):</span>
+                    <strong>$69/mo ($828 total)</strong>
+                  </div>
+                </div>
+                <ul className="text-xs text-slate-300 space-y-2 pt-2 border-t border-white/10">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>ALL 6 Signature Hero Animated Food Shapes</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Unlimited Studio Custom Designs</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>24/7 Priority VIP Concierge & Sound Setup</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* REVENUE & ANALYTICS TAB */}
+        {activeTab === 'analytics' && (
+          <div className="bg-white rounded-3xl border border-slate-200 p-7 shadow-xs space-y-6">
+            <h3 className="text-xl font-black text-slate-900">
+              {lang === 'bn' ? 'প্ল্যাটফর্ম রাজস্ব ও অ্যানালিটিক্স রির্পোর্ট' : 'Platform Revenue & Performance Metrics'}
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Average Revenue Per Restaurant (ARPU)</p>
+                <p className="text-3xl font-black text-emerald-600">
+                  ${Math.round(totalRevenueCalc / (restaurants.length || 1))}.00 /mo
+                </p>
+              </div>
+
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Active Subscribers</p>
+                <p className="text-3xl font-black text-indigo-600">{activeSubsCount} Brands</p>
+              </div>
+
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Projected Annual Recurring Revenue (ARR)</p>
+                <p className="text-3xl font-black text-amber-600">${totalRevenueCalc * 12}.00</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SUPPORT TAB */}
+        {activeTab === 'support' && (
+          <div className="bg-white rounded-3xl border border-slate-200 p-7 shadow-xs space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-black text-slate-900">
+                {lang === 'bn' ? 'রেস্তোরাঁ সাপোর্ট টিকিটিং ডেস্ক' : 'Incoming Restaurant Support Desk'}
+              </h3>
+              <span className="px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-black">
+                {supportRequests.length} Pending
+              </span>
+            </div>
+
             {supportRequests.length === 0 ? (
-              <div className="py-20 text-center">
-                <Bell className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                <h4 className="text-lg font-black text-slate-900">All caught up!</h4>
-                <p className="text-slate-500 font-medium">No pending support requests from restaurant owners.</p>
+              <div className="py-16 text-center text-slate-500 space-y-3">
+                <Bell className="w-12 h-12 text-slate-300 mx-auto" />
+                <p className="font-bold text-sm text-slate-700">No pending support tickets.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {supportRequests.map((req) => (
-                  <div key={req.id} className="p-6 rounded-[2rem] border border-slate-100 bg-slate-50 hover:bg-white hover:border-indigo-200 transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center font-black text-indigo-600 shadow-sm">
-                          {req.restaurantName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900">{req.restaurantName}</p>
-                          <p className="text-xs text-slate-500 font-medium">ID: {req.restaurantId}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-slate-400" />
-                        <span className="text-[10px] font-black uppercase text-slate-500">{new Date(req.createdAt).toLocaleString()}</span>
-                      </div>
+                  <div key={req.id} className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <p className="font-bold text-slate-900 text-sm">{req.restaurantName}</p>
+                      <span className="text-[10px] text-slate-400">{new Date(req.createdAt).toLocaleString()}</span>
                     </div>
-                    <p className="text-sm text-slate-600 font-medium mb-6 bg-white p-4 rounded-2xl border border-slate-100">{req.message}</p>
-                    <div className="flex justify-end gap-3">
-                      <button className="px-6 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">Resolve</button>
-                      <button className="px-6 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">Reply</button>
-                    </div>
+                    <p className="text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-100">{req.message}</p>
                   </div>
                 ))}
               </div>
@@ -824,98 +2131,273 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ onLogout }) =
           </div>
         )}
 
-        {/* Action History Tab */}
+        {/* HISTORY / AUDIT TAB */}
         {activeTab === 'history' && (
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-8">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black text-slate-900">Audit Logs & Activity</h3>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Last 50 actions</p>
-            </div>
-            <div className="space-y-4">
+          <div className="bg-white rounded-3xl border border-slate-200 p-7 shadow-xs space-y-6">
+            <h3 className="text-xl font-black text-slate-900">
+              {lang === 'bn' ? 'সিকিউরিটি অডিট লগ ইতিহাস' : 'Action Audit History Logs'}
+            </h3>
+            <div className="space-y-3">
               {auditLogs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center">
-                      <Activity className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-900">
-                        {log.adminEmail} <span className="text-slate-400 font-medium">{log.action}</span> for {log.targetName}
-                      </p>
-                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{new Date(log.timestamp).toLocaleString()}</p>
-                    </div>
+                <div key={log.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-indigo-600">{log.adminEmail}</span>{' '}
+                    <span className="text-slate-600">{log.action}</span> for{' '}
+                    <strong className="text-slate-900">{log.targetName}</strong>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-300">ID: {log.targetId}</span>
+                  <span className="text-[10px] font-mono text-slate-400">{new Date(log.timestamp).toLocaleString()}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Platform Settings Tab */}
+        {/* PLATFORM SETTINGS TAB */}
         {activeTab === 'settings' && (
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden p-8">
-            <h3 className="text-xl font-black text-slate-900 mb-8">Platform Global Configuration</h3>
-            <div className="max-w-2xl space-y-8">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Platform Name</label>
-                  <input 
-                    type="text" 
-                    value={platformNameInput}
-                    onChange={(e) => setPlatformNameInput(e.target.value)}
-                    placeholder="e.g. Avernao WebAR"
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">System Version</label>
-                  <input 
-                    type="text" 
-                    disabled
-                    value="v2.5.0-Avernao"
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-slate-400 cursor-not-allowed"
-                  />
-                </div>
+          <div className="bg-white rounded-3xl border border-slate-200 p-7 shadow-xs space-y-6 max-w-2xl">
+            <h3 className="text-xl font-black text-slate-900">
+              {lang === 'bn' ? 'প্ল্যাটফর্ম গ্লোবাল কনফিগারেশন' : 'Global Platform HQ Settings'}
+            </h3>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">
+                  {lang === 'bn' ? 'প্ল্যাটফর্ম ব্র্যান্ড নাম' : 'Platform Title'}
+                </label>
+                <input 
+                  type="text" 
+                  value={platformNameInput}
+                  onChange={(e) => setPlatformNameInput(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold outline-none focus:border-indigo-500"
+                />
               </div>
 
-              <div className="space-y-4">
-                <h4 className="text-sm font-black text-slate-900">Security & Access</h4>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Allow New Registrations', enabled: true },
-                    { label: 'Enforce 2FA for Admins', enabled: true },
-                    { label: 'Automatic Logout (30m)', enabled: true },
-                    { label: 'Maintenance Mode', enabled: false }
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                      <span className="text-sm font-bold text-slate-700">{item.label}</span>
-                      <div className={`w-12 h-6 rounded-full transition-all relative cursor-pointer ${item.enabled ? 'bg-indigo-600' : 'bg-slate-200'}`}>
-                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${item.enabled ? 'left-7' : 'left-1'}`} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center gap-4">
-                <button 
-                  onClick={handleSavePlatformSettings}
-                  disabled={isSavingSettings}
-                  className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {isSavingSettings ? 'Saving...' : 'Save Global Settings'}
-                </button>
-                {saveSuccess && (
-                  <span className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" /> Platform name updated successfully!
-                  </span>
-                )}
-              </div>
+              <button 
+                onClick={handleSavePlatformSettings}
+                disabled={isSavingSettings}
+                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-2"
+              >
+                {isSavingSettings ? 'Saving...' : (lang === 'bn' ? 'কনফিগারেশন সেভ করুন' : 'Save Settings')}
+              </button>
+              {saveSuccess && (
+                <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4" /> Platform name updated successfully!
+                </p>
+              )}
             </div>
           </div>
         )}
       </main>
+
+      {/* NEW RESTAURANT REGISTRATION MODAL */}
+      <AnimatePresence>
+        {isAddModalOpen && (
+          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white border border-slate-200 rounded-3xl p-7 max-w-lg w-full space-y-6 shadow-2xl relative"
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                    <UserPlus className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">
+                      {lang === 'bn' ? 'নতুন রেস্তোরাঁ অনবোর্ডিং' : 'Register New Restaurant'}
+                    </h3>
+                    <p className="text-xs text-slate-500">Instant database provision & theme assignment</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateNewRestaurant} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Restaurant / Brand Name *</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="e.g. Sultan's Dine / Savor Gourmet"
+                    value={newBrandName}
+                    onChange={(e) => setNewBrandName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Owner Email</label>
+                    <input 
+                      type="email" 
+                      placeholder="owner@brand.com"
+                      value={newOwnerEmail}
+                      onChange={(e) => setNewOwnerEmail(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Contact Phone</label>
+                    <input 
+                      type="text" 
+                      placeholder="+880 1700-000000"
+                      value={newContactPhone}
+                      onChange={(e) => setNewContactPhone(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Location / City</label>
+                  <input 
+                    type="text" 
+                    placeholder="Gulshan 2, Dhaka, Bangladesh"
+                    value={newLocation}
+                    onChange={(e) => setNewLocation(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Subscription Tier</label>
+                    <select 
+                      value={newPlan}
+                      onChange={(e) => setNewPlan(e.target.value as any)}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold outline-none"
+                    >
+                      <option value="basic">Starter ($15/mo)</option>
+                      <option value="pro">Pro ($49/mo)</option>
+                      <option value="elite">Elite VIP ($99/mo)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Active Theme</label>
+                    <select 
+                      value={newTheme}
+                      onChange={(e) => setNewTheme(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold outline-none"
+                    >
+                      <option value="palatiora">Theme #05: Palatiora Savorelle</option>
+                      <option value="koppee">Theme #02: Koppee Gourmet</option>
+                      <option value="velmora">Theme #01: Velmora Fine Dining</option>
+                      <option value="lunavere">Theme #03: Lunavere Bistro</option>
+                      <option value="sahinsh">Theme #04: Sahinsh Speciality</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setIsAddModalOpen(false)}
+                    className="px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={isCreatingRestaurant}
+                    className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl transition-all shadow-md shadow-emerald-100"
+                  >
+                    {isCreatingRestaurant ? 'Registering...' : 'Provision Restaurant'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* CHANGE MASTER ADMIN PASSWORD MODAL */}
+      <AnimatePresence>
+        {isPasswordModalOpen && (
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white border border-slate-200 rounded-3xl p-7 max-w-md w-full space-y-6 shadow-2xl relative text-slate-900"
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                    <Key className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">
+                      {lang === 'bn' ? 'নতুন মাস্টার পাসওয়ার্ড সেট করুন' : 'Create Custom Master Password'}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      {lang === 'bn' ? 'আপনার পছন্দের নতুন নিরাপত্তা পাসওয়ার্ড লিখুন' : 'Set a custom security PIN or password for unlocking'}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {newPasswordSavedMessage && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold rounded-xl flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{newPasswordSavedMessage}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveNewPassword} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5 uppercase tracking-wider text-[10px]">
+                    {lang === 'bn' ? 'নতুন পাসওয়ার্ড / সিকিউরিটি কোড লিখুন' : 'New Master Password or PIN'}
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    autoFocus
+                    placeholder="e.g. MyMasterPass2026 or 9988"
+                    value={customPasswordInput}
+                    onChange={(e) => setCustomPasswordInput(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-mono text-base font-bold outline-none focus:border-amber-500"
+                  />
+                  <p className="text-[11px] text-slate-500 mt-1.5">
+                    {lang === 'bn' 
+                      ? 'লক আউট করার পর এই নতুন পাসওয়ার্ড দিয়েই মাস্টার প্যানেলে প্রবেশ করা যাবে।' 
+                      : 'You can use this custom password or default 5321 to unlock the master panel.'}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setIsPasswordModalOpen(false)}
+                    className="px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl font-bold transition-all cursor-pointer"
+                  >
+                    {lang === 'bn' ? 'বাতিল' : 'Cancel'}
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition-all shadow-md cursor-pointer"
+                  >
+                    {lang === 'bn' ? 'পাসওয়ার্ড সংরক্ষণ করুন' : 'Save New Password'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

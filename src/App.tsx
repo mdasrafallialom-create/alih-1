@@ -113,16 +113,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'client' | 'admin' | 'superadmin'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      // Master Admin direct URL support: ?superadmin=true, ?portal=superadmin, or ?master=admin
-      if (
-        params.get('superadmin') === 'true' ||
-        params.get('portal') === 'superadmin' ||
-        params.get('master') === 'admin' ||
-        window.location.pathname === '/superadmin'
-      ) {
-        return 'superadmin';
-      }
-      // Explicit Theme view requested via URL -> MUST force client mode to show theme!
+      // Explicit Client Theme view requested via URL -> MUST force client mode
       if (params.get('theme') || params.get('standalone') === 'true' || params.get('preview') === 'true') {
         return 'client';
       }
@@ -135,15 +126,9 @@ export default function App() {
       ) {
         return 'admin';
       }
-      // If user was previously authenticated in admin mode and refreshed
-      const savedAuth = localStorage.getItem('webar_admin_authenticated');
-      const savedSession = localStorage.getItem('webar_active_manager_session');
-      const savedView = localStorage.getItem('webar_current_view_mode');
-      if (savedAuth === 'true' && savedSession && savedView === 'admin') {
-        return 'admin';
-      }
     }
-    return 'client';
+    // ABSOLUTE DEFAULT: MASTER ADMIN PANEL FOR ASRAF ALI SM ARIF BILLAH HQ
+    return 'superadmin';
   });
   // Persist current viewMode to avoid flicker on page reload
   useEffect(() => {
@@ -1296,10 +1281,13 @@ export default function App() {
 
   // COMPLETELY ISOLATED SUPER ADMIN VIEW
   const isSuperAdminRoute = typeof window !== 'undefined' && (
-    window.location.pathname === '/superadmin' || 
-    window.location.search.includes('superadmin=true') ||
-    window.location.search.includes('portal=superadmin') ||
+    window.location.pathname.toLowerCase().includes('superadmin') ||
+    window.location.pathname.toLowerCase().includes('asraf') ||
+    window.location.search.toLowerCase().includes('asraf') ||
+    window.location.search.toLowerCase().includes('arif') ||
+    window.location.search.toLowerCase().includes('superadmin') ||
     window.location.search.includes('master=admin') ||
+    window.location.search.includes('locked=true') ||
     viewMode === 'superadmin'
   );
 
@@ -1309,12 +1297,26 @@ export default function App() {
         <SuperAdminDashboard 
           onLogout={() => {
             localStorage.removeItem('webar_master_admin_unlocked');
+            localStorage.setItem('webar_current_view_mode', 'superadmin');
             setIsMasterAdminUnlocked(false);
-            setViewMode('client');
+            setViewMode('superadmin');
             if (typeof window !== 'undefined') {
-              window.location.href = '/';
+              try {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('theme');
+                url.searchParams.delete('preview');
+                url.searchParams.delete('standalone');
+                url.searchParams.set('master', 'admin');
+                url.searchParams.set('locked', 'true');
+                window.history.replaceState({}, '', url.toString());
+              } catch (e) {}
             }
-          }} 
+          }}
+          onSwitchView={(mode) => {
+            setViewMode(mode);
+            localStorage.setItem('webar_current_view_mode', mode);
+          }}
+          lang={lang}
         />
       </Suspense>
     );

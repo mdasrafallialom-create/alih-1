@@ -90,7 +90,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
 
   const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
-  const isOrivelle = isLuxuryTheme && themePresetId !== 'aurelisse';
+  const isAurelisse = themePresetId === 'aurelisse';
+  const isPalatiora = themePresetId === 'palatiora';
+  const isOrivelle = isLuxuryTheme && !isAurelisse && !isPalatiora;
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   const scrollToTop = (e?: React.MouseEvent) => {
     if (e) {
@@ -173,9 +175,11 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   );
 
   return (
-    <footer className={`relative w-full ${themePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-white'} font-sans overflow-hidden ${
-      themePresetId === 'aurelisse'
+    <footer className={`relative w-full ${isAurelisse ? 'text-[#142412]' : isPalatiora ? 'text-white' : 'text-white'} font-sans overflow-hidden ${
+      isAurelisse
         ? 'bg-[#EDF7E7] border-t border-[#2e7d32]/20'
+        : isPalatiora
+        ? 'bg-[#09090B] border-t border-white/10'
         : isOrivelle ? 'bg-[#090806]' : 'bg-[#120a06]'
     }`}>
       {/* Top Transition Divider: Orivelle uses 24K Gold Geometric Divider on all screens; default uses Torn Paper on desktop */}
@@ -183,8 +187,10 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
         <div className="relative -mt-4 sm:-mt-8 z-20 w-full pointer-events-none select-none">
           <OrivelleGeometricDivider color="#090806" position="top" />
         </div>
-      ) : themePresetId === 'aurelisse' ? (
+      ) : isAurelisse ? (
         <div className="w-full h-px bg-[#2e7d32]/20" />
+      ) : isPalatiora ? (
+        <div className="w-full h-px bg-white/10" />
       ) : isDesktop ? (
         <div className="relative -mt-8 sm:-mt-12 z-20 hidden lg:block">
           <TornPaperEdge color="#120a06" position="top" />
@@ -194,7 +200,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
       )}
 
       {/* Coffee Beans Texture Overlay for Coffee Theme vs Subtle Starlight Aura for Orivelle */}
-      {(!isOrivelle && themePresetId !== 'aurelisse') && (
+      {(!isOrivelle && !isAurelisse && !isPalatiora) && (
         <div className="absolute inset-0 z-0 opacity-25 pointer-events-none">
           <img
             src={roastedCoffeeBeansBg}
@@ -207,6 +213,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
       {isOrivelle && (
         <div className="absolute inset-0 z-0 opacity-15 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(229,193,88,0.15),_transparent_70%)]" />
       )}
+      {isPalatiora && (
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(249,115,22,0.12),_transparent_70%)]" />
+      )}
 
       {/* Embedded Google Maps Location Section */}
       {showGoogleMap !== false && Boolean(locationAddress) && (
@@ -216,12 +225,12 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2">
               <div className="space-y-1">
                 <h3 className={`text-xl sm:text-2xl font-light tracking-normal ${
-                  themePresetId === 'aurelisse' ? 'text-[#142412]' : isOrivelle ? 'text-amber-300 font-serif' : 'text-[#DA9F93]'
-                }`} style={isOrivelle ? { fontFamily: "'Cinzel', serif" } : undefined}>
+                  isAurelisse ? 'text-[#142412]' : isPalatiora ? 'text-white' : isOrivelle ? 'text-amber-300 font-serif' : 'text-[#DA9F93]'
+                }`} style={isOrivelle ? { fontFamily: "'Cinzel', serif" } : isPalatiora ? { fontFamily: "'DM Serif Display', serif" } : undefined}>
                   {brandName}
                 </h3>
                 {locationAddress && (
-                  <p className={`text-xs sm:text-sm ${themePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-white/80'} font-light`}>
+                  <p className={`text-xs sm:text-sm ${isAurelisse ? 'text-[#2a3e26]' : isPalatiora ? 'text-stone-400' : 'text-white/80'} font-light`}>
                     {locationAddress}
                   </p>
                 )}
@@ -232,8 +241,10 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 target="_blank"
                 rel="noreferrer"
                 className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-transform active:scale-95 shadow-md shrink-0 cursor-pointer ${
-                  themePresetId === 'aurelisse'
+                  isAurelisse
                     ? 'bg-[#2e7d32] hover:bg-[#1b5e20] text-white shadow-md'
+                    : isPalatiora
+                    ? 'bg-[#F97316] hover:bg-[#EA580C] text-white shadow-lg shadow-orange-600/30'
                     : isOrivelle 
                     ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-600 text-stone-950 font-black shadow-[0_0_15px_rgba(229,193,88,0.35)]' 
                     : 'bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06]'
@@ -246,7 +257,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
           </div>
 
           {/* Edge-to-Edge Full-Width Google Map */}
-          <div className="relative w-full h-[520px] sm:h-[620px] md:h-[700px] border-y border-[#DA9F93]/30 bg-black/90 shadow-2xl overflow-hidden">
+          <div className={`relative w-full h-[520px] sm:h-[620px] md:h-[700px] ${isAurelisse ? 'border-y border-[#2e7d32]/20' : isPalatiora ? 'border-y border-slate-300' : 'border-y border-[#DA9F93]/30'} bg-black/90 shadow-2xl overflow-hidden`}>
             <iframe
               title={`${brandName} Google Map Location`}
               src={mapEmbedUrl}
@@ -278,40 +289,40 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               {brandLogoUrl ? (
-                <div className={`w-12 h-12 rounded-2xl overflow-hidden ${themePresetId === 'aurelisse' ? 'bg-white border border-[#2e7d32]/30' : 'bg-white/10 border border-[#DA9F93]/40'} p-0.5 shrink-0 shadow-lg`}>
+                <div className={`w-12 h-12 rounded-2xl overflow-hidden ${isAurelisse ? 'bg-white border border-[#2e7d32]/30' : isPalatiora ? 'bg-white/10 border border-[#F97316]/40' : 'bg-white/10 border border-[#DA9F93]/40'} p-0.5 shrink-0 shadow-lg`}>
                   <img src={brandLogoUrl} alt={brandName} className="w-full h-full object-cover rounded-xl" />
                 </div>
               ) : (
-                <div className={`w-12 h-12 rounded-2xl ${themePresetId === 'aurelisse' ? 'bg-[#2e7d32] text-white' : 'bg-gradient-to-br from-[#DA9F93] to-[#a86e63] text-[#120a06]'} font-black text-base flex items-center justify-center shrink-0 shadow-xl border border-white/20 select-none uppercase`}>
+                <div className={`w-12 h-12 rounded-2xl ${isAurelisse ? 'bg-[#2e7d32] text-white' : isPalatiora ? 'bg-[#F97316] text-white shadow-[0_0_20px_rgba(249,115,22,0.4)]' : 'bg-gradient-to-br from-[#DA9F93] to-[#a86e63] text-[#120a06]'} font-black text-base flex items-center justify-center shrink-0 shadow-xl border border-white/20 select-none uppercase`}>
                   {initial1}{initial2}
                 </div>
               )}
-              <h3 className={`text-xl font-extrabold ${themePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-[#DA9F93]'} tracking-tight`}>
+              <h3 className={`text-xl font-extrabold ${isAurelisse ? 'text-[#142412]' : isPalatiora ? 'text-white' : 'text-[#DA9F93]'} tracking-tight`}>
                 {brandName}
               </h3>
             </div>
 
-            <p className={`text-xs ${themePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-white/75'} leading-relaxed font-light`}>
+            <p className={`text-xs ${isAurelisse ? 'text-[#2a3e26]' : isPalatiora ? 'text-stone-400' : 'text-white/75'} leading-relaxed font-light`}>
               {defaultDesc}
             </p>
           </div>
 
           {/* Column 2: GET IN TOUCH */}
           <div className="space-y-4">
-            <h3 className={`text-lg font-black uppercase tracking-widest ${themePresetId === 'aurelisse' ? 'text-[#142412] border-b-2 border-[#2e7d32]/40' : 'text-white border-b-2 border-[#DA9F93]/30'} pb-2 inline-block`}>
+            <h3 className={`text-lg font-black uppercase tracking-widest ${isAurelisse ? 'text-[#142412] border-b-2 border-[#2e7d32]/40' : isPalatiora ? 'text-white border-b-2 border-[#F97316]' : 'text-white border-b-2 border-[#DA9F93]/30'} pb-2 inline-block`}>
               GET IN TOUCH
             </h3>
-            <div className={`space-y-3 text-sm ${themePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-white/80'}`}>
+            <div className={`space-y-3 text-sm ${isAurelisse ? 'text-[#2a3e26]' : isPalatiora ? 'text-stone-300' : 'text-white/80'}`}>
               <div className="flex items-start gap-3">
-                <MapPin className={`w-5 h-5 ${themePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-[#DA9F93]'} shrink-0 mt-0.5`} />
+                <MapPin className={`w-5 h-5 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-[#DA9F93]'} shrink-0 mt-0.5`} />
                 <span className="leading-snug">{locationAddress}</span>
               </div>
               
               {/* Phone Line */}
               <div className="flex items-center gap-3">
-                <Phone className={`w-5 h-5 ${themePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-[#DA9F93]'} shrink-0`} />
+                <Phone className={`w-5 h-5 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-[#DA9F93]'} shrink-0`} />
                 {displayPhone && displayPhone !== '+1 (XXX) XXX-XXXX' ? (
-                  <a href={`tel:${displayPhone.replace(/[^0-9+]/g, '')}`} className={`${themePresetId === 'aurelisse' ? 'hover:text-[#2e7d32]' : 'hover:text-[#DA9F93]'} transition-colors`}>
+                  <a href={`tel:${displayPhone.replace(/[^0-9+]/g, '')}`} className={`${isAurelisse ? 'hover:text-[#2e7d32]' : isPalatiora ? 'hover:text-[#F97316] font-medium' : 'hover:text-[#DA9F93]'} transition-colors`}>
                     {displayPhone}
                   </a>
                 ) : (
@@ -335,7 +346,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                     </span>
                   </a>
                 ) : (
-                  <span className={themePresetId === 'aurelisse' ? 'text-[#2a3e26]/60' : 'text-white/60'}>
+                  <span className={isAurelisse ? 'text-[#2a3e26]/60' : isPalatiora ? 'text-stone-400' : 'text-white/60'}>
                     {lang === 'bn' ? 'হোয়াটসঅ্যাপ: যুক্ত করা হয়নি' : '+1 (XXX) XXX-XXXX (WhatsApp)'}
                   </span>
                 )}
@@ -343,9 +354,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
 
               {/* Email Line */}
               <div className="flex items-center gap-3">
-                <Mail className={`w-5 h-5 ${themePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-[#DA9F93]'} shrink-0`} />
+                <Mail className={`w-5 h-5 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-[#DA9F93]'} shrink-0`} />
                 {cleanEmail && cleanEmail !== 'contact@yourrestaurant.com' ? (
-                  <a href={`mailto:${cleanEmail}`} className={`${themePresetId === 'aurelisse' ? 'hover:text-[#2e7d32]' : 'hover:text-[#DA9F93]'} transition-colors`}>
+                  <a href={`mailto:${cleanEmail}`} className={`${isAurelisse ? 'hover:text-[#2e7d32]' : isPalatiora ? 'hover:text-[#F97316] font-medium' : 'hover:text-[#DA9F93]'} transition-colors`}>
                     {cleanEmail}
                   </a>
                 ) : (
@@ -357,11 +368,11 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
 
           {/* Column 3: FOLLOW US */}
           <div className="space-y-4">
-            <h3 className={`text-lg font-black uppercase tracking-widest ${themePresetId === 'aurelisse' ? 'text-[#142412] border-b-2 border-[#2e7d32]/40' : 'text-white border-b-2 border-[#DA9F93]/30'} pb-2 inline-block`}>
+            <h3 className={`text-lg font-black uppercase tracking-widest ${isAurelisse ? 'text-[#142412] border-b-2 border-[#2e7d32]/40' : isPalatiora ? 'text-white border-b-2 border-[#F97316]' : 'text-white border-b-2 border-[#DA9F93]/30'} pb-2 inline-block`}>
               FOLLOW US
             </h3>
-            <p className={`text-xs sm:text-sm ${themePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-white/70'} leading-relaxed`}>
-              Connect with us on social media for daily brewing tips, new menu arrivals, and seasonal artisanal roast releases.
+            <p className={`text-xs sm:text-sm ${isAurelisse ? 'text-[#2a3e26]' : isPalatiora ? 'text-stone-400' : 'text-white/70'} leading-relaxed`}>
+              Connect with us on social media for daily culinary specials, chef masterclasses, and exquisite flavors.
             </p>
             {/* Social Icons Box Grid Filtered strictly by tier: Basic=$15 [1 link], Pro=$49 [3 links], Elite=$99 [4 links] */}
             {(() => {
@@ -375,7 +386,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                     href={socialLinks?.instagram ? (socialLinks.instagram.startsWith('http') ? socialLinks.instagram : `https://${socialLinks.instagram}`) : '#'}
                     target="_blank"
                     rel="noreferrer"
-                    className={`w-10 h-10 border ${themePresetId === 'aurelisse' ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#E1306C] hover:text-[#E1306C] flex items-center justify-center transition-colors rounded-sm`}
+                    className={`w-10 h-10 border ${isAurelisse ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : isPalatiora ? 'border-white/20 text-white hover:bg-[#F97316]/20 hover:border-[#F97316]' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#E1306C] hover:text-[#E1306C] flex items-center justify-center transition-colors rounded-xl`}
                     title="Instagram ($15 Basic / $49 Pro / $99 Elite)"
                   >
                     <Instagram className="w-4 h-4" />
@@ -387,7 +398,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                       href={socialLinks?.facebook ? (socialLinks.facebook.startsWith('http') ? socialLinks.facebook : `https://${socialLinks.facebook}`) : '#'}
                       target="_blank"
                       rel="noreferrer"
-                      className={`w-10 h-10 border ${themePresetId === 'aurelisse' ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#1877F2] hover:text-[#1877F2] flex items-center justify-center transition-colors rounded-sm`}
+                      className={`w-10 h-10 border ${isAurelisse ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : isPalatiora ? 'border-white/20 text-white hover:bg-[#F97316]/20 hover:border-[#F97316]' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#1877F2] hover:text-[#1877F2] flex items-center justify-center transition-colors rounded-xl`}
                       title="Facebook ($49 Pro / $99 Elite)"
                     >
                       <Facebook className="w-4 h-4" />
@@ -400,7 +411,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                       href={socialLinks?.youtube ? (socialLinks.youtube.startsWith('http') ? socialLinks.youtube : `https://${socialLinks.youtube}`) : '#'}
                       target="_blank"
                       rel="noreferrer"
-                      className={`w-10 h-10 border ${themePresetId === 'aurelisse' ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#FF0000] hover:text-[#FF0000] flex items-center justify-center transition-colors rounded-sm`}
+                      className={`w-10 h-10 border ${isAurelisse ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : isPalatiora ? 'border-white/20 text-white hover:bg-[#F97316]/20 hover:border-[#F97316]' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#FF0000] hover:text-[#FF0000] flex items-center justify-center transition-colors rounded-xl`}
                       title="YouTube ($49 Pro / $99 Elite)"
                     >
                       <Youtube className="w-4 h-4" />
@@ -413,7 +424,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                       href={socialLinks?.linkedin ? (socialLinks.linkedin.startsWith('http') ? socialLinks.linkedin : `https://${socialLinks.linkedin}`) : '#'}
                       target="_blank"
                       rel="noreferrer"
-                      className={`w-10 h-10 border ${themePresetId === 'aurelisse' ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#0A66C2] hover:text-[#0A66C2] flex items-center justify-center transition-colors rounded-sm`}
+                      className={`w-10 h-10 border ${isAurelisse ? 'border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-50' : isPalatiora ? 'border-white/20 text-white hover:bg-[#F97316]/20 hover:border-[#F97316]' : 'border-white/30 text-white hover:bg-white/5'} hover:border-[#0A66C2] hover:text-[#0A66C2] flex items-center justify-center transition-colors rounded-xl`}
                       title="LinkedIn ($99 Elite)"
                     >
                       <Linkedin className="w-4 h-4" />
@@ -427,18 +438,18 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
       </div>
 
       {/* Bottom Copyright Bar */}
-      <div className={`relative z-10 border-t ${themePresetId === 'aurelisse' ? 'border-[#2e7d32]/20 bg-[#EDF7E7] text-[#2a3e26]' : 'border-white/10 bg-black/40 text-white/60'} py-6 px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between text-xs space-y-3 sm:space-y-0`}>
+      <div className={`relative z-10 border-t ${isAurelisse ? 'border-[#2e7d32]/20 bg-[#EDF7E7] text-[#2a3e26]' : isPalatiora ? 'border-white/10 bg-[#060608] text-stone-400' : 'border-white/10 bg-black/40 text-white/60'} py-6 px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between text-xs space-y-3 sm:space-y-0`}>
         <div className="text-center sm:text-left space-y-1">
           <p>
-            Copyright © <span className={`${themePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-[#DA9F93]'} font-bold`}>{brandName}</span>. All Rights Reserved.
+            Copyright © <span className={`${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-white' : 'text-[#DA9F93]'} font-bold`}>{brandName}</span>. All Rights Reserved.
           </p>
-          <p className={`text-[11px] ${themePresetId === 'aurelisse' ? 'text-[#2a3e26]/60' : 'text-white/40'} flex items-center justify-center sm:justify-start gap-1.5`}>
-            <span>Designed by <span className={themePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-[#DA9F93]'}>Heart Coding</span></span>
+          <p className={`text-[11px] ${isAurelisse ? 'text-[#2a3e26]/60' : isPalatiora ? 'text-stone-500' : 'text-white/40'} flex items-center justify-center sm:justify-start gap-1.5`}>
+            <span>Designed by <span className={isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316] font-bold' : 'text-[#DA9F93]'}>Heart Coding</span></span>
             {onOpenAdmin && (
               <button
                 type="button"
                 onClick={onOpenAdmin}
-                className={`inline-flex items-center ${themePresetId === 'aurelisse' ? 'text-[#2e7d32]/50 hover:text-[#2e7d32]' : 'text-white/30 hover:text-[#DA9F93]'} transition-colors p-1 rounded hover:bg-white/5 cursor-pointer ml-1`}
+                className={`inline-flex items-center ${isAurelisse ? 'text-[#2e7d32]/50 hover:text-[#2e7d32]' : isPalatiora ? 'text-stone-400 hover:text-[#F97316]' : 'text-white/30 hover:text-[#DA9F93]'} transition-colors p-1 rounded hover:bg-white/5 cursor-pointer ml-1`}
                 title={lang === 'bn' ? 'স্টাফ / এডমিন এক্সেস (PIN: 8520)' : 'Staff / Admin Portal Access (PIN: 8520)'}
               >
                 <Lock className="w-3 h-3" />

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Crown, Sparkles, Star, Clock, MapPin, Phone, Calendar, 
-  ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, ArrowLeft,
+  ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, ArrowLeft, ArrowRight,
   Menu, X, Heart, Shield, QrCode, Check, Compass, Search, Bell,
   Award, ChefHat, Utensils, Wine, Gem, Users, CheckCircle2,
   Edit3, Plus, Trash2, ArrowUp, ArrowDown, Save, Image as ImageIcon, Sliders
@@ -299,19 +299,16 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
   },
   'palatiora': {
     pageBgStyle: {
-      backgroundColor: '#1c1917',
-      backgroundImage: `linear-gradient(to bottom, rgba(28, 25, 23, 0.88), rgba(15, 13, 12, 0.95)), url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&auto=format&fit=crop')`,
-      backgroundSize: 'cover',
-      backgroundAttachment: 'fixed',
-      backgroundPosition: 'center',
+      backgroundColor: '#0a0a0c',
+      backgroundImage: `radial-gradient(ellipse at 50% 15%, rgba(249, 115, 22, 0.08), transparent 65%)`,
     },
-    accentColor: '#f59e0b',
-    accentGradient: 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-700 text-stone-950',
-    cardBg: 'bg-[#292524]/90',
-    cardBorderClass: 'border-amber-500/35 hover:border-amber-400',
-    cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(245,158,11,0.35)]',
-    badgeBgClass: 'bg-amber-500 text-stone-950',
-    repertoireTag: '🍷 — VINTAGE CELLAR & AGED STEAKHOUSE LOUNGE —',
+    accentColor: '#F97316',
+    accentGradient: 'bg-gradient-to-r from-[#F97316] to-[#EA580C] text-white shadow-lg shadow-orange-600/30',
+    cardBg: 'bg-[#141414] border border-white/10 shadow-2xl',
+    cardBorderClass: 'border-white/10 hover:border-orange-500/50',
+    cardHoverGlowClass: 'hover:shadow-[0_20px_45px_rgba(249,115,22,0.2)]',
+    badgeBgClass: 'bg-[#F97316] text-white font-bold',
+    repertoireTag: '✦ — INDULGE IN CULINARY ARTISTRY — ✦',
   },
   'celestique': {
     pageBgStyle: {
@@ -632,9 +629,75 @@ const AURELISSE_ROYAL_DISHES: FoodItem[] = [
 ];
 
 const PALATIORA_CELLAR_DISHES: FoodItem[] = [
-  { id: 'pal-1', title: '45-Day Dry-Aged Tomahawk Steak', price: 150.00, calories: '950 kcal', desc: 'Prime Black Angus Tomahawk dry-aged in oak salt caves, seared over white oak charcoal.', img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=600&auto=format&fit=crop', category: 'steaks', isPopular: true },
-  { id: 'pal-2', title: 'Wood-Fired Prime Bone-In Ribeye', price: 85.00, calories: '810 kcal', desc: 'USDA Prime ribeye brushed with roasted garlic marrow butter and Maldon smoked salt.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop', category: 'steaks', isChefSpecial: true },
-  { id: 'pal-3', title: 'Cellar Reserve Cabernet Lamb Chops', price: 68.00, calories: '610 kcal', desc: 'Colorado lamb rack glazed with vintage Cabernet reduction and mint herb gremolata.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop', category: 'steaks' }
+  { id: 'pal-1', title: 'Truffle Pasta', price: 65.00, calories: '480 kcal', desc: 'Handmade farfalle and wild forest mushrooms tossed in shaved black truffle emulsion.', img: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=800&auto=format&fit=crop', category: 'main', isPopular: true },
+  { id: 'pal-2', title: 'Sea Urchin Risotto', price: 90.00, calories: '520 kcal', desc: 'Creamy Carnaroli saffron risotto crowned with fresh sea urchin and butter-poached prawns.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&auto=format&fit=crop', category: 'main', isChefSpecial: true },
+  { id: 'pal-3', title: 'Matcha Lava Cake', price: 35.00, calories: '380 kcal', desc: 'Warm ceremonial Uji matcha crepe and molten lava cake served with sweet mascarpone.', img: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=800&auto=format&fit=crop', category: 'desserts', isPopular: true },
+  { id: 'pal-4', title: 'Crispy Teriyaki Wings', price: 28.00, calories: '610 kcal', desc: 'Golden wood-charred wings glazed with rich Japanese teriyaki reduction and toasted white sesame.', img: 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=1000&auto=format&fit=crop', category: 'specials', isChefSpecial: true },
+  { id: 'pal-5', title: '45-Day Dry-Aged Tomahawk Steak', price: 150.00, calories: '950 kcal', desc: 'Prime Black Angus Tomahawk dry-aged in Himalayan salt caves, seared over white oak charcoal.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop', category: 'main', isPopular: true },
+  { id: 'pal-6', title: 'Wood-Fired Prime Bone-In Ribeye', price: 85.00, calories: '810 kcal', desc: 'USDA Prime ribeye brushed with roasted garlic marrow butter and Maldon smoked salt.', img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=800&auto=format&fit=crop', category: 'main' }
+];
+
+const SAVORELLE_CHEF_PROFILES: ChefProfile[] = [
+  {
+    id: 'sav-chef-1',
+    name: 'James Carlow',
+    role: 'Executive Head Chef',
+    rating: 5.0,
+    bio: 'Renowned for crafting modern gourmet masterpieces with deep culinary vision, skill, and passion.',
+    image: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&auto=format&fit=crop',
+    speciality: 'Flame Seared & Pastas',
+    experienceYears: 18
+  },
+  {
+    id: 'sav-chef-2',
+    name: 'Elena Morin',
+    role: 'Master Pastry & Risotto Artist',
+    rating: 5.0,
+    bio: 'Turns fresh ingredients into works of edible art, with exquisite precision and delicate texture.',
+    image: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=800&auto=format&fit=crop',
+    speciality: 'Matcha Lava & Risotto',
+    experienceYears: 15
+  },
+  {
+    id: 'sav-chef-3',
+    name: 'Takeshi Ito',
+    role: 'Master of Glazed Reductions',
+    rating: 5.0,
+    bio: 'Specialist in Japanese teriyaki glazes, sesame infusion, and high-heat wok and grill excellence.',
+    image: 'https://images.unsplash.com/photo-1607631568010-a87245c0daf8?w=800&auto=format&fit=crop',
+    speciality: 'Teriyaki Wings & Umami',
+    experienceYears: 16
+  },
+  {
+    id: 'sav-chef-4',
+    name: 'Jean-Luc Dupont',
+    role: 'Master Saucier & Emulsifier',
+    rating: 4.9,
+    bio: 'Renowned for creating rich reductions, creamy saffron emulsions and velvet butter infusions.',
+    image: 'https://images.unsplash.com/photo-1581299894007-aaa50297cf16?w=800&auto=format&fit=crop',
+    speciality: 'Saffron Emulsions',
+    experienceYears: 14
+  },
+  {
+    id: 'sav-chef-5',
+    name: 'Sofia Rossi',
+    role: 'Haute Patisserie Designer',
+    rating: 5.0,
+    bio: 'Crafts beautiful molten chocolate spheres, gold-dusted crepes and delicate Italian pastries.',
+    image: 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=800&auto=format&fit=crop',
+    speciality: 'Molten Chocolate Spheres',
+    experienceYears: 12
+  },
+  {
+    id: 'sav-chef-6',
+    name: 'Kenji Tanaka',
+    role: 'Lead Grillmaster & Carver',
+    rating: 4.9,
+    bio: 'Expert in slow-roasting Black Angus Tomahawks over oak wood and carving with precision.',
+    image: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=800&auto=format&fit=crop',
+    speciality: 'Oak-Wood Flame Roasting',
+    experienceYears: 13
+  }
 ];
 
 const CELESTIQUE_OCEAN_DISHES: FoodItem[] = [
@@ -828,9 +891,40 @@ export default function VelmoraDiningTheme({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
   const [modalSearchTerm, setModalSearchTerm] = useState('');
+  const [favoriteDishIds, setFavoriteDishIds] = useState<Set<string>>(new Set());
+
+  const toggleFavorite = (id: string, title: string) => {
+    setFavoriteDishIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        setToastMsg(`Removed "${title}" from favorites`);
+      } else {
+        next.add(id);
+        setToastMsg(`Added "${title}" to favorites ❤️`);
+      }
+      return next;
+    });
+    setTimeout(() => setToastMsg(null), 2200);
+  };
 
   // Marquee pause-on-hover state
   const [isChefHovered, setIsChefHovered] = useState(false);
+
+  // Palatiora Chef Carousel Scroll Ref
+  const palatioraChefScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollPalatioraChefLeft = () => {
+    if (palatioraChefScrollRef.current) {
+      palatioraChefScrollRef.current.scrollBy({ left: -360, behavior: 'smooth' });
+    }
+  };
+
+  const scrollPalatioraChefRight = () => {
+    if (palatioraChefScrollRef.current) {
+      palatioraChefScrollRef.current.scrollBy({ left: 360, behavior: 'smooth' });
+    }
+  };
 
   // Chef section visibility logic: Controlled by theme admin settings
   const isChefSectionVisible = settings?.themeShowChefSection !== false;
@@ -876,7 +970,7 @@ export default function VelmoraDiningTheme({
 
   const rawChefs: ChefProfile[] = (settings?.chefProfiles && settings.chefProfiles.length > 0)
     ? settings.chefProfiles
-    : (activePresetId === 'aurelisse' ? AURELISSE_CHEF_PROFILES : DEFAULT_CHEF_PROFILES);
+    : (activePresetId === 'palatiora' ? SAVORELLE_CHEF_PROFILES : activePresetId === 'aurelisse' ? AURELISSE_CHEF_PROFILES : DEFAULT_CHEF_PROFILES);
   const chefs = rawChefs.slice(0, 6);
 
   useEffect(() => {
@@ -1000,9 +1094,10 @@ export default function VelmoraDiningTheme({
     { id: 'chicken', label: 'Crispy Chicken' },
     { id: 'sides', label: 'Loaded Sides & Shakes' }
   ] : activePresetId === 'palatiora' ? [
-    { id: 'all', label: 'Cellar Repertoire' },
-    { id: 'steaks', label: '45-Day Dry-Aged Steaks' },
-    { id: 'wine', label: 'Cabernet Reductions' }
+    { id: 'all', label: lang === 'bn' ? 'সব মেনু' : 'All Dishes' },
+    { id: 'main', label: lang === 'bn' ? 'মেইন কোর্স' : 'Main Course' },
+    { id: 'specials', label: lang === 'bn' ? 'টেরিয়াকি ও স্পেশালস' : 'Wings & Specials' },
+    { id: 'desserts', label: lang === 'bn' ? 'স্বাদে মিষ্টি ডেজার্ট' : 'Desserts' }
   ] : activePresetId === 'opalune' ? [
     { id: 'all', label: 'Nitro Cold Brews' },
     { id: 'coffee', label: 'Cascade Nitro' },
@@ -1042,10 +1137,14 @@ export default function VelmoraDiningTheme({
 
   const defaultMenuTitle = activePresetId === 'orivelle-house'
     ? 'Orivelle Haute Gastronomy & Private Cellar'
+    : activePresetId === 'palatiora'
+    ? (lang === 'bn' ? 'আমাদের বিশেষ সিগনেচার মেনু' : 'Indulge in Culinary Artistry')
     : 'Haute Cuisine & Tasting Courses';
 
   const defaultMenuSubtitle = activePresetId === 'orivelle-house'
     ? 'An exclusive repertoire of haute gastronomy, 24k gold leaf infusions, and private cellar reserves.'
+    : activePresetId === 'palatiora'
+    ? (lang === 'bn' ? 'প্রতিটি খাবারে নিখুঁত স্বাদ, সেরা ফ্রেশ উপাদান এবং অনন্য রন্ধনশিল্প।' : 'Experience gourmet dining crafted with passion, fresh ingredients, and unforgettable flavors.')
     : 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.';
 
   // Priority sorting: Popular items come first!
@@ -1059,9 +1158,23 @@ export default function VelmoraDiningTheme({
 
   const filteredDishes = React.useMemo(() => {
     return sortedDishes.filter(d => {
-      const matchesCat = activeCategory === 'all' || 
-        (d.category && d.category.toLowerCase().includes(activeCategory.toLowerCase())) || 
-        d.title.toLowerCase().includes(activeCategory.toLowerCase());
+      let matchesCat = activeCategory === 'all';
+      if (!matchesCat) {
+        if (activePresetId === 'palatiora') {
+          if (activeCategory === 'main') {
+            matchesCat = d.category === 'main' || d.category === 'pasta' || d.category === 'seafood' || d.category === 'steaks';
+          } else if (activeCategory === 'specials') {
+            matchesCat = d.category === 'specials' || d.category === 'wings' || d.category === 'appetizer';
+          } else if (activeCategory === 'desserts') {
+            matchesCat = d.category === 'desserts';
+          } else {
+            matchesCat = (d.category && d.category.toLowerCase().includes(activeCategory.toLowerCase())) || d.title.toLowerCase().includes(activeCategory.toLowerCase());
+          }
+        } else {
+          matchesCat = (d.category && d.category.toLowerCase().includes(activeCategory.toLowerCase())) || 
+            d.title.toLowerCase().includes(activeCategory.toLowerCase());
+        }
+      }
       const query = menuSearchQuery.trim().toLowerCase();
       const matchesSearch = !query || 
         d.title.toLowerCase().includes(query) || 
@@ -1069,7 +1182,7 @@ export default function VelmoraDiningTheme({
         (d.category && d.category.toLowerCase().includes(query));
       return matchesCat && matchesSearch;
     });
-  }, [sortedDishes, activeCategory, menuSearchQuery]);
+  }, [sortedDishes, activeCategory, menuSearchQuery, activePresetId]);
 
   // Keyboard navigation for Menu Card modal (Arrow Left / Right to flip next/prev card)
   useEffect(() => {
@@ -1266,6 +1379,9 @@ export default function VelmoraDiningTheme({
   const aurelisseStoneBgStyle: React.CSSProperties | undefined = activePresetId === 'aurelisse' ? {
     backgroundColor: '#EDF7E7',
     backgroundImage: 'none',
+  } : activePresetId === 'palatiora' ? {
+    backgroundColor: '#0a0a0c',
+    backgroundImage: 'radial-gradient(ellipse at 50% 15%, rgba(249, 115, 22, 0.08), transparent 65%)',
   } : undefined;
 
   return (
@@ -1298,6 +1414,7 @@ export default function VelmoraDiningTheme({
           lang={lang}
           themePresetId={activePresetId}
           previewDeviceView={previewDeviceView}
+          subscriptionPlan={settings?.subscriptionPlan}
         />
       </section>
 
@@ -1367,6 +1484,8 @@ export default function VelmoraDiningTheme({
                     ? `${pageCfg.accentGradient} shadow-lg scale-105`
                     : activePresetId === 'aurelisse'
                     ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/35 text-[#142412] hover:bg-[#dcedd5] hover:border-[#2e7d32] shadow-sm'
+                    : activePresetId === 'palatiora'
+                    ? 'bg-[#18181C] border border-white/10 text-stone-300 hover:text-white hover:border-[#F97316]/50 shadow-sm'
                     : 'bg-[#14120B] border border-white/20 text-[#FBF8EE]/80 hover:border-white/50'
                 }`}
               >
@@ -1378,10 +1497,18 @@ export default function VelmoraDiningTheme({
           <button
             type="button"
             onClick={() => openMenuSectionEditor('headings')}
-            className={`px-4 py-2 rounded-2xl ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] hover:bg-[#dcedd5] border-2 border-[#2e7d32]/50 text-[#1b5e20]' : 'bg-amber-500/20 hover:bg-amber-500/30 border-2 border-amber-400/80 text-amber-300'} text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-2 shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95`}
+            className={`px-4 py-2 rounded-2xl ${
+              activePresetId === 'aurelisse'
+                ? 'bg-[#EDF7E7] hover:bg-[#dcedd5] border-2 border-[#2e7d32]/50 text-[#1b5e20]'
+                : activePresetId === 'palatiora'
+                ? 'bg-[#18181C] hover:bg-[#202026] border border-[#F97316]/40 text-[#F97316]'
+                : 'bg-amber-500/20 hover:bg-amber-500/30 border-2 border-amber-400/80 text-amber-300'
+            } text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-2 shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95`}
             title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section Headings & Menu Items'}
           >
-            <Sliders className={`w-3.5 h-3.5 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-amber-400'}`} />
+            <Sliders className={`w-3.5 h-3.5 ${
+              activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-amber-400'
+            }`} />
             <span className="text-xs">{lang === 'bn' ? 'সেকশন এডিট' : 'EDIT SECTION'}</span>
           </button>
         </div>
@@ -1389,13 +1516,21 @@ export default function VelmoraDiningTheme({
         {/* Live Search Bar for Menu Cards */}
         <div className="max-w-md mx-auto w-full px-2">
           <div className="relative flex items-center">
-            <Search className={`w-4 h-4 absolute left-4 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-amber-400'} pointer-events-none`} />
+            <Search className={`w-4 h-4 absolute left-4 ${
+              activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-amber-400'
+            } pointer-events-none`} />
             <input
               type="text"
               value={menuSearchQuery}
               onChange={(e) => setMenuSearchQuery(e.target.value)}
               placeholder={lang === 'bn' ? "খাবারের নাম লিখে সরাসরি মেনু কার্ড খুঁজুন..." : "Search menu cards by food name..."}
-              className={`w-full pl-11 pr-10 py-3 rounded-full ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/40 text-xs sm:text-sm text-[#142412] placeholder-[#2a3e26]/60 focus:outline-none focus:border-[#2e7d32] focus:ring-2 focus:ring-[#2e7d32]/30 shadow-md' : 'bg-[#14120B]/90 border border-[#D4AF37]/40 text-xs sm:text-sm text-[#FBF8EE] placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] shadow-inner'} transition-all backdrop-blur-md`}
+              className={`w-full pl-11 pr-10 py-3 rounded-full ${
+                activePresetId === 'aurelisse'
+                  ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/40 text-xs sm:text-sm text-[#142412] placeholder-[#2a3e26]/60 focus:outline-none focus:border-[#2e7d32] focus:ring-2 focus:ring-[#2e7d32]/30 shadow-md'
+                  : activePresetId === 'palatiora'
+                  ? 'bg-[#18181C] border border-white/15 text-xs sm:text-sm text-white placeholder-stone-400 focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/30 shadow-inner'
+                  : 'bg-[#14120B]/90 border border-[#D4AF37]/40 text-xs sm:text-sm text-[#FBF8EE] placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] shadow-inner'
+              } transition-all backdrop-blur-md`}
             />
             {menuSearchQuery && (
               <button
@@ -1409,14 +1544,20 @@ export default function VelmoraDiningTheme({
             )}
           </div>
           {menuSearchQuery && (
-            <p className={`text-center text-xs ${activePresetId === 'aurelisse' ? 'text-[#2e7d32] font-semibold' : 'text-amber-300/80 font-mono'} mt-2`}>
+            <p className={`text-center text-xs ${
+              activePresetId === 'aurelisse' ? 'text-[#2e7d32] font-semibold' : activePresetId === 'palatiora' ? 'text-slate-700 font-semibold' : 'text-amber-300/80 font-mono'
+            } mt-2`}>
               Found {filteredDishes.length} menu card{filteredDishes.length !== 1 ? 's' : ''} for "{menuSearchQuery}"
             </p>
           )}
         </div>
 
         {/* Food Items Grid */}
-        <div className={`grid gap-5 sm:gap-6 lg:gap-8 ${
+        <div className={`grid ${
+          activePresetId === 'palatiora' 
+            ? 'gap-y-12 sm:gap-y-14 gap-x-6 sm:gap-x-8 pt-6' 
+            : 'gap-5 sm:gap-6 lg:gap-8'
+        } ${
           isMobile 
             ? 'grid-cols-1' 
             : isTablet 
@@ -1503,6 +1644,156 @@ export default function VelmoraDiningTheme({
                   </div>
                 </div>
               </motion.div>
+            ) : activePresetId === 'palatiora' ? (
+              /* ========================================================================= */
+              /* SAVORELLE PALATIORA (THEME #05) SIGNATURE POPPING CIRCULAR PLATE CARD      */
+              /* ========================================================================= */
+              <motion.div
+                key={dish.id}
+                onClick={() => {
+                  setDetailOrderQty(1);
+                  setDetailSpecialNote('');
+                  setSelectedDishDetail(dish);
+                }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="group relative flex flex-col justify-between transition-all duration-300 hover:-translate-y-2.5 cursor-pointer select-none bg-[#151518] rounded-[32px] pt-4 pb-5 px-5 border border-white/10 hover:border-[#F97316]/60 shadow-xl hover:shadow-[0_20px_45px_rgba(249,115,22,0.25)] overflow-visible"
+              >
+                {/* Top Wishlist Heart Button */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(dish.id, dish.title);
+                  }}
+                  className={`absolute top-4 right-4 z-20 w-8 h-8 rounded-full ${
+                    favoriteDishIds.has(dish.id) 
+                      ? 'bg-[#F97316] text-white shadow-md' 
+                      : 'bg-white/10 hover:bg-[#F97316]/30 text-white/90 hover:text-white'
+                  } flex items-center justify-center backdrop-blur-md transition-all active:scale-90`}
+                  title={favoriteDishIds.has(dish.id) ? "Remove from Favorites" : "Add to Favorites"}
+                >
+                  <Heart className={`w-4 h-4 ${favoriteDishIds.has(dish.id) ? 'fill-white' : ''}`} />
+                </button>
+
+                {/* Compact Edit Pencil Button (never blurs or covers the food plate) */}
+                {!savedDishIds.has(dish.id) && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingSingleDish(dish);
+                    }}
+                    className="absolute top-4 left-4 z-30 w-8 h-8 rounded-full bg-black/70 hover:bg-[#F97316] text-[#F97316] hover:text-white flex items-center justify-center backdrop-blur-md transition-all active:scale-90 border border-white/10"
+                    title={lang === 'bn' ? 'খাবার এডিট করুন' : 'Edit Dish Card'}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
+                {/* Floating Badges (shifted below the compact edit button if edit button exists) */}
+                <div className={`absolute ${!savedDishIds.has(dish.id) ? 'top-14' : 'top-4'} left-4 z-20 flex flex-col gap-1.5 pointer-events-none`}>
+                  {dish.isChefSpecial && (
+                    <span className="px-2.5 py-1 rounded-full bg-[#F97316] text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      <span>{lang === 'bn' ? 'শেফ স্পেশাল' : 'Special'}</span>
+                    </span>
+                  )}
+                  {dish.isPopular && (
+                    <span className="px-2.5 py-1 rounded-full bg-stone-900/90 border border-white/15 text-[#F97316] text-[10px] font-bold uppercase tracking-wider shadow-md">
+                      ★ {lang === 'bn' ? 'সিগনেচার' : 'Signature'}
+                    </span>
+                  )}
+                </div>
+
+                {/* Signature Food Dish on Circular Black Plate (Overlaps/Pops out with transparent background and seamless mask) */}
+                <div className="relative w-48 sm:w-52 h-48 sm:h-52 mx-auto -mt-10 sm:-mt-12 rounded-full p-0.5 bg-transparent border-2 border-orange-500/25 shadow-[0_20px_45px_rgba(0,0,0,0.85)] group-hover:scale-[1.06] group-hover:border-[#F97316]/60 transition-all duration-500 flex items-center justify-center overflow-hidden shrink-0">
+                  <div 
+                    className="w-full h-full rounded-full overflow-hidden bg-transparent"
+                    style={{
+                      maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 38%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 75%)',
+                      WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 38%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 75%)'
+                    }}
+                  >
+                    <img
+                      src={dish.img}
+                      alt={dish.title}
+                      className="w-full h-full object-cover scale-[1.3] filter brightness-[1.08] contrast-[1.08]"
+                    />
+                  </div>
+                </div>
+
+                {/* Card Content & Details */}
+                <div className="flex-1 flex flex-col justify-between space-y-3 pt-3">
+                  <div className="space-y-1.5 text-left">
+                    {/* Rating & Calories */}
+                    <div className="flex items-center justify-between text-xs text-stone-400 font-medium">
+                      <div className="flex items-center gap-1 text-amber-400">
+                        <Star className="w-3.5 h-3.5 fill-amber-400" />
+                        <span className="text-white font-bold text-xs">5.0</span>
+                        <span className="text-stone-500 text-[11px]">(240+)</span>
+                      </div>
+                      {dish.calories && (
+                        <span className="text-stone-400 text-[11px] font-mono">{dish.calories}</span>
+                      )}
+                    </div>
+
+                    {/* Dish Title */}
+                    <h3 
+                      className="font-bold text-lg sm:text-xl text-white group-hover:text-[#F97316] transition-colors line-clamp-1 leading-snug tracking-tight"
+                      style={{ fontFamily: "'DM Serif Display', 'Playfair Display', serif" }}
+                    >
+                      {dish.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-xs text-stone-400 font-normal line-clamp-2 leading-relaxed">
+                      {dish.desc}
+                    </p>
+                  </div>
+
+                  {/* Pricing & Order Buttons */}
+                  <div className="pt-3 flex items-center justify-between gap-2 border-t border-white/10">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">
+                        {lang === 'bn' ? 'মূল্য' : 'Price'}
+                      </span>
+                      <span className="text-xl sm:text-2xl font-black text-[#F97316] tracking-tight">
+                        {formatPrice(dish.price)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDetailOrderQty(1);
+                          setDetailSpecialNote('');
+                          setSelectedDishDetail(dish);
+                        }}
+                        className="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+                      >
+                        {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onOrderDish) onOrderDish(dish);
+                          setToastMsg(`"${dish.title}" added to order!`);
+                          setTimeout(() => setToastMsg(null), 2500);
+                        }}
+                        className="px-3.5 sm:px-4 py-2 rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-orange-600/30 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             ) : !isCoffeeTheme ? (
               /* ========================================================================= */
               /* ULTRA-LUXURY 5-STAR MICHELIN BORDERLESS CULINARY MASTERPIECE PRESENTATION  */
@@ -1530,14 +1821,20 @@ export default function VelmoraDiningTheme({
                 )}
 
                 {/* Dish Platter */}
-                <div className={`relative w-full ${activePresetId === 'aurelisse' ? 'aspect-[4/3] rounded-2xl overflow-hidden shadow-md border-2 border-[#2e7d32]/20 bg-[#EDF7E7]' : 'aspect-square max-h-72 overflow-visible'} mx-auto flex items-center justify-center select-none my-1`}>
+                <div className={`relative w-full ${
+                  activePresetId === 'aurelisse' 
+                    ? 'aspect-[4/3] rounded-2xl overflow-hidden shadow-md border-2 border-[#2e7d32]/20 bg-[#EDF7E7]' 
+                    : 'aspect-square max-h-72 overflow-visible'
+                } mx-auto flex items-center justify-center select-none my-1`}>
                   {/* Ambient Glow Halo behind the dish for dark luxury themes */}
                   {activePresetId !== 'aurelisse' && (
                     <div className="absolute inset-0 rounded-full blur-3xl bg-radial from-amber-500/25 via-yellow-600/10 to-transparent group-hover:bg-amber-400/35 transition-all duration-700 scale-110 pointer-events-none" />
                   )}
                   
                   <div 
-                    className={`relative w-full h-full flex items-center justify-center pointer-events-none ${activePresetId === 'aurelisse' ? 'rounded-2xl overflow-hidden' : ''}`}
+                    className={`relative w-full h-full flex items-center justify-center pointer-events-none ${
+                      activePresetId === 'aurelisse' ? 'rounded-2xl overflow-hidden' : ''
+                    }`}
                     style={activePresetId === 'aurelisse' ? undefined : {
                       maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 48%, rgba(0,0,0,0) 95%)',
                       WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 48%, rgba(0,0,0,0) 95%)'
@@ -1555,15 +1852,19 @@ export default function VelmoraDiningTheme({
                     <span className={`px-2.5 py-1 rounded-full ${
                       activePresetId === 'aurelisse' 
                         ? 'bg-[#2e7d32] text-white shadow-md font-bold' 
+                        : activePresetId === 'palatiora'
+                        ? 'bg-slate-800 text-white shadow-md font-bold'
                         : 'bg-stone-950/80 text-amber-300 border border-amber-400/40 shadow-xl backdrop-blur-md'
                     } text-[10px] font-black uppercase tracking-widest flex items-center gap-1`}>
-                      <Crown className="w-3 h-3 text-amber-300" />
-                      <span>{dish.isChefSpecial ? (lang === 'bn' ? 'শেফ স্পেশাল' : 'Michelin Special') : (activePresetId === 'aurelisse' ? 'Aurelisse Reserve' : '24K Haute Reserve')}</span>
+                      <Crown className={`w-3 h-3 ${activePresetId === 'palatiora' ? 'text-slate-300' : 'text-amber-300'}`} />
+                      <span>{dish.isChefSpecial ? (lang === 'bn' ? 'শেফ স্পেশাল' : 'Michelin Special') : (activePresetId === 'aurelisse' ? 'Aurelisse Reserve' : activePresetId === 'palatiora' ? 'Cellar Reserve' : '24K Haute Reserve')}</span>
                     </span>
                     {dish.isPopular && (
                       <span className={`px-2.5 py-1 rounded-full ${
                         activePresetId === 'aurelisse' 
                           ? 'bg-amber-500 text-stone-950 font-black shadow-md' 
+                          : activePresetId === 'palatiora'
+                          ? 'bg-slate-700 text-white font-black shadow-md'
                           : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950'
                       } text-[10px] font-black uppercase tracking-widest shadow-lg`}>
                         ★ {lang === 'bn' ? 'সিগনেচার' : 'Signature'}
@@ -1593,6 +1894,8 @@ export default function VelmoraDiningTheme({
                     <span className={`absolute bottom-2 right-2 px-2.5 py-0.5 rounded-full ${
                       activePresetId === 'aurelisse'
                         ? 'bg-stone-900/90 text-amber-300 border border-[#2e7d32]/40'
+                        : activePresetId === 'palatiora'
+                        ? 'bg-slate-900/90 text-slate-200 border border-slate-500/50'
                         : 'bg-stone-950/80 text-amber-300 border border-amber-400/30'
                     } text-[10px] font-mono backdrop-blur-md shadow`}>
                       {dish.calories}
@@ -1601,27 +1904,37 @@ export default function VelmoraDiningTheme({
                 </div>
 
                 {/* Dish Info & Pricing */}
-                <div className={`flex-1 flex flex-col justify-between space-y-3 ${activePresetId === 'aurelisse' ? 'pt-3' : 'p-2 sm:p-3'}`}>
+                <div className={`flex-1 flex flex-col justify-between space-y-3 ${
+                  activePresetId === 'aurelisse' || activePresetId === 'palatiora' ? 'pt-3' : 'p-2 sm:p-3'
+                }`}>
                   <div className="space-y-1.5 text-center">
                     <div className={`flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-[0.25em] ${
-                      activePresetId === 'aurelisse' ? 'text-[#2e7d32] font-mono font-black' : 'text-amber-400/90 font-mono font-bold'
+                      activePresetId === 'aurelisse' ? 'text-[#2e7d32] font-mono font-black' : activePresetId === 'palatiora' ? 'text-slate-700 font-mono font-black' : 'text-amber-400/90 font-mono font-bold'
                     }`}>
-                      <span>{activePresetId === 'aurelisse' ? (lang === 'bn' ? '★ গুরমে ফ্লেম-গ্রিলড ওয়াগিউ ★' : '★ 5-STAR GOURMET WAGYU & BURGERS ★') : '★ 5-STAR MICHELIN GASTRONOMY ★'}</span>
+                      <span>{
+                        activePresetId === 'aurelisse' 
+                          ? (lang === 'bn' ? '★ গুরমে ফ্লেম-গ্রিলড ওয়াগিউ ★' : '★ 5-STAR GOURMET WAGYU & BURGERS ★') 
+                          : activePresetId === 'palatiora'
+                          ? (lang === 'bn' ? '★ স্মোকি অ্যাশ সেলার ও ড্রাই-এজড স্টেক ★' : '★ SMOKEY ASH CELLAR & DRY-AGED STEAKS ★')
+                          : '★ 5-STAR MICHELIN GASTRONOMY ★'
+                      }</span>
                     </div>
                     <h3 
                       className={`font-black text-lg sm:text-xl ${
-                        activePresetId === 'aurelisse' ? 'text-[#142412] group-hover:text-[#2e7d32]' : 'text-amber-100 group-hover:text-amber-300'
+                        activePresetId === 'aurelisse' ? 'text-[#142412] group-hover:text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-slate-900 group-hover:text-slate-700' : 'text-amber-100 group-hover:text-amber-300'
                       } transition-colors line-clamp-2 leading-snug break-words tracking-tight`}
-                      style={{ fontFamily: activePresetId === 'aurelisse' ? "'Plus Jakarta Sans', sans-serif" : "'Cinzel', 'Playfair Display', serif" }}
+                      style={{ fontFamily: activePresetId === 'palatiora' ? "'DM Serif Display', serif" : activePresetId === 'aurelisse' ? "'Plus Jakarta Sans', sans-serif" : "'Cinzel', 'Playfair Display', serif" }}
                     >
                       {dish.title}
                     </h3>
-                    <p className={`text-xs ${activePresetId === 'aurelisse' ? 'text-[#2a3e26] font-medium leading-relaxed' : 'text-stone-300/80 font-light'} line-clamp-2 leading-relaxed`}>
+                    <p className={`text-xs ${
+                      activePresetId === 'aurelisse' ? 'text-[#2a3e26] font-medium leading-relaxed' : activePresetId === 'palatiora' ? 'text-slate-600 font-medium leading-relaxed' : 'text-stone-300/80 font-light'
+                    } line-clamp-2 leading-relaxed`}>
                       {dish.desc}
                     </p>
                     <div className="pt-2 flex items-center justify-center">
                       <span className={`font-mono font-black text-2xl ${
-                        activePresetId === 'aurelisse' ? 'text-[#1b5e20] tracking-tight' : 'font-serif text-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]'
+                        activePresetId === 'aurelisse' ? 'text-[#1b5e20] tracking-tight' : activePresetId === 'palatiora' ? 'text-slate-900 tracking-tight' : 'font-serif text-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]'
                       }`}>
                         {formatPrice(dish.price)}
                       </span>
@@ -1641,6 +1954,8 @@ export default function VelmoraDiningTheme({
                       className={`py-2.5 rounded-full ${
                         activePresetId === 'aurelisse'
                           ? 'bg-[#dcedd5] hover:bg-[#cee6c5] border-2 border-[#2e7d32]/45 text-[#142412] font-black'
+                          : activePresetId === 'palatiora'
+                          ? 'bg-[#dee2e6] hover:bg-[#ced4da] border-2 border-slate-400/50 text-slate-900 font-black'
                           : 'bg-stone-950/80 hover:bg-stone-900 border border-amber-400/40 text-amber-200 font-bold'
                       } text-[11px] uppercase tracking-wider backdrop-blur-md transition-all text-center cursor-pointer active:scale-95 shadow-xs`}
                     >
@@ -1657,10 +1972,12 @@ export default function VelmoraDiningTheme({
                       className={`py-2.5 rounded-full ${
                         activePresetId === 'aurelisse'
                           ? 'bg-[#2e7d32] hover:bg-[#1b5e20] text-white font-black shadow-[0_4px_15px_rgba(46,125,50,0.35)]'
+                          : activePresetId === 'palatiora'
+                          ? 'bg-slate-900 hover:bg-slate-800 text-white font-black shadow-[0_4px_15px_rgba(30,41,59,0.35)]'
                           : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950 font-black shadow-[0_0_20px_rgba(245,158,11,0.45)]'
                       } text-[11px] uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer`}
                     >
-                      <ShoppingBag className={`w-3.5 h-3.5 ${activePresetId === 'aurelisse' ? 'text-white' : 'text-stone-950'}`} />
+                      <ShoppingBag className={`w-3.5 h-3.5 ${activePresetId === 'aurelisse' || activePresetId === 'palatiora' ? 'text-white' : 'text-stone-950'}`} />
                       <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
                     </button>
                   </div>
@@ -1746,7 +2063,7 @@ export default function VelmoraDiningTheme({
       )}
 
       {/* ========================================================= */}
-      {/* 4. GRAND EXECUTIVE CHEF SECTION (HORIZONTAL CONTINUOUS MARQUEE) */}
+      {/* 4. GRAND EXECUTIVE CHEF SECTION (STAFF SHOWCASE) */}
       {/* ========================================================= */}
       {isChefSectionVisible && (
         <section 
@@ -1754,147 +2071,262 @@ export default function VelmoraDiningTheme({
           className={`py-16 sm:py-24 scroll-mt-20 overflow-hidden ${
             activePresetId === 'aurelisse'
               ? 'bg-[#EDF7E7] border-y border-[#2e7d32]/20 text-[#142412]'
+              : activePresetId === 'palatiora'
+              ? 'bg-black text-white'
               : !isCoffeeTheme || activePresetId === 'orivelle-house'
                 ? 'bg-[#0a0806] border-y border-amber-400/40 text-[#FBF8EE]'
                 : 'bg-white border-y border-[#DA9F93]/30'
           }`}
         >
-          <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 space-y-4">
+          <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 space-y-8">
             
-            <div className="text-center space-y-3">
-              <span className={`text-xs font-mono font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-2 ${
-                activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'
-              }`}>
-                <ChefHat className={`w-4 h-4 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'}`} />
-                {lang === 'bn' ? '— রাজকীয় রন্ধনশিল্পী ও মাস্টার শেফ —' : '— MAESTROS OF THE PALACE —'}
-              </span>
-              <h2 
-                className={`text-3xl sm:text-4xl md:text-5xl font-black ${
-                  activePresetId === 'aurelisse'
-                    ? 'text-[#142412]'
-                    : activePresetId === 'orivelle-house'
-                    ? 'bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent'
-                    : 'text-[#2C1810]'
-                }`}
-                style={{ fontFamily: activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
-              >
-                {lang === 'bn' ? 'এক্সিকিউটিভ শেফ ও কালিনারি মাস্টার্স' : 'Executive Chefs & Master Sommeliers'}
-              </h2>
-              <p className={`text-xs sm:text-sm max-w-xl mx-auto font-medium ${
-                activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-[#5C4033]/80'
-              }`}>
-                {lang === 'bn'
-                  ? 'আন্তর্জাতিক রন্ধনশিল্পের অনন্য স্বাদ ও রাজকীয় পরিবেশনার পেছনের কারিগরগণ।'
-                  : 'Where culinary mastery meets regal grandeur curated by world-renowned gastronomy masters.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Continuous Auto-Scrolling Horizontal Marquee with Pause on Hover */}
-          <div 
-            className="mt-12 relative w-full overflow-hidden marquee-container py-4 select-none"
-            onMouseEnter={() => setIsChefHovered(true)}
-            onMouseLeave={() => setIsChefHovered(false)}
-            onTouchStart={() => setIsChefHovered(true)}
-            onTouchEnd={() => setIsChefHovered(false)}
-          >
-            {/* Soft Edge Fade Gradients */}
-            <div className={`absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-r ${
-              activePresetId === 'aurelisse' ? 'from-[#EDF7E7] to-transparent' : activePresetId === 'orivelle-house' ? 'from-[#0a0907] to-transparent' : 'from-white to-transparent'
-            }`} />
-            <div className={`absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-l ${
-              activePresetId === 'aurelisse' ? 'from-[#EDF7E7] to-transparent' : activePresetId === 'orivelle-house' ? 'from-[#0a0907] to-transparent' : 'from-white to-transparent'
-            }`} />
-
-            {/* Marquee Track: duplicated to guarantee seamless continuous infinite loop */}
-            <div 
-              className="animate-marquee-track flex gap-6 px-4"
-              style={{
-                animationPlayState: isChefHovered ? 'paused' : 'running'
-              }}
-            >
-              {[...chefs, ...chefs].map((chef, idx) => (
-                <div 
-                  key={`${chef.id || idx}-${idx}`}
-                  className={`w-[340px] sm:w-[380px] md:w-[410px] shrink-0 p-6 rounded-3xl flex flex-col justify-between gap-5 transition-all duration-300 group cursor-pointer ${
-                    activePresetId === 'aurelisse'
-                      ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/30 shadow-lg hover:shadow-2xl hover:border-[#2e7d32]/60 text-[#142412]'
-                      : !isCoffeeTheme || activePresetId === 'orivelle-house'
-                      ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]'
-                      : 'bg-white border border-[#DA9F93]/30 hover:border-[#B8860B] shadow-lg shadow-[#2C1810]/5 hover:shadow-2xl hover:shadow-[#B8860B]/15'
-                  }`}
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="relative shrink-0">
-                        <img 
-                          src={chef.image} 
-                          alt={chef.name} 
-                          className="w-20 h-20 sm:w-22 sm:h-22 rounded-full object-cover border-2 border-[#D4AF37] shadow-md shadow-[#D4AF37]/20 group-hover:scale-105 transition-transform"
-                        />
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 flex items-center justify-center text-xs font-black shadow">
-                          ★
-                        </div>
-                      </div>
-                      <div className="space-y-1 min-w-0">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase inline-block truncate max-w-full ${
-                          activePresetId === 'aurelisse'
-                            ? 'bg-[#2e7d32]/10 text-[#1b5e20] border border-[#2e7d32]/30'
-                            : !isCoffeeTheme || activePresetId === 'orivelle-house'
-                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
-                            : 'bg-[#DA9F93]/20 text-[#8C584B]'
-                        }`}>
-                          {chef.role}
-                        </span>
-                        <h3 
-                          className={`text-lg font-bold transition-colors truncate ${
-                            activePresetId === 'aurelisse'
-                              ? 'text-[#142412] group-hover:text-[#2e7d32]'
-                              : !isCoffeeTheme || activePresetId === 'orivelle-house'
-                              ? 'text-amber-100 group-hover:text-amber-300'
-                              : 'text-slate-900 group-hover:text-[#B8860B]'
-                          }`}
-                          style={{ fontFamily: !isCoffeeTheme || activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
-                        >
-                          {chef.name}
-                        </h3>
-                        <div className="flex items-center gap-1 text-amber-400 text-xs">
-                          {'★'.repeat(Math.min(5, Math.round(chef.rating || 5)))}
-                          <span className={`text-[11px] ml-1 ${activePresetId === 'aurelisse' ? 'text-[#2a3e26] font-mono' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-amber-300/70 font-mono' : 'text-slate-500'}`}>
-                            ({chef.rating?.toFixed(1) || '5.0'})
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className={`text-xs line-clamp-3 leading-relaxed ${
-                      activePresetId === 'aurelisse'
-                        ? 'text-[#2a3e26]'
-                        : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-slate-600'
-                    }`}>
-                      {chef.bio}
+            {activePresetId === 'palatiora' ? (
+              /* DEDICATED THEME #05 (PALATIORA) BOX-FREE ANIMATED STAFF / CHEF CAROUSEL */
+              <div className="space-y-10">
+                {/* Header Title & Subtitle Row */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-end pb-4">
+                  <div className="md:col-span-7 text-left">
+                    <h2 
+                      className="text-4xl sm:text-5xl md:text-6xl font-normal text-white tracking-tight leading-tight"
+                      style={{ fontFamily: "'Playfair Display', 'DM Serif Display', serif" }}
+                    >
+                      {lang === 'bn' ? 'আমাদের সেরা রাঁধুনি' : 'Crafted by Experts'}
+                    </h2>
+                  </div>
+                  <div className="md:col-span-5 text-left md:text-right">
+                    <p className="text-stone-400 text-xs sm:text-sm max-w-md font-light leading-relaxed md:ml-auto">
+                      {lang === 'bn'
+                        ? 'প্রতিটি খাবারের পেছনে রয়েছে আমাদের দক্ষ রন্ধনশিল্পীদের ভালোবাসা, অভিজ্ঞতা এবং নিখুঁত শিল্পের ছোঁয়া।'
+                        : 'Each dish begins with vision, skill, and passion. Get to know the culinary artists who turn fresh ingredients into works of art.'}
                     </p>
                   </div>
+                </div>
 
-                  <div className={`pt-3 border-t flex items-center justify-between text-[11px] ${
-                    activePresetId === 'aurelisse' ? 'border-[#2e7d32]/15' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'border-amber-400/20' : 'border-[#DA9F93]/20'
-                  }`}>
-                    <span className={`font-bold truncate ${
-                      activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#8C584B]'
-                    }`}>
-                      ★ {chef.speciality || (chef as any).specialty || 'Master Gastronomy'}
-                    </span>
-                    {chef.experienceYears && (
-                      <span className={`text-[10px] shrink-0 font-mono ml-2 ${
-                        activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-400' : 'text-slate-500'
-                      }`}>
-                        {chef.experienceYears}+ {lang === 'bn' ? 'বছরের অভিজ্ঞতা' : 'Yrs Exp'}
-                      </span>
-                    )}
+                {/* CONTINUOUS GLIDING CAROUSEL TRACK (ANIMATING TO THE RIGHT/LEFT IN CONTINUOUS ROTATION) */}
+                <div 
+                  className="relative w-full overflow-hidden py-4 select-none group/chef-track"
+                  onMouseEnter={() => setIsChefHovered(true)}
+                  onMouseLeave={() => setIsChefHovered(false)}
+                  onTouchStart={() => setIsChefHovered(true)}
+                  onTouchEnd={() => setIsChefHovered(false)}
+                >
+                  <div 
+                    ref={palatioraChefScrollRef}
+                    className="animate-marquee-track flex gap-8 sm:gap-12 px-4 scroll-smooth overflow-x-auto no-scrollbar"
+                    style={{
+                      animationPlayState: isChefHovered ? 'paused' : 'running',
+                      scrollbarWidth: 'none'
+                    }}
+                  >
+                    {[...chefs.slice(0, 6), ...chefs.slice(0, 6)].map((chef, idx) => (
+                      <div 
+                        key={`${chef.id || idx}-${idx}`} 
+                        className="w-[280px] sm:w-[320px] md:w-[340px] shrink-0 flex flex-col items-start space-y-4 group cursor-pointer select-none bg-transparent"
+                      >
+                        {/* LUXURY CATHEDRAL ARCH SHAPE (NO RECTANGULAR BOX) WITH GLOWING RING & DISSOLVED BACKGROUND */}
+                        <div className="relative w-full aspect-[4/5] bg-[#121216] rounded-t-[150px] rounded-b-[36px] overflow-hidden flex flex-col items-center justify-center p-0.5 select-none border-2 border-orange-500/30 group-hover:border-[#F97316] shadow-[0_20px_45px_rgba(0,0,0,0.85)] group-hover:shadow-[0_25px_50px_rgba(249,115,22,0.3)] transition-all duration-500">
+                          
+                          {/* Top 5-Star Rating Badge (Clearly Visible Stars) */}
+                          <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-stone-950/85 backdrop-blur-md border border-amber-400/40 text-amber-300 text-xs font-mono font-bold flex items-center gap-1 shadow-lg">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            <span>5.0</span>
+                          </div>
+
+                          {/* Arch Image with Background Dissolve */}
+                          <div 
+                            className="w-full h-full bg-[#121216] overflow-hidden rounded-t-[148px] rounded-b-[34px] flex items-center justify-center"
+                            style={{
+                              maskImage: 'radial-gradient(ellipse 88% 92% at 50% 45%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 75%, rgba(0,0,0,0) 92%)',
+                              WebkitMaskImage: 'radial-gradient(ellipse 88% 92% at 50% 45%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 75%, rgba(0,0,0,0) 92%)'
+                            }}
+                          >
+                            <img 
+                              src={chef.image} 
+                              alt={chef.name} 
+                              className="w-full h-full object-cover object-top filter brightness-[1.06] contrast-[1.12] group-hover:scale-108 transition-transform duration-500"
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Staff Name & Role */}
+                        <div className="text-left pt-1 space-y-1">
+                          <h3 
+                            className="text-2xl sm:text-3xl font-normal text-white tracking-tight leading-tight group-hover:text-[#F97316] transition-colors"
+                            style={{ fontFamily: "'Playfair Display', 'DM Serif Display', serif" }}
+                          >
+                            {chef.name}
+                          </h3>
+                          {chef.role && (
+                            <p className="text-xs text-[#F97316] font-mono font-bold uppercase tracking-wider">
+                              {chef.role}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
+
+                {/* Left & Right Slider Arrows for Manual Navigation */}
+                <div className="flex items-center justify-between pt-6 border-t border-white/10">
+                  <button 
+                    type="button"
+                    onClick={scrollPalatioraChefLeft}
+                    className="p-3 text-stone-400 hover:text-white hover:bg-white/10 rounded-full transition-all cursor-pointer active:scale-95 border border-white/10"
+                    aria-label="Previous Staff"
+                  >
+                    <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={scrollPalatioraChefRight}
+                    className="p-3 text-stone-400 hover:text-white hover:bg-white/10 rounded-full transition-all cursor-pointer active:scale-95 border border-white/10"
+                    aria-label="Next Staff"
+                  >
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* OTHER THEMES STANDARD MARQUEE/CARD LAYOUT */
+              <>
+                <div className="text-center space-y-3">
+                  <span className={`text-xs font-mono font-bold tracking-[0.3em] uppercase flex items-center justify-center gap-2 ${
+                    activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'
+                  }`}>
+                    <ChefHat className={`w-4 h-4 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'}`} />
+                    {lang === 'bn' ? '— রাজকীয় রন্ধনশিল্পী ও মাস্টার শেফ —' : '— MAESTROS OF THE PALACE —'}
+                  </span>
+                  <h2 
+                    className={`text-3xl sm:text-4xl md:text-5xl font-black ${
+                      activePresetId === 'aurelisse'
+                        ? 'text-[#142412]'
+                        : activePresetId === 'orivelle-house'
+                        ? 'bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent'
+                        : 'text-[#2C1810]'
+                    }`}
+                    style={{ fontFamily: activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
+                  >
+                    {lang === 'bn' ? 'এক্সিকিউটিভ শেফ ও কালিনারি মাস্টার্স' : 'Executive Chefs & Master Sommeliers'}
+                  </h2>
+                  <p className={`text-xs sm:text-sm max-w-xl mx-auto font-medium ${
+                    activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-[#5C4033]/80'
+                  }`}>
+                    {lang === 'bn'
+                      ? 'আন্তর্জাতিক রন্ধনশিল্পের অনন্য স্বাদ ও রাজকীয় পরিবেশনার পেছনের কারিগরগণ।'
+                      : 'Where culinary mastery meets regal grandeur curated by world-renowned gastronomy masters.'}
+                  </p>
+                </div>
+
+                <div 
+                  className="mt-12 relative w-full overflow-hidden marquee-container py-4 select-none"
+                  onMouseEnter={() => setIsChefHovered(true)}
+                  onMouseLeave={() => setIsChefHovered(false)}
+                  onTouchStart={() => setIsChefHovered(true)}
+                  onTouchEnd={() => setIsChefHovered(false)}
+                >
+                  <div className={`absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-r ${
+                    activePresetId === 'aurelisse' ? 'from-[#EDF7E7] to-transparent' : activePresetId === 'orivelle-house' ? 'from-[#0a0907] to-transparent' : 'from-white to-transparent'
+                  }`} />
+                  <div className={`absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-l ${
+                    activePresetId === 'aurelisse' ? 'from-[#EDF7E7] to-transparent' : activePresetId === 'orivelle-house' ? 'from-[#0a0907] to-transparent' : 'from-white to-transparent'
+                  }`} />
+
+                  <div 
+                    className="animate-marquee-track flex gap-6 px-4"
+                    style={{
+                      animationPlayState: isChefHovered ? 'paused' : 'running'
+                    }}
+                  >
+                    {[...chefs, ...chefs].map((chef, idx) => (
+                      <div 
+                        key={`${chef.id || idx}-${idx}`}
+                        className={`w-[340px] sm:w-[380px] md:w-[410px] shrink-0 p-6 rounded-3xl flex flex-col justify-between gap-5 transition-all duration-300 group cursor-pointer ${
+                          activePresetId === 'aurelisse'
+                            ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/30 shadow-lg hover:shadow-2xl hover:border-[#2e7d32]/60 text-[#142412]'
+                            : !isCoffeeTheme || activePresetId === 'orivelle-house'
+                            ? 'bg-stone-950/60 backdrop-blur-md border border-amber-400/25 hover:border-amber-400/60 shadow-[0_15px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_45px_rgba(245,158,11,0.25)]'
+                            : 'bg-white border border-[#DA9F93]/30 hover:border-[#B8860B] shadow-lg shadow-[#2C1810]/5 hover:shadow-2xl hover:shadow-[#B8860B]/15'
+                        }`}
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            <div className="relative shrink-0">
+                              <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden relative border-2 border-[#D4AF37] shadow-md shadow-[#D4AF37]/20 group-hover:scale-105 transition-transform">
+                                <img 
+                                  src={chef.image} 
+                                  alt={chef.name} 
+                                  className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.08]"
+                                />
+                              </div>
+                              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#D4AF37] text-slate-950 flex items-center justify-center text-xs font-black shadow z-10">
+                                ★
+                              </div>
+                            </div>
+                            <div className="space-y-1 min-w-0">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase inline-block truncate max-w-full ${
+                                activePresetId === 'aurelisse'
+                                  ? 'bg-[#2e7d32]/10 text-[#1b5e20] border border-[#2e7d32]/30'
+                                  : !isCoffeeTheme || activePresetId === 'orivelle-house'
+                                  ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                                  : 'bg-[#DA9F93]/20 text-[#8C584B]'
+                              }`}>
+                                {chef.role}
+                              </span>
+                              <h3 
+                                className={`text-lg font-bold transition-colors truncate ${
+                                  activePresetId === 'aurelisse'
+                                    ? 'text-[#142412] group-hover:text-[#2e7d32]'
+                                    : !isCoffeeTheme || activePresetId === 'orivelle-house'
+                                    ? 'text-amber-100 group-hover:text-amber-300'
+                                    : 'text-slate-900 group-hover:text-[#B8860B]'
+                                }`}
+                                style={{ fontFamily: !isCoffeeTheme || activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
+                              >
+                                {chef.name}
+                              </h3>
+                              <div className="flex items-center gap-1 text-amber-400 text-xs">
+                                {'★'.repeat(Math.min(5, Math.round(chef.rating || 5)))}
+                                <span className={`text-[11px] ml-1 ${
+                                  activePresetId === 'aurelisse' ? 'text-[#2a3e26] font-mono' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-amber-300/70 font-mono' : 'text-slate-500'
+                                }`}>
+                                  ({chef.rating?.toFixed(1) || '5.0'})
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className={`text-xs line-clamp-3 leading-relaxed ${
+                            activePresetId === 'aurelisse'
+                              ? 'text-[#2a3e26]'
+                              : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-slate-600'
+                          }`}>
+                            {chef.bio}
+                          </p>
+                        </div>
+
+                        <div className={`pt-3 border-t flex items-center justify-between text-[11px] ${
+                          activePresetId === 'aurelisse' ? 'border-[#2e7d32]/15' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'border-amber-400/20' : 'border-[#DA9F93]/20'
+                        }`}>
+                          <span className={`font-bold truncate ${
+                            activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#8C584B]'
+                          }`}>
+                            ★ {chef.speciality || (chef as any).specialty || 'Master Gastronomy'}
+                          </span>
+                          {chef.experienceYears && (
+                            <span className={`text-[10px] shrink-0 font-mono ml-2 ${
+                              activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-400' : 'text-slate-500'
+                            }`}>
+                              {chef.experienceYears}+ {lang === 'bn' ? 'বছরের অভিজ্ঞতা' : 'Yrs Exp'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </section>
       )}
@@ -2157,7 +2589,7 @@ export default function VelmoraDiningTheme({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-50 flex flex-col overflow-hidden w-full h-full ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]' : 'bg-white'}`}
+            className={`fixed inset-0 z-50 flex flex-col overflow-hidden w-full h-full ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]' : activePresetId === 'palatiora' ? 'bg-[#0B0B0E]' : 'bg-white'}`}
             onClick={() => setSelectedDishDetail(null)}
           >
             <motion.div
@@ -2165,18 +2597,18 @@ export default function VelmoraDiningTheme({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className={`w-full h-full flex flex-col overflow-hidden relative select-text ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] text-[#142412]' : 'bg-white text-slate-900'}`}
+              className={`w-full h-full flex flex-col overflow-hidden relative select-text ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] text-[#142412]' : activePresetId === 'palatiora' ? 'bg-[#0B0B0E] text-white' : 'bg-white text-slate-900'}`}
             >
               {/* Top Navigation Bar with Next/Prev Card Controls & Fast Search */}
-              <div className={`px-4 sm:px-8 py-4 border-b flex flex-wrap items-center justify-between gap-4 shrink-0 z-10 shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] border-[#2e7d32]/25' : 'bg-white border-slate-200'}`}>
+              <div className={`px-4 sm:px-8 py-4 border-b flex flex-wrap items-center justify-between gap-4 shrink-0 z-10 shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] border-[#2e7d32]/25' : activePresetId === 'palatiora' ? 'bg-[#121215] border-white/10' : 'bg-white border-slate-200'}`}>
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
                     type="button"
                     onClick={() => setSelectedDishDetail(null)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs border shadow-2xs transition-all cursor-pointer active:scale-95 ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] hover:bg-[#cee6c5] text-[#142412] border-[#2e7d32]/30' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200'}`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs border shadow-2xs transition-all cursor-pointer active:scale-95 ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] hover:bg-[#cee6c5] text-[#142412] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-white/10 hover:bg-white/20 text-white border-white/10' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200'}`}
                     title={lang === 'bn' ? 'মেনু পেজে ফিরে যান' : 'Back to menu'}
                   >
-                    <ArrowLeft className={`w-4 h-4 ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-slate-700'}`} />
+                    <ArrowLeft className={`w-4 h-4 ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-700'}`} />
                     <span className="font-extrabold">{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
                   </button>
                 </div>
@@ -2185,7 +2617,7 @@ export default function VelmoraDiningTheme({
                 <div className="flex items-center gap-3 flex-wrap">
                   {/* Quick Card Search */}
                   <div className="relative hidden md:block w-48">
-                    <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-slate-400'}`} />
+                    <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-slate-400'}`} />
                     <input
                       type="text"
                       placeholder={lang === 'bn' ? "খাবার খুঁজুন..." : "Find dish..."}
@@ -2205,12 +2637,12 @@ export default function VelmoraDiningTheme({
                           }
                         }
                       }}
-                      className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border outline-none transition-all shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] border-[#2e7d32]/30 text-[#142412] placeholder-[#2a3e26]/60 focus:border-[#2e7d32]' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-amber-500'}`}
+                      className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border outline-none transition-all shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] border-[#2e7d32]/30 text-[#142412] placeholder-[#2a3e26]/60 focus:border-[#2e7d32]' : activePresetId === 'palatiora' ? 'bg-[#18181C] border-white/15 text-white placeholder:text-stone-400 focus:border-[#F97316]' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-amber-500'}`}
                     />
                   </div>
 
                   {/* Prev / Counter / Next Controls */}
-                  <div className={`flex items-center gap-1 p-1 rounded-xl border shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] border-[#2e7d32]/30' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className={`flex items-center gap-1 p-1 rounded-xl border shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-[#18181C] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                     <button
                       type="button"
                       onClick={() => {
@@ -2223,14 +2655,14 @@ export default function VelmoraDiningTheme({
                         const scrollEl = document.getElementById('dish-modal-scroll-body');
                         if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs border ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] hover:bg-white text-[#142412] border-[#2e7d32]/30' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'}`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs border ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] hover:bg-white text-[#142412] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-white/10 hover:bg-white/20 text-white border-white/10' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'}`}
                       title="Previous Menu Card (Left Arrow)"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       <span className="hidden xs:inline">Prev</span>
                     </button>
 
-                    <span className={`px-3 text-xs font-mono font-bold whitespace-nowrap ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-slate-700'}`}>
+                    <span className={`px-3 text-xs font-mono font-bold whitespace-nowrap ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-700'}`}>
                       {Math.max(1, filteredDishes.findIndex(d => d.id === selectedDishDetail.id) + 1)} / {filteredDishes.length}
                     </span>
 
@@ -2246,7 +2678,7 @@ export default function VelmoraDiningTheme({
                         const scrollEl = document.getElementById('dish-modal-scroll-body');
                         if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#2e7d32] hover:bg-[#1b5e20] text-white' : 'bg-amber-500 hover:bg-amber-600 text-white'}`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer active:scale-95 shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#2e7d32] hover:bg-[#1b5e20] text-white' : activePresetId === 'palatiora' ? 'bg-[#F97316] hover:bg-[#EA580C] text-white' : 'bg-amber-500 hover:bg-amber-600 text-white'}`}
                       title="Next Menu Card (Right Arrow)"
                     >
                       <span>Next</span>
@@ -2261,15 +2693,15 @@ export default function VelmoraDiningTheme({
                       setSelectedDishDetail(null);
                       setEditingSingleDish(d);
                     }}
-                    className={`px-3.5 py-2 rounded-xl border text-xs font-bold uppercase tracking-wider hidden sm:flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] hover:bg-[#cee6c5] border-[#2e7d32]/30 text-[#142412]' : 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200'}`}
+                    className={`px-3.5 py-2 rounded-xl border text-xs font-bold uppercase tracking-wider hidden sm:flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] hover:bg-[#cee6c5] border-[#2e7d32]/30 text-[#142412]' : activePresetId === 'palatiora' ? 'bg-white/10 hover:bg-white/20 border-white/10 text-white' : 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200'}`}
                   >
-                    <Edit3 className={`w-3.5 h-3.5 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-amber-600'}`} />
+                    <Edit3 className={`w-3.5 h-3.5 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-amber-600'}`} />
                     <span>Edit</span>
                   </button>
 
                   <button
                     onClick={() => setSelectedDishDetail(null)}
-                    className={`p-2 rounded-xl transition-colors cursor-pointer border shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] text-[#142412] hover:bg-[#cee6c5] border-[#2e7d32]/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-slate-200'}`}
+                    className={`p-2 rounded-xl transition-colors cursor-pointer border shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] text-[#142412] hover:bg-[#cee6c5] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-white/10 text-white hover:bg-white/20 border-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-slate-200'}`}
                     title="Close"
                   >
                     <X className="w-5 h-5" />
@@ -2278,13 +2710,13 @@ export default function VelmoraDiningTheme({
               </div>
 
               {/* Full-Page Scrollable Container */}
-              <div id="dish-modal-scroll-body" className={`flex-1 p-6 sm:p-10 md:p-12 overflow-y-auto space-y-10 scrollbar-thin scrollbar-thumb-slate-300 max-w-7xl mx-auto w-full ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]' : ''}`}>
+              <div id="dish-modal-scroll-body" className={`flex-1 p-6 sm:p-10 md:p-12 overflow-y-auto space-y-10 scrollbar-thin scrollbar-thumb-slate-300 max-w-7xl mx-auto w-full ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]' : activePresetId === 'palatiora' ? 'bg-[#0B0B0E]' : ''}`}>
                 
                 {/* 2-Column Main Item View */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                   
                   {/* Left Column: Food Image with Next/Prev Arrow Overlays */}
-                  <div className={`lg:col-span-7 relative h-72 sm:h-96 md:h-[440px] w-full rounded-3xl overflow-hidden border shadow-xl group select-none ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/30 bg-[#EDF7E7]' : 'border-slate-200 bg-slate-50'}`}>
+                  <div className={`lg:col-span-7 relative h-72 sm:h-96 md:h-[440px] w-full rounded-3xl overflow-hidden border shadow-xl group select-none ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/30 bg-[#EDF7E7]' : activePresetId === 'palatiora' ? 'border-white/10 bg-[#151518]' : 'border-slate-200 bg-slate-50'}`}>
                     <img 
                       src={selectedDishDetail.img} 
                       alt={selectedDishDetail.title} 
@@ -2304,7 +2736,7 @@ export default function VelmoraDiningTheme({
                         setDetailOrderQty(1);
                         setDetailSpecialNote('');
                       }}
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20 ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/90 hover:bg-white text-[#142412] border-[#2e7d32]/40' : 'bg-white/85 hover:bg-white text-slate-900 border-slate-200'}`}
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20 ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/90 hover:bg-white text-[#142412] border-[#2e7d32]/40' : activePresetId === 'palatiora' ? 'bg-black/60 hover:bg-[#F97316] text-white border-white/20' : 'bg-white/85 hover:bg-white text-slate-900 border-slate-200'}`}
                       title="Previous Card"
                     >
                       <ChevronLeft className="w-6 h-6" />
@@ -2321,13 +2753,13 @@ export default function VelmoraDiningTheme({
                         setDetailOrderQty(1);
                         setDetailSpecialNote('');
                       }}
-                      className={`absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20 ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/90 hover:bg-white text-[#142412] border-[#2e7d32]/40' : 'bg-white/85 hover:bg-white text-slate-900 border-slate-200'}`}
+                      className={`absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-all active:scale-90 cursor-pointer shadow-xl z-20 ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/90 hover:bg-white text-[#142412] border-[#2e7d32]/40' : activePresetId === 'palatiora' ? 'bg-black/60 hover:bg-[#F97316] text-white border-white/20' : 'bg-white/85 hover:bg-white text-slate-900 border-slate-200'}`}
                       title="Next Card"
                     >
                       <ChevronRight className="w-6 h-6" />
                     </button>
 
-                    <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3.5 py-1.5 rounded-xl border font-mono text-xs font-bold shadow-sm ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/95 border-[#2e7d32]/35 text-[#142412]' : 'bg-white/90 border-slate-200 text-slate-800'}`}>
+                    <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3.5 py-1.5 rounded-xl border font-mono text-xs font-bold shadow-sm ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/95 border-[#2e7d32]/35 text-[#142412]' : activePresetId === 'palatiora' ? 'bg-black/80 border-white/20 text-white' : 'bg-white/90 border-slate-200 text-slate-800'}`}>
                       📸 High-Res Gourmet Selection
                     </div>
                   </div>
@@ -2337,44 +2769,44 @@ export default function VelmoraDiningTheme({
                     <div className="space-y-4">
                       <div className="flex items-start justify-between gap-4">
                         <h3 
-                          className={`text-2xl sm:text-4xl font-extrabold leading-tight ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-slate-900'}`}
+                          className={`text-2xl sm:text-4xl font-extrabold leading-tight ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-900'}`}
                           style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
                         >
                           {selectedDishDetail.title}
                         </h3>
-                        <span className={`font-mono text-2xl sm:text-3xl font-black shrink-0 ${activePresetId === 'aurelisse' ? 'text-[#1b5e20]' : 'text-amber-600'}`}>
+                        <span className={`font-mono text-2xl sm:text-3xl font-black shrink-0 ${activePresetId === 'aurelisse' ? 'text-[#1b5e20]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-amber-600'}`}>
                           {formatPrice(selectedDishDetail.price)}
                         </span>
                       </div>
 
-                      <div className={`flex items-center gap-3 text-xs font-mono px-3.5 py-2 rounded-xl border w-fit ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] text-[#142412] border-[#2e7d32]/30' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                      <div className={`flex items-center gap-3 text-xs font-mono px-3.5 py-2 rounded-xl border w-fit ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] text-[#142412] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-[#18181C] text-stone-300 border-white/10' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                         <span>🔥 {selectedDishDetail.calories || '180 kcal'}</span>
                         <span>•</span>
                         <span>⏱️ Prep Time: 5-8 mins</span>
                       </div>
 
-                      <p className={`text-sm sm:text-base leading-relaxed font-normal ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-slate-600'}`}>
+                      <p className={`text-sm sm:text-base leading-relaxed font-normal ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : activePresetId === 'palatiora' ? 'text-stone-300' : 'text-slate-600'}`}>
                         {selectedDishDetail.desc}
                       </p>
                     </div>
 
                     {/* Quantity Controls & Order Button */}
-                    <div className={`space-y-4 pt-4 border-t ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/25' : 'border-slate-200'}`}>
+                    <div className={`space-y-4 pt-4 border-t ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/25' : activePresetId === 'palatiora' ? 'border-white/10' : 'border-slate-200'}`}>
                       <div className="flex items-center justify-between">
-                        <span className={`text-xs font-black uppercase tracking-wider ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-slate-700'}`}>Order Quantity</span>
-                        <div className={`flex items-center gap-3 border rounded-full px-4 py-1.5 shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] border-[#2e7d32]/30' : 'bg-slate-50 border-slate-200'}`}>
+                        <span className={`text-xs font-black uppercase tracking-wider ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-700'}`}>Order Quantity</span>
+                        <div className={`flex items-center gap-3 border rounded-full px-4 py-1.5 shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-[#18181C] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                           <button 
                             type="button"
                             onClick={() => setDetailOrderQty(prev => Math.max(1, prev - 1))}
-                            className={`font-bold text-lg px-2 cursor-pointer active:scale-95 transition-transform ${activePresetId === 'aurelisse' ? 'text-[#142412] hover:text-[#2e7d32]' : 'text-slate-600 hover:text-slate-900'}`}
+                            className={`font-bold text-lg px-2 cursor-pointer active:scale-95 transition-transform ${activePresetId === 'aurelisse' ? 'text-[#142412] hover:text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-white hover:text-[#F97316]' : 'text-slate-600 hover:text-slate-900'}`}
                           >
                             -
                           </button>
-                          <span className={`font-mono text-sm font-black w-6 text-center ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-slate-900'}`}>{detailOrderQty}</span>
+                          <span className={`font-mono text-sm font-black w-6 text-center ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-900'}`}>{detailOrderQty}</span>
                           <button 
                             type="button"
                             onClick={() => setDetailOrderQty(prev => prev + 1)}
-                            className={`font-bold text-lg px-2 cursor-pointer active:scale-95 transition-transform ${activePresetId === 'aurelisse' ? 'text-[#142412] hover:text-[#2e7d32]' : 'text-slate-600 hover:text-slate-900'}`}
+                            className={`font-bold text-lg px-2 cursor-pointer active:scale-95 transition-transform ${activePresetId === 'aurelisse' ? 'text-[#142412] hover:text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-white hover:text-[#F97316]' : 'text-slate-600 hover:text-slate-900'}`}
                           >
                             +
                           </button>
@@ -2399,6 +2831,8 @@ export default function VelmoraDiningTheme({
                         className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-98 cursor-pointer flex items-center justify-center gap-2 transition-all ${
                           activePresetId === 'aurelisse'
                             ? 'bg-gradient-to-r from-[#2e7d32] to-[#1b5e20] hover:from-[#1b5e20] hover:to-[#0d3811] text-white shadow-lg shadow-[#2e7d32]/25'
+                            : activePresetId === 'palatiora'
+                            ? 'bg-[#F97316] hover:bg-[#EA580C] text-white shadow-lg shadow-orange-600/30'
                             : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/25'
                         }`}
                       >
@@ -2411,15 +2845,15 @@ export default function VelmoraDiningTheme({
                 </div>
 
                 {/* Scroll Down Section: More Delicacies / Related Items Grid */}
-                <div className={`pt-8 border-t space-y-4 ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/25' : 'border-slate-200'}`}>
+                <div className={`pt-8 border-t space-y-4 ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/25' : activePresetId === 'palatiora' ? 'border-white/10' : 'border-slate-200'}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <h4 className={`text-sm font-extrabold uppercase tracking-wider flex items-center gap-2 ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-slate-900'}`}>
+                      <h4 className={`text-sm font-extrabold uppercase tracking-wider flex items-center gap-2 ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-900'}`}>
                         ✨ More Delicacies — Tap Any Item to View Enlarged
                       </h4>
-                      <p className={`text-xs font-medium ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-slate-500'}`}>Scroll down to explore all gourmet selections in our menu</p>
+                      <p className={`text-xs font-medium ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : activePresetId === 'palatiora' ? 'text-stone-400' : 'text-slate-500'}`}>Scroll down to explore all gourmet selections in our menu</p>
                     </div>
-                    <span className={`text-xs font-mono px-3 py-1 rounded-full w-fit font-bold ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] text-[#142412] border border-[#2e7d32]/30' : 'text-amber-700 bg-amber-50 border border-amber-200'}`}>
+                    <span className={`text-xs font-mono px-3 py-1 rounded-full w-fit font-bold ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] text-[#142412] border border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-[#18181C] text-[#F97316] border border-white/10' : 'text-amber-700 bg-amber-50 border border-amber-200'}`}>
                       {effectiveDishes.length - 1} More Items Available
                     </span>
                   </div>
@@ -2437,26 +2871,42 @@ export default function VelmoraDiningTheme({
                             const scrollEl = document.getElementById('dish-modal-scroll-body');
                             if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
-                          className={`${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/30 hover:border-[#2e7d32] text-[#142412]' : 'bg-white border border-slate-200 hover:border-amber-500'} rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group shadow-2xs hover:shadow-md flex flex-col justify-between`}
+                          className={`${
+                            activePresetId === 'aurelisse' 
+                              ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/30 hover:border-[#2e7d32] text-[#142412]' 
+                              : activePresetId === 'palatiora'
+                              ? 'bg-[#151518] border border-white/10 hover:border-[#F97316]/50 text-white'
+                              : 'bg-white border border-slate-200 hover:border-amber-500'
+                          } rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group shadow-2xs hover:shadow-md flex flex-col justify-between`}
                         >
-                          <div className={`h-28 sm:h-36 overflow-hidden relative ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5]' : 'bg-slate-100'}`}>
+                          <div className={`h-28 sm:h-36 overflow-hidden relative ${
+                            activePresetId === 'aurelisse' ? 'bg-[#dcedd5]' : activePresetId === 'palatiora' ? 'bg-[#101014]' : 'bg-slate-100'
+                          }`}>
                             <img 
                               src={otherDish.img} 
                               alt={otherDish.title} 
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                             />
-                            <span className={`absolute bottom-2 right-2 px-2 py-0.5 rounded-lg backdrop-blur-xs border text-[10px] font-mono font-bold shadow-2xs ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/95 border-[#2e7d32]/35 text-[#142412]' : 'bg-white/90 border-slate-200 text-slate-900'}`}>
+                            <span className={`absolute bottom-2 right-2 px-2 py-0.5 rounded-lg backdrop-blur-xs border text-[10px] font-mono font-bold shadow-2xs ${
+                              activePresetId === 'aurelisse' ? 'bg-[#EDF7E7]/95 border-[#2e7d32]/35 text-[#142412]' : activePresetId === 'palatiora' ? 'bg-black/80 border-white/20 text-[#F97316]' : 'bg-white/90 border-slate-200 text-slate-900'
+                            }`}>
                               {formatPrice(otherDish.price)}
                             </span>
                           </div>
                           <div className="p-3 space-y-1">
-                            <h5 className={`font-bold text-xs line-clamp-1 transition-colors ${activePresetId === 'aurelisse' ? 'text-[#142412] group-hover:text-[#2e7d32]' : 'text-slate-900 group-hover:text-amber-600'}`}>
+                            <h5 className={`font-bold text-xs line-clamp-1 transition-colors ${
+                              activePresetId === 'aurelisse' ? 'text-[#142412] group-hover:text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-white group-hover:text-[#F97316]' : 'text-slate-900 group-hover:text-amber-600'
+                            }`}>
                               {otherDish.title}
                             </h5>
-                            <p className={`text-[10px] line-clamp-1 font-medium ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-slate-500'}`}>
+                            <p className={`text-[10px] line-clamp-1 font-medium ${
+                              activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : activePresetId === 'palatiora' ? 'text-stone-300' : 'text-slate-500'
+                            }`}>
                               {otherDish.desc}
                             </p>
-                            <span className={`text-[9px] font-bold uppercase tracking-wider block pt-1 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : 'text-amber-600'}`}>
+                            <span className={`text-[9px] font-bold uppercase tracking-wider block pt-1 ${
+                              activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-amber-600'
+                            }`}>
                               Tap to View ➔
                             </span>
                           </div>

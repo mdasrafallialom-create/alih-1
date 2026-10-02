@@ -129,6 +129,55 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
     );
   }
 
+  // Theme #05: Palatiora (Savorelle Gourmet 6-Shape Animated Food Slides)
+  if (normId === 'palatiora' || normId.includes('palatiora')) {
+    return (
+      <div className="relative w-full max-w-[520px] aspect-square flex flex-col items-center justify-center select-none group bg-transparent">
+        {/* Soft glowing ambient halo behind the shape */}
+        <div className="absolute inset-0 rounded-full blur-3xl bg-orange-600/20 pointer-events-none scale-110 animate-pulse" />
+        
+        <motion.div
+          animate={{ y: [-8, 8, -8], rotate: [-1.5, 1.5, -1.5] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          className="relative w-full h-full flex items-center justify-center pointer-events-none select-none bg-transparent"
+        >
+          {/* Subtle Accent Rings around the shape - NO BOX, 100% circular organic presentation */}
+          <div className="absolute w-[80%] h-[80%] rounded-full border border-orange-500/30 pointer-events-none z-0 animate-spin-slow" style={{ animationDuration: '30s' }} />
+          <div className="absolute w-[86%] h-[86%] rounded-full border border-amber-400/20 pointer-events-none z-0" />
+
+          {/* 100% Transparent Background Removal via Circular Mask - NO rectangular photo background visible */}
+          <div 
+            className="relative w-[78%] h-[78%] rounded-full overflow-hidden bg-transparent z-10"
+            style={{
+              maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0) 72%)',
+              WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0) 72%)'
+            }}
+          >
+            <img
+              src={cupImg || "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=1000&auto=format&fit=crop"}
+              alt={cupName || "Palatiora Signature Dish"}
+              className="w-full h-full object-cover scale-[1.35] filter brightness-[1.08] contrast-[1.12] group-hover:scale-[1.42] transition-transform duration-700"
+            />
+          </div>
+        </motion.div>
+
+        {/* Floating Frameless Pill Badge for Name */}
+        <div className="absolute -bottom-2 z-30 pointer-events-none px-4 w-full flex justify-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#121212]/95 border border-orange-500/50 backdrop-blur-md px-6 py-2.5 rounded-full shadow-[0_12px_32px_rgba(249,115,22,0.35)] text-center flex items-center gap-2"
+          >
+            <Flame className="w-4 h-4 text-[#F97316] animate-pulse" />
+            <span className="text-xs sm:text-sm uppercase font-extrabold text-orange-100 font-serif tracking-widest whitespace-nowrap">
+              {cupName || "Crispy Teriyaki Wings with Sesame"}
+            </span>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   // 4. Steak Visual (Seamless Background Blended)
   if (activeType === 'steak') {
     return (

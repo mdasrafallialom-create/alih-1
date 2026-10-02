@@ -99,21 +99,91 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
     }
   ],
 
-  // #05 Palatiora (5-Star Smokey Ash Cellar & Steakhouse)
+  // #05 Palatiora (Savorelle Dining & Teriyaki Wings)
   'palatiora': [
     {
       id: 1,
       number: '01',
-      eyebrow: 'SMOKEY SLATE ASH CELLAR',
-      heading: '45-DAY DRY-AGED PRIME STEAKHOUSE',
-      description: 'Opulent smokey slate ash aesthetic, rare cellar reserves, and prime Black Angus dry-aged over white oak charcoal.',
-      primaryBtn: 'Explore Cellar Menu',
-      secondaryBtn: 'Reserve Wine Table',
+      eyebrow: 'SAVOR EVERY MOMENT WITH',
+      heading: 'EVERY BITE',
+      description: 'Experience gourmet dining crafted with passion, fresh ingredients, and unforgettable flavors.',
+      primaryBtn: 'Order Now',
+      secondaryBtn: 'Reserve Your Table',
+      img: 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Teriyaki Sesame Wings',
+      price: '$28.00',
+      type: 'wings'
+    },
+    {
+      id: 2,
+      number: '02',
+      eyebrow: 'HANDMADE SENSATIONAL PASTA',
+      heading: 'BLACK TRUFFLE PASTA',
+      description: 'Handmade farfalle and wild forest mushrooms tossed in shaved black truffle emulsion.',
+      primaryBtn: 'Order Now',
+      secondaryBtn: 'Reserve Your Table',
+      img: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Truffle Pasta',
+      price: '$65.00',
+      type: 'pasta'
+    },
+    {
+      id: 3,
+      number: '03',
+      eyebrow: 'FRESH CASPIAN CULINARY ART',
+      heading: 'SEA URCHIN RISOTTO',
+      description: 'Creamy Carnaroli saffron risotto crowned with fresh sea urchin and butter-poached prawns.',
+      primaryBtn: 'Order Now',
+      secondaryBtn: 'Reserve Your Table',
+      img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Sea Urchin Risotto',
+      price: '$90.00',
+      type: 'seafood'
+    },
+    {
+      id: 4,
+      number: '04',
+      eyebrow: 'HIMALAYAN SALT CAVE AGED',
+      heading: '45-DAY DRY TOMAHAWK',
+      description: 'Prime Black Angus Tomahawk dry-aged in Himalayan salt caves, seared over oak charcoal.',
+      primaryBtn: 'Order Now',
+      secondaryBtn: 'Reserve Your Table',
       img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&auto=format&fit=crop',
       actionTarget: 'menu',
-      cupName: 'Dry-Aged Tomahawk Steak',
+      cupName: '45-Day Tomahawk Steak',
       price: '$150.00',
       type: 'steak'
+    },
+    {
+      id: 5,
+      number: '05',
+      eyebrow: 'USDA PRIME SELECTION',
+      heading: 'WOOD-FIRED BONE RIBEYE',
+      description: 'USDA Prime ribeye brushed with roasted garlic marrow butter and Maldon smoked salt.',
+      primaryBtn: 'Order Now',
+      secondaryBtn: 'Reserve Your Table',
+      img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Bone-In Prime Ribeye',
+      price: '$85.00',
+      type: 'steak'
+    },
+    {
+      id: 6,
+      number: '06',
+      eyebrow: 'CEREMONIAL UJI MATCHA',
+      heading: 'MATCHA LAVA CAKE',
+      description: 'Warm ceremonial Uji matcha crepe and molten lava cake served with sweet mascarpone.',
+      primaryBtn: 'Order Now',
+      secondaryBtn: 'Reserve Your Table',
+      img: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Matcha Lava Cake',
+      price: '$35.00',
+      type: 'dessert'
     }
   ],
 
