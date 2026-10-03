@@ -9,9 +9,12 @@ import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_tri
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
 import heroGourmetBurgerImg from '../../assets/images/hero_gourmet_burger_banner_1790837881809.jpg';
+import opaluneKyotoImg from '../../assets/images/opalune_kyoto_cold_drip_1791021557503.jpg';
+import opaluneSketchBgImg from '../../assets/images/opalune_sketch_bg_1791021784686.jpg';
+import opaluneEspressoSplashImg from '../../assets/images/opalune_espresso_splash_1791021769199.jpg';
 import { HeroAnimatedElement } from './HeroAnimatedElement';
 import { BotanicalCoffeeLeaves } from './BotanicalCoffeeLeaves';
-import { checkAdminPasswordInput, getThemeAdminButtonVisibility } from '../../lib/adminHelpers';
+import { checkAdminPasswordInput, getThemeAdminButtonVisibility, getThemeDisplayName, isCustomRestaurantName } from '../../lib/adminHelpers';
 import { LUXURY_THEMES } from '../../data/luxuryThemes';
 import { CAFE_HERO_PRESETS } from '../../data/cafeHeroPresets';
 
@@ -27,6 +30,7 @@ interface KoppeeHeroHeaderProps {
   onNavigate?: (sectionId: string) => void;
   onOpenAdmin?: () => void;
   onBack?: () => void;
+  onReturnToPortal?: () => void;
   showAdminButton?: boolean;
   lang?: string;
   themePresetId?: string;
@@ -140,37 +144,37 @@ export const THEME_HERO_CONFIGS: Record<string, ThemeHeroConfig> = {
   },
   // #06 Opalune (Modern White Granite & Nitro Cold Brew)
   'opalune': {
-    accentColor: '#0d9488',
-    accentTextClass: 'text-teal-300',
-    accentBorderClass: 'border-teal-400/50',
-    logoBadgeClass: 'bg-gradient-to-br from-teal-400 via-cyan-600 to-slate-900 text-white font-black border border-teal-200/50 shadow-xl',
-    heroBadgeTag: '💎 MODERN WHITE GRANITE & COLD BREW',
-    navHoverClass: 'hover:text-teal-300',
-    navActiveClass: 'text-teal-400 border-b-2 border-teal-400',
-    primaryBtnClass: 'bg-gradient-to-r from-teal-400 via-cyan-500 to-teal-600 hover:from-teal-500 hover:to-cyan-600 text-stone-950 font-black rounded-xl shadow-[0_0_30px_rgba(13,148,136,0.5)] border border-teal-200/50',
-    secondaryBtnClass: 'bg-stone-950/80 hover:bg-stone-900 text-teal-200 border border-teal-400/40 rounded-xl backdrop-blur-md',
-    imageFrameClass: 'border-2 border-teal-400/60 rounded-2xl shadow-[0_0_35px_rgba(13,148,136,0.35)]',
-    searchFocusClass: 'focus:border-teal-400 focus:ring-teal-400',
-    bgGradientOverlay: 'from-slate-950/75 via-teal-950/65 to-black/95',
-    headerBg: 'bg-gradient-to-b from-slate-950/90 via-teal-950/40 to-transparent',
-    heroBgImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop'
+    accentColor: '#d4a373',
+    accentTextClass: 'text-[#d4a373]',
+    accentBorderClass: 'border-[#d4a373]/50',
+    logoBadgeClass: 'bg-[#321b0f] text-[#fdf4e7] font-black border border-[#d4a373]/40 shadow-xl',
+    heroBadgeTag: '☕ BREW POD ARTISANAL COFFEE HOUSE',
+    navHoverClass: 'hover:text-[#d4a373]',
+    navActiveClass: 'text-[#d4a373] border-b-2 border-[#d4a373]',
+    primaryBtnClass: 'bg-[#321b0f] hover:bg-[#1c0f08] text-[#fdf4e7] font-bold rounded-full border border-[#d4a373]/40 shadow-xl shadow-[#321b0f]/30',
+    secondaryBtnClass: 'bg-[#d4a373] hover:bg-[#b58253] text-[#321b0f] font-bold rounded-full border border-[#321b0f]/20 shadow-lg',
+    imageFrameClass: 'border border-[#d4a373]/40 rounded-3xl shadow-2xl',
+    searchFocusClass: 'focus:border-[#d4a373] focus:ring-[#d4a373]',
+    bgGradientOverlay: 'from-transparent via-transparent to-transparent',
+    headerBg: 'bg-[#fdf4e7]/75 backdrop-blur-md border-b border-[#321b0f]/10',
+    heroBgImage: opaluneSketchBgImg
   },
-  // #07 Emberion (Robata Charcoal & Flame Embers)
+  // #07 Emberion (Robata Charcoal & Flame Embers) -> REBRANDED TO HIGH-CONTRAST PREMIUM BAGEL BAKERY & CAFE
   'emberion': {
-    accentColor: '#ea580c',
-    accentTextClass: 'text-orange-400',
-    accentBorderClass: 'border-orange-500/50',
-    logoBadgeClass: 'bg-gradient-to-br from-orange-500 via-red-600 to-stone-950 text-white font-black border border-orange-300/50 shadow-xl shadow-orange-950/70',
-    heroBadgeTag: '🔥 FIERY COPPER & ROBATA SMOKE',
-    navHoverClass: 'hover:text-orange-400',
-    navActiveClass: 'text-orange-500 border-b-2 border-orange-500',
-    primaryBtnClass: 'bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 hover:from-orange-700 hover:to-red-700 text-white font-black rounded-lg shadow-[0_0_30px_rgba(234,88,12,0.5)] border border-orange-300/40',
-    secondaryBtnClass: 'bg-stone-950/85 hover:bg-black text-orange-200 border border-orange-500/40 rounded-lg backdrop-blur-md',
-    imageFrameClass: 'border-2 border-orange-500/60 rounded-2xl shadow-[0_0_40px_rgba(234,88,12,0.4)]',
-    searchFocusClass: 'focus:border-orange-500 focus:ring-orange-500',
-    bgGradientOverlay: 'from-orange-950/65 via-stone-950/80 to-black/95',
-    headerBg: 'bg-gradient-to-b from-orange-950/90 via-stone-950/50 to-transparent',
-    heroBgImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&auto=format&fit=crop'
+    accentColor: '#b91c1c', // Premium bagel dark red highlight
+    accentTextClass: 'text-[#b91c1c]',
+    accentBorderClass: 'border-[#b91c1c]/40',
+    logoBadgeClass: 'bg-[#b91c1c] text-[#fdf4e7] font-black border border-[#b91c1c]/40 shadow-lg',
+    heroBadgeTag: '🥯 LOCALLY WORLD FAMOUS BAGELS',
+    navHoverClass: 'hover:text-[#b91c1c]',
+    navActiveClass: 'text-[#0f2942] border-b-2 border-[#b91c1c]',
+    primaryBtnClass: 'bg-[#0f2942] hover:bg-[#07192e] text-[#fdf4e7] font-extrabold rounded-full px-6 py-3 shadow-xl transition-all',
+    secondaryBtnClass: 'bg-[#fdf4e7] hover:bg-[#ebdcc9] text-[#0f2942] border-2 border-[#0f2942]/30 font-extrabold rounded-full px-6 py-3 shadow-md',
+    imageFrameClass: 'border border-[#d4a373]/30 rounded-3xl shadow-2xl',
+    searchFocusClass: 'focus:border-[#b91c1c] focus:ring-[#b91c1c]',
+    bgGradientOverlay: 'from-transparent via-transparent to-transparent',
+    headerBg: 'bg-[#fdf4e7]/70 backdrop-blur-md border-b border-[#0f2942]/10',
+    heroBgImage: 'none'
   },
   // #08 Couravelle (French Palace Courtyard & Terrace)
   'couravelle': {
@@ -915,10 +919,16 @@ const DEFAULT_HERO_CONFIG: ThemeHeroConfig = {
 
 const COFFEE_BEANS_BG = 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=1600&auto=format&fit=crop';
 
+const seamlessMaskStyle: React.CSSProperties = {
+  maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 66%, rgba(0,0,0,0.35) 82%, rgba(0,0,0,0) 96%)',
+  WebkitMaskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 66%, rgba(0,0,0,0.35) 82%, rgba(0,0,0,0) 96%)'
+};
+
 export const COFFEE_SHOP_THEME_IDS = [
   'velmora-dining', // #1
   'lunavere',       // #3
   'opalune',        // #6
+  'emberion',       // #7
   'couravelle',     // #8
   'elvaris-atelier',// #11
   'silvarenne',     // #12
@@ -1194,6 +1204,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   onNavigate,
   onOpenAdmin,
   onBack,
+  onReturnToPortal,
   showAdminButton = false,
   lang = 'en',
   themePresetId,
@@ -1209,6 +1220,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpenMobile, setIsSearchOpenMobile] = useState(false);
   const [adminUnlockSuccess, setAdminUnlockSuccess] = useState(false);
+  const [isHeroCardEditing, setIsHeroCardEditing] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   const tabletSearchRef = useRef<HTMLDivElement>(null);
@@ -1253,10 +1265,29 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
 
   const defaultSlidesForTheme = buildTierSlides(activePresetId, activeTier, isCoffeeTheme);
 
-  const currentSlides = (heroSlides && heroSlides.length > 0)
+  let activeShapeIndices: number[] | null = null;
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('webar_admin_brand_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.activeShapeIndices && Array.isArray(parsed.activeShapeIndices)) {
+          activeShapeIndices = parsed.activeShapeIndices;
+        }
+      }
+    } catch (e) {}
+  }
+
+  const rawSlides = (heroSlides && heroSlides.length > 0)
     ? heroSlides
     : defaultSlidesForTheme;
-  const slide = currentSlides[activeSlide] || currentSlides[0] || defaultSlidesForTheme[0];
+
+  const currentSlides = (activeShapeIndices && activeShapeIndices.length > 0)
+    ? rawSlides.filter((_, idx) => activeShapeIndices!.includes(idx))
+    : rawSlides;
+
+  const finalSlides = currentSlides.length > 0 ? currentSlides : rawSlides;
+  const slide = finalSlides[activeSlide % finalSlides.length] || finalSlides[0] || defaultSlidesForTheme[0];
 
   // Check admin PIN/password logic (supports text, letters, numbers, symbols)
   const checkAdminPin = (input: string) => {
@@ -1327,27 +1358,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     }
   };
 
-  const isDemoOrPlaceholderBrand = (name?: string) => {
-    if (!name) return true;
-    const lower = name.trim().toLowerCase();
-    return lower === 'sahinsh' || 
-           lower === 'askul' || 
-           lower === 'koppee' || 
-           lower === 'velmora dining' || 
-           lower === 'velmora' || 
-           lower === 'lunavere' || 
-           lower === "l'aura webar restaurant" ||
-           lower === 'the golden fork';
-  };
-
-  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
-    ? 'My Restaurant'
-    : brandName!.trim();
+  const effectiveBrandName = isCustomRestaurantName(brandName)
+    ? brandName!.trim()
+    : getThemeDisplayName(activePresetId);
 
   const getLogoInitials = (name: string): [string, string] => {
-    if (!name || isDemoOrPlaceholderBrand(name)) return ["M", "R"];
+    if (!name) return ["V", "D"];
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    if (!cleanName || isDemoOrPlaceholderBrand(cleanName)) return ["M", "R"];
+    if (!cleanName) return ["V", "D"];
     const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
     if (parts.length >= 2) {
       return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
@@ -1355,23 +1373,56 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
     if (cleanName.length >= 2) {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
-    return ["M", "R"];
+    return [cleanName[0].toUpperCase(), cleanName[0].toUpperCase()];
   };
 
   const [initial1, initial2] = getLogoInitials(effectiveBrandName);
+  const isEmberion = activePresetId === 'emberion';
   const isLightAurelisse = activePresetId === 'aurelisse';
   const isSavorellePalatiora = activePresetId === 'palatiora';
+  const isOpaluneCoffee = activePresetId === 'opalune';
   const isAshPalatiora = false;
-  const activeAccentColor = isLightAurelisse ? '#2e7d32' : isSavorellePalatiora ? '#F97316' : '#DA9F93';
+  const activeAccentColor = isEmberion ? '#b91c1c' : isOpaluneCoffee ? '#d4a373' : isLightAurelisse ? '#2e7d32' : isSavorellePalatiora ? '#F97316' : '#DA9F93';
+
+  // Crisp high-contrast navigation link color
+  const navTextColor = isEmberion
+    ? 'text-[#0f2942] font-black hover:text-[#b91c1c]'
+    : isOpaluneCoffee 
+    ? 'text-[#321b0f] font-semibold hover:text-[#a87c53]' 
+    : isLightAurelisse 
+    ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' 
+    : isAshPalatiora 
+    ? 'text-slate-800 font-semibold hover:text-slate-950' 
+    : 'text-white/90 font-medium hover:text-white';
+
+  const navHomeClass = isEmberion
+    ? 'text-[#0f2942] font-black border-b-2 border-[#b91c1c]'
+    : cfg.navActiveClass;
+
+  const renderEmberionHeading = (headingText: string) => {
+    if (!headingText) return null;
+    const words = headingText.split(' ');
+    return words.map((word, idx) => {
+      const isRed = word.toUpperCase().includes('BAGEL') || word.toUpperCase().includes('SMOKE') || word.toUpperCase().includes('ROAST') || word.toUpperCase().includes('EMBER');
+      return (
+        <span key={idx} className={isRed ? 'text-[#b91c1c]' : 'text-[#0f2942]'}>
+          {word}{idx < words.length - 1 ? ' ' : ''}
+        </span>
+      );
+    });
+  };
 
   return (
     <div className={`relative w-full overflow-x-clip ${
-      isLightAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : isSavorellePalatiora ? 'bg-[#0a0a0c] text-white' : 'bg-[#120a06] text-white'
+      activePresetId === 'emberion' ? 'bg-[#fdf4e7] text-[#0f2942]' : isOpaluneCoffee ? 'bg-[#fdf4e7] text-[#321b0f]' : isLightAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : isSavorellePalatiora ? 'bg-[#0a0a0c] text-white' : 'bg-[#120a06] text-white'
     } font-sans selection:bg-slate-400/30`}>
       {/* ========================================================================= */}
       {/* 1. TOP HEADER NAVBAR (KOPPEE STYLE WITH SEARCH BAR) */}
+      {/* Hides immediately when user clicks on a hero photo to enter upload mode */}
       {/* ========================================================================= */}
-      <header className={`absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between ${cfg.headerBg}`}>
+      <header className={`absolute top-0 left-0 right-0 z-50 w-full px-6 sm:px-12 md:px-16 py-6 flex items-center justify-between ${cfg.headerBg} ${
+        isHeroCardEditing ? 'opacity-0 pointer-events-none -translate-y-full hidden' : 'opacity-100 transition-all duration-300'
+      }`}>
         {/* Brand Logo with 2-Letter Initials Badge */}
         <div className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0" onClick={() => scrollToSection('hero')}>
@@ -1383,7 +1434,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
             <span className={`${
               isSavorellePalatiora 
                 ? 'font-serif text-2xl sm:text-3xl text-white font-normal tracking-tight' 
-                : 'font-black uppercase font-sans tracking-wider ' + (isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-md')
+                : 'font-black uppercase font-sans tracking-wider ' + (isEmberion ? 'text-[#0f2942]' : isOpaluneCoffee ? 'text-[#321b0f]' : isLightAurelisse ? 'text-[#142412]' : 'text-white drop-shadow-md')
             } truncate ${
               isMobile ? 'text-base max-w-[150px]' : isTablet ? 'text-lg max-w-[200px]' : 'text-xl sm:text-2xl md:text-3xl'
             }`}>
@@ -1400,16 +1451,16 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => scrollToSection('hero')}
-                className={`${cfg.navActiveClass} transition-colors cursor-pointer py-1`}
+                className={`${navHomeClass} transition-colors cursor-pointer py-1`}
               >
-                Home
+                {lang === 'bn' ? 'হোম' : 'Home'}
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('about')}
-                className={`text-white/90 ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                About
+                {lang === 'bn' ? 'সম্পর্কে' : 'About'}
               </button>
 
               {/* Admin Button (visible only when showAdminButton is true) */}
@@ -1426,6 +1477,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   <span>Admin</span>
                 </button>
               )}
+
+
             </nav>
 
             {/* Right Controls: Compact Expandable Search + Corner 3-Dot Button */}
@@ -1515,7 +1568,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Sparkles className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>Service</span>
+                        <span>{lang === 'bn' ? 'সেবা' : 'Service'}</span>
                       </button>
                       <button
                         type="button"
@@ -1528,7 +1581,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Utensils className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>Menu</span>
+                        <span>{lang === 'bn' ? 'মেনু' : 'Menu'}</span>
                       </button>
                       <button
                         type="button"
@@ -1540,7 +1593,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Calendar className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>Reservation</span>
+                        <span>{lang === 'bn' ? 'রিজার্ভেশন' : 'Reservation'}</span>
                       </button>
                       <button
                         type="button"
@@ -1551,7 +1604,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Sparkles className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>Testimonials</span>
+                        <span>{lang === 'bn' ? 'রিভিউ' : 'Testimonials'}</span>
                       </button>
                       <button
                         type="button"
@@ -1562,7 +1615,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Utensils className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>Chef's Specials</span>
+                        <span>{lang === 'bn' ? 'স্পেশাল খাবার' : "Chef's Specials"}</span>
                       </button>
                       <button
                         type="button"
@@ -1573,7 +1626,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <PhoneCall className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>Contact</span>
+                        <span>{lang === 'bn' ? 'যোগাযোগ' : 'Contact'}</span>
                       </button>
                     </motion.div>
                   )}
@@ -1590,23 +1643,23 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => scrollToSection('hero')}
-                className={`${cfg.navActiveClass} transition-colors cursor-pointer py-1`}
+                className={`${navHomeClass} transition-colors cursor-pointer py-1`}
               >
-                Home
+                {lang === 'bn' ? 'হোম' : 'Home'}
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('about')}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                About
+                {lang === 'bn' ? 'সম্পর্কে' : 'About'}
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('services')}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                Service
+                {lang === 'bn' ? 'সেবা' : 'Service'}
               </button>
               <button
                 type="button"
@@ -1615,22 +1668,22 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   else if (onMenuClick) onMenuClick();
                   else scrollToSection('menu');
                 }}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                Menu
+                {lang === 'bn' ? 'মেনু' : 'Menu'}
               </button>
-
+ 
               {/* Dropdown Menu for Pages */}
               <div className="relative z-40">
                 <button
                   type="button"
                   onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
-                  className={`flex items-center gap-1 ${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1 focus:outline-none`}
+                  className={`flex items-center gap-1 ${navTextColor} transition-colors cursor-pointer py-1 focus:outline-none`}
                 >
-                  <span>Pages</span>
+                  <span>{lang === 'bn' ? 'পেজসমূহ' : 'Pages'}</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-
+ 
                 <AnimatePresence>
                   {pagesDropdownOpen && (
                     <motion.div
@@ -1638,7 +1691,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 5 }}
                       transition={{ duration: 0.15 }}
-                      className={`absolute right-0 lg:left-0 mt-2 w-44 ${isLightAurelisse ? 'bg-white border border-[#2e7d32]/20 text-[#142412]' : isAshPalatiora ? 'bg-white border border-slate-300 text-slate-800' : 'bg-[#1a0905] border ' + cfg.accentBorderClass + ' text-white'} rounded-xl shadow-2xl py-2 z-50 text-left`}
+                      className={`absolute right-0 lg:left-0 mt-2 w-44 ${isEmberion ? 'bg-white border-2 border-[#0f2942]/15 text-[#0f2942]' : isLightAurelisse ? 'bg-white border border-[#2e7d32]/20 text-[#142412]' : isAshPalatiora ? 'bg-white border border-slate-300 text-slate-800' : 'bg-[#1a0905] border ' + cfg.accentBorderClass + ' text-white'} rounded-xl shadow-2xl py-2 z-50 text-left`}
                     >
                       <button
                         type="button"
@@ -1647,35 +1700,41 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                           else scrollToSection('reservation');
                           setPagesDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
+                        className={`w-full text-left px-4 py-2 text-xs ${isEmberion ? 'text-[#0f2942] hover:bg-red-50 hover:text-[#b91c1c] font-bold' : isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
-                        Reservation
+                        {lang === 'bn' ? 'রিজার্ভেশন' : 'Reservation'}
                       </button>
                       <button
                         type="button"
-                        onClick={() => scrollToSection('testimonials')}
-                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
+                        onClick={() => {
+                          scrollToSection('testimonials');
+                          setPagesDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-xs ${isEmberion ? 'text-[#0f2942] hover:bg-red-50 hover:text-[#b91c1c] font-bold' : isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
-                        Testimonials
+                        {lang === 'bn' ? 'রিভিউ' : 'Testimonials'}
                       </button>
                       <button
                         type="button"
-                        onClick={() => scrollToSection('specials')}
-                        className={`w-full text-left px-4 py-2 text-xs ${isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
+                        onClick={() => {
+                          scrollToSection('specials');
+                          setPagesDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-xs ${isEmberion ? 'text-[#0f2942] hover:bg-red-50 hover:text-[#b91c1c] font-bold' : isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
-                        Chef's Specials
+                        {lang === 'bn' ? 'স্পেশাল খাবার' : "Chef's Specials"}
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-
+ 
               <button
                 type="button"
                 onClick={() => scrollToSection('contact')}
-                className={`${isLightAurelisse ? 'text-[#182915] font-semibold hover:text-[#2e7d32]' : isAshPalatiora ? 'text-slate-800 font-semibold hover:text-slate-950' : 'text-white/90'} ${cfg.navHoverClass} transition-colors cursor-pointer py-1`}
+                className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                Contact
+                {lang === 'bn' ? 'যোগাযোগ' : 'Contact'}
               </button>
             </nav>
 
@@ -1705,7 +1764,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       checkAdminPin(val);
                     }}
                     placeholder={lang === 'bn' ? 'খাবার বা পিন...' : 'Search menu or PIN...'}
-                    className={`w-28 sm:w-32 lg:w-40 pl-8 pr-7 py-1.5 text-[11px] rounded-full ${isLightAurelisse ? 'bg-white/90 border border-[#2e7d32]/30 text-[#142412] placeholder-stone-500' : isSavorellePalatiora ? 'bg-white/10 border border-white/20 text-white placeholder-stone-400' : 'bg-black/90 border ' + cfg.accentBorderClass + ' text-white placeholder-white/50'} focus:outline-none ${cfg.searchFocusClass} focus:ring-1 transition-all duration-300 shadow-inner shrink-0 truncate z-50`}
+                    className={`w-28 sm:w-32 lg:w-40 pl-8 pr-7 py-1.5 text-[11px] rounded-full ${isEmberion ? 'bg-white border-2 border-[#0f2942]/20 text-[#0f2942] placeholder-[#0f2942]/60 shadow-sm' : isLightAurelisse ? 'bg-white/90 border border-[#2e7d32]/30 text-[#142412] placeholder-stone-500' : isSavorellePalatiora ? 'bg-white/10 border border-white/20 text-white placeholder-stone-400' : 'bg-black/90 border ' + cfg.accentBorderClass + ' text-white placeholder-white/50'} focus:outline-none ${cfg.searchFocusClass} focus:ring-1 transition-all duration-300 shadow-inner shrink-0 truncate z-50`}
                   />
                   {searchTerm && (
                     <button
@@ -1733,6 +1792,8 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   <span>Admin</span>
                 </button>
               )}
+
+
             </div>
           </div>
         )}
@@ -1889,7 +1950,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   : 'text-[#DA9F93] border-[#DA9F93]/20'
               }`}
             >
-              Home
+              {lang === 'bn' ? 'হোম' : 'Home'}
             </button>
             <button
               type="button"
@@ -1899,7 +1960,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              About
+              {lang === 'bn' ? 'সম্পর্কে' : 'About'}
             </button>
             <button
               type="button"
@@ -1909,7 +1970,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              Service
+              {lang === 'bn' ? 'সেবা' : 'Service'}
             </button>
             <button
               type="button"
@@ -1921,7 +1982,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              Menu
+              {lang === 'bn' ? 'মেনু' : 'Menu'}
             </button>
             <button
               type="button"
@@ -1932,7 +1993,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              Reservation
+              {lang === 'bn' ? 'রিজার্ভেশন' : 'Reservation'}
             </button>
             <button
               type="button"
@@ -1942,7 +2003,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              Contact
+              {lang === 'bn' ? 'যোগাযোগ' : 'Contact'}
             </button>
 
             {showAdminButton === true && (
@@ -2050,6 +2111,57 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(249,115,22,0.25),_transparent_65%)] pointer-events-none z-0" />
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-0" />
             </>
+          ) : activePresetId === 'emberion' ? (
+            <>
+              {/* Solid Premium Light Cream Background as requested by the user (Screenshot 5) */}
+              <div className="absolute inset-0 bg-[#fdf4e7]" />
+            </>
+          ) : activePresetId === 'opalune' ? (
+            <>
+              {/* Warm Premium Cream Sketch Background matching the user's uploaded image */}
+              <div className="absolute inset-0 bg-[#fdf4e7]" />
+              <img
+                src={heroBackgroundImage || opaluneSketchBgImg}
+                alt="Brew Pod Warm Sketch Background"
+                className="absolute inset-0 w-full h-full object-cover opacity-85 pointer-events-none select-none z-0"
+              />
+              
+              {/* Bottom-Left Espresso Splash on saucer with flying coffee beans (as requested by the user)
+                  Shifted further to the very bottom-left corner and sized compactly to keep it outside the text/button bounds.
+                  White background transparentized via mixBlendMode: 'multiply' on the warm cream background. */}
+              <div className="hidden md:block absolute bottom-2 left-2 z-20 pointer-events-none select-none max-w-[170px] lg:max-w-[230px] aspect-square">
+                <motion.img
+                  animate={{ y: [-4, 4, -4], rotate: [-1.5, 1.5, -1.5] }}
+                  transition={{ duration: 5.0, repeat: Infinity, ease: 'easeInOut' }}
+                  src={opaluneEspressoSplashImg}
+                  alt="Espresso Cup Splash"
+                  style={{ ...seamlessMaskStyle, mixBlendMode: 'multiply' }}
+                  className="w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(50,27,15,0.22)]"
+                />
+              </div>
+
+              {/* Scattered Floating Coffee Beans */}
+              <div className="absolute top-24 right-16 z-20 pointer-events-none select-none opacity-85">
+                <motion.div
+                  animate={{ y: [-15, 15, -15], rotate: [0, 360, 0] }}
+                  transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+                  className="relative w-12 h-12"
+                >
+                  <span className="text-2xl">☕</span>
+                </motion.div>
+              </div>
+              <div className="absolute bottom-32 right-1/2 z-20 pointer-events-none select-none opacity-60">
+                <motion.div
+                  animate={{ y: [10, -10, 10], rotate: [360, 0, 360] }}
+                  transition={{ duration: 9, repeat: Infinity, ease: 'linear' }}
+                  className="text-lg"
+                >
+                  🫘
+                </motion.div>
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-b from-[#fdf4e7]/10 via-transparent to-[#fdf4e7]/40 pointer-events-none z-0" />
+            </>
           ) : (
             <>
               <img
@@ -2074,7 +2186,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               <div className={`absolute inset-0 bg-gradient-to-b ${cfg.bgGradientOverlay} pointer-events-none`} />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(10,5,2,0.60)_100%)] pointer-events-none" />
             </>
-          )}
+          )/* END OF BACKGROUND CONDITIONAL */}
         </div>
 
         {/* HERO CONTENT AREA */}
@@ -2207,7 +2319,9 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   isMobile
                     ? "w-full text-center flex flex-col items-center space-y-3 px-1"
                     : isTablet
-                    ? "col-span-7 text-left flex flex-col items-start space-y-3 pr-2"
+                    ? (activePresetId === 'emberion' ? "col-span-5 text-left flex flex-col items-start space-y-3 pr-2" : "col-span-7 text-left flex flex-col items-start space-y-3 pr-2")
+                    : activePresetId === 'emberion'
+                    ? "md:col-span-5 lg:col-span-5 text-center md:text-left flex flex-col items-center md:items-start space-y-3 sm:space-y-4 md:pr-4 lg:pr-6"
                     : "md:col-span-7 lg:col-span-6 text-center md:text-left flex flex-col items-center md:items-start space-y-3 sm:space-y-4 md:pr-4 lg:pr-8"
                 }>
                   {isSavorellePalatiora ? (
@@ -2283,18 +2397,20 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   ) : (
                     <>
                       {/* Theme Badge Tag */}
-                      <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full ${
-                        isLightAurelisse
-                          ? 'bg-[#dbeef0]/80 border border-[#2e7d32]/30 text-[#1b5e20]'
-                          : `bg-black/80 border ${cfg.accentBorderClass} ${cfg.accentTextClass}`
-                      } text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-md backdrop-blur-md max-w-[92vw] text-center`}>
-                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                        <span className="leading-tight">{cfg.heroBadgeTag}</span>
-                      </div>
+                      {!isOpaluneCoffee && (
+                        <div className={`inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full ${
+                          isLightAurelisse
+                            ? 'bg-[#dbeef0]/80 border border-[#2e7d32]/30 text-[#1b5e20]'
+                            : `bg-black/80 border ${cfg.accentBorderClass} ${cfg.accentTextClass}`
+                        } text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-md backdrop-blur-md max-w-[92vw] text-center`}>
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          <span className="leading-tight">{cfg.heroBadgeTag}</span>
+                        </div>
+                      )}
 
                   {/* Subtitle / Eyebrow */}
                   <span className={`text-base sm:text-2xl md:text-2xl lg:text-3xl font-serif ${
-                    isLightAurelisse ? 'text-[#2e7d32]' : isAshPalatiora ? 'text-slate-700' : cfg.accentTextClass
+                    isOpaluneCoffee ? 'text-[#a87c53]' : activePresetId === 'emberion' ? 'text-[#475569]' : isLightAurelisse ? 'text-[#2e7d32]' : isAshPalatiora ? 'text-slate-700' : cfg.accentTextClass
                   } tracking-wide font-normal drop-shadow-sm block`}>
                     {(slide as any).eyebrow || (slide as any).subtitle}
                   </span>
@@ -2307,13 +2423,17 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       ? 'text-4xl sm:text-5xl' 
                       : 'text-3xl sm:text-5xl md:text-5xl lg:text-7xl'
                   } font-black ${
-                    isLightAurelisse ? 'text-[#142412]' : isAshPalatiora ? 'text-slate-900' : 'text-white drop-shadow-2xl'
+                    isOpaluneCoffee ? 'text-[#321b0f]' : activePresetId === 'emberion' ? 'text-[#0f2942]' : isLightAurelisse ? 'text-[#142412]' : isAshPalatiora ? 'text-slate-900' : 'text-white drop-shadow-2xl'
                   } tracking-tight uppercase leading-tight md:leading-none font-sans`}>
-                    {(slide as any).heading || (slide as any).title}
+                    {activePresetId === 'emberion' ? (
+                      renderEmberionHeading((slide as any).heading || (slide as any).title || 'CRAVING A REAL BAGEL?')
+                    ) : (
+                      (slide as any).heading || (slide as any).title
+                    )}
                   </h1>
 
                   {/* Description / Tagline */}
-                  {((slide as any).description || (slide as any).tag) && (
+                  {!isOpaluneCoffee && ((slide as any).description || (slide as any).tag) && (
                     <p className={`text-xs sm:text-sm md:text-base ${
                       isLightAurelisse ? 'text-[#2a3e26]' : isAshPalatiora ? 'text-slate-600' : 'text-[#FBF8EE]/90'
                     } max-w-xl font-medium leading-relaxed`}>
@@ -2369,10 +2489,10 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 {/* RIGHT COLUMN: Theme-Specific Animated Visual Element */}
                 <div className={
                   isMobile
-                    ? "w-full flex items-center justify-center my-1 max-w-[280px] mx-auto"
+                    ? (activePresetId === 'emberion' ? "w-full flex items-center justify-center my-3 max-w-[420px] sm:max-w-[480px] mx-auto overflow-visible" : "w-full flex items-center justify-center my-1 max-w-[280px] mx-auto")
                     : isTablet
-                    ? "col-span-5 flex items-center justify-center relative my-1"
-                    : "md:col-span-5 lg:col-span-6 flex items-center justify-center md:justify-end relative my-2 md:my-0 md:translate-x-0 lg:translate-x-6 xl:translate-x-12"
+                    ? (activePresetId === 'emberion' ? "col-span-7 flex items-center justify-center relative my-1 overflow-visible" : "col-span-5 flex items-center justify-center relative my-1")
+                    : (activePresetId === 'emberion' ? "md:col-span-7 lg:col-span-7 flex items-center justify-center md:justify-end relative my-2 md:my-0 overflow-visible" : "md:col-span-5 lg:col-span-6 flex items-center justify-center md:justify-end relative my-2 md:my-0 md:translate-x-0 lg:translate-x-6 xl:translate-x-12")
                 }>
                   <HeroAnimatedElement
                     themeId={activePresetId}
@@ -2381,6 +2501,11 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                     cupName={(slide as any).cupName}
                     slideType={(slide as any).type}
                     slideIndex={activeSlide}
+                    onNextSlide={handleNextSlide}
+                    onPrevSlide={handlePrevSlide}
+                    activeTier={activeTier}
+                    lang={lang}
+                    onEditStateChange={setIsHeroCardEditing}
                   />
                 </div>
               </motion.div>

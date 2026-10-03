@@ -85,7 +85,8 @@ import {
   ShoppingBag,
   ChefHat,
   Award,
-  LayoutGrid
+  LayoutGrid,
+  Power
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -630,6 +631,8 @@ export default function OrderManagementAdmin({
     contactEmail: settings.contactEmail || '',
     heroImages: settings.heroImages || (settings.heroSlides ? settings.heroSlides.map(s => s.image) : ['', '', '']),
     heroSlides: settings.heroSlides || [],
+    activeShapeIndices: settings.activeShapeIndices || [0, 1, 2, 3, 4, 5],
+    activeShapeCount: settings.activeShapeCount || 6,
     showGoogleMap: settings.showGoogleMap ?? true,
     showChefSection: settings.showChefSection ?? true,
     themeShowChefSection: settings.themeShowChefSection ?? true,
@@ -682,6 +685,14 @@ export default function OrderManagementAdmin({
 
   // Active selected chef index (0 to 5 for 6 chefs)
   const [selectedChefIndex, setSelectedChefIndex] = useState<number>(0);
+
+  // Active isolated theme being edited in admin
+  const [editingThemeId, setEditingThemeId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('webar_last_entered_from_theme') || settings?.activeThemeId || 'palatiora';
+    }
+    return settings?.activeThemeId || 'palatiora';
+  });
 
   const [settingsSearchQuery, setSettingsSearchQuery] = useState('');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -919,7 +930,7 @@ export default function OrderManagementAdmin({
     const activeThemeId = settings?.activeThemeId || 'velmora-dining';
     
     if (!checkAdminPasswordInput(adminConfirmPasswordInput, settings)) {
-      setAdminConfirmPasswordError(lang === 'bn' ? 'ভুল পাসওয়ার্ড! সঠিক এডমিন পাসওয়ার্ড দিন।' : 'Incorrect password! Enter valid admin password.');
+      setAdminConfirmPasswordError('Incorrect password! Enter valid admin password.');
       return;
     }
 
@@ -944,7 +955,7 @@ export default function OrderManagementAdmin({
     localStorage.setItem('webar_admin_secret_code', newCode);
     setCurrentSecretCode(newCode);
     setNewSecretCode('');
-    setSecretCodeSuccessMsg(lang === 'bn' ? 'অ্যাডমিন সিক্রেট কোড সফলভাবে পরিবর্তন করা হয়েছে!' : 'Admin secret password successfully updated!');
+    setSecretCodeSuccessMsg('Admin secret password successfully updated!');
     setTimeout(() => setSecretCodeSuccessMsg(null), 4000);
     // Dispatch event so App.tsx can update its key listeners instantly
     window.dispatchEvent(new Event('webar_secret_code_changed'));
@@ -955,7 +966,7 @@ export default function OrderManagementAdmin({
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      alert(lang === 'bn' ? 'ছবি ১০ মেগাবাইটের মধ্যে হতে হবে!' : 'Image file size must be under 10MB');
+      alert('Image file size must be under 10MB');
       return;
     }
 
@@ -965,7 +976,7 @@ export default function OrderManagementAdmin({
       if (dataUrl) {
         setCustomAvatarUrl(dataUrl);
         localStorage.setItem('webar_custom_user_avatar', dataUrl);
-        setAvatarSuccessMsg(lang === 'bn' ? 'প্রোফাইল ছবি সফলভাবে আপডেট করা হয়েছে!' : 'Profile picture updated from gallery!');
+        setAvatarSuccessMsg('Profile picture updated from gallery!');
         setTimeout(() => setAvatarSuccessMsg(null), 4000);
         window.dispatchEvent(new Event('webar_avatar_changed'));
       }
@@ -980,7 +991,7 @@ export default function OrderManagementAdmin({
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert(lang === 'bn' ? 'লোগো ছবি ৫ মেগাবাইটের মধ্যে হতে হবে!' : 'Logo file size must be under 5MB');
+      alert('Logo file size must be under 5MB');
       return;
     }
 
@@ -1009,7 +1020,7 @@ export default function OrderManagementAdmin({
     if (e) e.stopPropagation();
     setCustomAvatarUrl(null);
     localStorage.removeItem('webar_custom_user_avatar');
-    setAvatarSuccessMsg(lang === 'bn' ? 'ডিফল্ট ছবিতে রিসেট করা হয়েছে' : 'Profile photo reset');
+    setAvatarSuccessMsg('Profile photo reset');
     setTimeout(() => setAvatarSuccessMsg(null), 3000);
     window.dispatchEvent(new Event('webar_avatar_changed'));
   };
@@ -1070,7 +1081,7 @@ export default function OrderManagementAdmin({
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      alert(lang === 'bn' ? 'ছবি ১০ মেগাবাইটের মধ্যে হতে হবে!' : 'Image file size must be under 10MB');
+      alert('Image file size must be under 10MB');
       return;
     }
 
@@ -1282,6 +1293,25 @@ export default function OrderManagementAdmin({
     }
 
     setTimeout(() => {
+      const updatedThemeSettings = {
+        ...(settings?.themeSettings || {}),
+        [editingThemeId]: {
+          ...(settings?.themeSettings?.[editingThemeId] || {}),
+          activeShapeIndices: localBrandSettings.activeShapeIndices,
+          activeShapeCount: localBrandSettings.activeShapeCount,
+          chefProfiles: localBrandSettings.chefProfiles,
+          heroSlides: localBrandSettings.heroSlides,
+          heroImages: localBrandSettings.heroImages
+        }
+      };
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(`theme_shapes_${editingThemeId}`, JSON.stringify(localBrandSettings.activeShapeIndices || []));
+          localStorage.setItem(`theme_chefs_${editingThemeId}`, JSON.stringify(localBrandSettings.chefProfiles || []));
+        } catch (e) {}
+      }
+
       onUpdateSettings({
         ownerName: finalOwner,
         restaurantName: finalBrand,
@@ -1299,6 +1329,8 @@ export default function OrderManagementAdmin({
         contactEmail: localBrandSettings.contactEmail,
         heroImages: localBrandSettings.heroImages,
         heroSlides: localBrandSettings.heroSlides,
+        activeShapeIndices: localBrandSettings.activeShapeIndices,
+        activeShapeCount: localBrandSettings.activeShapeCount,
         showGoogleMap: localBrandSettings.showGoogleMap,
         showChefSection: localBrandSettings.showChefSection,
         themeShowChefSection: localBrandSettings.themeShowChefSection,
@@ -1317,7 +1349,8 @@ export default function OrderManagementAdmin({
         lunavereQrBtnText: localBrandSettings.lunavereQrBtnText,
         menuSectionTagline: localBrandSettings.menuSectionTagline,
         menuSectionTitle: localBrandSettings.menuSectionTitle,
-        menuSectionSubtitle: localBrandSettings.menuSectionSubtitle
+        menuSectionSubtitle: localBrandSettings.menuSectionSubtitle,
+        themeSettings: updatedThemeSettings
       });
       setIsSaving(false);
       setSaveSuccess(true);
@@ -1376,7 +1409,7 @@ export default function OrderManagementAdmin({
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsAvatarZoomed(true)}
                   className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-lg overflow-hidden active:scale-95 transition-transform relative border-0 outline-none ring-0"
-                  title={lang === 'bn' ? 'ছবি বড় করে দেখতে ও পরিবর্তন করতে ক্লিক করুন' : 'Click to view and change picture'}
+                  title='Click to view and change picture'
                 >
                   <div className="w-full h-full rounded-full overflow-hidden bg-slate-900 border border-white/20 relative">
                     <img 
@@ -1414,7 +1447,7 @@ export default function OrderManagementAdmin({
                 <div className="pt-2 flex items-center gap-2 flex-wrap justify-center sm:justify-start">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[9px] font-black uppercase tracking-wider">
                     <Crown className="w-2.5 h-2.5 text-cyan-400" />
-                    <span>{lang === 'bn' ? 'রেস্টুরেন্ট ওনার' : 'Owner'}</span>
+                    <span>'Owner'</span>
                   </span>
 
                   <button
@@ -1424,7 +1457,7 @@ export default function OrderManagementAdmin({
                       setIsFullScreenPage(true);
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-500 text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer"
-                    title={lang === 'bn' ? 'থিম স্টোরে থিম পরিবর্তন করুন' : 'Change theme in Theme Store'}
+                    title='Change theme in Theme Store'
                   >
                     <Sparkles className="w-2.5 h-2.5 text-amber-500" />
                     <span>{settings.activeThemeId === 'lunavere' ? 'Lunavere' : 'Velmora Dining'}</span>
@@ -1490,7 +1523,7 @@ export default function OrderManagementAdmin({
                 className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl transition-all text-xs font-bold bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
-                <span>{lang === 'bn' ? 'লগআউট' : lang === 'ar' ? 'تسجيل الخروج' : 'Logout'}</span>
+                <span>'Logout'</span>
               </button>
             </div>
           </aside>
@@ -1607,7 +1640,7 @@ export default function OrderManagementAdmin({
                     className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:shadow-emerald-600/20 active:scale-95 cursor-pointer self-start sm:self-center"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>{lang === 'bn' ? 'এক্সেল ডাউনলোড করুন' : 'Export Entire History'}</span>
+                    <span>'Export Entire History'</span>
                   </button>
                 </header>
                 <div className={`rounded-2xl border ${theme === 'dark' ? 'bg-[#1c1c1c] border-slate-800' : 'bg-white border-slate-200'} overflow-hidden`}>
@@ -1690,7 +1723,7 @@ export default function OrderManagementAdmin({
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:shadow-emerald-600/20 active:scale-95 cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>{lang === 'bn' ? 'এক্সেল ডাউনলোড' : 'Excel Export'}</span>
+                      <span>'Excel Export'</span>
                     </button>
                   </div>
                 </header>
@@ -1715,7 +1748,7 @@ export default function OrderManagementAdmin({
                         alt="User Profile" 
                         className="w-8 h-8 rounded-full border-2 border-cyan-500/30 object-cover shadow-md hover:scale-110 active:scale-95 transition-all cursor-pointer"
                         onClick={() => setIsAvatarZoomed(true)}
-                        title={lang === 'bn' ? 'ছবি পরিবর্তন করতে ক্লিক করুন' : 'Click to change photo'}
+                        title='Click to change photo'
                       />
                     </div>
                   </div>
@@ -2175,7 +2208,7 @@ export default function OrderManagementAdmin({
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className={`text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                      {lang === 'bn' ? 'ওয়েটার অনুরোধ' : 'Waiter Requests'}
+                      'Waiter Requests'
                     </h2>
                     <p className="text-slate-500 text-sm font-medium">Active assistance requests from tables.</p>
                   </div>
@@ -2328,16 +2361,14 @@ export default function OrderManagementAdmin({
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                        {lang === 'bn' ? 'সিস্টেম কন্ট্রোল সেন্টার' : 'System Control Hub'}
+                        'System Control Hub'
                       </span>
                     </div>
                     <h1 className={`text-3xl md:text-4xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                      {lang === 'bn' ? 'সেটিংস সেন্টার' : 'System Settings Hub'}
+                      'System Settings Hub'
                     </h1>
                     <p className="text-slate-500 font-medium text-xs md:text-sm mt-1">
-                      {lang === 'bn' 
-                        ? 'রেস্টুরেন্টের নাম, ফোন, লোগো, পাসওয়ার্ড, থিম, গুগল ম্যাপস ও ক্যাটাগরি অনুযায়ী সেটিংস।' 
-                        : 'Manage restaurant identity, contacts, security access, maps, chef profiles & updates.'}
+                      'Manage restaurant identity, contacts, security access, maps, chef profiles & updates.'
                     </p>
                   </div>
 
@@ -2350,7 +2381,7 @@ export default function OrderManagementAdmin({
                       className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-blue-500/25 transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
                     >
                       <Save className="w-4 h-4" />
-                      <span>{isSaving ? (lang === 'bn' ? 'সংরক্ষিত হচ্ছে...' : 'Saving...') : (lang === 'bn' ? 'সকল সেটিংস সেভ করুন' : 'Save All Settings')}</span>
+                      <span>{isSaving ? ('Saving...') : ('Save All Settings')}</span>
                     </button>
                   </div>
                 </header>
@@ -2369,13 +2400,13 @@ export default function OrderManagementAdmin({
                       {/* Navigation list - compact & sleek */}
                       <div className="space-y-1">
                         {[
-                          { id: 'brand', label: lang === 'bn' ? 'ব্র্যান্ড ও যোগাযোগ' : 'Brand & Contact', desc: lang === 'bn' ? 'লোগো, ফোন, হোয়াটসঅ্যাপ ও ইমেইল' : 'Logo, phone, WhatsApp & email', icon: Utensils },
-                          { id: 'security', label: lang === 'bn' ? 'সিকিউরিটি ও পিন' : 'Security & PIN', desc: lang === 'bn' ? 'ম্যানেজার পিন কোড ও নিরাপত্তা' : 'Passcode & security access', icon: Lock },
-                          { id: 'features', label: lang === 'bn' ? 'থিম ও ম্যাপস' : 'Theme & Maps', desc: lang === 'bn' ? 'ডার্ক মোড ও গুগল ম্যাপস' : 'Dark theme & Google Maps', icon: Globe },
-                          { id: 'chef', label: lang === 'bn' ? 'শেফ গ্যালারি' : 'Chef Showcase', desc: lang === 'bn' ? 'রাঁধুনীদের পরিচয় ও গ্যালারি' : 'Chef team profiles & showcase', icon: ChefHat },
-                          { id: 'social', label: lang === 'bn' ? 'সোশ্যাল ও ব্যানার' : 'Social & Banners', desc: lang === 'bn' ? 'ফেসবুক ও স্লাইডার ব্যানার' : 'Social links & hero sliders', icon: Sparkles },
-                          { id: 'deploy', label: lang === 'bn' ? 'সিস্টেম আপডেট' : 'System Update', desc: lang === 'bn' ? 'লাইভ সিস্টেম ডিপ্লয়মেন্ট' : 'Real-time deployment updates', icon: Zap },
-                          { id: 'domains', label: lang === 'bn' ? 'ডোমেইন ও কাস্টম লিংক' : 'Domains & Custom URL', desc: lang === 'bn' ? 'কাস্টম ব্র্যান্ডেড ডোমেইন কানেক্ট' : 'Custom root domains & DNS', icon: Globe }
+                          { id: 'brand', label: 'Brand & Contact', desc: 'Logo, phone, WhatsApp & email', icon: Utensils },
+                          { id: 'security', label: 'Security & PIN', desc: 'Passcode & security access', icon: Lock },
+                          { id: 'features', label: 'Theme & Maps', desc: 'Dark theme & Google Maps', icon: Globe },
+                          { id: 'chef', label: 'Chef Showcase', desc: 'Chef team profiles & showcase', icon: ChefHat },
+                          { id: 'social', label: 'Social & Banners', desc: 'Social links & hero sliders', icon: Sparkles },
+                          { id: 'deploy', label: 'System Update', desc: 'Real-time deployment updates', icon: Zap },
+                          { id: 'domains', label: 'Domains & Custom URL', desc: 'Custom root domains & DNS', icon: Globe }
                         ].map((item) => {
                           const ItemIcon = item.icon;
                           return (
@@ -2422,13 +2453,13 @@ export default function OrderManagementAdmin({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'রেস্টুরেন্ট ব্র্যান্ড, লোগো ও যোগাযোগ' : 'Restaurant Brand, Logo & Contact'}</h2>
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">'Restaurant Brand, Logo & Contact'</h2>
                             <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
                               {localBrandSettings.brandName || 'My Restaurant'}
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'রেস্টুরেন্টের নাম, লোগো গ্যালারি, কন্টাক্ট নম্বর, হোয়াটসঅ্যাপ, সাপোর্ট ইমেইল ও থিম কালার।' : 'Restaurant name, custom logo gallery, phone, WhatsApp, email & theme colors.'}
+                            'Restaurant name, custom logo gallery, phone, WhatsApp, email & theme colors.'
                           </p>
                         </div>
                       </div>
@@ -2438,10 +2469,10 @@ export default function OrderManagementAdmin({
                         <div className="flex items-center justify-between">
                           <h3 className="text-base font-black flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-blue-500" />
-                            <span>{lang === 'bn' ? 'ব্র্যান্ড আইডেন্টিটি এডিটর' : 'Brand Identity Editor'}</span>
+                            <span>'Brand Identity Editor'</span>
                           </h3>
                           <button onClick={handleSaveBrandSettings} className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-blue-700 transition-all cursor-pointer">
-                            {isSaving ? (lang === 'bn' ? 'সেভ হচ্ছে...' : 'Saving...') : (lang === 'bn' ? 'পরিবর্তন সেভ করুন' : 'Save Changes')}
+                            {isSaving ? ('Saving...') : ('Save Changes')}
                           </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -2450,42 +2481,42 @@ export default function OrderManagementAdmin({
                         <div className="space-y-4">
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                              <span>{lang === 'bn' ? 'রেস্টুরেন্ট ওনারের নাম (Owner Name)' : 'Restaurant Owner Name'}</span>
+                              <span>'Restaurant Owner Name'</span>
                             </label>
                             <input 
                               type="text" 
                               value={localBrandSettings.ownerName} 
                               onChange={e => setLocalBrandSettings(prev => ({ ...prev, ownerName: e.target.value }))}
                               onKeyDown={handleKeyDownSave}
-                              placeholder={lang === 'bn' ? 'যেমন: Md Asraful' : 'e.g. Md Asraful'}
+                              placeholder='e.g. Md Asraful'
                               className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
                             />
                           </div>
 
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                              <span>{lang === 'bn' ? 'রেস্টুরেন্টের নাম (Restaurant Name)' : 'Restaurant Name'}</span>
+                              <span>'Restaurant Name'</span>
                             </label>
                             <input 
                               type="text" 
                               value={localBrandSettings.brandName} 
                               onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandName: e.target.value, restaurantName: e.target.value }))}
                               onKeyDown={handleKeyDownSave}
-                              placeholder={lang === 'bn' ? 'যেমন: Velmora Dining' : 'e.g. Velmora Dining'}
+                              placeholder='e.g. Velmora Dining'
                               className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
                             />
                           </div>
 
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-extrabold text-slate-700 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                              <span>{lang === 'bn' ? 'রেস্টুরেন্টের লোকেশন/ঠিকানা (Location / Address)' : 'Restaurant Location / Address'}</span>
+                              <span>'Restaurant Location / Address'</span>
                             </label>
                             <input 
                               type="text" 
                               value={localBrandSettings.brandLocation || ''} 
                               onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandLocation: e.target.value }))}
                               onKeyDown={handleKeyDownSave}
-                              placeholder={lang === 'bn' ? 'যেমন: Gulshan 2, Dhaka, Bangladesh' : 'e.g. 123 Culinary Boulevard, Downtown'}
+                              placeholder='e.g. 123 Culinary Boulevard, Downtown'
                               className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
                             />
                           </div>
@@ -2494,7 +2525,7 @@ export default function OrderManagementAdmin({
                         {/* Restaurant Logo Gallery (Clickable Card directly under Restaurant Name) */}
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            {lang === 'bn' ? 'রেস্টুরেন্ট লোগো গ্যালারি' : 'Restaurant Logo Gallery'}
+                            'Restaurant Logo Gallery'
                           </label>
 
                           <div 
@@ -2511,11 +2542,11 @@ export default function OrderManagementAdmin({
                               </div>
                               <div className="space-y-1">
                                 <h4 className={`text-sm font-black flex items-center gap-1.5 ${theme === 'dark' ? 'text-white' : 'text-slate-800'} group-hover:text-cyan-500 transition-colors`}>
-                                  <span>{lang === 'bn' ? 'রেস্টুরেন্ট লোগো গ্যালারি' : 'Restaurant Logo Gallery'}</span>
+                                  <span>'Restaurant Logo Gallery'</span>
                                   <Sparkles className="w-3.5 h-3.5 text-cyan-500" />
                                 </h4>
                                 <p className="text-[11px] text-slate-500 font-bold group-hover:text-cyan-600 transition-colors">
-                                  {lang === 'bn' ? 'ক্লিক করে লোগো গ্যালারি, মনোগ্রাম স্টাইল ও কাস্টম কালার পরিবর্তন করুন' : 'Click to Open Logo Gallery & Custom Colors'}
+                                  'Click to Open Logo Gallery & Custom Colors'
                                 </p>
                               </div>
                             </div>
@@ -2533,14 +2564,14 @@ export default function OrderManagementAdmin({
                           <div className="border-b border-inherit pb-2">
                           <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-                            {lang === 'bn' ? 'যোগাযোগ ও সাপোর্ট ডিটেইলস' : 'Communication & Support Channels'}
+                            'Communication & Support Channels'
                           </h4>
                         </div>
 
                         {/* Country Code Prefix & Phone Line */}
                         <div className="space-y-1">
                           <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-                            {lang === 'bn' ? 'অফিসিয়াল ফোন নম্বর' : 'Official Phone Line'}
+                            'Official Phone Line'
                           </label>
                           <div className="flex gap-2">
                             {/* Custom Flags Dropdown Select */}
@@ -2669,7 +2700,7 @@ export default function OrderManagementAdmin({
                           <div className="flex items-center justify-between">
                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                               <MessageCircle className="w-3 h-3 text-emerald-500" />
-                              {lang === 'bn' ? 'অফিসিয়াল হোয়াটসঅ্যাপ নম্বর' : 'Official WhatsApp Number'}
+                              'Official WhatsApp Number'
                             </label>
                             <button
                               type="button"
@@ -2679,7 +2710,7 @@ export default function OrderManagementAdmin({
                               }}
                               className="text-[9px] font-bold text-emerald-600 hover:text-emerald-500 hover:underline cursor-pointer"
                             >
-                              {lang === 'bn' ? 'ফোন নম্বর থেকে কপি করুন' : 'Same as Phone'}
+                              'Same as Phone'
                             </button>
                           </div>
                           <div className="flex gap-2">
@@ -2807,7 +2838,7 @@ export default function OrderManagementAdmin({
                         {/* Email Input */}
                         <div className="space-y-1">
                           <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-                            {lang === 'bn' ? 'অফিসিয়াল ইমেইল (জিমেইল)' : 'Official Support Email'}
+                            'Official Support Email'
                           </label>
                           <input
                             type="email"
@@ -2827,7 +2858,7 @@ export default function OrderManagementAdmin({
                     <div className="space-y-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                          {lang === 'bn' ? 'ব্র্যান্ড থিম কালার' : 'Primary Brand Color'}
+                          'Primary Brand Color'
                         </label>
                         <div className="flex gap-4 items-center">
                           <input 
@@ -2847,7 +2878,7 @@ export default function OrderManagementAdmin({
                         {/* Interactive Square Presets / Swatches as requested */}
                         <div className="space-y-1.5 pt-1.5">
                           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">
-                            {lang === 'bn' ? 'কুইক কালার সোয়াচ' : 'Quick Color Swatches'}
+                            'Quick Color Swatches'
                           </span>
                           <div className="flex flex-wrap gap-2">
                             {[
@@ -2888,14 +2919,14 @@ export default function OrderManagementAdmin({
                         <div className="flex items-center gap-2 text-amber-500">
                           <ChefHat className="w-5 h-5" />
                           <h4 className="font-black text-xs uppercase tracking-wider">
-                            {lang === 'bn' ? 'মেনু সেকশন হেডিং ও সাবটাইটেল সম্পাদনা' : 'Menu Section Heading & Subtitle Editor'}
+                            'Menu Section Heading & Subtitle Editor'
                           </h4>
                         </div>
 
                         <div className="space-y-3">
                           <div className="space-y-1">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                              {lang === 'bn' ? 'মেনু ট্যাগলাইন (ক্ষুদ্র হেডার)' : 'Menu Tagline (Small Header)'}
+                              'Menu Tagline (Small Header)'
                             </label>
                             <input
                               type="text"
@@ -2911,7 +2942,7 @@ export default function OrderManagementAdmin({
 
                           <div className="space-y-1">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                              {lang === 'bn' ? 'প্রধান মেনু শিরোনাম (Main Heading)' : 'Main Menu Title'}
+                              'Main Menu Title'
                             </label>
                             <input
                               type="text"
@@ -2927,7 +2958,7 @@ export default function OrderManagementAdmin({
 
                           <div className="space-y-1">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                              {lang === 'bn' ? 'মেনু বিবরণ (Subtitle Description)' : 'Menu Description (Subtitle)'}
+                              'Menu Description (Subtitle)'
                             </label>
                             <textarea
                               rows={2}
@@ -2959,13 +2990,13 @@ export default function OrderManagementAdmin({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'সিকিউরিটি পাসওয়ার্ড ও এক্সেস পিন' : 'Admin Security Password & PIN Lock'}</h2>
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">'Admin Security Password & PIN Lock'</h2>
                             <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
                               🔑 Protected
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'অ্যাডমিন প্যানেলে ঢোকার গোপন পাসওয়ার্ড এবং কাস্টমারদের জন্য "Admin" বাটন বন্ধ বা চালু রাখা।' : 'Change owner secret password and toggle public customer Admin button.'}
+                            'Change owner secret password and toggle public customer Admin button.'
                           </p>
                         </div>
                       </div>
@@ -2979,16 +3010,16 @@ export default function OrderManagementAdmin({
                               <Lock className="w-5 h-5" />
                             </div>
                             <div>
-                              <h3 className="text-base font-black">{lang === 'bn' ? 'অ্যাডমিন সিকিউরিটি পাসওয়ার্ড পরিবর্তন' : 'Change Secret Password'}</h3>
+                              <h3 className="text-base font-black">'Change Secret Password'</h3>
                               <p className="text-xs text-slate-500 font-medium">
-                                {lang === 'bn' ? 'অ্যাডমিন প্যানেল আনলক করার গোপন পাসওয়ার্ড আপডেট করুন।' : 'Update the secret PIN or passphrase used to access owner dashboard.'}
+                                'Update the secret PIN or passphrase used to access owner dashboard.'
                               </p>
                             </div>
                           </div>
 
                           <form onSubmit={handleSaveSecretCode} className="flex flex-col gap-5 pt-2 max-w-xl w-full">
                             <div className="space-y-2">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'বর্তমান পাসওয়ার্ড' : 'Current Active Password'}</label>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">'Current Active Password'</label>
                               <div className="relative">
                                 <input 
                                   type={showSecretCode ? "text" : "password"} 
@@ -3007,7 +3038,7 @@ export default function OrderManagementAdmin({
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'নতুন পাসওয়ার্ড লিখুন' : 'Create New Password'}</label>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">'Create New Password'</label>
                               <div className="flex gap-3">
                                 <input 
                                   type="text" 
@@ -3021,7 +3052,7 @@ export default function OrderManagementAdmin({
                                   className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap cursor-pointer shadow-md hover:shadow-blue-500/20"
                                 >
                                   <Check className="w-4 h-4" />
-                                  <span>{lang === 'bn' ? 'পরিবর্তন করুন' : 'Change'}</span>
+                                  <span>'Change'</span>
                                 </button>
                               </div>
                             </div>
@@ -3048,12 +3079,10 @@ export default function OrderManagementAdmin({
                               </div>
                               <div>
                                 <h3 className="text-base font-black">
-                                  {lang === 'bn' ? 'কাস্টমারের জন্য এডমিন বাটন প্রদর্শন (Public Admin Button)' : 'Public Customer Admin Button Toggle'}
+                                  'Public Customer Admin Button Toggle'
                                 </h3>
                                 <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
-                                  {lang === 'bn' 
-                                    ? 'কাস্টমারদের জন্য ডিফল্টভাবে ওয়েবসাইটে "Admin" বাটনটি বন্ধ রাখা হয়। এডমিন ঢুকতে পিন (৮৫২০) বা ফুটারে 🔒 ব্যবহার করুন।' 
-                                    : 'By default, Admin button is hidden from public customers. Staff can enter PIN (8520) in search bar or click 🔒 in footer.'}
+                                  'By default, Admin button is hidden from public customers. Staff can enter PIN (8520) in search bar or click 🔒 in footer.'
                                 </p>
                               </div>
                             </div>
@@ -3100,7 +3129,7 @@ export default function OrderManagementAdmin({
                         </div>
                       </div>
                     </div>
-                )}
+                  )}
 
                 {/* 3. WEBSITE DARK/LIGHT THEME & GOOGLE MAPS LOCATION DISPLAY CARD */}
                 {isSectionVisible('features', ['theme', 'থিম', 'dark', 'light', 'কালো', 'সাদা', 'map', 'ম্যাপ', 'google map', 'গুগল ম্যাপ', 'location', 'লোケーション', 'personalization']) && (
@@ -3114,13 +3143,13 @@ export default function OrderManagementAdmin({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'ওয়েবসাইট থিম ও গুগল ম্যাপস ডিসপ্লে' : 'Website Theme & Google Maps Display'}</h2>
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">'Website Theme & Google Maps Display'</h2>
                             <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                              {localBrandSettings.showGoogleMap !== false ? (lang === 'bn' ? 'ম্যাপ চালু' : 'Map Active') : (lang === 'bn' ? 'ম্যাপ বন্ধ' : 'Map Off')}
+                              {localBrandSettings.showGoogleMap !== false ? ('Map Active') : ('Map Off')}
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'অ্যাডমিন প্যানেলের ডার্ক/লাইট মোড এবং কাস্টমার ওয়েবসাইটে গুগল ম্যাপস ও লাইভ লোকেশন প্রদর্শন।' : 'Toggle dark/light mode and turn Google Maps live location on/off.'}
+                            'Toggle dark/light mode and turn Google Maps live location on/off.'
                           </p>
                         </div>
                       </div>
@@ -3137,16 +3166,14 @@ export default function OrderManagementAdmin({
                               <div>
                                 <div className="flex items-center gap-2">
                                   <h3 className="text-base font-black text-slate-900 dark:text-white">
-                                    {lang === 'bn' ? 'বর্তমান সক্রিয় থিম ও এডমিন সিঙ্ক' : 'Active Theme & Admin Sync'}
+                                    'Active Theme & Admin Sync'
                                   </h3>
                                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950">
                                     {settings.activeThemeId === 'lunavere' ? 'Lunavere Cafe' : 'Velmora Dining Luxury'}
                                   </span>
                                 </div>
                                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                                  {lang === 'bn' 
-                                    ? 'এই থিমের ব্র্যান্ডিং, ফন্ট, কালার ও লেআউটের সঙ্গে এডমিন প্যানেল এবং সেটিংস স্বয়ংক্রিয়ভাবে সিঙ্কড রয়েছে।' 
-                                    : 'Theme styling, palette and layout are fully synchronized with your admin panel.'}
+                                  'Theme styling, palette and layout are fully synchronized with your admin panel.'
                                 </p>
                               </div>
                             </div>
@@ -3160,7 +3187,7 @@ export default function OrderManagementAdmin({
                               className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
                             >
                               <Palette className="w-4 h-4" />
-                              <span>{lang === 'bn' ? 'থিম স্টোর দেখুন' : 'Open Theme Store'}</span>
+                              <span>'Open Theme Store'</span>
                             </button>
                           </div>
                         </div>
@@ -3172,8 +3199,8 @@ export default function OrderManagementAdmin({
                               {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                             </div>
                             <div>
-                              <h3 className="text-base font-black">{lang === 'bn' ? 'এডমিন ড্যাশবোর্ড মোড' : 'Admin Theme Mode'}</h3>
-                              <p className="text-xs text-slate-500 font-medium">{lang === 'bn' ? 'ডার্ক মোড অথবা ক্লিন হোয়াইট ড্যাশবোর্ড সিলেক্ট করুন।' : 'Switch between clean light and dark admin background.'}</p>
+                              <h3 className="text-base font-black">'Admin Theme Mode'</h3>
+                              <p className="text-xs text-slate-500 font-medium">'Switch between clean light and dark admin background.'</p>
                             </div>
                           </div>
                           <div className={`flex p-1 rounded-xl transition-colors ${theme === 'dark' ? 'bg-[#252525]' : 'bg-slate-200'}`}>
@@ -3209,19 +3236,17 @@ export default function OrderManagementAdmin({
                               </div>
                               <div>
                                 <h3 className="text-base font-black">
-                                  {lang === 'bn' ? 'গুগল ম্যাপ ও লাইভ লোকেশন প্রদর্শন (Google Maps)' : 'Google Maps & Live Location Display'}
+                                  'Google Maps & Live Location Display'
                                 </h3>
                                 <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
-                                  {lang === 'bn' 
-                                    ? 'থিমের ফুটারে এবং ওয়েবসাইটে লাইভ গুগল ম্যাপ ও ডিরেকশন সেকশন অন বা অফ রাখুন।' 
-                                    : 'Controls embedded Google Map and navigation on theme footer.'}
+                                  'Controls embedded Google Map and navigation on theme footer.'
                                 </p>
                               </div>
                             </div>
 
                             <div className="flex items-center gap-3 shrink-0">
                               <span className={`text-xs font-black uppercase tracking-wider ${localBrandSettings.showGoogleMap !== false ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                {localBrandSettings.showGoogleMap !== false ? (lang === 'bn' ? 'অন (দৃশ্যমান)' : 'ON (Visible)') : (lang === 'bn' ? 'অফ (লুকানো)' : 'OFF (Hidden)')}
+                                {localBrandSettings.showGoogleMap !== false ? ('ON (Visible)') : ('OFF (Hidden)')}
                               </span>
                               <button
                                 type="button"
@@ -3240,123 +3265,197 @@ export default function OrderManagementAdmin({
                           </div>
                         </div>
                       </div>
-                  </div>
-                )}
-                {/* 4. CHEF SHOWCASE & 6 CHEF PROFILES CARD */}
-                {isSectionVisible('chef', ['chef', 'শেফ', 'profile', 'প্রোফাইল', 'cook', 'রাঁধুনী', 'rating', 'রেটিং', 'experience', 'অভিজ্ঞতা', 'bio']) && (
-                  <div className="transition-all duration-300 w-full bg-transparent">
-                    <div 
-                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
-                          <ChefHat className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'শেফ প্রোফাইল গ্যালারি' : 'Chef Profile Showcase & Gallery'}</h2>
-                            <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
-                              localBrandSettings.themeShowChefSection !== false
-                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                                : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
-                            }`}>
-                              {localBrandSettings.themeShowChefSection !== false ? (lang === 'bn' ? '৬ শেফ অ্যাক্টিভ' : '6 Chefs Active') : (lang === 'bn' ? 'বন্ধ' : 'Disabled')}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'শেফ সেকশন চালু/বন্ধ রাখুন এবং ৬ জন দক্ষ শেফের ছবি, নাম, পদবী, রেটিং ও অভিজ্ঞতা এডিট করুন।' : 'Enable or disable chef section and manage 6 professional chef profiles.'}
-                          </p>
-                        </div>
-                      </div>
                     </div>
-
-                    <div className="py-6 space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>
-                          <ChefHat className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black">
-                              {lang === 'bn' ? 'শেফ সেকশন প্রদর্শন ও কন্ট্রোল (Chef Profile Section)' : 'Chef Profile Showcase & Toggle'}
-                            </h2>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                              localBrandSettings.themeShowChefSection !== false
-                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                                : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
-                            }`}>
-                              {localBrandSettings.themeShowChefSection !== false 
-                                ? (lang === 'bn' ? 'শেফ অ্যাক্টিভ' : 'Chef Active') 
-                                : (lang === 'bn' ? 'শেফ ডিসেবল' : 'Chef Disabled')}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
-                            {lang === 'bn' 
-                              ? 'শেফ সেকশন চালু বা বন্ধ রাখুন এবং ৬ জন দক্ষ শেফের ছবি, নাম, স্পেশালিটি, রেটিং ও অভিজ্ঞতা এডিট করুন।' 
-                              : 'Enable or disable the chef showcase section and customize chef photos, specialties, ratings, and experience.'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Single Direct Toggle On/Off Switch */}
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className={`text-xs font-black uppercase tracking-wider ${
-                          localBrandSettings.themeShowChefSection !== false ? 'text-emerald-500' : 'text-slate-400'
-                        }`}>
-                          {localBrandSettings.themeShowChefSection !== false 
-                            ? (lang === 'bn' ? 'অন (চালু)' : 'ON (Active)') 
-                            : (lang === 'bn' ? 'অফ (বন্ধ)' : 'OFF (Disabled)')}
+                  )}
+                {/* THREAD-SAFE ISOLATED THEME SELECTOR BAR */}
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow-md">
+                      <Palette className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Theme Isolation Customization:</span>
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 uppercase">
+                          {editingThemeId}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newStatus = localBrandSettings.themeShowChefSection === false ? true : false;
-                            setLocalBrandSettings(prev => ({ ...prev, themeShowChefSection: newStatus }));
-                            onUpdateSettings({ themeShowChefSection: newStatus });
-                          }}
-                          className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-                            localBrandSettings.themeShowChefSection !== false ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
-                          }`}
-                          title={localBrandSettings.themeShowChefSection !== false ? 'Disable Chef Section' : 'Enable Chef Section'}
-                        >
-                          <motion.div 
-                            layout 
-                            className="w-6 h-6 bg-white rounded-full shadow-md" 
-                          />
-                        </button>
-                      </div>
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium">
+                        Settings & shapes customized here apply strictly to this active theme without affecting other themes.
+                      </p>
                     </div>
+                  </div>
 
-                    {/* Detailed 6-Chef Settings Form (Expands when toggle is active) */}
-                    {localBrandSettings.themeShowChefSection !== false && (() => {
-                      const chefList = (localBrandSettings.chefProfiles && localBrandSettings.chefProfiles.length === 6)
-                        ? localBrandSettings.chefProfiles
-                        : (() => {
-                            const list = [...(localBrandSettings.chefProfiles || [])];
-                            while (list.length < 6) {
-                              const fallback = DEFAULT_CHEF_PROFILES[list.length] || DEFAULT_CHEF_PROFILES[0];
-                              list.push({ ...fallback, id: `chef-${list.length + 1}` });
-                            }
-                            return list.slice(0, 6);
-                          })();
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-black text-slate-700 dark:text-slate-300 shrink-0">
+                      Editing Theme:
+                    </label>
+                    <select
+                      value={editingThemeId}
+                      onChange={(e) => {
+                        const newThemeId = e.target.value;
+                        setEditingThemeId(newThemeId);
+                        
+                        const themeSpecific = settings?.themeSettings?.[newThemeId];
+                        let localShapes = themeSpecific?.activeShapeIndices;
+                        let localChefs = themeSpecific?.chefProfiles;
+                        
+                        if (typeof window !== 'undefined') {
+                          try {
+                            const savedS = localStorage.getItem(`theme_shapes_${newThemeId}`);
+                            if (savedS) localShapes = JSON.parse(savedS);
+                            const savedC = localStorage.getItem(`theme_chefs_${newThemeId}`);
+                            if (savedC) localChefs = JSON.parse(savedC);
+                          } catch (err) {}
+                        }
 
-                      const activeChef = chefList[selectedChefIndex] || chefList[0];
+                        const defaultShapesForTheme = newThemeId === 'palatiora' ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 3];
+                        const shapesToSet = localShapes || defaultShapesForTheme;
+                        const chefsToSet = localChefs || settings?.chefProfiles || DEFAULT_CHEF_PROFILES;
 
-                      const handleUpdateCurrentChef = (fields: Partial<ChefProfile>) => {
-                        setLocalBrandSettings(prev => {
+                        setLocalBrandSettings(prev => ({
+                          ...prev,
+                          activeShapeIndices: shapesToSet,
+                          activeShapeCount: shapesToSet.length,
+                          chefProfiles: chefsToSet
+                        }));
+                      }}
+                      className="px-3.5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#1f1f1f] text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 outline-none shadow-xs cursor-pointer"
+                    >
+                      <option value="palatiora">Theme #05: Palatiora Savorelle (6 Shapes Default)</option>
+                      <option value="koppee">Theme #02: Koppee Gourmet (4 Shapes Default)</option>
+                      <option value="velmora-dining">Theme #01: Velmora Fine Dining (4 Shapes Default)</option>
+                      <option value="lunavere">Theme #03: Lunavere Bistro (4 Shapes Default)</option>
+                      <option value="sahinsh">Theme #04: Sahinsh Speciality (5 Shapes Default)</option>
+                      <option value="aurelisse">Theme #06: Aurelisse Botanical (4 Shapes Default)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 4. CHEF SHOWCASE & 6 CHEF PROFILES CARD */}
+                {isSectionVisible('chef', ['chef', 'শেফ', 'profile', 'প্রোফাইল', 'cook', 'রাঁধুনী', 'rating', 'রেটিং', 'experience', 'অভিজ্ঞতা', 'bio']) && (() => {
+                  const chefList = (localBrandSettings.chefProfiles && localBrandSettings.chefProfiles.length === 6)
+                    ? localBrandSettings.chefProfiles
+                    : (() => {
+                        const list = [...(localBrandSettings.chefProfiles || [])];
+                        while (list.length < 6) {
+                          const fallback = DEFAULT_CHEF_PROFILES[list.length] || DEFAULT_CHEF_PROFILES[0];
+                          list.push({ ...fallback, id: `chef-${list.length + 1}` });
+                        }
+                        return list.slice(0, 6);
+                      })();
+                  const activeChefCount = chefList.filter(c => c.active !== false).length;
+
+                  return (
+                    <div className="transition-all duration-300 w-full bg-transparent">
+                      <div 
+                        className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                            <ChefHat className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h2 className="text-lg font-black text-slate-900 dark:text-white">'Chef Profile Showcase & Gallery'</h2>
+                              <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
+                                localBrandSettings.themeShowChefSection !== false
+                                  ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                  : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                              }`}>
+                                {localBrandSettings.themeShowChefSection !== false ? (lang === 'bn' ? `${activeChefCount} শেফ অ্যাক্টিভ` : `${activeChefCount} Chefs Active`) : ('Disabled')}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 font-medium mt-0.5">
+                              'Enable or disable chef section and manage 6 professional chef profiles.'
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="py-6 space-y-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-2xl ${theme === 'dark' ? 'bg-amber-500/10 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>
+                            <ChefHat className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h2 className="text-lg font-black">
+                                'Chef Profile Showcase & Toggle'
+                              </h2>
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                localBrandSettings.themeShowChefSection !== false
+                                  ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                  : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                              }`}>
+                                {localBrandSettings.themeShowChefSection !== false 
+                                  ? (lang === 'bn' ? `${activeChefCount} শেফ অ্যাক্টিভ` : `${activeChefCount} Chefs Active`) 
+                                  : ('Chef Disabled')}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 font-medium max-w-xl mt-0.5">
+                              'Enable or disable the chef showcase section and customize chef photos, specialties, ratings, and experience.'
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Single Direct Toggle On/Off Switch */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className={`text-xs font-black uppercase tracking-wider ${
+                            localBrandSettings.themeShowChefSection !== false ? 'text-emerald-500' : 'text-slate-400'
+                          }`}>
+                            {localBrandSettings.themeShowChefSection !== false 
+                              ? ('ON (Active)') 
+                              : ('OFF (Disabled)')}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newStatus = localBrandSettings.themeShowChefSection === false ? true : false;
+                              setLocalBrandSettings(prev => ({ ...prev, themeShowChefSection: newStatus }));
+                              onUpdateSettings({ themeShowChefSection: newStatus });
+                            }}
+                            className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                              localBrandSettings.themeShowChefSection !== false ? 'bg-emerald-500 justify-end shadow-md' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                            }`}
+                            title={localBrandSettings.themeShowChefSection !== false ? 'Disable Chef Section' : 'Enable Chef Section'}
+                          >
+                            <motion.div 
+                              layout 
+                              className="w-6 h-6 bg-white rounded-full shadow-md" 
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Detailed 6-Chef Settings Form (Expands when toggle is active) */}
+                      {localBrandSettings.themeShowChefSection !== false && (() => {
+                        const activeChef = chefList[selectedChefIndex] || chefList[0];
+
+                        const handleUpdateCurrentChef = (fields: any) => {
                           const updatedList = [...chefList];
                           updatedList[selectedChefIndex] = {
                             ...updatedList[selectedChefIndex],
                             ...fields
                           };
-                          return {
+                          setLocalBrandSettings(prev => ({
                             ...prev,
                             chefProfiles: updatedList,
                             chefProfile: updatedList[0]
-                          };
-                        });
-                      };
+                          }));
+                          onUpdateSettings({
+                            chefProfiles: updatedList,
+                            chefProfile: updatedList[0]
+                          });
+                          try {
+                            const saved = localStorage.getItem('webar_admin_brand_settings');
+                            const existing = saved ? JSON.parse(saved) : {};
+                            existing.chefProfiles = updatedList;
+                            existing.chefProfile = updatedList[0];
+                            localStorage.setItem('webar_admin_brand_settings', JSON.stringify(existing));
+                          } catch (e) {}
+                        };
 
                       return (
                         <div className={`mt-6 p-6 rounded-2xl border space-y-6 ${theme === 'dark' ? 'bg-[#242424] border-slate-700/60' : 'bg-slate-50 border-slate-200/80'}`}>
@@ -3367,7 +3466,7 @@ export default function OrderManagementAdmin({
                               <div className="flex items-center gap-2">
                                 <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>
                                   <ChefHat className="w-4 h-4 text-amber-500" />
-                                  <span>{lang === 'bn' ? '৬ জন শেফের ফটো ও প্রোফাইল (যেকোনো ফটোতে ক্লিক করুন):' : '6 Chef Profiles (Click any photo to edit):'}</span>
+                                  <span>'6 Chef Profiles (Click any photo to edit):'</span>
                                 </label>
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-amber-500/15 text-amber-500 border border-amber-500/30">
                                   6 Slots
@@ -3384,10 +3483,12 @@ export default function OrderManagementAdmin({
                               {chefList.map((chefItem, idx) => {
                                 const isSelected = selectedChefIndex === idx;
                                 return (
-                                  <button
+                                  <div
                                     key={idx}
-                                    type="button"
+                                    role="button"
+                                    tabIndex={0}
                                     onClick={() => setSelectedChefIndex(idx)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedChefIndex(idx); }}
                                     className={`relative rounded-2xl overflow-hidden p-1.5 text-left transition-all duration-300 group cursor-pointer flex flex-col ${
                                       isSelected 
                                         ? 'ring-2 ring-amber-500 shadow-lg shadow-amber-500/25 bg-amber-500/10 border-2 border-amber-500 scale-[1.03]' 
@@ -3405,10 +3506,50 @@ export default function OrderManagementAdmin({
                                       />
                                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                                       
-                                      {/* Slot badge */}
-                                      <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-xs border border-white/20 text-[9px] font-black font-mono text-amber-400">
-                                        #{idx + 1}
+                                      {/* Top Bar Badges & ON/OFF Round Toggle */}
+                                      <div className="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between z-20">
+                                        <div className="px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-xs border border-white/20 text-[9px] font-black font-mono text-amber-400">
+                                          #{idx + 1}
+                                        </div>
+
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            const updatedList = [...chefList];
+                                            const newActive = updatedList[idx].active === false ? true : false;
+                                            updatedList[idx] = { ...updatedList[idx], active: newActive };
+                                            setLocalBrandSettings(prev => ({ ...prev, chefProfiles: updatedList, chefProfile: updatedList[0] }));
+                                            onUpdateSettings({ chefProfiles: updatedList, chefProfile: updatedList[0] });
+                                            try {
+                                              const saved = localStorage.getItem('webar_admin_brand_settings');
+                                              const existing = saved ? JSON.parse(saved) : {};
+                                              existing.chefProfiles = updatedList;
+                                              existing.chefProfile = updatedList[0];
+                                              localStorage.setItem('webar_admin_brand_settings', JSON.stringify(existing));
+                                            } catch (err) {}
+                                          }}
+                                          onKeyDown={(e) => e.stopPropagation()}
+                                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                                            chefItem.active !== false 
+                                              ? 'bg-emerald-500 text-white ring-4 ring-emerald-400/30 shadow-emerald-500/40 hover:bg-emerald-600' 
+                                              : 'bg-rose-500 text-white ring-4 ring-rose-400/30 shadow-rose-500/30 hover:bg-rose-600'
+                                          } shadow-lg border-2 border-white cursor-pointer active:scale-90`}
+                                          title={chefItem.active !== false ? 'Click to turn OFF (Hide from theme)' : 'Click to turn ON (Show in theme)'}
+                                        >
+                                          <Power className="w-4 h-4 stroke-[2.5]" />
+                                        </button>
                                       </div>
+
+                                      {/* Inactive Overlay Badge */}
+                                      {chefItem.active === false && (
+                                        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center pointer-events-none p-1 text-center">
+                                          <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[8px] font-black uppercase tracking-wider shadow-sm">
+                                            OFF (Hidden)
+                                          </span>
+                                        </div>
+                                      )}
 
                                       {/* Selected checkmark */}
                                       {isSelected && (
@@ -3420,7 +3561,7 @@ export default function OrderManagementAdmin({
                                       {/* Hover click hint */}
                                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
                                         <span className="text-[10px] font-bold text-white bg-amber-600/90 px-2 py-0.5 rounded-md shadow-xs">
-                                          {lang === 'bn' ? 'ক্লিক করে এডিট' : 'Edit'}
+                                          'Edit'
                                         </span>
                                       </div>
 
@@ -3443,7 +3584,7 @@ export default function OrderManagementAdmin({
                                         {chefItem.speciality || chefItem.role || 'Artisan Chef'}
                                       </p>
                                     </div>
-                                  </button>
+                                  </div>
                                 );
                               })}
                             </div>
@@ -3463,9 +3604,7 @@ export default function OrderManagementAdmin({
                                   <span className="text-amber-600 dark:text-amber-400 font-black">{activeChef.name}</span>
                                 </h3>
                                 <p className={`text-[11px] font-semibold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-700'}`}>
-                                  {lang === 'bn' 
-                                    ? 'এই শেফের ফটো, নাম, পদবী, রেটিং, অভিজ্ঞতা ও বায়ো নিচে এডিট করতে পারবেন।' 
-                                    : 'Customize this chef’s photo, name, designation, rating, experience, and bio below.'}
+                                  'Customize this chef’s photo, name, designation, rating, experience, and bio below.'
                                 </p>
                               </div>
                             </div>
@@ -3489,7 +3628,7 @@ export default function OrderManagementAdmin({
                                 </div>
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 text-center">
                                   <span className="text-[11px] text-white font-bold bg-black/60 px-2.5 py-1 rounded-lg">
-                                    {lang === 'bn' ? 'ছবি পরিবর্তন' : 'Change Photo'}
+                                    'Change Photo'
                                   </span>
                                 </div>
                               </div>
@@ -3497,7 +3636,7 @@ export default function OrderManagementAdmin({
                               {/* Image URL Input & File Upload */}
                               <div className="space-y-1.5">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'শেফের ছবি লিংক বা ফাইল' : 'Chef Photo URL / File'}
+                                  'Chef Photo URL / File'
                                 </label>
                                 <input 
                                   type="text"
@@ -3508,7 +3647,7 @@ export default function OrderManagementAdmin({
                                 />
                                 <label className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold cursor-pointer transition-colors shadow-xs">
                                   <Upload className="w-3.5 h-3.5" />
-                                  <span>{lang === 'bn' ? 'ডিভাইস থেকে ফটো আপলোড' : 'Upload Image'}</span>
+                                  <span>'Upload Image'</span>
                                   <input 
                                     type="file" 
                                     accept="image/*" 
@@ -3534,7 +3673,7 @@ export default function OrderManagementAdmin({
                               {/* Chef Name */}
                               <div className="space-y-1.5 sm:col-span-2">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'শেফের পুরো নাম' : "Chef's Full Name"}
+                                  "Chef's Full Name"
                                 </label>
                                 <input 
                                   type="text"
@@ -3548,7 +3687,7 @@ export default function OrderManagementAdmin({
                               {/* Chef Role / Designation */}
                               <div className="space-y-1.5">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'পদবী / রোল' : 'Designation / Role'}
+                                  'Designation / Role'
                                 </label>
                                 <input 
                                   type="text"
@@ -3562,7 +3701,7 @@ export default function OrderManagementAdmin({
                               {/* Star Rating & Review Count */}
                               <div className="space-y-1.5">
                                 <label className={`text-[11px] font-black uppercase tracking-wider flex items-center justify-between ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  <span>{lang === 'bn' ? 'রেটিং স্টার (১ থেকে ৫)' : 'Star Rating (1 - 5)'}</span>
+                                  <span>'Star Rating (1 - 5)'</span>
                                   <span className="text-amber-600 dark:text-amber-400 font-black flex items-center gap-1 font-mono">
                                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                                     {activeChef.rating || 4.9}
@@ -3592,7 +3731,7 @@ export default function OrderManagementAdmin({
                               {/* Experience Years */}
                               <div className="space-y-1.5">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'অভিজ্ঞতা (বছর)' : 'Experience (Years)'}
+                                  'Experience (Years)'
                                 </label>
                                 <input 
                                   type="number"
@@ -3606,7 +3745,7 @@ export default function OrderManagementAdmin({
                               {/* Speciality */}
                               <div className="space-y-1.5">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'স্পেশালিটি' : 'Speciality'}
+                                  'Speciality'
                                 </label>
                                 <input 
                                   type="text"
@@ -3620,7 +3759,7 @@ export default function OrderManagementAdmin({
                               {/* Awards / Recognition */}
                               <div className="space-y-1.5 sm:col-span-2">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'স্বীকৃতি ও পুরস্কার' : 'Awards & Recognition'}
+                                  'Awards & Recognition'
                                 </label>
                                 <input 
                                   type="text"
@@ -3634,7 +3773,7 @@ export default function OrderManagementAdmin({
                               {/* Biography / Description */}
                               <div className="space-y-1.5 sm:col-span-2">
                                 <label className={`text-[11px] font-black uppercase tracking-wider block ${theme === 'dark' ? 'text-slate-100' : 'text-slate-950'}`}>
-                                  {lang === 'bn' ? 'শেফের সংক্ষিপ্ত পরিচিতি ও বিবরণ' : 'Chef Bio / Story'}
+                                  'Chef Bio / Story'
                                 </label>
                                 <textarea 
                                   rows={3}
@@ -3650,7 +3789,7 @@ export default function OrderManagementAdmin({
                           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-700/30">
                             <div className="text-xs text-slate-400 flex items-center gap-1.5">
                               <Check className="w-4 h-4 text-emerald-500" />
-                              <span>{lang === 'bn' ? 'সকল ৬ জন শেফের তথ্য একসাথে সংরক্ষিত হবে।' : 'All 6 chef profile updates will be saved.'}</span>
+                              <span>'All 6 chef profile updates will be saved.'</span>
                             </div>
                             <button
                               type="button"
@@ -3658,15 +3797,16 @@ export default function OrderManagementAdmin({
                               className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all"
                             >
                               <Save className="w-4 h-4" />
-                              <span>{lang === 'bn' ? 'সকল ৬ জন শেফের তথ্য সেভ করুন' : 'Save 6 Chef Settings'}</span>
+                              <span>'Save 6 Chef Settings'</span>
                             </button>
                           </div>
                         </div>
                       );
                     })()}
-                      </div>
                   </div>
-                )}
+                </div>
+              );
+            })()}
 
                 {/* 5. SOCIAL MEDIA LINKS & HERO SLIDER BANNERS CARD */}
                 {isSectionVisible('social', ['social', 'সোশ্যাল', 'facebook', 'instagram', 'youtube', 'linkedin', 'banner', 'ব্যনার', 'hero', 'হিরো', 'slide', 'স্লাইডার', 'plan', 'প্ল্যান']) && (
@@ -3680,13 +3820,13 @@ export default function OrderManagementAdmin({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'সোশ্যাল মিডিয়া ও হিরো ব্যানার স্লাইডার' : 'Social Media & Hero Banner Slider'}</h2>
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">'Social Media & Hero Banner Slider'</h2>
                             <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">
                               {localBrandSettings.subscriptionPlan || 'Basic'} Plan
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'ইনস্টাগ্রাম, ফেসবুক, ইউটিউব, লিঙ্কডইন পেজ এবং হেডার স্লাইডারের কাভার ফটো কাস্টমাইজেশন।' : 'Social media channel links and homepage hero slider cover photo uploads.'}
+                            'Social media channel links and homepage hero slider cover photo uploads.'
                           </p>
                         </div>
                       </div>
@@ -3700,34 +3840,34 @@ export default function OrderManagementAdmin({
                           {
                             id: 'basic',
                             price: '$15',
-                            name: lang === 'bn' ? '$15 Basic Plan' : '$15 Basic Plan',
+                            name: '$15 Basic Plan',
                             socials: [
                               { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' }
                             ],
-                            slideIndices: [0]
+                            slideIndices: [0, 1, 2, 3]
                           },
                           {
                             id: 'pro',
                             price: '$49',
-                            name: lang === 'bn' ? '$49 Pro Plan' : '$49 Pro Plan',
+                            name: '$49 Pro Plan',
                             socials: [
                               { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
                               { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
                               { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' }
                             ],
-                            slideIndices: [0, 1, 2]
+                            slideIndices: [0, 1, 2, 3, 4]
                           },
                           {
                             id: 'elite',
                             price: '$99',
-                            name: lang === 'bn' ? '$99 Elite Plan' : '$99 Elite Plan',
+                            name: '$99 Elite Plan',
                             socials: [
                               { key: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/your-brand' },
                               { key: 'facebook', label: 'Facebook URL', placeholder: 'https://facebook.com/your-page' },
                               { key: 'youtube', label: 'YouTube URL', placeholder: 'https://youtube.com/@your-channel' },
                               { key: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/your-profile' }
                             ],
-                            slideIndices: [0, 1, 2, 3]
+                            slideIndices: [0, 1, 2, 3, 4, 5]
                           }
                         ];
 
@@ -3746,7 +3886,7 @@ export default function OrderManagementAdmin({
                                 </div>
                                 <div>
                                   <h3 className="text-lg font-black text-slate-900">
-                                    {lang === 'bn' ? 'সোশ্যাল লিংক ও হিরো মিডিয়া সেটিংস' : 'Social Links & Hero Media Settings'}
+                                    'Social Links & Hero Media Settings'
                                   </h3>
                                 </div>
                               </div>
@@ -3757,7 +3897,7 @@ export default function OrderManagementAdmin({
                               <div className="flex items-center justify-between">
                                 <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
                                   <span>🌐</span>
-                                  <span>{lang === 'bn' ? 'সোশ্যাল মিডিয়া লিংক' : 'Social Media Links'}</span>
+                                  <span>'Social Media Links'</span>
                                 </h4>
                               </div>
 
@@ -3806,28 +3946,51 @@ export default function OrderManagementAdmin({
                               </div>
                             </div>
 
-                            {/* PART 2: HERO COVER PHOTO SLIDES */}
+                            {/* PART 2: HERO COVER PHOTO SLIDES & SHAPE OPTIONS */}
                             <div className="space-y-5 pt-6 border-t border-[#e8e2d8]">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-amber-500/10 p-4 rounded-2xl border border-amber-500/20">
                                 <div className="flex items-center gap-3">
-                                  <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-700 border border-amber-500/30">
+                                  <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-700 border border-amber-500/30 shrink-0">
                                     <Sparkles className="w-5 h-5" />
                                   </div>
                                   <div>
                                     <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
-                                      <span>{lang === 'bn' ? 'হিরো স্লাইডার কাভার ফটো' : 'Hero Slider Cover Images'}</span>
+                                      <span>Hero Animated Shapes ({localBrandSettings.activeShapeCount || 6} Shapes)</span>
                                     </h4>
+                                    <p className="text-xs text-slate-600 font-medium">
+                                      কার্ডের ওপরের ডানদিকের গোল আইকনে চাপ দিয়ে প্রতিটি শেপ অন/অফ করুন
+                                    </p>
                                   </div>
                                 </div>
 
-                                <button
-                                  type="button"
-                                  onClick={() => handleSyncCountryHeroSlides()}
-                                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
-                                >
-                                  <Sparkles className="w-4 h-4 text-slate-950" />
-                                  <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Country'})` : `Auto-Sync (${selectedCountry || 'Country'})`}</span>
-                                </button>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {/* Shape count switcher (4, 5, 6 Shapes) */}
+                                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-xs">
+                                    {[4, 5, 6].map(count => (
+                                      <button
+                                        key={count}
+                                        type="button"
+                                        onClick={() => setLocalBrandSettings(prev => ({ ...prev, activeShapeCount: count }))}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer ${
+                                          (localBrandSettings.activeShapeCount || 6) === count
+                                            ? 'bg-amber-500 text-slate-950 shadow-xs'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                        }`}
+                                      >
+                                        {count} Shapes
+                                      </button>
+                                    ))}
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSyncCountryHeroSlides()}
+                                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer active:scale-95 shrink-0"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                    <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Global'})` : `Auto-Sync (${selectedCountry || 'Global'})`}</span>
+                                  </button>
+                                </div>
                               </div>
 
                               {slideNotificationMsg && (
@@ -3837,35 +4000,95 @@ export default function OrderManagementAdmin({
                                 </div>
                               )}
 
-                              <div className={isBasic ? 'max-w-2xl mx-auto' : `grid grid-cols-1 ${
-                                activePlanObj.slideIndices.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'
-                              } gap-6`}>
-                                {activePlanObj.slideIndices.map((idx) => {
+                              {/* Shapes grid displaying active shapes (4, 5 or 6 shapes) */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {Array.from({ length: localBrandSettings.activeShapeCount || 6 }, (_, i) => i).map((idx) => {
                                   const defaultSlides = getHeroSlidesForLocation(selectedCountry || localBrandSettings.brandLocation, localBrandSettings.brandName);
                                   const fallbackSlide = defaultSlides[idx] || defaultSlides[0];
                                   const currentSlide = (localBrandSettings.heroSlides && localBrandSettings.heroSlides[idx]) || fallbackSlide;
                                   const currentImg = (localBrandSettings.heroImages && localBrandSettings.heroImages[idx]) || currentSlide.image || fallbackSlide.image;
+
+                                  const activeList = localBrandSettings.activeShapeIndices || [0, 1, 2, 3, 4, 5];
+                                  const isShapeActive = activeList.includes(idx);
 
                                   const fileRef = idx === 0 ? slide1FileInputRef : idx === 1 ? slide2FileInputRef : idx === 2 ? slide3FileInputRef : slide4FileInputRef;
 
                                   return (
                                     <div 
                                       key={idx}
-                                      className={`p-5 rounded-2xl border border-[#e5dfd5] bg-white space-y-4 flex flex-col justify-between relative overflow-hidden shadow-sm ${isBasic ? 'w-full' : ''}`}
+                                      className={`p-5 rounded-2xl border transition-all duration-300 space-y-4 flex flex-col justify-between relative overflow-hidden shadow-sm ${
+                                        isShapeActive 
+                                          ? 'border-[#e5dfd5] bg-white ring-1 ring-emerald-500/20' 
+                                          : 'border-slate-300 bg-slate-50/90 dark:bg-slate-900/60 opacity-75'
+                                      }`}
                                     >
+                                      {/* TOP RIGHT ROUND ON/OFF TOGGLE ICON BUTTON */}
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          const currentActive = localBrandSettings.activeShapeIndices || [0, 1, 2, 3, 4, 5];
+                                          const isCurrentlyActive = currentActive.includes(idx);
+                                          const updated = isCurrentlyActive
+                                            ? currentActive.filter(i => i !== idx)
+                                            : [...currentActive, idx];
+                                          setLocalBrandSettings(prev => ({
+                                            ...prev,
+                                            activeShapeIndices: updated
+                                          }));
+                                          onUpdateSettings({
+                                            activeShapeIndices: updated
+                                          });
+                                          try {
+                                            const saved = localStorage.getItem('webar_admin_brand_settings');
+                                            const existing = saved ? JSON.parse(saved) : {};
+                                            existing.activeShapeIndices = updated;
+                                            localStorage.setItem('webar_admin_brand_settings', JSON.stringify(existing));
+                                          } catch (err) {}
+                                        }}
+                                        onKeyDown={(e) => e.stopPropagation()}
+                                        title={isShapeActive ? 'Shape is ON (Click to turn OFF)' : 'Shape is OFF (Click to turn ON)'}
+                                        className={`absolute top-3.5 right-3.5 z-30 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-90 ${
+                                          isShapeActive
+                                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white ring-4 ring-emerald-400/30 shadow-emerald-500/40'
+                                            : 'bg-rose-500 hover:bg-rose-600 text-white ring-4 ring-rose-400/30 shadow-rose-500/30'
+                                        }`}
+                                      >
+                                        <Power className="w-5 h-5 stroke-[2.5]" />
+                                      </button>
+
                                       <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                          <span className="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-white border border-slate-800">
-                                            Slide #{idx + 1}
-                                          </span>
+                                        <div className="flex items-center justify-between pr-12">
+                                          <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1 rounded-xl text-xs font-black bg-slate-900 text-white border border-slate-800">
+                                              Shape #{idx + 1}
+                                            </span>
+                                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${
+                                              isShapeActive
+                                                ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+                                                : 'bg-rose-500/15 text-rose-700 border-rose-500/30'
+                                            }`}>
+                                              {isShapeActive ? 'ON (চালু)' : 'OFF (বন্ধ)'}
+                                            </span>
+                                          </div>
                                         </div>
 
                                         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md group">
                                           <img 
                                             src={currentImg} 
-                                            alt={`Slide ${idx + 1}`} 
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            alt={`Shape ${idx + 1}`} 
+                                            className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+                                              !isShapeActive ? 'grayscale opacity-50' : ''
+                                            }`}
                                           />
+                                          {!isShapeActive && (
+                                            <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px] flex items-center justify-center p-2">
+                                              <span className="px-3 py-1.5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md border border-rose-400/30">
+                                                OFF (নিষ্ক্রিয়)
+                                              </span>
+                                            </div>
+                                          )}
                                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
                                             <p className="text-xs font-black text-white line-clamp-1">
                                               {fallbackSlide.title}
@@ -3886,7 +4109,7 @@ export default function OrderManagementAdmin({
 
                                         <div className="space-y-1.5">
                                           <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">
-                                            {lang === 'bn' ? 'ছবির ইউআরএল (Image URL)' : 'Image URL'}
+                                            Image URL
                                           </label>
                                           <input 
                                             type="text" 
@@ -3905,7 +4128,7 @@ export default function OrderManagementAdmin({
                                           className="flex-1 py-2.5 px-3.5 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-cyan-600 hover:bg-cyan-500 text-slate-950 active:scale-95 cursor-pointer shadow-md"
                                         >
                                           <Camera className="w-3.5 h-3.5" />
-                                          <span>{lang === 'bn' ? 'আপলোড' : 'Upload'}</span>
+                                          <span>Upload</span>
                                         </button>
 
                                         <button
@@ -3914,7 +4137,7 @@ export default function OrderManagementAdmin({
                                           className="py-2.5 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-200 text-slate-800 hover:bg-slate-50 cursor-pointer active:scale-95 bg-white shadow-xs"
                                         >
                                           <RefreshCw className="w-3.5 h-3.5" />
-                                          <span>{lang === 'bn' ? 'রিসেট' : 'Reset'}</span>
+                                          <span>Reset</span>
                                         </button>
                                       </div>
                                     </div>
@@ -3942,13 +4165,13 @@ export default function OrderManagementAdmin({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'সরাসরি সিস্টেম আপডেট ডিপ্লয় (Push Update)' : 'Live System Update & Deployments'}</h2>
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">'Live System Update & Deployments'</h2>
                             <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
                               ⚡ Push Ready
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'এক ক্লিকে সমস্ত সচল কাস্টমার ও ডিভাইসগুলোর ওয়েবসাইট লাইভ আপডেট করুন।' : 'Instantly trigger system-wide live code updates to all connected client screens.'}
+                            'Instantly trigger system-wide live code updates to all connected client screens.'
                           </p>
                         </div>
                       </div>
@@ -3962,10 +4185,10 @@ export default function OrderManagementAdmin({
                             </div>
                             <div>
                               <h3 className="text-base font-black">
-                                {lang === 'bn' ? 'সরাসরি আপডেট সুবিধা' : 'Instant Push Update'}
+                                'Instant Push Update'
                               </h3>
                               <p className="text-xs text-slate-500">
-                                {lang === 'bn' ? 'ওয়েবসাইটে হওয়া সমস্ত পরিবর্তন সাথে সাথে ব্রাউজারে রিফ্লেক্ট করান।' : 'Sync brand changes instantly across active browsers.'}
+                                'Sync brand changes instantly across active browsers.'
                               </p>
                             </div>
                           </div>
@@ -4000,17 +4223,17 @@ export default function OrderManagementAdmin({
                             {isDeploying ? (
                               <>
                                 <RefreshCw className="w-4 h-4 animate-spin" />
-                                <span>{lang === 'bn' ? 'ডিপ্লয় হচ্ছে...' : 'Deploying...'}</span>
+                                <span>'Deploying...'</span>
                               </>
                             ) : deploySuccess ? (
                               <>
                                 <Check className="w-4 h-4" />
-                                <span>{lang === 'bn' ? 'আপডেট সম্পন্ন!' : 'Successfully Pushed!'}</span>
+                                <span>'Successfully Pushed!'</span>
                               </>
                             ) : (
                               <>
                                 <Sparkles className="w-4 h-4 animate-pulse" />
-                                <span>{lang === 'bn' ? 'সরাসরি আপডেট করুন' : 'Push Live Update'}</span>
+                                <span>'Push Live Update'</span>
                               </>
                             )}
                           </button>
@@ -4024,9 +4247,7 @@ export default function OrderManagementAdmin({
                           >
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
                             <span>
-                              {lang === 'bn' 
-                                ? 'সরাসরি সিস্টেম আপডেট সফলভাবে রিলিজ করা হয়েছে! কাস্টমারের ব্রাউজার ৩ সেকেন্ডের মধ্যে স্বয়ংক্রিয়ভাবে আপডেট হয়ে যাবে।' 
-                                : 'Live update released! Idle client devices will reload automatically in 3 seconds.'}
+                              'Live update released! Idle client devices will reload automatically in 3 seconds.'
                             </span>
                           </motion.div>
                         )}
@@ -4034,65 +4255,48 @@ export default function OrderManagementAdmin({
                         <div className={`p-5 rounded-2xl border ${theme === 'dark' ? 'bg-[#252525]/50 border-slate-800' : 'bg-slate-50 border-slate-100'} text-xs space-y-3`}>
                           <div className="flex items-center gap-2 font-black text-slate-400 uppercase tracking-widest text-[10px]">
                             <ShieldCheck className="w-4 h-4 text-cyan-500" />
-                            <span>{lang === 'bn' ? 'নিরাপদ স্বয়ংক্রিয়-হালনাগাদ বিধি' : 'Intelligent Auto-Update Shield'}</span>
+                            <span>'Intelligent Auto-Update Shield'</span>
                           </div>
                           <p className="text-slate-500 leading-relaxed font-medium">
-                            {lang === 'bn' 
-                              ? 'গ্রাহকদের অর্ডার করার সুবিধার্থে সিস্টেমে স্মার্ট আইডল-ট্র্যাকিং যুক্ত রয়েছে। কাস্টমারের কার্ট ফাঁকা থাকলে এবং কোনো লাইভ ট্র্যাকিং সচল না থাকলেই কেবল ব্রাউজারটি নিজে থেকে রিফ্রেশ হবে।' 
-                              : 'To protect client transactions, client devices will only automatically trigger a browser reload when idle.'}
+                            'To protect client transactions, client devices will only automatically trigger a browser reload when idle.'
                           </p>
                         </div>
                       </div>
-                  </div>
-                )}
+                    </div>
+                  )}
 
                 {/* 7. CUSTOM DOMAINS & WEB URL CARD */}
                 {isSectionVisible('domains', ['domain', 'domains', 'ডোমেইন', 'url', 'লিংক', 'custom domain', 'dns', 'cname', 'ssl', 'hostname']) && (
                   <div className="transition-all duration-300 w-full bg-transparent">
-                    <div 
-                      className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent"
-                    >
+                    <div className="w-full pb-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-transparent">
                       <div className="flex items-center gap-4">
                         <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20 shrink-0">
                           <Globe className="w-6 h-6" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-black text-slate-900 dark:text-white">{lang === 'bn' ? 'ডোমেইন ও কাস্টম ওয়েবসাইট লিংক' : 'Domains & Custom Web Address'}</h2>
-                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                              🌐 Custom Domains
-                            </span>
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white">Domains & Custom Web Address</h2>
+                            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">🌐 Custom Domains</span>
                           </div>
-                          <p className="text-xs text-slate-500 font-medium mt-0.5">
-                            {lang === 'bn' ? 'রেস্টুরেন্টের নিজস্ব ব্র্যান্ডেড ডোমেইন (যেমন: myrestaurant.com) এবং কাস্টম সাব-ডোমেইন কানেক্ট করুন।' : 'Connect custom root domains, SSL certificates and DNS hostnames.'}
-                          </p>
+                          <p className="text-xs text-slate-500 font-medium mt-0.5">Connect custom root domains, SSL certificates and DNS hostnames.</p>
                         </div>
                       </div>
                     </div>
-
                     <div className="py-6">
-                      <DomainsManager
-                        restaurantId={restaurantId}
-                        brandName={settings.brandName || ''}
-                        settings={settings}
-                        onUpdateSettings={onUpdateSettings}
-                        theme={theme}
-                        lang={lang}
-                      />
+                      <DomainsManager restaurantId={restaurantId} brandName={settings.brandName || ''} settings={settings} onUpdateSettings={onUpdateSettings} theme={theme} lang={lang} />
                     </div>
                   </div>
                 )}
-                </div>
-              )}
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  </main>
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
-
-      {verifyingOrder && (
+    </main>
+  </div>
+{verifyingOrder && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setVerifyingOrder(null)} />
           <div className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-8 space-y-6">
@@ -4195,8 +4399,8 @@ export default function OrderManagementAdmin({
                         <Upload className="w-4 h-4 text-slate-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-sm text-slate-800">{lang === 'bn' ? 'ডিভাইস থেকে আপলোড' : 'Upload from device'}</p>
-                        <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">{lang === 'bn' ? 'গ্যালারি বা ফাইল থেকে ছবি নিন' : 'Choose photo from device files'}</p>
+                        <p className="font-bold text-sm text-slate-800">'Upload from device'</p>
+                        <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">'Choose photo from device files'</p>
                       </div>
                     </button>
 
@@ -4213,8 +4417,8 @@ export default function OrderManagementAdmin({
                         <Camera className="w-4 h-4 text-slate-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-sm text-slate-800">{lang === 'bn' ? 'ছবি তুলুন' : 'Take a picture'}</p>
-                        <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">{lang === 'bn' ? 'সরাসরি ক্যামেরা ওপেন করুন' : 'Open camera to snap photo'}</p>
+                        <p className="font-bold text-sm text-slate-800">'Take a picture'</p>
+                        <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">'Open camera to snap photo'</p>
                       </div>
                     </button>
 
@@ -4234,8 +4438,8 @@ export default function OrderManagementAdmin({
                         </div>
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-sm text-slate-800">{lang === 'bn' ? 'গুগল ফটোজ' : 'Google Photos'}</p>
-                        <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">{lang === 'bn' ? 'পছন্দসই ফটোজ কালেকশন' : 'Select from beautiful presets'}</p>
+                        <p className="font-bold text-sm text-slate-800">'Google Photos'</p>
+                        <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">'Select from beautiful presets'</p>
                       </div>
                     </button>
                   </div>
@@ -4251,10 +4455,10 @@ export default function OrderManagementAdmin({
                         }}
                         className="text-xs font-bold text-red-500 hover:text-red-600 transition-all cursor-pointer"
                       >
-                        {lang === 'bn' ? 'ছবি ডিলিট করুন' : 'Delete Photo'}
+                        'Delete Photo'
                       </button>
                     ) : (
-                      <span className="text-xs text-slate-400 font-medium">{lang === 'bn' ? 'ডিফল্ট প্রোফাইল' : 'Default Profile'}</span>
+                      <span className="text-xs text-slate-400 font-medium">'Default Profile'</span>
                     )}
                     
                     <button
@@ -4262,7 +4466,7 @@ export default function OrderManagementAdmin({
                       onClick={() => setIsAvatarZoomed(false)}
                       className="px-4 py-1.5 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-slate-700 font-bold text-xs transition-all cursor-pointer"
                     >
-                      {lang === 'bn' ? 'বন্ধ করুন' : 'Close'}
+                      'Close'
                     </button>
                   </div>
                 </>
@@ -4277,11 +4481,11 @@ export default function OrderManagementAdmin({
                       <span className="bg-[#fbbc05] rounded-bl-full rounded-tl-full rounded-br-full" />
                       <span className="bg-[#34a853] rounded-tr-full rounded-br-full rounded-bl-full" />
                     </div>
-                    <span className="font-bold text-sm text-slate-800">{lang === 'bn' ? 'ফটোজ কালেকশন' : 'Google Photos Presets'}</span>
+                    <span className="font-bold text-sm text-slate-800">'Google Photos Presets'</span>
                   </div>
 
                   <p className="text-xs text-slate-500 font-medium mb-4 text-center">
-                    {lang === 'bn' ? 'আপনার রেস্টুরেন্ট ব্র্যান্ডের জন্য একটি প্রোফাইল পিকচার সিলেক্ট করুন:' : 'Select a beautiful profile picture for your restaurant brand:'}
+                    'Select a beautiful profile picture for your restaurant brand:'
                   </p>
 
                   {/* Grid of 6 stunning presets */}
@@ -4302,7 +4506,7 @@ export default function OrderManagementAdmin({
                           localStorage.setItem('webar_custom_user_avatar', url);
                           setIsAvatarZoomed(false);
                           setShowGooglePhotos(false);
-                          setAvatarSuccessMsg(lang === 'bn' ? 'প্রোফাইল ছবি সফলভাবে পরিবর্তন করা হয়েছে!' : 'Profile picture updated successfully!');
+                          setAvatarSuccessMsg('Profile picture updated successfully!');
                           setTimeout(() => setAvatarSuccessMsg(null), 4000);
                           window.dispatchEvent(new Event('webar_avatar_changed'));
                         }}
@@ -4319,7 +4523,7 @@ export default function OrderManagementAdmin({
                       onClick={() => setShowGooglePhotos(false)}
                       className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
                     >
-                      {lang === 'bn' ? 'ফিরে যান' : 'Back'}
+                      'Back'
                     </button>
                   </div>
                 </div>
@@ -4367,13 +4571,13 @@ export default function OrderManagementAdmin({
               <div className="mb-8 pr-12">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 text-cyan-500 rounded-full text-[10px] font-black uppercase tracking-wider mb-3">
                   <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                  <span>{lang === 'bn' ? 'রেস্টুরেন্ট লোগো গ্যালারি' : 'Restaurant Logo Gallery'}</span>
+                  <span>'Restaurant Logo Gallery'</span>
                 </div>
                 <h3 className="text-2xl font-black tracking-tight font-display">
-                  {lang === 'bn' ? 'রেস্টুরেন্ট লোগো গ্যালারি ও মনোগ্রাম আর্কিটেক্ট' : 'Restaurant Logo Gallery & Monogram Architect'}
+                  'Restaurant Logo Gallery & Monogram Architect'
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-1">
-                  {lang === 'bn' ? 'আপনার রেস্টুরেন্টের জন্য পছন্দসই মনোগ্রাম টেমপ্লেট ও কালার সিলেক্ট করুন।' : "Select your monogram's template archetype, configure primary/accent colors, or apply professional elite color presets."}
+                  "Select your monogram's template archetype, configure primary/accent colors, or apply professional elite color presets."
                 </p>
               </div>
 
@@ -4560,12 +4764,12 @@ export default function OrderManagementAdmin({
                 </div>
                 <div>
                   <h3 className="text-lg font-black tracking-tight">
-                    {lang === 'bn' ? 'এডমিন সিকিউরিটি ভেরিফিকেশন' : 'Admin Password Verification'}
+                    'Admin Password Verification'
                   </h3>
                   <p className="text-xs text-slate-500 font-medium pt-0.5">
                     {targetAdminBtnVisibility
-                      ? (lang === 'bn' ? 'বাটন অন করতে এডমিন পাসওয়ার্ড দিন:' : 'Enter password to turn ON admin button:')
-                      : (lang === 'bn' ? 'বাটন অফ (হাইড) করতে এডমিন পাসওয়ার্ড দিন:' : 'Enter password to turn OFF (hide) admin button:')
+                      ? ('Enter password to turn ON admin button:')
+                      : ('Enter password to turn OFF (hide) admin button:')
                     }
                   </p>
                 </div>
@@ -4574,7 +4778,7 @@ export default function OrderManagementAdmin({
               <form onSubmit={handleConfirmAdminButtonToggle} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    {lang === 'bn' ? 'এডমিন পাসওয়ার্ড' : 'Admin Password'}
+                    'Admin Password'
                   </label>
                   <div className="relative">
                     <input 
@@ -4585,7 +4789,7 @@ export default function OrderManagementAdmin({
                         setAdminConfirmPasswordError('');
                       }}
                       autoFocus
-                      placeholder={lang === 'bn' ? 'পাসওয়ার্ড লিখুন (যেমন: admin5321)...' : 'Enter admin password...'}
+                      placeholder='Enter admin password...'
                       className={`w-full pl-5 pr-12 py-3.5 rounded-2xl outline-none font-bold text-sm border ${
                         theme === 'dark' ? 'bg-[#27272a] text-white border-slate-700 focus:border-cyan-500' : 'bg-slate-50 text-slate-900 border-slate-200 focus:border-cyan-500'
                       } transition-colors`}
@@ -4618,14 +4822,14 @@ export default function OrderManagementAdmin({
                       theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    {lang === 'bn' ? 'বাতিল' : 'Cancel'}
+                    'Cancel'
                   </button>
                   <button
                     type="submit"
                     className="flex-1 py-3.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md active:scale-95 flex items-center justify-center gap-1.5"
                   >
                     <Check className="w-4 h-4 stroke-[3]" />
-                    <span>{lang === 'bn' ? 'কনফার্ম' : 'Confirm'}</span>
+                    <span>'Confirm'</span>
                   </button>
                 </div>
               </form>

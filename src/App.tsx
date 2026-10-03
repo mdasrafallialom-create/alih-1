@@ -56,7 +56,7 @@ import {
 import { Language, translations } from './lib/translations';
 import LunavereTheme from './components/themes/LunavereTheme';
 import VelmoraDiningTheme from './components/themes/VelmoraDiningTheme';
-import { getThemeAdminButtonVisibility, checkAdminPasswordInput } from './lib/adminHelpers';
+import { getThemeAdminButtonVisibility, checkAdminPasswordInput, isCustomRestaurantName, getThemeDisplayName, resolveThemeOrRestaurantBrand } from './lib/adminHelpers';
 
 // Lucide Icons
 import { 
@@ -1038,9 +1038,9 @@ export default function App() {
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = urlParams?.get('theme');
   const isStandaloneMode = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
-  const effectiveThemeId = urlTheme || activeThemeId || 'velmora-dining';
+  const effectiveThemeId = urlTheme || activeThemeId || adminSettings?.activeThemeId || 'velmora-dining';
   
-  // Custom theme is active in client view if in standalone or preview mode via query params
+  // Custom theme is active in client view ONLY if explicitly requested via URL query params (?theme=...) or standalone/preview mode
   const isCustomThemeActive = viewMode === 'client' && (isStandaloneMode || !!urlTheme);
 
   const selectedThemePreset = useMemo(() => {
@@ -1052,13 +1052,20 @@ export default function App() {
     if (typeof document === 'undefined') return;
 
     const customDomain = (adminSettings as any)?.customDomain;
-    const brandName = (adminSettings as any)?.brandName || (adminSettings as any)?.restaurantName;
+    const themeCustomName = (adminSettings as any)?.themeSettings?.[effectiveThemeId]?.brandName;
+    const rawBrand = (adminSettings as any)?.restaurantName || (adminSettings as any)?.brandName;
+    const isCustom = isCustomRestaurantName(rawBrand);
+    const effectiveBrand = themeCustomName && isCustomRestaurantName(themeCustomName) 
+      ? themeCustomName.trim() 
+      : isCustom 
+      ? rawBrand.trim() 
+      : getThemeDisplayName(effectiveThemeId, selectedThemePreset.name);
 
     if (isCustomThemeActive || urlTheme) {
       if (customDomain && customDomain.trim().length > 0) {
-        document.title = `${customDomain} | ${selectedThemePreset.name}`;
-      } else if (brandName && brandName !== 'My Restaurant' && brandName !== 'sahinsh' && brandName !== 'Avernao') {
-        document.title = `${brandName} — ${selectedThemePreset.name}`;
+        document.title = `${customDomain} | ${effectiveBrand}`;
+      } else if (effectiveBrand !== selectedThemePreset.name) {
+        document.title = `${effectiveBrand} — ${selectedThemePreset.name}`;
       } else {
         document.title = `${selectedThemePreset.name} — ${selectedThemePreset.tagline || 'Luxury Restaurant'}`;
       }
@@ -2822,23 +2829,33 @@ export default function App() {
 
               {effectiveThemeId === 'lunavere' ? (
                 <LunavereTheme 
-                  brandName={(adminSettings as any)?.customDomain || adminSettings?.brandName || selectedThemePreset.name}
+                  brandName={
+                    (adminSettings as any)?.customDomain ||
+                    (adminSettings as any)?.themeSettings?.['lunavere']?.brandName ||
+                    (isCustomRestaurantName(adminSettings?.restaurantName) ? adminSettings?.restaurantName : isCustomRestaurantName(adminSettings?.brandName) ? adminSettings?.brandName : 'Lunavere')
+                  }
                   tagline={selectedThemePreset.tagline || adminSettings?.tagline || 'Parisian Starlight Cafe'}
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
                   onBack={enterAdminPanel}
+                  onReturnToPortal={handleExitThemeView}
                   settings={adminSettings || {}}
                   lang={lang}
                 />
               ) : (
                 <VelmoraDiningTheme 
-                  brandName={(adminSettings as any)?.customDomain || ((!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : adminSettings.brandName)}
+                  brandName={
+                    (adminSettings as any)?.customDomain ||
+                    (adminSettings as any)?.themeSettings?.[selectedThemePreset.id]?.brandName ||
+                    (isCustomRestaurantName(adminSettings?.restaurantName) ? adminSettings?.restaurantName : isCustomRestaurantName(adminSettings?.brandName) ? adminSettings?.brandName : selectedThemePreset.name)
+                  }
                   tagline={selectedThemePreset.tagline || adminSettings?.tagline || 'Palatial Gastronomy & Fine Dining'}
                   dishes={menuItems || []}
                   onOrderDish={(dish) => handleAddToCart(dish as any)}
                   onOpenAdmin={enterAdminPanel}
                   onBack={enterAdminPanel}
+                  onReturnToPortal={handleExitThemeView}
                   settings={adminSettings || {}}
                   lang={lang}
                   themePresetId={selectedThemePreset?.id}
@@ -3392,9 +3409,9 @@ export default function App() {
       {/* About & Pricing Section (Consolidated to main render block) */}
 
       {/* =======================================================================
-          FOOTER, CHEFS & GOOGLE MAPS LOCATION SECTION (Customer view only)
+          FOOTER, CHEFS & GOOGLE MAPS LOCATION SECTION (Customer view only - Default Portal View only)
           ======================================================================= */}
-      {viewMode === 'client' && (
+      {viewMode === 'client' && !isCustomThemeActive && (
         <div className="w-full">
           <Suspense fallback={<LazyFallback />}>
             <AboutAndPricing 

@@ -5,6 +5,7 @@ import { THEME_HERO_CONFIGS, COFFEE_SHOP_THEME_IDS } from './KoppeeHeroHeader';
 import luxuryInteriorImg from '../../assets/images/luxury_michelin_interior_1790508733625.jpg';
 import realAssembledPlateImg from '../../assets/images/real_assembled_wagyu_plate_1790864314074.jpg';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
+import { getThemeDisplayName, isCustomRestaurantName } from '../../lib/adminHelpers';
 
 interface KoppeeAboutSectionProps {
   brandName?: string;
@@ -41,43 +42,39 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   themePresetId,
   previewDeviceView
 }) => {
-  const isDemoOrPlaceholderBrand = (name?: string) => {
-    if (!name) return true;
-    const lower = name.trim().toLowerCase();
-    return lower === 'sahinsh' || 
-           lower === 'askul' || 
-           lower === 'koppee' || 
-           lower === 'velmora dining' || 
-           lower === 'velmora' || 
-           lower === 'lunavere' || 
-           lower === "l'aura webar restaurant" ||
-           lower === 'the golden fork';
-  };
-
-  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
-    ? 'My Restaurant'
-    : brandName!.trim();
+  const effectiveBrandName = isCustomRestaurantName(brandName)
+    ? brandName!.trim()
+    : getThemeDisplayName(themePresetId);
   
   // All themes EXCEPT the 13 coffee shop themes receive the 5-Star Michelin Luxury styling
   const isLuxuryTheme = !COFFEE_SHOP_THEME_IDS.includes(themePresetId || '');
   const isOrivelle = isLuxuryTheme && themePresetId !== 'palatiora';
   const isAurelisse = themePresetId === 'aurelisse';
   const isPalatiora = themePresetId === 'palatiora';
+  const isEmberion = themePresetId === 'emberion';
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   
-  const displayTitle = isAurelisse
+  const displayTitle = isEmberion
+    ? (lang === 'bn' ? 'কেন আমাদের ঐতিহ্যবাহী হট ব্যাগেল ও ক্যাফে সেরা?' : 'Why Feast at Our Artisan Bagel Bakery & Cafe?')
+    : isAurelisse
     ? (lang === 'bn' ? 'কেন অরেলিস গুরমে বার্গার লাউঞ্জে খাবেন?' : 'Why Feast at Aurelisse Gourmet Burger Lounge?')
     : isPalatiora
     ? (lang === 'bn' ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : `Why Dine at ${effectiveBrandName}?`)
     : (aboutUsTitle || (lang === 'bn' ? (isLuxuryTheme ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : 'কেন আমাদের কাছে খাবেন?') : (isLuxuryTheme ? `Why Dine at ${effectiveBrandName}?` : 'Why Dine With Us?')));
   
-  const displaySubtitle = isAurelisse
+  const displaySubtitle = isEmberion
+    ? (lang === 'bn' ? '✦ দ্য কেটল-বয়েল্ড ও হার্থ-বেকড ব্যাগেল ট্র্যাডিশন ✦' : '✦ THE ARTISAN KETTLE-BOILED TRADITION ✦')
+    : isAurelisse
     ? (lang === 'bn' ? '✦ দ্য ফ্লেম-গ্রিলড লেজেন্ড ✦' : '✦ THE FLAME-GRILLED LEGEND ✦')
     : isPalatiora
     ? (lang === 'bn' ? '✦ দ্য স্যাভোরেল এক্সপেরিয়েন্স ✦' : '✦ THE SAVORELLE EXPERIENCE ✦')
     : aboutUsSubtitle;
 
-  const defaultStory = isAurelisse
+  const defaultStory = isEmberion
+    ? (lang === 'bn'
+        ? `আমরা সাধারণ কোনো পাউরুটি পরিবেশন করি না। আমাদের ক্যাফেতে প্রতিটি ব্যাগেল তৈরি হয় ৩৬ ঘণ্টার প্রাকৃতিক কোল্ড-ফার্মেন্টেড ডো দিয়ে। মল্ট ওয়াটার কেটলে বয়েল্ড করে ভেজা সিডার তক্তার ওপর হট স্টোন ওভেনে বেক করা হয়। যার ফলে বাইরে পাবেন সোনালী ক্রিস্পি ক্রাঞ্চ এবং ভেতরে অসাধারণ সফট ও চিউই টেক্সচার। সাথে রয়েছে হোমমেড হুইপড ক্রিম চিজ এবং সেরা হট ও কোল্ড ব্রু কফি।`
+        : `We do not bake ordinary bagels. At our bakery & cafe, every single batch begins with 36-hour cold-fermented heirloom dough, traditionally kettle-boiled in barley malt water, and blistered on wet cedar planks inside hot stone hearths. This delivers that coveted crisp, crackly golden exterior with an irresistibly tender, dense, chewy interior — paired with whipped artisanal schmears and micro-batch coffees.`)
+    : isAurelisse
     ? (lang === 'bn'
         ? `আমরা সাধারণ কোনো ফাস্ট ফুড পরিবেশন করি না। অরেলিস লাউঞ্জে আমরা তৈরি করি পৃথিবীর সবচেয়ে বিলাসবহুল ও জুসি ওয়াগিউ বার্গার। প্রতিটি প্রিমিয়াম প্যাট্রি প্রতিদিন ফ্রেশ ১০০% জাপানি এ৫ ওয়াগিউ বিফ থেকে আমাদের অভিজ্ঞ পিটমাস্টারদের তত্ত্বাবধানে পিষে তৈরি করা হয় এবং ওক কাঠের জ্বলন্ত আগুনে নিখুঁতভাবে স্মোকি করে সেঁকা হয়।`
         : `We do not serve ordinary fast food. At Aurelisse, we craft the world's most luxurious, oak-charcoal seared Wagyu burgers. Each premium patty is freshly ground daily from 100% Japanese A5 Wagyu beef and seared over natural wood fires for a perfect, smokey crunch.`)
@@ -92,7 +89,9 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
         : `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`));
   
   const storyText = aboutUsText || defaultStory;
-  const imageSrc = aboutUsImage || (isPalatiora
+  const imageSrc = aboutUsImage || (isEmberion
+    ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&auto=format&fit=crop'
+    : isPalatiora
     ? 'https://images.unsplash.com/photo-1544025162-d76694265947?w=1000&auto=format&fit=crop'
     : isLuxuryTheme 
     ? luxuryInteriorImg 
@@ -111,6 +110,20 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
 
   // Default features with tick marks
+  const emberionFeatures = lang === 'bn'
+    ? [
+        '৩৬ ঘণ্টার স্লো কোল্ড-ফার্মেন্টেড খাঁটি মাস্টার ডো',
+        'মল্ট ওয়াটার কেটলে বয়েল্ড ও স্টোন হার্থ-বেকড কারিগরী',
+        'হোমমেড ক্রিম চিজ, প্রিমিয়াম নোভা স্যামন ও ক্রিস্পি বেকন',
+        'প্রতিদিন ভোরে ওভেন থেকে গরম গরম ফ্রেশ বেকিং নিশ্চয়তা'
+      ]
+    : [
+        '36-Hour Slow Cold-Fermented Heirloom Master Dough',
+        'Traditional Barley Malt Kettle-Boiled & Stone Hearth-Baked',
+        'Whipped Farm-Fresh Cream Cheeses, Nova Lox & Hardwood Bacon',
+        'Fresh-From-The-Oven Hot Bagels Baked Scratch Every Morning'
+      ];
+
   const aurelisseFeatures = lang === 'bn'
     ? [
         '১০০% জাপানি এ৫ ওয়াগিউ বিফ (প্রতিদিন ফ্রেশ)',
@@ -139,7 +152,9 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
         'Instant Table QR Ordering & Rapid Express Delivery'
       ];
 
-  const defaultFeatures = isAurelisse
+  const defaultFeatures = isEmberion
+    ? emberionFeatures
+    : isAurelisse
     ? aurelisseFeatures
     : isPalatiora
     ? palatioraFeatures
@@ -175,9 +190,9 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
 
   const getLogoInitials = (name: string): [string, string] => {
     if (isOrivelle) return ["O", "H"];
-    if (!name || isDemoOrPlaceholderBrand(name)) return ["M", "R"];
+    if (!name) return ["V", "D"];
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    if (!cleanName || isDemoOrPlaceholderBrand(cleanName)) return ["M", "R"];
+    if (!cleanName) return ["V", "D"];
     const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
     if (parts.length >= 2) {
       return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
@@ -185,15 +200,21 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
     if (cleanName.length >= 2) {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
-    return ["M", "R"];
+    return [cleanName[0].toUpperCase(), cleanName[0].toUpperCase()];
   };
 
   const [initial1, initial2] = getLogoInitials(effectiveBrandName);
 
   return (
     <section id="about" className={`relative w-full overflow-hidden transition-colors duration-500 ${
-      isAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : isPalatiora ? 'bg-[#0B0B0E] text-white' : isOrivelle ? 'bg-[#0a0907] text-[#FBF8EE]' : 'bg-white text-[#2c1e13]'
+      isAurelisse ? 'bg-[#EDF7E7] text-[#142412]' : isPalatiora ? 'bg-[#0B0B0E] text-white' : isOrivelle ? 'bg-[#0a0907] text-[#FBF8EE]' : isEmberion ? 'bg-[#fdf4e7] text-[#0f2942] border-b border-[#0f2942]/10' : 'bg-white text-[#2c1e13]'
     }`}>
+      {isEmberion && (
+        <>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(185,28,28,0.06),_transparent_70%)] pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#b91c1c]/25 to-transparent" />
+        </>
+      )}
       {isAurelisse && (
         <>
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(129,199,132,0.15),_transparent_70%)] pointer-events-none" />
@@ -215,10 +236,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
       )}
       <div className={`w-full max-w-[1800px] mx-auto ${
         isTablet 
-          ? 'px-6 sm:px-8 py-10 sm:py-12' 
+          ? 'px-6 sm:px-8 py-16 sm:py-20' 
           : isMobile 
-          ? 'px-4 py-8' 
-          : 'px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 py-14 sm:py-20'
+          ? 'px-4 py-12 sm:py-16' 
+          : 'px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 py-20 sm:py-28 lg:py-36'
       }`}>
         
         {/* Quick Edit Section Top Action Bar */}
@@ -299,6 +320,35 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                       </span>
                       <p className="text-xs font-bold text-white leading-tight line-clamp-1">
                         {lang === 'bn' ? 'গুরমে ফ্লেভার ও নিখুঁত স্বাদ' : 'Gourmet Flavors & Artisanal Craft'}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : isEmberion ? (
+                /* DELUXE FLOATING ARTISAN BAGEL PHOTO CARD FOR EMBERION TABLET */
+                <motion.div 
+                  animate={{ y: [-6, 6, -8] }}
+                  transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-[#0f2942]/20 shadow-[0_15px_35px_rgba(15,41,66,0.18)] bg-white w-full group cursor-pointer"
+                >
+                  <img 
+                    src={imageSrc} 
+                    alt={displayTitle}
+                    className="w-full h-[320px] sm:h-[360px] object-cover group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent pointer-events-none" />
+                  
+                  {/* Floating Luxury Badge */}
+                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-[#0f2942]/15 text-[#0f2942] shadow-xl flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-[#b91c1c] flex items-center justify-center text-white text-xs font-black shrink-0 shadow-md">
+                      🥯
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[9px] font-mono tracking-widest text-[#b91c1c] uppercase block truncate font-bold">
+                        {lang === 'bn' ? '✦ কেটল-বয়েল্ড ট্র্যাডিশন ✦' : '✦ KETTLE-BOILED TRADITION ✦'}
+                      </span>
+                      <p className="text-xs font-bold text-[#0f2942] leading-tight line-clamp-1">
+                        {lang === 'bn' ? 'হাতে তৈরি খাঁটি ব্যাগেল' : 'Locally World Famous Bagels'}
                       </p>
                     </div>
                   </div>
@@ -421,6 +471,37 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 ))}
               </div>
 
+              {/* SPECIAL CHEF'S NOTE & BAKERY PROMISE CALLOUT (TABLET) */}
+              <div className={`p-3.5 sm:p-4 rounded-2xl border flex items-start gap-3 shadow-xs ${
+                isEmberion
+                  ? 'bg-white border-[#b91c1c]/25 text-[#0f2942]'
+                  : isAurelisse
+                  ? 'bg-white/80 border-[#2e7d32]/30 text-[#142412]'
+                  : isPalatiora
+                  ? 'bg-white/5 border-[#F97316]/30 text-white'
+                  : isOrivelle
+                  ? 'bg-stone-900/90 border-amber-400/40 text-amber-100'
+                  : 'bg-amber-50/80 border-amber-400/30 text-[#2c1e13]'
+              }`}>
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
+                  isEmberion ? 'bg-[#b91c1c] text-white' : isAurelisse ? 'bg-[#2e7d32] text-white' : isPalatiora ? 'bg-[#F97316] text-white' : 'bg-amber-500 text-stone-950'
+                }`}>
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div className="space-y-0.5 text-left min-w-0">
+                  <h4 className={`text-xs font-black uppercase tracking-wider ${
+                    isEmberion ? 'text-[#b91c1c]' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-700'
+                  }`}>
+                    ★ {lang === 'bn' ? 'স্পেশাল নোট ও প্রতিশ্রুতি' : "CHEF'S SPECIAL NOTE & PROMISE"}
+                  </h4>
+                  <p className="text-[11px] sm:text-xs leading-relaxed opacity-90 line-clamp-2">
+                    {lang === 'bn' 
+                      ? 'প্রতিটি খাবার ১০০% প্রিজারভেটিভমুক্ত ও স্বাস্থ্যকর এবং প্রতিদিন ভোরে তাজা প্রস্তুত করা হয়।'
+                      : '100% natural heritage ingredients, zero preservatives, kettle-boiled fresh every morning.'}
+                  </p>
+                </div>
+              </div>
+
               {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
                 <button
@@ -518,6 +599,33 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                       </span>
                       <p className="text-[11px] font-bold text-white leading-tight line-clamp-1">
                         {lang === 'bn' ? 'গুরমে ফ্লেভার ও নিখুঁত স্বাদ' : 'Gourmet Flavors & Artisanal Craft'}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : isEmberion ? (
+                /* DELUXE FLOATING ARTISAN BAGEL PHOTO CARD FOR EMBERION MOBILE */
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-[#0f2942]/20 shadow-[0_10px_25px_rgba(15,41,66,0.15)] bg-white w-full group cursor-pointer"
+                >
+                  <img 
+                    src={imageSrc} 
+                    alt={displayTitle}
+                    className="w-full h-[280px] sm:h-[320px] object-cover group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent pointer-events-none" />
+                  
+                  <div className="absolute bottom-3 left-3 right-3 p-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-[#0f2942]/15 text-[#0f2942] shadow-lg flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#b91c1c] flex items-center justify-center text-white text-xs font-black shrink-0">
+                      🥯
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[8px] font-mono tracking-widest text-[#b91c1c] uppercase block truncate font-bold">
+                        {lang === 'bn' ? '✦ কেটল-বয়েল্ড ট্র্যাডিশন ✦' : '✦ KETTLE-BOILED TRADITION ✦'}
+                      </span>
+                      <p className="text-[11px] font-bold text-[#0f2942] leading-tight line-clamp-1">
+                        {lang === 'bn' ? 'হাতে তৈরি খাঁটি ব্যাগেল' : 'Locally World Famous Bagels'}
                       </p>
                     </div>
                   </div>
@@ -632,6 +740,37 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 ))}
               </div>
 
+              {/* SPECIAL CHEF'S NOTE & BAKERY PROMISE CALLOUT (MOBILE) */}
+              <div className={`p-3.5 rounded-2xl border flex items-start gap-2.5 shadow-xs ${
+                isEmberion
+                  ? 'bg-white border-[#b91c1c]/25 text-[#0f2942]'
+                  : isAurelisse
+                  ? 'bg-white/80 border-[#2e7d32]/30 text-[#142412]'
+                  : isPalatiora
+                  ? 'bg-white/5 border-[#F97316]/30 text-white'
+                  : isOrivelle
+                  ? 'bg-stone-900/90 border-amber-400/40 text-amber-100'
+                  : 'bg-amber-50/80 border-amber-400/30 text-[#2c1e13]'
+              }`}>
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
+                  isEmberion ? 'bg-[#b91c1c] text-white' : isAurelisse ? 'bg-[#2e7d32] text-white' : isPalatiora ? 'bg-[#F97316] text-white' : 'bg-amber-500 text-stone-950'
+                }`}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <div className="space-y-0.5 text-left min-w-0">
+                  <h4 className={`text-[11px] font-black uppercase tracking-wider ${
+                    isEmberion ? 'text-[#b91c1c]' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-700'
+                  }`}>
+                    ★ {lang === 'bn' ? 'স্পেশাল নোট ও প্রতিশ্রুতি' : "CHEF'S SPECIAL NOTE"}
+                  </h4>
+                  <p className="text-[11px] leading-relaxed opacity-90 line-clamp-2">
+                    {lang === 'bn' 
+                      ? 'প্রতিটি খাবার ১০০% প্রিজারভেটিভমুক্ত ও স্বাস্থ্যকর এবং প্রতিদিন ভোরে তাজা প্রস্তুত করা হয়।'
+                      : '100% natural heritage ingredients, zero preservatives, kettle-boiled fresh every morning.'}
+                  </p>
+                </div>
+              </div>
+
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
                 <button
                   type="button"
@@ -741,6 +880,35 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                   </div>
                 </motion.div>
+              ) : isEmberion ? (
+                /* DELUXE FLOATING ARTISAN BAGEL PHOTO CARD FOR EMBERION DESKTOP */
+                <motion.div 
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 18 }}
+                  className="relative rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-2 border-[#0f2942]/20 shadow-[0_25px_60px_rgba(15,41,66,0.18)] bg-white w-full max-w-[580px] group cursor-pointer mx-auto"
+                >
+                  <img 
+                    src={imageSrc} 
+                    alt={displayTitle}
+                    className="w-full h-[420px] lg:h-[480px] xl:h-[540px] object-cover group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+                  
+                  {/* Floating Luxury Bagel Badge */}
+                  <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-[#0f2942]/15 text-[#0f2942] shadow-2xl flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-[#b91c1c] text-white flex items-center justify-center text-xl font-black shrink-0 shadow-lg select-none">
+                      🥯
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono tracking-widest text-[#b91c1c] uppercase block font-extrabold">
+                        {lang === 'bn' ? '✦ কেটল-বয়েল্ড ট্র্যাডিশন ✦' : '✦ KETTLE-BOILED TRADITION ✦'}
+                      </span>
+                      <p className="text-sm font-black text-[#0f2942] leading-tight">
+                        {lang === 'bn' ? 'প্রতিদিন ভোরে ওভেন থেকে গরম ফ্রেশ বেকিং' : 'Locally World Famous Hand-Rolled Bagels'}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
               ) : (
                 <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${
                   isOrivelle 
@@ -803,21 +971,25 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
             </div>
 
             {/* Right Column: Title, Features Checklist & CTA Buttons */}
-            <div className="md:col-span-6 space-y-5 sm:space-y-6 text-left">
-              <div className="space-y-2">
+            <div className="md:col-span-6 space-y-6 sm:space-y-7 text-left">
+              <div className="space-y-2.5">
                 <span 
                   className={`text-xs sm:text-sm font-bold uppercase tracking-widest block ${
-                    isAurelisse 
+                    isEmberion
+                      ? 'text-[#b91c1c] font-mono tracking-[0.25em]'
+                      : isAurelisse 
                       ? 'text-[#2e7d32] font-mono tracking-[0.25em]' 
                       : isPalatiora ? 'text-[#F97316] font-mono tracking-[0.25em]' : isOrivelle ? 'text-amber-400 font-mono tracking-[0.3em]' : ''
                   }`}
-                  style={(!isAurelisse && !isPalatiora) ? { color: isOrivelle ? '#e5c158' : cfg.accentColor } : undefined}
+                  style={(!isAurelisse && !isPalatiora && !isEmberion) ? { color: isOrivelle ? '#e5c158' : cfg.accentColor } : undefined}
                 >
-                  {isAurelisse ? displaySubtitle : isPalatiora ? displaySubtitle : (isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle)}
+                  {isEmberion ? displaySubtitle : isAurelisse ? displaySubtitle : isPalatiora ? displaySubtitle : (isOrivelle ? `✦ ${aboutUsSubtitle} ✦` : aboutUsSubtitle)}
                 </span>
                 <h2 
-                  className={`text-2xl sm:text-4xl lg:text-5xl font-black leading-tight ${
-                    isAurelisse
+                  className={`text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight ${
+                    isEmberion
+                      ? 'text-[#0f2942]'
+                      : isAurelisse
                       ? 'text-[#142412]'
                       : isPalatiora
                       ? 'text-white'
@@ -830,8 +1002,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   {displayTitle}
                 </h2>
                 {storyText && (
-                  <p className={`text-xs sm:text-sm md:text-base leading-relaxed pt-1 ${
-                    isAurelisse 
+                  <p className={`text-sm sm:text-base md:text-lg leading-relaxed pt-2 ${
+                    isEmberion
+                      ? 'text-[#334155] font-normal'
+                      : isAurelisse 
                       ? 'text-[#2a3e26] font-medium' 
                       : isPalatiora ? 'text-stone-300 font-normal' : isOrivelle ? 'text-stone-300 font-light' : 'text-[#3e2c1e]/80'
                   }`}>
@@ -841,25 +1015,29 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
               </div>
 
               {/* Checklist items */}
-              <div className="space-y-3 pt-1">
+              <div className="space-y-3.5 pt-1">
                 {featuresList.map((feat, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
+                  <div key={idx} className="flex items-center gap-3.5">
                     <div 
-                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 border ${
-                        isAurelisse
-                          ? 'bg-emerald-100 border-emerald-600/30 shadow-xs'
+                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-xs ${
+                        isEmberion
+                          ? 'bg-red-50 border-[#b91c1c]/30'
+                          : isAurelisse
+                          ? 'bg-emerald-100 border-emerald-600/30'
                           : isPalatiora
                             ? 'bg-[#F97316]/15 border-[#F97316]/40'
                             : isOrivelle
                             ? 'bg-amber-400/15 border-amber-400/50 shadow-[0_0_10px_rgba(229,193,88,0.25)]'
                             : ''
                       }`}
-                      style={(!isOrivelle && !isAurelisse && !isPalatiora) ? { backgroundColor: `${cfg.accentColor}20`, borderColor: `${cfg.accentColor}50` } : undefined}
+                      style={(!isOrivelle && !isAurelisse && !isPalatiora && !isEmberion) ? { backgroundColor: `${cfg.accentColor}20`, borderColor: `${cfg.accentColor}50` } : undefined}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: isAurelisse ? '#2e7d32' : isPalatiora ? '#F97316' : isOrivelle ? '#fef08a' : cfg.accentColor }} />
+                      <CheckCircle2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" style={{ color: isEmberion ? '#b91c1c' : isAurelisse ? '#2e7d32' : isPalatiora ? '#F97316' : isOrivelle ? '#fef08a' : cfg.accentColor }} />
                     </div>
-                    <span className={`text-xs sm:text-sm md:text-base font-bold ${
-                      isAurelisse 
+                    <span className={`text-sm sm:text-base font-bold ${
+                      isEmberion
+                        ? 'text-[#0f2942]'
+                        : isAurelisse 
                         ? 'text-[#142412]' 
                         : isPalatiora ? 'text-white' : isOrivelle ? 'text-amber-50' : 'text-[#2c1e13]'
                     }`}>
@@ -869,12 +1047,55 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 ))}
               </div>
 
+              {/* SPECIAL CHEF'S NOTE & QUALITY PROMISE CALLOUT (DESKTOP) */}
+              <div className={`p-5 sm:p-6 rounded-3xl border-2 flex items-start gap-4 shadow-sm ${
+                isEmberion
+                  ? 'bg-white border-[#b91c1c]/30 text-[#0f2942] shadow-[0_12px_32px_rgba(185,28,28,0.08)]'
+                  : isAurelisse
+                  ? 'bg-white/80 border-[#2e7d32]/30 text-[#142412]'
+                  : isPalatiora
+                  ? 'bg-white/5 border-[#F97316]/30 text-white'
+                  : isOrivelle
+                  ? 'bg-stone-900/90 border-amber-400/40 text-amber-100'
+                  : 'bg-amber-50/80 border-amber-400/30 text-[#2c1e13]'
+              }`}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
+                  isEmberion
+                    ? 'bg-[#b91c1c] text-white'
+                    : isAurelisse
+                    ? 'bg-[#2e7d32] text-white'
+                    : isPalatiora
+                    ? 'bg-[#F97316] text-white'
+                    : isOrivelle
+                    ? 'bg-gradient-to-tr from-amber-400 to-yellow-200 text-stone-950'
+                    : 'bg-amber-500 text-stone-950'
+                }`}>
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div className="space-y-1.5 text-left min-w-0">
+                  <h4 className={`text-sm sm:text-base font-black uppercase tracking-wider flex items-center gap-2 ${
+                    isEmberion ? 'text-[#b91c1c]' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-300' : 'text-amber-700'
+                  }`}>
+                    <span>★ {lang === 'bn' ? 'স্পেশাল নোট ও কোয়ালিটি প্রতিশ্রুতি' : "CHEF'S SPECIAL NOTE & BAKERY PROMISE"}</span>
+                  </h4>
+                  <p className={`text-xs sm:text-sm md:text-base leading-relaxed ${
+                    isEmberion ? 'text-[#334155] font-medium' : isPalatiora ? 'text-stone-300' : isOrivelle ? 'text-stone-300' : 'text-stone-700'
+                  }`}>
+                    {lang === 'bn' 
+                      ? 'আমাদের প্রতিটি খাবার ১০০% প্রিজারভেটিভমুক্ত এবং নিখুঁত স্বাস্থ্যবিধি মেনে প্রতিদিন ভোরে খাঁটি অর্গানিক উপাদান দিয়ে প্রস্তুত করা হয়। প্রতিটি কামড়ে পাবেন ঐতিহ্যবাহী স্বাদের আসল নিশ্চয়তা।' 
+                      : 'Zero preservatives, zero artificial additives. Hand-crafted daily from scratch using authentic heritage techniques to preserve maximum freshness and genuine crackly, chewy texture.'}
+                  </p>
+                </div>
+              </div>
+
               {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={onReserveClick}
-                  className={isAurelisse
+                  className={isEmberion
+                    ? "px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl bg-[#b91c1c] hover:bg-[#991b1b] text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-red-700/25 flex items-center gap-2 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95"
+                    : isAurelisse
                     ? "px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl bg-[#2e7d32] hover:bg-[#1b5e20] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md hover:brightness-110 flex items-center gap-2 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95"
                     : isPalatiora
                       ? "px-7 sm:px-9 py-3.5 sm:py-4 rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-orange-600/30 hover:brightness-110 flex items-center gap-2 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95"
@@ -890,7 +1111,9 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                 <button
                   type="button"
                   onClick={onMenuClick}
-                  className={isAurelisse
+                  className={isEmberion
+                    ? "px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-[#0f2942]/20 text-[#0f2942] text-xs sm:text-sm font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 cursor-pointer shadow-sm"
+                    : isAurelisse
                     ? "px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl bg-white border-2 border-[#2e7d32]/40 text-[#1b5e20] text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-emerald-50 transition-all hover:-translate-y-0.5 cursor-pointer shadow-sm"
                     : isPalatiora
                     ? "px-7 sm:px-9 py-3.5 sm:py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 cursor-pointer shadow-sm"
@@ -906,10 +1129,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   <button
                     type="button"
                     onClick={onEditClick || onOpenAdmin}
-                    className={`px-5 sm:px-6 py-3 sm:py-4 rounded-xl ${isAurelisse ? 'bg-[#2e7d32]/10 hover:bg-[#2e7d32]/20 text-[#2e7d32] border border-[#2e7d32]/30' : isPalatiora ? 'bg-white/10 hover:bg-white/20 text-[#F97316] border border-white/20' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40'} text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 hover:-translate-y-0.5`}
+                    className={`px-5 sm:px-6 py-3 sm:py-4 rounded-2xl ${isEmberion ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 border border-white/60 shadow-md' : isAurelisse ? 'bg-[#2e7d32]/10 hover:bg-[#2e7d32]/20 text-[#2e7d32] border border-[#2e7d32]/30' : isPalatiora ? 'bg-white/10 hover:bg-white/20 text-[#F97316] border border-white/20' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40'} text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 hover:-translate-y-0.5`}
                     title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit "Why Dine With Us?" Section'}
                   >
-                    <Edit3 className={`w-4 h-4 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-400'}`} />
+                    <Edit3 className={`w-4 h-4 ${isEmberion ? 'text-slate-950' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-400'}`} />
                     <span>{lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section'}</span>
                   </button>
                 )}

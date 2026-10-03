@@ -17,6 +17,7 @@ import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_17
 
 import { THEME_HERO_CONFIGS, COFFEE_SHOP_THEME_IDS } from './KoppeeHeroHeader';
 import { LUXURY_THEMES } from '../../data/luxuryThemes';
+import { getThemeDisplayName, isCustomRestaurantName } from '../../lib/adminHelpers';
 
 interface KoppeeFooterSectionProps {
   brandName?: string;
@@ -61,22 +62,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   onOpenAdmin,
   previewDeviceView
 }) => {
-  const isDemoOrPlaceholderBrand = (name?: string) => {
-    if (!name) return true;
-    const lower = name.trim().toLowerCase();
-    return lower === 'sahinsh' || 
-           lower === 'askul' || 
-           lower === 'koppee' || 
-           lower === 'velmora dining' || 
-           lower === 'velmora' || 
-           lower === 'lunavere' || 
-           lower === "l'aura webar restaurant" ||
-           lower === 'the golden fork';
-  };
-
-  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName)
-    ? 'My Restaurant'
-    : brandName!.trim();
+  const effectiveBrandName = isCustomRestaurantName(brandName)
+    ? brandName!.trim()
+    : getThemeDisplayName(themePresetId);
   const [windowWidth, setWindowWidth] = React.useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   React.useEffect(() => {
@@ -150,9 +138,9 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
   const defaultDesc = brandDescription || "Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews.";
 
   const getLogoInitials = (name: string): [string, string] => {
-    if (!name || isDemoOrPlaceholderBrand(name)) return ["M", "R"];
+    if (!name) return ["V", "D"];
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    if (!cleanName || isDemoOrPlaceholderBrand(cleanName)) return ["M", "R"];
+    if (!cleanName) return ["V", "D"];
     const parts = cleanName.split(/\s+/).filter(p => p.length > 0);
     if (parts.length >= 2) {
       return [parts[0][0].toUpperCase(), parts[1][0].toUpperCase()];
@@ -160,7 +148,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
     if (cleanName.length >= 2) {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
-    return ["M", "R"];
+    return [cleanName[0].toUpperCase(), cleanName[0].toUpperCase()];
   };
 
   const [initial1, initial2] = getLogoInitials(effectiveBrandName);
@@ -227,7 +215,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 <h3 className={`text-xl sm:text-2xl font-light tracking-normal ${
                   isAurelisse ? 'text-[#142412]' : isPalatiora ? 'text-white' : isOrivelle ? 'text-amber-300 font-serif' : 'text-[#DA9F93]'
                 }`} style={isOrivelle ? { fontFamily: "'Cinzel', serif" } : isPalatiora ? { fontFamily: "'DM Serif Display', serif" } : undefined}>
-                  {brandName}
+                  {effectiveBrandName}
                 </h3>
                 {locationAddress && (
                   <p className={`text-xs sm:text-sm ${isAurelisse ? 'text-[#2a3e26]' : isPalatiora ? 'text-stone-400' : 'text-white/80'} font-light`}>
@@ -259,7 +247,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
           {/* Edge-to-Edge Full-Width Google Map */}
           <div className={`relative w-full h-[520px] sm:h-[620px] md:h-[700px] ${isAurelisse ? 'border-y border-[#2e7d32]/20' : isPalatiora ? 'border-y border-slate-300' : 'border-y border-[#DA9F93]/30'} bg-black/90 shadow-2xl overflow-hidden`}>
             <iframe
-              title={`${brandName} Google Map Location`}
+              title={`${effectiveBrandName} Google Map Location`}
               src={mapEmbedUrl}
               width="100%"
               height="100%"
@@ -290,7 +278,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
             <div className="flex items-center gap-3">
               {brandLogoUrl ? (
                 <div className={`w-12 h-12 rounded-2xl overflow-hidden ${isAurelisse ? 'bg-white border border-[#2e7d32]/30' : isPalatiora ? 'bg-white/10 border border-[#F97316]/40' : 'bg-white/10 border border-[#DA9F93]/40'} p-0.5 shrink-0 shadow-lg`}>
-                  <img src={brandLogoUrl} alt={brandName} className="w-full h-full object-cover rounded-xl" />
+                  <img src={brandLogoUrl} alt={effectiveBrandName} className="w-full h-full object-cover rounded-xl" />
                 </div>
               ) : (
                 <div className={`w-12 h-12 rounded-2xl ${isAurelisse ? 'bg-[#2e7d32] text-white' : isPalatiora ? 'bg-[#F97316] text-white shadow-[0_0_20px_rgba(249,115,22,0.4)]' : 'bg-gradient-to-br from-[#DA9F93] to-[#a86e63] text-[#120a06]'} font-black text-base flex items-center justify-center shrink-0 shadow-xl border border-white/20 select-none uppercase`}>
@@ -298,7 +286,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 </div>
               )}
               <h3 className={`text-xl font-extrabold ${isAurelisse ? 'text-[#142412]' : isPalatiora ? 'text-white' : 'text-[#DA9F93]'} tracking-tight`}>
-                {brandName}
+                {effectiveBrandName}
               </h3>
             </div>
 
@@ -441,7 +429,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
       <div className={`relative z-10 border-t ${isAurelisse ? 'border-[#2e7d32]/20 bg-[#EDF7E7] text-[#2a3e26]' : isPalatiora ? 'border-white/10 bg-[#060608] text-stone-400' : 'border-white/10 bg-black/40 text-white/60'} py-6 px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between text-xs space-y-3 sm:space-y-0`}>
         <div className="text-center sm:text-left space-y-1">
           <p>
-            Copyright © <span className={`${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-white' : 'text-[#DA9F93]'} font-bold`}>{brandName}</span>. All Rights Reserved.
+            Copyright © <span className={`${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-white' : 'text-[#DA9F93]'} font-bold`}>{effectiveBrandName}</span>. All Rights Reserved.
           </p>
           <p className={`text-[11px] ${isAurelisse ? 'text-[#2a3e26]/60' : isPalatiora ? 'text-stone-500' : 'text-white/40'} flex items-center justify-center sm:justify-start gap-1.5`}>
             <span>Designed by <span className={isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316] font-bold' : 'text-[#DA9F93]'}>Heart Coding</span></span>

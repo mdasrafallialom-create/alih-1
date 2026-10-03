@@ -114,3 +114,76 @@ export const checkAdminPasswordInput = (input: string, settings?: any): boolean 
   // Allow match against exact case-insensitive string (text, letters, numbers, or symbols)
   return validPasswords.some(p => p === lower || lower.includes(p) && p.length >= 4);
 };
+
+// Official Theme Default Display Names for all theme presets
+export const THEME_DEFAULT_NAMES: Record<string, string> = {
+  'velmora-dining': 'Velmora Dining',
+  'orivelle-house': 'Orivelle House',
+  'lunavere': 'Lunavere',
+  'aurelisse': 'Aurelisse',
+  'palatiora': 'Palatiora',
+  'opalune': 'Opalune',
+  'emberion': 'Emberion',
+  'couravelle': 'Couravelle',
+  'ivorelle': 'Ivorelle',
+  'caravelle-dining': 'Caravelle Dining',
+  'elvaris-atelier': 'Elvaris',
+  'silvarenne': 'Silvarenne',
+  'monarchia-house': 'Monarchia',
+  'reservelle': 'Reservelle',
+  'vellunara': 'Vellunara'
+};
+
+// Check if a name is a real custom restaurant name entered by the user in the admin panel
+export const isCustomRestaurantName = (name?: string): boolean => {
+  if (!name) return false;
+  const lower = name.trim().toLowerCase();
+  return (
+    lower !== '' &&
+    lower !== 'my restaurant' &&
+    lower !== 'আমার রেস্টুরেন্ট' &&
+    lower !== 'demo restaurant' &&
+    lower !== 'sahinsh' &&
+    lower !== 'askul' &&
+    lower !== 'md asraful' &&
+    lower !== 'mdasrafallialom' &&
+    lower !== 'admin' &&
+    lower !== 'placeholder' &&
+    lower !== 'food'
+  );
+};
+
+// Returns the display name for the theme
+export const getThemeDisplayName = (presetId?: string, fallback: string = 'Velmora Dining'): string => {
+  if (presetId && THEME_DEFAULT_NAMES[presetId]) {
+    return THEME_DEFAULT_NAMES[presetId];
+  }
+  return fallback;
+};
+
+// Resolves whether to show custom restaurant name (if entered in admin) or default to the Theme Name
+export const resolveThemeOrRestaurantBrand = (
+  themeId: string | undefined,
+  settings: any,
+  propBrandName?: string,
+  fallbackThemeName?: string
+): string => {
+  const customDomain = (settings?.customDomain || '').trim();
+  if (customDomain && isCustomRestaurantName(customDomain)) return customDomain;
+
+  const targetThemeId = themeId || settings?.activeThemeId || 'velmora-dining';
+  const themeCustomBrand = (settings?.themeSettings?.[targetThemeId]?.brandName || '').trim();
+  if (themeCustomBrand && isCustomRestaurantName(themeCustomBrand)) return themeCustomBrand;
+
+  const restName = (settings?.restaurantName || '').trim();
+  if (restName && isCustomRestaurantName(restName)) return restName;
+
+  const brandName = (settings?.brandName || '').trim();
+  if (brandName && isCustomRestaurantName(brandName)) return brandName;
+
+  if (propBrandName && isCustomRestaurantName(propBrandName)) {
+    return propBrandName.trim();
+  }
+
+  return getThemeDisplayName(targetThemeId, fallbackThemeName || 'Velmora Dining');
+};

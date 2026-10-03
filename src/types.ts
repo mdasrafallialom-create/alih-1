@@ -140,6 +140,10 @@ export interface AdminSettings {
   menuSectionTagline?: string;
   menuSectionTitle?: string;
   menuSectionSubtitle?: string;
+  activeShapeIndices?: number[];
+  activeShapeCount?: number;
+  themeSettings?: Record<string, any>;
+  themeAdminButtons?: Record<string, boolean>;
 }
 
 export interface ChefProfile {
@@ -153,6 +157,7 @@ export interface ChefProfile {
   experienceYears?: number;
   speciality?: string;
   awards?: string;
+  active?: boolean;
 }
 
 export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
@@ -166,7 +171,8 @@ export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
     ratingCount: 1280,
     experienceYears: 16,
     speciality: 'Parisian Pâtisserie & Artisanal Roast',
-    awards: 'Michelin Selected & Culinary Gold Medalist'
+    awards: 'Michelin Selected & Culinary Gold Medalist',
+    active: true
   },
   {
     id: 'chef-2',
@@ -178,7 +184,8 @@ export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
     ratingCount: 940,
     experienceYears: 14,
     speciality: 'Valrhona Ganache & Starlight Bonbons',
-    awards: 'French National Pâtisserie Champion'
+    awards: 'French National Pâtisserie Champion',
+    active: true
   },
   {
     id: 'chef-3',
@@ -190,7 +197,8 @@ export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
     ratingCount: 820,
     experienceYears: 12,
     speciality: 'Truffle Brioche & Pan-Seared Delicacies',
-    awards: 'European Culinary Excellence Award'
+    awards: 'European Culinary Excellence Award',
+    active: true
   },
   {
     id: 'chef-4',
@@ -202,7 +210,8 @@ export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
     ratingCount: 1150,
     experienceYears: 15,
     speciality: '72-Hour Sourdough & Laminated Croissants',
-    awards: 'Grand Prix de la Baguette Finalist'
+    awards: 'Grand Prix de la Baguette Finalist',
+    active: true
   },
   {
     id: 'chef-5',
@@ -214,7 +223,8 @@ export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
     ratingCount: 760,
     experienceYears: 10,
     speciality: 'Cold-Drip Geisha & Smoked Infusions',
-    awards: 'World Barista Championship Silver'
+    awards: 'World Barista Championship Silver',
+    active: true
   },
   {
     id: 'chef-6',
@@ -226,7 +236,8 @@ export const DEFAULT_CHEF_PROFILES: ChefProfile[] = [
     ratingCount: 690,
     experienceYears: 9,
     speciality: 'Edible Florals & Modern Table Presentation',
-    awards: 'Young Culinary Talent of the Year'
+    awards: 'Young Culinary Talent of the Year',
+    active: true
   }
 ];
 

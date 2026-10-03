@@ -197,25 +197,20 @@ const InteractiveGlobe = () => {
       prevMousePos = { x: e.clientX, y: e.clientY };
     };
 
-    const onMouseUp = () => {
-      isDragging = false;
-    };
-
-    const domElem = container;
-    domElem.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-
     let animationFrameId: number;
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       if (!isDragging) {
-        globe.rotation.y += 0.002;
-        core.rotation.y += 0.002;
+        globe.rotation.y += 0.003;
+        core.rotation.y += 0.003;
       }
       renderer.render(scene, camera);
     };
     animate();
+
+    const onMouseUp = () => {
+      isDragging = false;
+    };
 
     const handleResize = () => {
       if (!container) return;
@@ -225,11 +220,15 @@ const InteractiveGlobe = () => {
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
+
+    container.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
     window.addEventListener('resize', handleResize);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
-      domElem.removeEventListener('mousedown', onMouseDown);
+      container.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       window.removeEventListener('resize', handleResize);
@@ -241,6 +240,129 @@ const InteractiveGlobe = () => {
   }, []);
 
   return <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
+};
+
+const LiveViewTab = ({ isDark }: { isDark: boolean }) => {
+  // Mock data for live view
+  const liveStats = {
+    visitors: 1242,
+    activeSessions: 86,
+    totalOrders: 432,
+    locations: [
+      { city: 'Dhaka', country: 'BD', count: 42, percentage: 48 },
+      { city: 'New York', country: 'US', count: 18, percentage: 21 },
+      { city: 'London', country: 'UK', count: 12, percentage: 14 },
+      { city: 'Dubai', country: 'UAE', count: 8, percentage: 9 },
+      { city: 'Others', country: '--', count: 6, percentage: 8 }
+    ]
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[700px]">
+      {/* LEFT PANEL: STATS & LOCATIONS */}
+      <div className="lg:col-span-4 flex flex-col gap-6">
+        {/* STATS CARDS */}
+        <div className={`p-6 rounded-3xl border shadow-xs ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-100'}`}>
+          <div className="space-y-6">
+            <div>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Live Visitors</p>
+              <div className="flex items-end gap-2">
+                <h3 className={`text-4xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{liveStats.visitors.toLocaleString()}</h3>
+                <span className="text-emerald-500 text-xs font-bold mb-1 flex items-center">
+                  <TrendingUp className="w-3 h-3 mr-0.5" />
+                  +12%
+                </span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Sessions</p>
+                <p className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{liveStats.activeSessions}</p>
+              </div>
+              <div>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Sales</p>
+                <p className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>$12.4k</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* LOCATIONS LIST */}
+        <div className={`flex-grow p-6 rounded-3xl border shadow-xs overflow-hidden flex flex-col ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-100'}`}>
+          <div className="flex items-center justify-between mb-6">
+            <h4 className={`text-sm font-black uppercase tracking-widest ${isDark ? 'text-white' : 'text-slate-900'}`}>Top Locations</h4>
+            <Globe className="w-4 h-4 text-slate-400" />
+          </div>
+          
+          <div className="space-y-5 overflow-y-auto pr-2 custom-scrollbar">
+            {liveStats.locations.map((loc, i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-4 bg-slate-100 dark:bg-slate-800 rounded-sm flex items-center justify-center text-[8px] font-black">{loc.country}</span>
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{loc.city}</span>
+                  </div>
+                  <span className={isDark ? 'text-white' : 'text-slate-900'}>{loc.count}</span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${loc.percentage}%` }}
+                    transition={{ duration: 1, delay: i * 0.1 }}
+                    className="h-full bg-indigo-500 rounded-full"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
+            <button className="w-full py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-colors">
+              View All Locations
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT PANEL: INTERACTIVE GLOBE */}
+      <div className={`lg:col-span-8 rounded-3xl border shadow-inner relative overflow-hidden flex items-center justify-center ${
+        isDark ? 'bg-[#0d1017] border-slate-800' : 'bg-slate-50 border-slate-200'
+      }`}>
+        {/* Globe Visualization */}
+        <div className="absolute inset-0 z-0">
+          <InteractiveGlobe />
+        </div>
+
+        {/* HUD OVERLAYS */}
+        <div className="absolute top-6 left-6 z-10 pointer-events-none">
+          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Global Pulse</span>
+            </div>
+            <p className="text-2xl font-black">Active Now</p>
+          </div>
+        </div>
+
+        <div className="absolute bottom-6 right-6 z-10 pointer-events-none">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-white text-right">
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Rotation Speed</p>
+            <p className="text-lg font-black font-mono">1.2 RPM</p>
+          </div>
+        </div>
+
+        {/* CONTROLS GUIDE */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
+          <div className="px-4 py-2 bg-black/20 backdrop-blur-sm rounded-full border border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-white/40 flex items-center gap-3">
+            <span>Left Click to Rotate</span>
+            <div className="w-1 h-1 rounded-full bg-white/20" />
+            <span>Scroll to Zoom</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ 
@@ -508,7 +630,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
         updatedBy: auth.currentUser?.email || 'Master Admin'
       }, { merge: true });
       await logAction(`Updated Master Admin Password to custom code`, "security", "Master Password");
-      setNewPasswordSavedMessage("✓ নতুন মাস্টার পাসওয়ার্ড সফলভাবে সেট করা হয়েছে! (New Master Password Saved)");
+      setNewPasswordSavedMessage("✓ New Master Password Saved Successfully!");
       setTimeout(() => setNewPasswordSavedMessage(null), 4000);
       setIsPasswordModalOpen(false);
     } catch (err) {
@@ -688,28 +810,28 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
   const stats = [
     { 
-      label: lang === 'bn' ? 'মোট মাসিক রাজস্ব (MRR)' : 'Monthly Revenue (MRR)', 
+      label: "Monthly Revenue (MRR)", 
       value: `$${totalRevenueCalc}.00`, 
       icon: DollarSign, 
       color: 'text-emerald-600', 
       bg: 'bg-emerald-50' 
     },
     { 
-      label: lang === 'bn' ? 'মোট নিবন্ধিত রেস্তোরাঁ' : 'Total Restaurants', 
+      label: "Total Restaurants", 
       value: restaurants.length, 
       icon: Store, 
       color: 'text-indigo-600', 
       bg: 'bg-indigo-50' 
     },
     { 
-      label: lang === 'bn' ? 'সক্রিয় সাবস্ক্রাইভার' : 'Active Paid Accounts', 
+      label: "Active Paid Accounts", 
       value: activeSubsCount, 
       icon: CreditCard, 
       color: 'text-purple-600', 
       bg: 'bg-purple-50' 
     },
     { 
-      label: lang === 'bn' ? 'এআর ও থিম আইটেমস' : '3D Models & Menus', 
+      label: "3D Models & Menus", 
       value: totalMenus, 
       icon: Sparkles, 
       color: 'text-amber-600', 
@@ -731,7 +853,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
               <ShieldCheck className="w-9 h-9" />
             </div>
             <h2 className="text-lg font-black text-white tracking-tight leading-snug">
-              AVERNAO HQ | আশরাফ আলী এস এম আরিফ বিল্লাহ
+              AVERNAO HQ | Asraf Ali SM Arif Billah
             </h2>
             <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest">
               MASTER ADMIN SECURITY PORTAL
@@ -751,8 +873,8 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 shrink-0" />
             <span>
               {isGoogleLoading 
-                ? (lang === 'bn' ? 'জিমেইল ভেরিফাই হচ্ছে...' : 'Verifying Gmail Account...') 
-                : (lang === 'bn' ? 'জিমেইল (Gmail) দিয়ে আনলক করুন' : 'Unlock with Gmail / Google Account')}
+                ? ("Verifying Gmail Account...") 
+                : ("Unlock with Gmail / Google Account")}
             </span>
           </button>
 
@@ -779,7 +901,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                     className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
                   >
                     {showPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    <span>{showPin ? (lang === 'bn' ? 'লুকান' : 'Hide') : (lang === 'bn' ? 'দেখুন' : 'Show')}</span>
+                    <span>{showPin ? ("Hide") : ("Show")}</span>
                   </button>
                 </div>
                 <input 
@@ -799,8 +921,8 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
                   {gmailOtpSent 
-                    ? (lang === 'bn' ? 'জিমেইল ওটিপি কোড (OTP: 5321)' : 'Gmail OTP Verification Code')
-                    : (lang === 'bn' ? 'এসএমএস ওটিপি কোড (OTP: 5321)' : 'SMS OTP Verification Code')}
+                    ? ("Gmail OTP Verification Code")
+                    : ("SMS OTP Verification Code")}
                 </label>
                 <input 
                   type="text"
@@ -908,6 +1030,25 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
               </div>
             </button>
 
+            <button
+              onClick={() => setActiveTab('liveview')}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all group ${
+                activeTab === 'liveview' 
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' 
+                  : isDark ? 'text-slate-400 hover:bg-slate-800/60 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Globe className="w-4 h-4" />
+                <span>Live Pulse View</span>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter ${
+                activeTab === 'liveview' ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-500'
+              }`}>
+                Interactive
+              </span>
+            </button>
+
             {/* Analytics Group */}
             <div className="pt-2">
               <button
@@ -922,31 +1063,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   <BarChart3 className="w-4 h-4" />
                   <span>Analytics</span>
                 </div>
-                <div 
-                  onClick={(e) => { e.stopPropagation(); setActiveTab(activeTab === 'liveview' ? 'analytics' : 'liveview'); }}
-                  className="p-1 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
-                >
-                  <ChevronRight className={`w-3.5 h-3.5 transition-transform ${activeTab === 'liveview' ? 'rotate-90' : ''}`} />
-                </div>
               </button>
-              
-              {activeTab === 'liveview' && (
-                <div className="ml-4 pl-4 border-l border-slate-300 dark:border-slate-700 mt-1 space-y-1">
-                  <div className="flex items-center gap-2 pl-4">
-                    <div className="w-4 h-4 border-l-2 border-b-2 border-slate-300 dark:border-slate-700 rounded-bl-xl -ml-2 -mt-2"></div>
-                    <button
-                      onClick={() => setActiveTab('liveview')}
-                      className={`flex items-center gap-2 px-2 py-2 rounded-xl text-xs font-bold transition-all ${
-                        activeTab === 'liveview' 
-                          ? 'text-indigo-600 dark:text-indigo-400' 
-                          : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                    >
-                      <span>Live View</span>
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Other Items */}
@@ -1048,15 +1165,15 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
           <div>
             <div className="flex items-center gap-3">
               <h1 className={`text-2xl font-black tracking-tight capitalize ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                {activeTab === 'overview' && (lang === 'bn' ? 'মাস্টার ওভারভিউ ড্যাশবোর্ড' : 'Master Overview Control')}
-                {activeTab === 'restaurants' && (lang === 'bn' ? 'গ্লোবাল রেস্তোরাঁ রেজিস্ট্রি' : 'Global Restaurant Registry')}
-                {activeTab === 'subscriptions' && (lang === 'bn' ? 'সাবস্ক্রিপশন ও বিলিং প্ল্যান' : 'Subscription Plans & Tiers')}
-                {activeTab === 'analytics' && (lang === 'bn' ? 'রাজস্ব ও গ্রোথ অ্যানালিটিক্স' : 'Revenue & Growth Analytics')}
-                {activeTab === 'tracking' && (lang === 'bn' ? 'গ্লোবাল ট্র্যাকিং ও অ্যানালিটিক্স হাব' : 'Global Tracking & Analytics Control Hub')}
-                {activeTab === 'sms' && (lang === 'bn' ? 'এসএমএস ওটিপি ও নোটিফিকেশন সেন্টার' : 'SMS Gateway & OTP Verification Center')}
-                {activeTab === 'support' && (lang === 'bn' ? 'সাপোর্ট টিকিট সেন্টার' : 'Support Desk Center')}
-                {activeTab === 'history' && (lang === 'bn' ? 'সিকিউরিটি অডিট ইতিহাস' : 'Security Audit History')}
-                {activeTab === 'settings' && (lang === 'bn' ? 'প্ল্যাটফর্ম গ্লোবাল কনফিগারেশন' : 'Platform Global Configuration')}
+                {activeTab === 'overview' && ("Master Overview Control")}
+                {activeTab === 'restaurants' && ("Global Restaurant Registry")}
+                {activeTab === 'subscriptions' && ("Subscription Plans & Tiers")}
+                {activeTab === 'analytics' && ("Revenue & Growth Analytics")}
+                {activeTab === 'tracking' && ("Global Tracking & Analytics Control Hub")}
+                {activeTab === 'sms' && ("SMS Gateway & OTP Verification Center")}
+                {activeTab === 'support' && ("Support Desk Center")}
+                {activeTab === 'history' && ("Security Audit History")}
+                {activeTab === 'settings' && ("Platform Global Configuration")}
               </h1>
               <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[10px] font-black uppercase tracking-wider">
                 LIVE PRODUCTION
@@ -1135,152 +1252,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
         </div>
 
         {/* LIVE VIEW TAB */}
-        {activeTab === 'liveview' && (
-          <div className="space-y-6">
-            {/* Live View Top Header */}
-            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center gap-3">
-                <Globe className="w-6 h-6 text-indigo-600 animate-spin" style={{ animationDuration: '10s' }} />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className={`text-lg font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Live View</h2>
-                    <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      Just now
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">Real-time visitor telemetry and global order traffic</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Search location..." 
-                    className={`pl-9 pr-4 py-2 rounded-xl text-xs font-bold outline-none border transition-all w-64 ${
-                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                    }`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Live View Split Layout: Metrics Left, Globe Right */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column: Metrics Cards */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-5 rounded-2xl border ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Visitors right now</p>
-                    <p className={`text-3xl font-black mt-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>14</p>
-                    <div className="mt-3 flex items-center gap-1 text-[10px] font-bold text-emerald-600">
-                      <Activity className="w-3 h-3" /> Active on stores
-                    </div>
-                  </div>
-                  <div className={`p-5 rounded-2xl border ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total sales</p>
-                    <p className={`text-3xl font-black mt-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>USD $0.00</p>
-                    <div className="mt-3 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-600 w-1/4 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-5 rounded-2xl border ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sessions</p>
-                    <p className={`text-3xl font-black mt-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>42</p>
-                    <div className="mt-3 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-cyan-500 w-3/5 rounded-full" />
-                    </div>
-                  </div>
-                  <div className={`p-5 rounded-2xl border ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Orders</p>
-                    <p className={`text-3xl font-black mt-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>3</p>
-                    <div className="mt-3 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 w-1/3 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Customer Behavior */}
-                <div className={`p-5 rounded-2xl border space-y-4 ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <h3 className={`text-xs font-black uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Customer behavior</h3>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Active carts</p>
-                      <p className={`text-xl font-black mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>5</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Checking out</p>
-                      <p className={`text-xl font-black mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>2</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Purchased</p>
-                      <p className={`text-xl font-black mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>3</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sessions by location */}
-                <div className={`p-5 rounded-2xl border space-y-3 ${isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <h3 className={`text-xs font-black uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Sessions by location</h3>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between items-center py-1.5 border-b border-slate-100 dark:border-slate-800">
-                      <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-indigo-500" /> Bangladesh</span>
-                      <span className="font-black">32 sessions</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-slate-100 dark:border-slate-800">
-                      <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-cyan-500" /> United States</span>
-                      <span className="font-black">7 sessions</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5">
-                      <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-emerald-500" /> United Kingdom</span>
-                      <span className="font-black">3 sessions</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Interactive 3D Globe */}
-              <div className={`lg:col-span-7 h-[650px] rounded-3xl border relative overflow-hidden flex items-center justify-center ${
-                isDark ? 'bg-[#10141d] border-slate-800' : 'bg-white border-slate-200'
-              }`}>
-                <InteractiveGlobe />
-
-                {/* Top-Right Action Toolbar (Shopify reference style) */}
-                <div className="absolute top-4 right-4 flex items-center gap-1 bg-slate-900/80 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-slate-700/50 shadow-xl z-10">
-                  <button title="Preview Store" className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button title="Map Layers" className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer">
-                    <Layers className="w-4 h-4" />
-                  </button>
-                  <button title="Fullscreen" className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer">
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Bottom-Right Zoom & Legend Bar */}
-                <div className="absolute bottom-6 right-6 flex items-center gap-4 bg-slate-800/90 backdrop-blur-md px-5 py-3 rounded-2xl border border-slate-700/50 text-xs font-bold shadow-2xl z-10">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-purple-500" />
-                    <span className="text-white">Orders</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-cyan-400" />
-                    <span className="text-white">Visitors right now</span>
-                  </div>
-                  <div className="flex items-center gap-1 border-l pl-3 border-slate-700">
-                    <button className="w-8 h-8 bg-slate-700 hover:bg-slate-600 text-white rounded-xl flex items-center justify-center font-black text-lg transition-colors cursor-pointer">+</button>
-                    <button className="w-8 h-8 bg-slate-700 hover:bg-slate-600 text-white rounded-xl flex items-center justify-center font-black text-lg transition-colors cursor-pointer"><Minus className="w-4 h-4" /></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'liveview' && <LiveViewTab isDark={isDark} />}
 
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
@@ -1375,10 +1347,10 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
-                    { label: lang === 'bn' ? 'পাবলিশড ওয়েবসাইট' : 'Published Sites', value: activeSubsCount, icon: Globe },
-                    { label: lang === 'bn' ? '৩ডি এনাবলড থিম' : '3D Interactive Themes', value: totalArEnabled, icon: Sparkles },
-                    { label: lang === 'bn' ? 'মোট মেনু আইটেম' : 'Total Food Dishes', value: totalMenus, icon: Layers },
-                    { label: lang === 'bn' ? 'সিস্টেম আপটাইম' : 'Uptime Guarantee', value: '100.0%', icon: ShieldCheck }
+                    { label: "Published Sites", value: activeSubsCount, icon: Globe },
+                    { label: "3D Interactive Themes", value: totalArEnabled, icon: Sparkles },
+                    { label: "Total Food Dishes", value: totalMenus, icon: Layers },
+                    { label: "Uptime Guarantee", value: '100.0%', icon: ShieldCheck }
                   ].map((m, i) => (
                     <div key={i} className={`p-4 rounded-2xl border text-center space-y-2 ${isDark ? 'bg-slate-800/30 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                       <m.icon className="w-5 h-5 text-indigo-600 mx-auto" />
@@ -1559,13 +1531,13 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   <tr className={`border-b text-[10px] font-black uppercase tracking-widest ${
                     isDark ? 'border-slate-800 text-slate-400 bg-slate-900/50' : 'border-slate-100 text-slate-400 bg-slate-50'
                   }`}>
-                    <th className="px-5 py-3.5">রেস্তোরাঁ ও আইডি</th>
-                    <th className="px-5 py-3.5">মালিক ও কন্টাক্ট</th>
-                    <th className="px-5 py-3.5">অবস্থান</th>
-                    <th className="px-5 py-3.5">প্ল্যান ও স্ট্যাটাস</th>
-                    <th className="px-5 py-3.5 text-center">মেনু আইটেম</th>
-                    <th className="px-5 py-3.5">মাসিক ফি</th>
-                    <th className="px-5 py-3.5 text-right">মাস্টার অ্যাকশন</th>
+                    <th className="px-5 py-3.5">Restaurant & ID</th>
+                    <th className="px-5 py-3.5">Owner & Contact</th>
+                    <th className="px-5 py-3.5">Location</th>
+                    <th className="px-5 py-3.5">Plan & Status</th>
+                    <th className="px-5 py-3.5 text-center">Menu Items</th>
+                    <th className="px-5 py-3.5">Monthly Fee</th>
+                    <th className="px-5 py-3.5 text-right">Master Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs">
@@ -1719,7 +1691,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl text-xs font-black shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
               >
                 <Check className="w-4 h-4" />
-                <span>{isSendingSms ? 'Saving...' : (lang === 'bn' ? 'এসএমএস কনফিগারেশন সেভ করুন' : 'Save SMS Gateway Settings')}</span>
+                <span>{isSendingSms ? 'Saving...' : ("Save SMS Gateway Settings")}</span>
               </button>
             </div>
 
@@ -1969,7 +1941,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl text-xs font-black shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
                 >
                   <Key className="w-4 h-4" />
-                  <span>{isSavingTracking ? 'Saving...' : (lang === 'bn' ? 'কীসমূহ সেভ করুন' : 'Save All Keys')}</span>
+                  <span>{isSavingTracking ? 'Saving...' : ("Save All Keys")}</span>
                 </button>
               </div>
             </div>
@@ -2438,7 +2410,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 disabled={isSavingSettings}
                 className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-2"
               >
-                {isSavingSettings ? 'Saving...' : (lang === 'bn' ? 'কনফিগারেশন সেভ করুন' : 'Save Settings')}
+                {isSavingSettings ? 'Saving...' : ("Save Settings")}
               </button>
               {saveSuccess && (
                 <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">

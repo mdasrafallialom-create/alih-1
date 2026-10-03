@@ -65,19 +65,30 @@ export default function ChefSection({
     }
   };
 
-  const chefProfilesList: ChefProfile[] = (settings?.chefProfiles && settings.chefProfiles.length > 0)
-    ? settings.chefProfiles
-    : settings?.chefProfile
-      ? [settings.chefProfile, ...DEFAULT_CHEF_PROFILES.slice(1)]
-      : DEFAULT_CHEF_PROFILES;
+  const activeThemeId = settings?.activeThemeId || 'palatiora';
+  let themeChefsList: ChefProfile[] | null = settings?.themeSettings?.[activeThemeId]?.chefProfiles || null;
+  if (!themeChefsList && typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem(`theme_chefs_${activeThemeId}`);
+      if (saved) themeChefsList = JSON.parse(saved);
+    } catch (e) {}
+  }
 
-  // Duplicate items 4 times to ensure a seamless infinite glide across ultra-wide monitors
-  const displayList = [
-    ...chefProfilesList.slice(0, 6),
-    ...chefProfilesList.slice(0, 6),
-    ...chefProfilesList.slice(0, 6),
-    ...chefProfilesList.slice(0, 6)
-  ];
+  const chefProfilesList: ChefProfile[] = ((themeChefsList && themeChefsList.length > 0)
+    ? themeChefsList
+    : (settings?.chefProfiles && settings.chefProfiles.length > 0)
+      ? settings.chefProfiles
+      : DEFAULT_CHEF_PROFILES).filter(c => c.active !== false);
+
+  // We disable centering to enforce a seamless, continuous, infinite marquee track.
+  // This guarantees that there are NEVER any empty gaps on the right or left sides of any screen size.
+  const isCenteredGrid = false;
+  const repeatCount = chefProfilesList.length > 0 ? Math.max(4, Math.ceil(24 / chefProfilesList.length)) : 1;
+  const displayList = chefProfilesList.length > 0 
+    ? Array.from({ length: repeatCount }, () => chefProfilesList).flat()
+    : [];
+
+  if (displayList.length === 0) return null;
 
   return (
     <section id="chef-showcase" className="py-16 sm:py-20 bg-[#15162B] border-t border-b border-[#C9A86A]/20 text-[#F4E7D3] relative overflow-hidden w-full select-none">
@@ -108,9 +119,9 @@ export default function ChefSection({
         </div>
       </div>
 
-      {/* Full-Width Continuous Gliding Carousel Track (Pauses on Hover / Touch) */}
+      {/* Full-Width Carousel Track or Centered Grid */}
       <div 
-        className="w-full relative z-10 px-0 group/carousel"
+        className="w-full relative z-10 px-4 group/carousel"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={() => setIsPaused(true)}
@@ -118,7 +129,7 @@ export default function ChefSection({
       >
         <div
           ref={scrollRef}
-          className="flex flex-row flex-nowrap gap-4 sm:gap-5 overflow-x-auto select-none scroll-smooth py-3 px-2"
+          className={`flex flex-row ${isCenteredGrid ? 'justify-center flex-wrap max-w-7xl mx-auto gap-6 sm:gap-8' : 'flex-nowrap overflow-x-auto gap-4 sm:gap-5 px-2'} select-none scroll-smooth py-3`}
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',

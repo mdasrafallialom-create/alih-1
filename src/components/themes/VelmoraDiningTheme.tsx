@@ -27,7 +27,7 @@ import { KoppeeAboutSection } from './KoppeeAboutSection';
 import { KoppeeDeliverySection } from './KoppeeDeliverySection';
 import { KoppeeFooterSection } from './KoppeeFooterSection';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
-import { getThemeAdminButtonVisibility, checkAdminPasswordInput } from '../../lib/adminHelpers';
+import { getThemeAdminButtonVisibility, checkAdminPasswordInput, resolveThemeOrRestaurantBrand, isCustomRestaurantName, getThemeDisplayName } from '../../lib/adminHelpers';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
 import cleanCoffeeBg from '../../assets/images/clean_coffee_bg_1790179641546.jpg';
 
@@ -58,6 +58,7 @@ interface VelmoraDiningThemeProps {
   onOrderDish?: (dish: FoodItem) => void;
   onOpenAdmin?: () => void;
   onBack?: () => void;
+  onReturnToPortal?: () => void;
   settings?: any;
   lang?: string;
   themePresetId?: string;
@@ -139,6 +140,22 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
     cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(250,204,21,0.25)]',
     badgeBgClass: 'bg-yellow-400 text-stone-950',
     repertoireTag: '🏛️ — FRENCH COURTYARD & TERRACE —',
+  },
+  'opalune': {
+    pageBgStyle: {
+      backgroundColor: '#fdf4e7',
+      backgroundImage: 'linear-gradient(to bottom, rgba(253, 244, 231, 0.96), rgba(253, 244, 231, 0.96))',
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#d4a373',
+    accentGradient: 'bg-[#321b0f] text-[#fdf4e7]',
+    cardBg: 'bg-[#faf2e6]/95',
+    cardBorderClass: 'border-[#d4a373]/35 hover:border-[#d4a373]',
+    cardHoverGlowClass: 'hover:shadow-[0_0_25px_rgba(212,163,115,0.18)]',
+    badgeBgClass: 'bg-[#321b0f] text-[#fdf4e7]',
+    repertoireTag: '☕ — BREW POD ARTISANAL COFFEE HOUSE —',
   },
   'maison-virelle': {
     pageBgStyle: {
@@ -389,6 +406,22 @@ export const THEME_PAGE_CONFIGS: Record<string, ThemePageConfig> = {
     cardHoverGlowClass: 'hover:shadow-[0_0_30px_rgba(217,119,6,0.35)]',
     badgeBgClass: 'bg-amber-600 text-white',
     repertoireTag: '🏰 — FRENCH CHATEAU & TRUFFLE CELLAR —',
+  },
+  'emberion': {
+    pageBgStyle: {
+      backgroundColor: '#fdf4e7',
+      backgroundImage: 'linear-gradient(to bottom, rgba(253, 244, 231, 0.98), rgba(253, 244, 231, 0.98))',
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center',
+    },
+    accentColor: '#b91c1c', // Bagel dark red highlight
+    accentGradient: 'bg-[#0f2942] text-[#fdf4e7] font-black',
+    cardBg: 'bg-[#fffcf7]/95 backdrop-blur-md shadow-lg',
+    cardBorderClass: 'border-[#0f2942]/15 hover:border-[#b91c1c]',
+    cardHoverGlowClass: 'hover:shadow-[0_15px_35px_rgba(185,28,28,0.15)]',
+    badgeBgClass: 'bg-[#b91c1c] text-white font-bold',
+    repertoireTag: '🥯 — PREMIUM HAND-ROLLED KETTLE-BOILED BAGELS —',
   }
 };
 
@@ -711,8 +744,65 @@ const OPALUNE_NITRO_DISHES: FoodItem[] = [
 ];
 
 const EMBERION_GRILL_DISHES: FoodItem[] = [
-  { id: 'emb-1', title: 'Wood-Fired Oak Smoked Prime Ribs', price: 78.00, calories: '880 kcal', desc: 'Slow-smoked St. Louis cut pork ribs glazed with bourbon cherry reduction and jalapeno slaw.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop', category: 'steaks', isPopular: true },
-  { id: 'emb-2', title: 'Flame-Seared Neapolitan Truffle Pizza', price: 26.00, calories: '720 kcal', desc: '800°F wood-oven charred sourdough pizza with San Marzano tomatoes, buffalo mozzarella & black truffle.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop', category: 'pizza', isChefSpecial: true }
+  { 
+    id: 'emb-1', 
+    title: 'NYC Classic Nova Smoked Salmon & Herb Cream Cheese Bagel', 
+    price: 16.50, 
+    calories: '490 kcal', 
+    desc: 'Hand-sliced nova lox, whipped scallion dill cream cheese, capers, heirloom tomatoes, and crisp red onion on kettle-boiled toasted sesame bagel.', 
+    img: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=800&auto=format&fit=crop', 
+    category: 'bagels', 
+    isPopular: true 
+  },
+  { 
+    id: 'emb-2', 
+    title: 'Hardwood Smoked Bacon, Organic Egg & Aged Vermont Cheddar', 
+    price: 12.50, 
+    calories: '540 kcal', 
+    desc: 'Crispy thick-cut applewood smoked bacon, double farm egg over-easy, sharp melted cheddar, and secret pepper jam on warm everything bagel.', 
+    img: 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=800&auto=format&fit=crop', 
+    category: 'bagels', 
+    isChefSpecial: true 
+  },
+  { 
+    id: 'emb-3', 
+    title: 'Hot Press Pastrami & Melted Swiss Reuben Bagel', 
+    price: 15.00, 
+    calories: '610 kcal', 
+    desc: 'Warm spiced brisket pastrami, melted aged Swiss, tangy sauerkraut, and Russian dressing pressed crisp on hearth-baked garlic rye bagel.', 
+    img: 'https://images.unsplash.com/photo-1587538644342-fc14ab844f30?w=800&auto=format&fit=crop', 
+    category: 'bagels', 
+    isPopular: true 
+  },
+  { 
+    id: 'emb-4', 
+    title: 'Artisan Kettle-Boiled Baker’s Half-Dozen & Schmears Box', 
+    price: 22.00, 
+    calories: '320 kcal/ea', 
+    desc: '6 fresh-from-the-oven bagels (plain, sesame, poppy, everything, onion, cinnamon raisin) with two 8oz tubs of homemade whipped cream cheese.', 
+    img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop', 
+    category: 'spreads', 
+    isChefSpecial: true 
+  },
+  { 
+    id: 'emb-5', 
+    title: 'Avocado, Roasted Tomato & Whipped Goat Cheese Bagel', 
+    price: 11.50, 
+    calories: '380 kcal', 
+    desc: 'Smashed Haas avocado, slow-roasted cherry tomatoes, whipped local goat cheese, wild baby arugula, and lemon zaatar drizzle on multi-grain seed bagel.', 
+    img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&auto=format&fit=crop', 
+    category: 'spreads' 
+  },
+  { 
+    id: 'emb-6', 
+    title: 'Nitro Cold Brew with Sweet Vanilla Bean Silk Foam', 
+    price: 6.50, 
+    calories: '90 kcal', 
+    desc: 'Single-origin Colombian micro-lot cold brew steeped for 24 hours, nitrogen charged and crowned with sweet Madagascar vanilla cream foam.', 
+    img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop', 
+    category: 'beverages', 
+    isPopular: true 
+  }
 ];
 
 const COURAVELLE_GARDEN_DISHES: FoodItem[] = [
@@ -745,6 +835,7 @@ export default function VelmoraDiningTheme({
   onOrderDish,
   onOpenAdmin,
   onBack,
+  onReturnToPortal,
   settings,
   lang = 'en',
   themePresetId,
@@ -773,16 +864,25 @@ export default function VelmoraDiningTheme({
   const matchedTheme = LUXURY_THEMES.find(t => t.id === activePresetId);
 
   // Compute effective brand name (never use owner personal name in theme header)
+  // Until the user sets a custom restaurant name in the admin panel, show the Theme Name!
   const effectiveThemeBrandName = (() => {
-    const owner = (settings?.ownerName || '').trim().toLowerCase();
-    const custom = (brandName || settings?.restaurantName || settings?.brandName || '').trim();
-    const lowerCustom = custom.toLowerCase();
-    
-    // If brandName is empty, demo placeholder, or matches owner's personal name, fallback to preset theme name
-    if (!custom || isDemoOrPlaceholderBrand(custom) || (owner && lowerCustom === owner) || lowerCustom === 'md asraful' || lowerCustom === 'mdasrafallialom') {
-      return matchedTheme?.name || 'Velmora Dining';
+    const customDomain = ((settings as any)?.customDomain || '').trim();
+    if (customDomain && isCustomRestaurantName(customDomain)) return customDomain;
+
+    const themeCustomBrand = ((settings as any)?.themeSettings?.[activePresetId]?.brandName || '').trim();
+    if (themeCustomBrand && isCustomRestaurantName(themeCustomBrand)) return themeCustomBrand;
+
+    const restName = (settings?.restaurantName || '').trim();
+    if (restName && isCustomRestaurantName(restName)) return restName;
+
+    const bName = (settings?.brandName || '').trim();
+    if (bName && isCustomRestaurantName(bName)) return bName;
+
+    if (brandName && isCustomRestaurantName(brandName)) {
+      return brandName.trim();
     }
-    return custom;
+
+    return getThemeDisplayName(activePresetId, matchedTheme?.name || 'Velmora Dining');
   })();
   // Currency Switcher State: USD ($), GBP (£), BDT (৳), EUR (€)
   const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'GBP' | 'BDT' | 'EUR'>('USD');
@@ -968,10 +1068,22 @@ export default function VelmoraDiningTheme({
     }
   ];
 
-  const rawChefs: ChefProfile[] = (settings?.chefProfiles && settings.chefProfiles.length > 0)
-    ? settings.chefProfiles
-    : (activePresetId === 'palatiora' ? SAVORELLE_CHEF_PROFILES : activePresetId === 'aurelisse' ? AURELISSE_CHEF_PROFILES : DEFAULT_CHEF_PROFILES);
-  const chefs = rawChefs.slice(0, 6);
+  let themeChefsList: ChefProfile[] | null = settings?.themeSettings?.[activePresetId]?.chefProfiles || null;
+  if (!themeChefsList && typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem(`theme_chefs_${activePresetId}`);
+      if (saved) themeChefsList = JSON.parse(saved);
+    } catch (e) {}
+  }
+
+  const rawChefs: ChefProfile[] = (themeChefsList && themeChefsList.length > 0)
+    ? themeChefsList
+    : (settings?.chefProfiles && settings.chefProfiles.length > 0)
+      ? settings.chefProfiles
+      : (activePresetId === 'palatiora' ? SAVORELLE_CHEF_PROFILES : activePresetId === 'aurelisse' ? AURELISSE_CHEF_PROFILES : DEFAULT_CHEF_PROFILES);
+  const chefs = rawChefs.filter(c => c.active !== false).slice(0, 6);
+  const repeatCount = chefs.length > 0 ? Math.max(2, Math.ceil(12 / chefs.length)) : 0;
+  const marqueeChefs = chefs.length > 0 ? Array.from({ length: repeatCount }, () => chefs).flat() : [];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -1103,9 +1215,10 @@ export default function VelmoraDiningTheme({
     { id: 'coffee', label: 'Cascade Nitro' },
     { id: 'desserts', label: 'Affogato Gelato' }
   ] : activePresetId === 'emberion' ? [
-    { id: 'all', label: 'Wood-Fired Grill' },
-    { id: 'steaks', label: 'Oak Smoked Ribs' },
-    { id: 'pizza', label: 'Flame Truffle Pizza' }
+    { id: 'all', label: lang === 'bn' ? 'সব হট ব্যাগেল ও ক্যাফে' : 'All Hot Bagels & Cafe' },
+    { id: 'bagels', label: lang === 'bn' ? 'সিগনেচার স্যান্ডউইচ' : 'Signature Bagels' },
+    { id: 'spreads', label: lang === 'bn' ? 'ক্রিম চিজ ও মেল্টস' : 'Whipped Schmears' },
+    { id: 'beverages', label: lang === 'bn' ? 'কোল্ড ব্রু ও ড্রিংকস' : 'Cold Brews & Coffee' }
   ] : activePresetId === 'couravelle' ? [
     { id: 'all', label: 'Tuscan Garden' },
     { id: 'starters', label: 'Pesto Burrata' },
@@ -1386,7 +1499,7 @@ export default function VelmoraDiningTheme({
 
   return (
     <div 
-      className={`w-full min-h-screen ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-[#FBF8EE]'} selection:bg-[#DA9F93]/30 selection:text-white outline-none relative`}
+      className={`w-full min-h-screen ${(activePresetId === 'aurelisse' || activePresetId === 'emberion' || activePresetId === 'opalune') ? 'text-[#0f2942]' : 'text-[#FBF8EE]'} selection:bg-[#DA9F93]/30 selection:text-white outline-none relative`}
       style={{
         ...pageCfg.pageBgStyle,
         backgroundAttachment: (previewDeviceView || isTablet || isMobile) ? 'scroll' : (pageCfg.pageBgStyle.backgroundAttachment || 'scroll'),
@@ -1410,6 +1523,7 @@ export default function VelmoraDiningTheme({
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
           onOpenAdmin={onOpenAdmin}
+          onReturnToPortal={onReturnToPortal}
           showAdminButton={getThemeAdminButtonVisibility(activePresetId, settings)}
           lang={lang}
           themePresetId={activePresetId}
@@ -1460,14 +1574,14 @@ export default function VelmoraDiningTheme({
 
           <div className="relative inline-block group/title">
             <h2 
-              className={`text-3xl sm:text-5xl font-bold tracking-tight ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-[#FBF8EE]'} transition-colors`}
+              className={`text-3xl sm:text-5xl font-bold tracking-tight ${(activePresetId === 'aurelisse' || activePresetId === 'emberion' || activePresetId === 'opalune') ? 'text-[#0f2942]' : 'text-[#FBF8EE]'} transition-colors`}
               style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
             >
               {themeEdits?.menuSectionTitle || settings?.menuSectionTitle || defaultMenuTitle}
             </h2>
           </div>
 
-          <p className={`text-sm ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-[#FBF8EE]/70'} font-light max-w-2xl mx-auto`}>
+          <p className={`text-sm ${(activePresetId === 'aurelisse' || activePresetId === 'emberion' || activePresetId === 'opalune') ? 'text-[#475569]' : 'text-[#FBF8EE]/70'} font-light max-w-2xl mx-auto`}>
             {themeEdits?.menuSectionSubtitle || settings?.menuSectionSubtitle || defaultMenuSubtitle}
           </p>
         </div>
@@ -1983,6 +2097,98 @@ export default function VelmoraDiningTheme({
                   </div>
                 </div>
               </motion.div>
+            ) : activePresetId === 'emberion' ? (
+              /* THEME #07 (EMBERION): DISTINCTIVE HIGH-CONTRAST BAGEL BAKERY & CAFE CARD */
+              <motion.div
+                key={dish.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="group relative bg-white rounded-3xl border-2 border-[#0f2942]/15 hover:border-[#b91c1c] overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-[0_20px_45px_rgba(185,28,28,0.18)] hover:-translate-y-1.5"
+              >
+                <div className="relative h-60 overflow-hidden bg-slate-100">
+                  <img 
+                    src={dish.img} 
+                    alt={dish.title} 
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                  
+                  {/* Distinctive Top Left Badge */}
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+                    <span className="px-3 py-1 rounded-full bg-[#b91c1c] text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                      🥯 Artisan Bagel
+                    </span>
+                  </div>
+
+                  {/* EDIT BUTTON (Directly visible on food card) */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingSingleDish(dish);
+                    }}
+                    className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 border border-white/60 transition-transform hover:scale-105 active:scale-95 cursor-pointer z-20"
+                    title={lang === 'bn' ? 'খাবার এডিট ও ছবি আপলোড করুন' : 'Edit food item & upload photo'}
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-slate-950" />
+                    <span>{lang === 'bn' ? 'এডিট' : 'EDIT'}</span>
+                  </button>
+
+                  {dish.calories && (
+                    <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-slate-900/90 text-amber-300 text-[10px] font-mono font-bold border border-white/20 shadow-md">
+                      🔥 {dish.calories}
+                    </span>
+                  )}
+                </div>
+
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4 bg-white text-left">
+                  <div className="space-y-2.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 
+                        className="font-black text-lg sm:text-xl text-[#0f2942] tracking-tight leading-snug line-clamp-2 hover:text-[#b91c1c] transition-colors"
+                        style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
+                      >
+                        {dish.title}
+                      </h3>
+                      <span className="font-mono font-black text-lg text-[#b91c1c] bg-red-50 border border-red-200/80 px-3 py-1 rounded-xl shrink-0 shadow-xs">
+                        {formatPrice(dish.price)}
+                      </span>
+                    </div>
+
+                    {/* ULTRA CLEAR HIGH-CONTRAST DESCRIPTION */}
+                    <p className="text-sm font-medium text-[#334155] leading-relaxed line-clamp-3">
+                      {dish.desc}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                        setSelectedDishDetail(dish);
+                      }}
+                      className="py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0f2942] text-xs font-black uppercase tracking-wider text-center transition-all cursor-pointer active:scale-95"
+                    >
+                      {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onOrderDish) onOrderDish(dish);
+                        setToastMsg(`"${dish.title}" added to order!`);
+                        setTimeout(() => setToastMsg(null), 2500);
+                      }}
+                      className="py-2.5 rounded-2xl bg-[#0f2942] hover:bg-[#b91c1c] text-[#fdf4e7] text-xs font-black uppercase tracking-wider text-center flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
+                      <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
             ) : (
               /* Coffee Shop Themes Minimalist Modern Card */
               <motion.div
@@ -2006,6 +2212,20 @@ export default function VelmoraDiningTheme({
                     </span>
                   </div>
 
+                  {/* Quick Edit button for all themes */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingSingleDish(dish);
+                    }}
+                    className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1 border border-white/60 transition-transform hover:scale-105 active:scale-95 cursor-pointer z-20"
+                    title={lang === 'bn' ? 'খাবার এডিট করুন' : 'Edit Dish'}
+                  >
+                    <Edit3 className="w-3 h-3 text-slate-950" />
+                    <span>{lang === 'bn' ? 'এডিট' : 'EDIT'}</span>
+                  </button>
+
                   {dish.calories && (
                     <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/60 text-[10px] text-[#F3E5AB] font-mono border border-white/10">
                       {dish.calories}
@@ -2017,7 +2237,7 @@ export default function VelmoraDiningTheme({
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <h3 
-                        className={`font-bold text-base sm:text-lg ${activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-[#FBF8EE]'} transition-colors line-clamp-2 min-h-[3rem] leading-snug break-words`}
+                        className={`font-bold text-base sm:text-lg ${activePresetId === 'opalune' ? 'text-[#321b0f]' : activePresetId === 'emberion' ? 'text-[#0f2942]' : activePresetId === 'aurelisse' ? 'text-[#142412]' : 'text-[#FBF8EE]'} transition-colors line-clamp-2 min-h-[3rem] leading-snug break-words`}
                         style={{ fontFamily: fontDisplay || "'Playfair Display', serif" }}
                       >
                         {dish.title}
@@ -2026,26 +2246,40 @@ export default function VelmoraDiningTheme({
                         {formatPrice(dish.price)}
                       </span>
                     </div>
-                    <p className={`text-xs ${activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-[#FBF8EE]/70'} line-clamp-2 leading-relaxed`}>
+                    <p className={`text-xs ${activePresetId === 'opalune' ? 'text-[#321b0f]/80' : activePresetId === 'emberion' ? 'text-[#334155] font-medium' : activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : 'text-[#FBF8EE]/70'} line-clamp-2 leading-relaxed`}>
                       {dish.desc}
                     </p>
                   </div>
 
-                  <div className={`grid grid-cols-2 gap-2 pt-2 border-t ${activePresetId === 'aurelisse' ? 'border-[#2e7d32]/15' : 'border-white/10'}`}>
+                  <div className={`grid grid-cols-2 gap-2 pt-2 border-t ${activePresetId === 'opalune' ? 'border-[#321b0f]/15' : activePresetId === 'emberion' ? 'border-[#0f2942]/15' : activePresetId === 'aurelisse' ? 'border-[#2e7d32]/15' : 'border-white/10'}`}>
                     <button
-                      onClick={() => setSelectedDishDetail(dish)}
-                      className={`py-2 rounded-xl ${activePresetId === 'aurelisse' ? 'bg-[#EDF7E7] border border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-100' : 'bg-black/40 border border-white/20 text-[#FBF8EE] hover:border-white/50'} text-[11px] font-bold uppercase tracking-wider transition-colors text-center`}
+                      onClick={() => {
+                        setDetailOrderQty(1);
+                        setDetailSpecialNote('');
+                        setSelectedDishDetail(dish);
+                      }}
+                      className={`py-2 rounded-xl ${
+                        activePresetId === 'opalune'
+                          ? 'bg-[#fdf4e7] border border-[#321b0f]/30 text-[#321b0f] hover:bg-[#ebdcc9]'
+                          : activePresetId === 'emberion'
+                          ? 'bg-[#fdf4e7] border border-[#0f2942]/30 text-[#0f2942] hover:bg-[#ebdcc9]'
+                          : activePresetId === 'aurelisse'
+                          ? 'bg-[#EDF7E7] border border-[#2e7d32]/30 text-[#142412] hover:bg-emerald-100'
+                          : 'bg-black/40 border border-white/20 text-[#FBF8EE] hover:border-white/50'
+                      } text-[11px] font-bold uppercase tracking-wider transition-colors text-center`}
                     >
-                      Details
+                      {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
                     </button>
                     <button
                       onClick={() => {
                         if (onOrderDish) onOrderDish(dish);
+                        setToastMsg(`"${dish.title}" added to order!`);
+                        setTimeout(() => setToastMsg(null), 2500);
                       }}
                       className={`py-2 rounded-xl ${pageCfg.accentGradient} text-[11px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-1`}
                     >
                       <ShoppingBag className="w-3 h-3" />
-                      <span>Order</span>
+                      <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
                     </button>
                   </div>
                 </div>
@@ -2118,7 +2352,7 @@ export default function VelmoraDiningTheme({
                       scrollbarWidth: 'none'
                     }}
                   >
-                    {[...chefs.slice(0, 6), ...chefs.slice(0, 6)].map((chef, idx) => (
+                    {marqueeChefs.map((chef, idx) => (
                       <div 
                         key={`${chef.id || idx}-${idx}`} 
                         className="w-[280px] sm:w-[320px] md:w-[340px] shrink-0 flex flex-col items-start space-y-4 group cursor-pointer select-none bg-transparent"

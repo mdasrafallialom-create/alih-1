@@ -1,3 +1,7 @@
+import opaluneNitroImg from '../assets/images/opalune_nitro_cold_brew_1791021529686.jpg';
+import opaluneTonicImg from '../assets/images/opalune_espresso_tonic_1791021544254.jpg';
+import opaluneKyotoImg from '../assets/images/opalune_kyoto_cold_drip_1791021557503.jpg';
+
 export interface CafeHeroSlide {
   id: number;
   number: string;
@@ -197,10 +201,75 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       description: 'Clean architectural lines, chilled quartz coffee bars, and nitrogen-infused slow-drip single-origin extractions.',
       primaryBtn: 'Discover Nitro Bar',
       secondaryBtn: 'Order Ahead',
-      img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&auto=format&fit=crop',
+      img: opaluneNitroImg,
       actionTarget: 'menu',
       cupName: 'Artisanal Nitro Cold Brew',
       price: '$6.00'
+    },
+    {
+      id: 2,
+      number: '02',
+      eyebrow: 'SPARKLING CITRUS EXTRACTION',
+      heading: 'CASCADE ESPRESSO TONIC',
+      description: 'Effervescent tonic water poured over ice, crowned with a fresh double shot of Ethiopian Yirgacheffe and citrus essence.',
+      primaryBtn: 'Explore Tonic Blends',
+      secondaryBtn: 'Reserve Seat',
+      img: opaluneTonicImg,
+      actionTarget: 'menu',
+      cupName: 'Sparkling Yuzu Espresso Tonic',
+      price: '$7.50'
+    },
+    {
+      id: 3,
+      number: '03',
+      eyebrow: '18-HOUR KYOTO TOWER',
+      heading: 'SLOW-DRIP COLD TOWER',
+      description: 'Single-drop extraction through crystal spirals for an ultra-smooth, low-acidity velvety coffee profile.',
+      primaryBtn: 'View Cold Towers',
+      secondaryBtn: 'Book Tasting',
+      img: opaluneKyotoImg,
+      actionTarget: 'menu',
+      cupName: 'Kyoto Glass Slow-Drip Reserve',
+      price: '$9.00'
+    },
+    {
+      id: 4,
+      number: '04',
+      eyebrow: 'TAHITIAN VANILLA GELATO',
+      heading: 'AFFOGATO GELATO ARTISAN',
+      description: 'Hot ristretto double espresso poured tableside over artisanal Tahitian vanilla bean gelato.',
+      primaryBtn: 'Try Affogato',
+      secondaryBtn: 'Order Dessert',
+      img: 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Tahitian Vanilla Affogato',
+      price: '$8.50'
+    },
+    {
+      id: 5,
+      number: '05',
+      eyebrow: 'OAT MILK MICROFOAM',
+      heading: 'VELVET FLAT WHITE',
+      description: 'Silky steam-microfoamed oat milk poured over a rich ristretto base with intricate rosette latte art.',
+      primaryBtn: 'Order Latte Bar',
+      secondaryBtn: 'Explore Menu',
+      img: 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Artisanal Velvet Flat White',
+      price: '$5.50'
+    },
+    {
+      id: 6,
+      number: '06',
+      eyebrow: 'TOASTED NUT ESSENCE',
+      heading: 'ROASTED MACADAMIA LATTE',
+      description: 'House-pressed roasted macadamia nut milk, toasted organic sugar cane, and cinnamon smoke finish.',
+      primaryBtn: 'Taste Specialty',
+      secondaryBtn: 'Order Online',
+      img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1600&auto=format&fit=crop',
+      actionTarget: 'menu',
+      cupName: 'Roasted Macadamia Nut Latte',
+      price: '$6.80'
     }
   ],
 

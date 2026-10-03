@@ -3,7 +3,7 @@ import { ThemePreset } from '../components/RestaurantAdmin/ThemeStoreManager';
 export const LUXURY_THEMES: ThemePreset[] = [
   {
     id: 'velmora-dining',
-    name: 'Velmora Coffee Artisan',
+    name: 'Velmora Dining',
     tagline: 'Artisanal roasted Arabica beans, hand-crafted espresso & sculpted coffee cup.',
     category: 'cafe',
     categoryLabel: 'Artisan Cafe & Coffee House',

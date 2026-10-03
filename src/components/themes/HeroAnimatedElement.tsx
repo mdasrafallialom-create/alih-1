@@ -5,6 +5,9 @@ import { CoffeeBeanSculptedVisual } from './CoffeeBeanSculptedVisual';
 import { OrivelleGoldClocheVisual } from './OrivelleGoldClocheVisual';
 import { InteractivePizzaVisual } from './InteractivePizzaVisual';
 import { InteractiveDeconstructedBurgerVisual } from './InteractiveDeconstructedBurgerVisual';
+import { InteractiveNitroColdBrewVisual } from './InteractiveNitroColdBrewVisual';
+import { InteractiveCoffeeCupSplashVisual } from './InteractiveCoffeeCupSplashVisual';
+import { InteractiveDiagonalTiltedCardsVisual } from './InteractiveDiagonalTiltedCardsVisual';
 import whiteCupSideImg from '../../assets/images/white_cup_side_isolated.png';
 import whiteCoffeeCupImg from '../../assets/images/white_coffee_cup_isolated_trimmed.png';
 import whiteCappuccinoCupImg from '../../assets/images/white_cappuccino_isolated.png';
@@ -30,6 +33,11 @@ interface HeroAnimatedElementProps {
   cupName?: string;
   slideType?: string;
   slideIndex?: number;
+  onNextSlide?: () => void;
+  onPrevSlide?: () => void;
+  activeTier?: string;
+  lang?: string;
+  onEditStateChange?: (isEditing: boolean) => void;
 }
 
 export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
@@ -38,7 +46,12 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
   cupImg,
   cupName,
   slideType,
-  slideIndex = 0
+  slideIndex = 0,
+  onNextSlide,
+  onPrevSlide,
+  activeTier,
+  lang = 'en',
+  onEditStateChange
 }) => {
   const normId = (themeId || '').toLowerCase().trim();
   const [isHovered, setIsHovered] = useState(false);
@@ -61,6 +74,32 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
   // Theme #01: Velmora Dining -> Artisanal Coffee Cup Sculpted from Coffee Beans
   if (normId === 'velmora-dining') {
     return <CoffeeBeanSculptedVisual accentColor={accentColor} />;
+  }
+
+  // Theme #06: Opalune (Modern White Granite & Nitro Cold Brew Atrium)
+  if (normId === 'opalune') {
+    return (
+      <InteractiveCoffeeCupSplashVisual
+        accentColor={accentColor}
+        cupName={cupName || 'Artisanal Nitro Cold Brew Atrium'}
+        customImg={undefined}
+        onNextSlide={onNextSlide}
+        onPrevSlide={onPrevSlide}
+        slideIndex={slideIndex}
+        activeTier={activeTier}
+      />
+    );
+  }
+
+  // Theme #07: Emberion (Bagel/Bakery Diagonal Rising Fan Tilted Cards)
+  if (normId === 'emberion') {
+    return (
+      <InteractiveDiagonalTiltedCardsVisual 
+        accentColor={accentColor}
+        lang={lang}
+        onEditStateChange={onEditStateChange}
+      />
+    );
   }
 
   // Theme #15: Vellunara & Theme #02: Orivelle House / Pizza Visual

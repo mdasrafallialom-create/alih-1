@@ -10,6 +10,7 @@ import {
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
 import portafilterTrioImg from '../../assets/images/portafilter_trio_story_1789909656642.jpg';
 import { EspressoMachineHero } from './EspressoMachineHero';
+import { isCustomRestaurantName } from '../../lib/adminHelpers';
 
 interface FoodItem {
   id: string;
@@ -33,6 +34,7 @@ interface LunavereThemeProps {
   onOrderDish?: (dish: FoodItem) => void;
   onOpenAdmin?: () => void;
   onBack?: () => void;
+  onReturnToPortal?: () => void;
   settings?: any;
   lang?: string;
   deviceView?: 'desktop' | 'tablet' | 'mobile';
@@ -120,6 +122,7 @@ export default function LunavereTheme({
   onOrderDish,
   onOpenAdmin,
   onBack,
+  onReturnToPortal,
   settings,
   lang = 'en',
   deviceView
@@ -136,22 +139,13 @@ export default function LunavereTheme({
   const isMobile = deviceView === 'mobile' || (deviceView !== 'desktop' && deviceView !== 'tablet' && windowWidth < 640);
   const isTablet = deviceView === 'tablet' || (deviceView !== 'desktop' && (windowWidth >= 640 && windowWidth < 1024));
   const isDesktop = !isMobile && !isTablet;
-  const isDemoOrPlaceholderBrand = (name?: string) => {
-    if (!name) return true;
-    const lower = name.trim().toLowerCase();
-    return lower === 'sahinsh' || 
-           lower === 'askul' || 
-           lower === 'koppee' || 
-           lower === 'velmora dining' || 
-           lower === 'velmora' || 
-           lower === 'lunavere' || 
-           lower === "l'aura webar restaurant" ||
-           lower === 'the golden fork';
-  };
-
-  const effectiveBrandName = isDemoOrPlaceholderBrand(brandName || settings?.brandName)
-    ? 'My Restaurant'
-    : (brandName || settings?.brandName)!.trim();
+  const effectiveBrandName = (() => {
+    const raw = (brandName || settings?.restaurantName || settings?.brandName || '').trim();
+    if (raw && isCustomRestaurantName(raw)) {
+      return raw;
+    }
+    return 'Lunavere';
+  })();
   // State
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -267,10 +261,22 @@ export default function LunavereTheme({
 
   // Chef section visibility logic: Controlled by theme admin settings
   const isChefSectionVisible = settings?.themeShowChefSection !== false;
-  const rawChefs: ChefProfile[] = (settings?.chefProfiles && settings.chefProfiles.length > 0)
-    ? settings.chefProfiles
-    : DEFAULT_CHEF_PROFILES;
-  const chefs = rawChefs.slice(0, 6);
+  let themeChefsList: ChefProfile[] | null = settings?.themeSettings?.['lunavere']?.chefProfiles || null;
+  if (!themeChefsList && typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('theme_chefs_lunavere');
+      if (saved) themeChefsList = JSON.parse(saved);
+    } catch (e) {}
+  }
+
+  const rawChefs: ChefProfile[] = (themeChefsList && themeChefsList.length > 0)
+    ? themeChefsList
+    : (settings?.chefProfiles && settings.chefProfiles.length > 0)
+      ? settings.chefProfiles
+      : DEFAULT_CHEF_PROFILES;
+  const chefs = rawChefs.filter(c => c.active !== false).slice(0, 6);
+  const repeatCount = chefs.length > 0 ? Math.max(2, Math.ceil(12 / chefs.length)) : 0;
+  const marqueeChefs = chefs.length > 0 ? Array.from({ length: repeatCount }, () => chefs).flat() : [];
 
   const scrollToTop = () => {
     try {
@@ -570,6 +576,8 @@ export default function LunavereTheme({
                 </div>
               </div>
             )}
+
+
 
 
 
@@ -1259,7 +1267,7 @@ export default function LunavereTheme({
                 animationPlayState: isChefHovered ? 'paused' : 'running'
               }}
             >
-              {[...chefs, ...chefs].map((chef, idx) => (
+              {marqueeChefs.map((chef, idx) => (
                 <div 
                   key={`${chef.id || idx}-${idx}`}
                   className="w-[285px] xs:w-[330px] sm:w-[380px] md:w-[410px] shrink-0 bg-white border border-[#C9A86A]/30 hover:border-[#96722d] rounded-2xl p-5 sm:p-7 flex flex-col justify-between space-y-4 sm:space-y-5 shadow-lg transition-all duration-300 group cursor-pointer text-[#171522]"
@@ -1457,7 +1465,7 @@ export default function LunavereTheme({
                     : 'w-2.5 h-2.5 bg-[#171522]/30 hover:bg-[#171522]/60'
                 }`}
                 aria-label={`Testimonial ${idx + 1}`}
-              />
+              ></button>
             ))}
           </div>
         </div>

@@ -66,7 +66,7 @@ import { DEFAULT_STORE_DISHES } from '../../data/luxuryDishes';
 import CoffeeHeaderHero from '../CoffeeHeaderHero';
 import LunavereTheme from '../themes/LunavereTheme';
 import VelmoraDiningTheme from '../themes/VelmoraDiningTheme';
-import { getThemeAdminButtonVisibility, checkAdminPasswordInput } from '../../lib/adminHelpers';
+import { getThemeAdminButtonVisibility, checkAdminPasswordInput, isCustomRestaurantName } from '../../lib/adminHelpers';
 
 export const isDemoOrPlaceholderBrand = (name?: string) => {
   if (!name) return true;
@@ -643,12 +643,18 @@ export default function ThemeStoreManager({
       }
       return updated;
     });
-    const activeBrand = resolveSafeBrand(settings?.brandName, resolveSafeBrand(brandName, 'My Restaurant'));
-    const currentRestName = (settings as any)?.restaurantName;
+    const customRestName = (settings as any)?.restaurantName;
+    const customBrand = (settings as any)?.brandName;
+    const effectiveCustomRest = isCustomRestaurantName(customRestName) 
+      ? customRestName.trim() 
+      : isCustomRestaurantName(customBrand) 
+      ? customBrand.trim() 
+      : '';
+
     onUpdateSettings({
       ...(settings as any),
-      brandName: activeBrand,
-      restaurantName: (!currentRestName || isDemoOrPlaceholderBrand(currentRestName)) ? activeBrand : currentRestName,
+      brandName: effectiveCustomRest || preset.name,
+      restaurantName: effectiveCustomRest,
       activeThemeId: preset.id,
       subscriptionPlan: targetPlan,
       brandColors: {
