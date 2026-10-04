@@ -43,12 +43,12 @@ export const MenuItemCard = React.memo(function MenuItemCard({
     }
   };
 
-  const detailsLabel = lang === 'en' ? 'View Details' : lang === 'ar' ? 'عرض التفاصيل' : 'বিস্তারিত দেখুন';
-  const popularLabel = lang === 'en' ? 'Popular' : lang === 'ar' ? 'مميز' : 'জনপ্রিয়';
-  const newLabel = lang === 'en' ? 'New' : lang === 'ar' ? 'جديد' : 'নতুন';
-  const specialLabel = lang === 'en' ? 'Special' : lang === 'ar' ? 'خاص' : 'স্পেশাল';
-  const arLabel = lang === 'en' ? 'View in 3D AR' : lang === 'ar' ? 'عرض ثلاثي الأبعاد' : '3D AR দেখুন';
-  const orderLabel = lang === 'en' ? 'Add to Order' : lang === 'ar' ? 'أضف للطلب' : 'অর্ডার করুন';
+  const detailsLabel = lang === 'ar' ? 'عرض التفاصيل' : 'View Details';
+  const popularLabel = lang === 'ar' ? 'مميز' : 'Popular';
+  const newLabel = lang === 'ar' ? 'جديد' : 'New';
+  const specialLabel = lang === 'ar' ? 'خاص' : 'Special';
+  const arLabel = lang === 'ar' ? 'عرض ثلاثي الأبعاد' : 'View in 3D AR';
+  const orderLabel = lang === 'ar' ? 'أضف للطلب' : 'Add to Order';
 
   return (
     <div

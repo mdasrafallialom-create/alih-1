@@ -2556,7 +2556,7 @@ export default function MenuCardStudio({ restaurantId, settings, theme, lang = '
       } catch (err) {
         console.error('MenuCardStudio: Gracefully handled studio data load exception:', err);
         // Guarantee defaults are loaded even in complete firestore network failures
-        setRestaurantName(settings?.brandName || 'My Restaurant');
+        setRestaurantName(settings?.brandName || 'Avernao');
         setLogoUrl(settings?.brandLogo || '');
         setPhone('123-456-7890');
         setWebsite('www.yourrestaurant.com');
@@ -2739,7 +2739,7 @@ export default function MenuCardStudio({ restaurantId, settings, theme, lang = '
   const handleSaveBrandInfo = async () => {
     setIsSaving(true);
     try {
-      const nameToSave = restaurantName.trim() || settings?.brandName || 'My Restaurant';
+      const nameToSave = restaurantName.trim() || settings?.brandName || 'Avernao';
       const data: Partial<MenuCardBrandingSettings> = {
         templateId: selectedTemplateId,
         restaurantName: nameToSave,
@@ -2771,7 +2771,7 @@ export default function MenuCardStudio({ restaurantId, settings, theme, lang = '
   const handleSaveDraft = async () => {
     setIsSaving(true);
     try {
-      const nameToSave = restaurantName.trim() || settings?.brandName || 'My Restaurant';
+      const nameToSave = restaurantName.trim() || settings?.brandName || 'Avernao';
       const data: Partial<MenuCardBrandingSettings> = {
         templateId: selectedTemplateId,
         restaurantName: nameToSave,
@@ -2813,7 +2813,7 @@ export default function MenuCardStudio({ restaurantId, settings, theme, lang = '
         throw new Error(accessCheck.message);
       }
 
-      const nameToSave = restaurantName.trim() || settings?.brandName || 'My Restaurant';
+      const nameToSave = restaurantName.trim() || settings?.brandName || 'Avernao';
       const data: Partial<MenuCardBrandingSettings> = {
         templateId: selectedTemplateId,
         restaurantName: nameToSave,
@@ -3022,7 +3022,7 @@ export default function MenuCardStudio({ restaurantId, settings, theme, lang = '
                       className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95 select-none"
                     >
                       <ArrowLeft className="w-4 h-4" />
-                      <span>{lang === 'bn' ? 'স্টুডিও ওভারভিউ' : 'Studio Overview'}</span>
+                      <span>{'Studio Overview'}</span>
                     </button>
                   </div>
 
@@ -4332,7 +4332,7 @@ export default function MenuCardStudio({ restaurantId, settings, theme, lang = '
                   title="Back to Studio"
                 >
                   <ChevronLeft className="w-4 h-4 text-orange-500 group-hover/back:-translate-x-0.5 transition-transform" />
-                  <span>{lang === 'bn' ? 'এডমিন স্টুডিওতে ফিরুন' : 'Back to Admin Studio'}</span>
+                  <span>{'Back to Admin Studio'}</span>
                 </button>
 
                 <div className="h-6 w-[1px] bg-zinc-800 hidden xs:block" />

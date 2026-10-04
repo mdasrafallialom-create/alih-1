@@ -41,7 +41,7 @@ export default function RestaurantOnboardingGate({
   const [password, setPassword] = useState('');
   const [usPhone, setUsPhone] = useState(settings?.usPhoneNumber || settings?.contactPhone || '+1 (555) 234-5678');
   const [ownerName, setOwnerName] = useState(settings?.ownerName || userName || 'Chef / Owner');
-  const [restaurantName, setRestaurantName] = useState(settings?.restaurantName || settings?.brandName || 'My Restaurant');
+  const [restaurantName, setRestaurantName] = useState(settings?.restaurantName || settings?.brandName || 'Avernao');
   const [locationAndZip, setLocationAndZip] = useState(settings?.brandLocation || '742 Evergreen Terrace, New York, NY 10001');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,7 +57,7 @@ export default function RestaurantOnboardingGate({
       if (result.user.displayName) setOwnerName(result.user.displayName);
     } catch (err: any) {
       if (err.code !== 'auth/popup-closed-by-user') {
-        setErrorMsg(lang === 'bn' ? 'Google দিয়ে সাইন-ইন করতে ব্যর্থ হয়েছে।' : 'Failed to sign in with Google.');
+        setErrorMsg('Failed to sign in with Google.');
       }
     } finally {
       setIsGoogleLoading(false);
@@ -67,15 +67,15 @@ export default function RestaurantOnboardingGate({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!restaurantName.trim()) {
-      setErrorMsg(lang === 'bn' ? 'অনুগ্রহ করে রেস্টুরেন্টের নাম লিখুন।' : 'Please enter your restaurant name.');
+      setErrorMsg('Please enter your restaurant name.');
       return;
     }
     if (!ownerName.trim()) {
-      setErrorMsg(lang === 'bn' ? 'অনুগ্রহ করে ওনারের নাম লিখুন।' : 'Please enter the owner name.');
+      setErrorMsg('Please enter the owner name.');
       return;
     }
     if (!locationAndZip.trim()) {
-      setErrorMsg(lang === 'bn' ? 'অনুগ্রহ করে রেস্টুরেন্টের লোকেশন ও জিপ কোড লিখুন।' : 'Please enter location and ZIP code.');
+      setErrorMsg('Please enter location and ZIP code.');
       return;
     }
 
@@ -143,12 +143,10 @@ export default function RestaurantOnboardingGate({
 
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
             <Building2 className="w-7 h-7 text-blue-400 shrink-0" />
-            <span>{lang === 'bn' ? 'রেস্টুরেন্ট রেজিস্ট্রেশন ও সেটআপ' : 'Restaurant Registration & Profile Setup'}</span>
+            <span>{'Restaurant Registration & Profile Setup'}</span>
           </h2>
           <p className="text-slate-300 text-xs sm:text-sm font-medium mt-1">
-            {lang === 'bn' 
-              ? 'নিচে আপনার জিমেইল, মোবাইল নম্বর, নাম ও জিপ কোডসহ লোকেশন প্রদান করুন।' 
-              : 'Sign in with Gmail and complete your restaurant details below.'}
+            {'Sign in with Gmail and complete your restaurant details below.'}
           </p>
         </div>
 
@@ -271,7 +269,7 @@ export default function RestaurantOnboardingGate({
             <div className="sm:col-span-2 space-y-1">
               <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-rose-600" />
-                <span>Location & US ZIP Code (একত্রে লোকেশন ও জিপ কোড)</span>
+                <span>Location & US ZIP Code</span>
               </label>
               <input
                 type="text"

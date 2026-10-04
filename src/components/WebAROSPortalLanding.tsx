@@ -657,7 +657,7 @@ const WebAROSPortalLanding: React.FC<WebAROSPortalLandingProps> = ({
                   </div>
                   <div className="space-y-2 text-xs font-bold">
                     <p className="p-2 bg-slate-50 rounded text-slate-800">🇬🇧 English: Gourmet Wood-Fired Pizza</p>
-                    <p className="p-2 bg-amber-50 rounded text-amber-900">🇧🇩 বাংলা: সুস্বাদু উড-ফায়ার্ড পিজ্জা</p>
+                    
                     <p className="p-2 bg-slate-50 rounded text-slate-800 dir-rtl text-right">🇸🇦 العربية: بيتزا شهية على الحطب</p>
                   </div>
                 </div>

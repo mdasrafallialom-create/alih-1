@@ -58,7 +58,7 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             }`}
             style={{ color: isAurelisse ? '#2e7d32' : isPalatiora ? '#F97316' : isOrivelle ? '#e5c158' : cfg.accentColor }}
           >
-            {isAurelisse ? '✦ EXPRESS GOURMET DELIVERY & COD ✦' : isPalatiora ? '✦ SAVORELLE EXPRESS DELIVERY & COD ✦' : isOrivelle ? '✦ DELIVERY & CASH ON DELIVERY ✦' : (lang === 'bn' ? 'ডেলিভারি ও ক্যাশ অন ডেলিভারি সিস্টেম' : 'DELIVERY & CASH ON DELIVERY SYSTEM')}
+            {isAurelisse ? '✦ EXPRESS GOURMET DELIVERY & COD ✦' : isPalatiora ? '✦ SAVORELLE EXPRESS DELIVERY & COD ✦' : isOrivelle ? '✦ DELIVERY & CASH ON DELIVERY ✦' : ('DELIVERY & CASH ON DELIVERY SYSTEM')}
           </span>
           <h3 
             className={`text-2xl sm:text-4xl lg:text-5xl font-black leading-tight ${
@@ -72,14 +72,12 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             }`}
             style={isOrivelle ? { fontFamily: "'Cinzel', serif" } : isPalatiora ? { fontFamily: "'DM Serif Display', 'Playfair Display', serif" } : undefined}
           >
-            {lang === 'bn' ? 'ক্যাশ অন ডেলিভারি ও দ্রুত হোম সার্ভিস' : 'Express Delivery & Cash On Delivery'}
+            {'Express Delivery & Cash On Delivery'}
           </h3>
           <p className={`text-xs sm:text-sm md:text-base leading-relaxed ${
             isAurelisse ? 'text-[#2a3e26] font-medium' : isPalatiora ? 'text-stone-300 font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/80'
           }`}>
-            {lang === 'bn' 
-              ? 'পছন্দের খাবার সরাসরি অনলাইনে বা টেবিলে বসে অর্ডার করুন এবং সহজে ক্যাশ অন ডেলিভারি (COD) অথবা বিকাশ/নগদে নিশ্চিন্তে মূল্য পরিশোধ করুন।' 
-              : `Order your favourite dishes from ${brandName} online or at table, and conveniently pay with Cash on Delivery or Mobile Banking upon receiving your hot meal.`
+            {`Order your favourite dishes from ${brandName} online or at table, and conveniently pay with Cash on Delivery or Mobile Banking upon receiving your hot meal.`
             }
           </p>
         </div>
@@ -117,18 +115,18 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             <h4 className={`text-base sm:text-lg font-bold ${
               isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isPalatiora ? 'text-white group-hover:text-[#F97316] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
-              {lang === 'bn' ? 'ক্যাশ অন ডেলিভারি (COD)' : 'Cash On Delivery (COD)'}
+              {'Cash On Delivery (COD)'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
               isAurelisse ? 'text-[#2a3e26] font-normal' : isPalatiora ? 'text-stone-400 font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
-              {lang === 'bn' ? 'খাবার হাতে পাওয়ার পর নিশ্চিন্তে ক্যাশে বা বিকাশ/নগদে বিল পরিশোধের সুবিধা।' : 'Pay conveniently upon receiving your hot meal directly at home or at table.'}
+              {'Pay conveniently upon receiving your hot meal directly at home or at table.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
               isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-400' : ''
             }`} style={!isOrivelle && !isAurelisse && !isPalatiora ? { color: cfg.accentColor } : undefined}>
               <CheckCircle2 className="w-3.5 h-3.5" style={{ color: isAurelisse ? '#2e7d32' : isPalatiora ? '#F97316' : isOrivelle ? '#fef08a' : cfg.accentColor }} />
-              <span>{lang === 'bn' ? '১০০% বিশ্বস্ত পেমেন্ট' : '100% Secure Payment'}</span>
+              <span>{'100% Secure Payment'}</span>
             </div>
           </div>
 
@@ -157,18 +155,18 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             <h4 className={`text-base sm:text-lg font-bold ${
               isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isPalatiora ? 'text-white group-hover:text-[#F97316] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
-              {lang === 'bn' ? 'হোম ও টেবিল ডেলিভারি' : 'Doorstep & Table Express'}
+              {'Doorstep & Table Express'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
               isAurelisse ? 'text-[#2a3e26] font-normal' : isPalatiora ? 'text-stone-400 font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
-              {lang === 'bn' ? 'রেস্তোরাঁর সেরা স্বাদের খাবার আপনার বাসা কিংবা রেস্তোরাঁর টেবিলে পৌঁছে যাবে দ্রুত।' : 'Fast hot delivery right to your home, office, or designated dining table.'}
+              {'Fast hot delivery right to your home, office, or designated dining table.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
               isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-400' : 'text-[#3e271a]'
             }`}>
               <CheckCircle2 className={`w-3.5 h-3.5 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-300' : 'text-[#DA9F93]'}`} />
-              <span>{lang === 'bn' ? 'সর্বোচ্চ গতি ও যত্ন' : 'Fast Kitchen Dispatch'}</span>
+              <span>{'Fast Kitchen Dispatch'}</span>
             </div>
           </div>
 
@@ -194,18 +192,18 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             <h4 className={`text-base sm:text-lg font-bold ${
               isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isPalatiora ? 'text-white group-hover:text-[#F97316] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
-              {lang === 'bn' ? '১০০% হাইজিন প্যাকেজিং' : 'Sealed Hygienic Packaging'}
+              {'Sealed Hygienic Packaging'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
               isAurelisse ? 'text-[#2a3e26] font-normal' : isPalatiora ? 'text-stone-400 font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
-              {lang === 'bn' ? 'পরিবেশবান্ধব ও সিলড প্যাকেজিং যা খাবারের উষ্ণতা এবং তাজা স্বাদ বজায় রাখে।' : 'Thermal eco-friendly sealed packaging preserving heat, freshness, and original flavor.'}
+              {'Thermal eco-friendly sealed packaging preserving heat, freshness, and original flavor.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
               isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-400' : 'text-emerald-800'
             }`}>
               <CheckCircle2 className={`w-3.5 h-3.5 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-300' : 'text-emerald-600'}`} />
-              <span>{lang === 'bn' ? 'ফুড-গ্রেড সিলড বক্স' : 'Food-Grade Sealed'}</span>
+              <span>{'Food-Grade Sealed'}</span>
             </div>
           </div>
 
@@ -231,18 +229,18 @@ export const KoppeeDeliverySection: React.FC<KoppeeDeliverySectionProps> = ({
             <h4 className={`text-base sm:text-lg font-bold ${
               isAurelisse ? 'text-[#142412] group-hover:text-[#2e7d32] transition-colors' : isPalatiora ? 'text-white group-hover:text-[#F97316] transition-colors' : isOrivelle ? 'text-amber-100 group-hover:text-amber-300 transition-colors' : 'text-[#1e140d]'
             }`}>
-              {lang === 'bn' ? 'লাইভ অর্ডার ট্র্যাকিং' : 'Real-time Order Status'}
+              {'Real-time Order Status'}
             </h4>
             <p className={`text-xs sm:text-sm leading-relaxed ${
               isAurelisse ? 'text-[#2a3e26] font-normal' : isPalatiora ? 'text-stone-400 font-normal' : isOrivelle ? 'text-stone-300/80 font-light' : 'text-[#3e2c1e]/75'
             }`}>
-              {lang === 'bn' ? 'রান্নাঘর থেকে ডেলিভারি পর্যন্ত প্রতিটি ধাপ সরাসরি ফোন স্ক্রিনে দেখুন।' : 'Live status tracking from kitchen chef prep to rider delivery dispatch.'}
+              {'Live status tracking from kitchen chef prep to rider delivery dispatch.'}
             </p>
             <div className={`pt-2 flex items-center gap-1.5 text-[11px] font-bold ${
               isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-400' : 'text-cyan-800'
             }`}>
               <CheckCircle2 className={`w-3.5 h-3.5 ${isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-300' : 'text-cyan-600'}`} />
-              <span>{lang === 'bn' ? 'রিয়েল-টাইম আপডেট' : 'Live SMS & Screen Tracking'}</span>
+              <span>{'Live SMS & Screen Tracking'}</span>
             </div>
           </div>
         </div>

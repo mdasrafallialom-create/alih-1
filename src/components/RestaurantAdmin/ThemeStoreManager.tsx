@@ -81,9 +81,9 @@ export const isDemoOrPlaceholderBrand = (name?: string) => {
          lower === 'the golden fork';
 };
 
-export const resolveSafeBrand = (name?: string, fallback: string = 'My Restaurant') => {
+export const resolveSafeBrand = (name?: string, fallback: string = 'Avernao') => {
   if (isDemoOrPlaceholderBrand(name)) {
-    return isDemoOrPlaceholderBrand(fallback) ? 'My Restaurant' : fallback.trim();
+    return isDemoOrPlaceholderBrand(fallback) ? 'Avernao' : fallback.trim();
   }
   return name!.trim();
 };
@@ -418,7 +418,7 @@ export default function ThemeStoreManager({
       window.dispatchEvent(new CustomEvent('admin-active-tab-change', { detail: { label: 'ACTIVE DASHBOARD' } }));
       setPreviewSearchText('');
       setIsPreviewSearchExpanded(false);
-      setSuccessToast(lang === 'bn' ? '🔑 এডমিন পাসওয়ার্ড সঠিক! এডমিন প্যানেল অন করা হচ্ছে...' : '🔑 Admin password verified! Opening Admin Panel...');
+      setSuccessToast('🔑 Admin password verified! Opening Admin Panel...');
       setTimeout(() => setSuccessToast(null), 3000);
       return true;
     }
@@ -462,7 +462,7 @@ export default function ThemeStoreManager({
       }
       return [...prev, { dish, count: 1 }];
     });
-    setSuccessToast(lang === 'bn' ? `"${dish.title}" কার্টে যুক্ত হয়েছে!` : `Added "${dish.title}" to cart!`);
+    setSuccessToast(`Added "${dish.title}" to cart!`);
     setTimeout(() => setSuccessToast(null), 2500);
   };
 
@@ -492,7 +492,7 @@ export default function ThemeStoreManager({
       } catch {}
     }
     setUserAddedDishes(payload.dishes);
-    setSuccessToast(lang === 'bn' ? 'থিম কাস্টমাইজেশন ও ফন্ট সেটিংস সেভ হয়েছে!' : 'Theme customization & font settings saved!');
+    setSuccessToast('Theme customization & font settings saved!');
     setTimeout(() => setSuccessToast(null), 3000);
   };
 
@@ -532,7 +532,7 @@ export default function ThemeStoreManager({
         } catch {}
       }
       
-      const safeBrand = resolveSafeBrand(savedEdits?.brandName, resolveSafeBrand(brandName, 'My Restaurant'));
+      const safeBrand = resolveSafeBrand(savedEdits?.brandName, resolveSafeBrand(brandName, 'Avernao'));
       setPreviewTagline(savedEdits?.tagline || preset.tagline);
       setPreviewHeaderOption(savedEdits?.headerOption || 'both');
       setPreviewPrimaryColor(savedEdits?.primaryColor || preset.primaryColor);
@@ -613,11 +613,30 @@ export default function ThemeStoreManager({
   const hidePlanSwitcher = isStandalone || isUrlStandalone;
 
   const [selectedPlan, setSelectedPlan] = useState<'all' | '15' | '49' | '99'>(() => {
-    if (initialUrlPlan && ['15', '49', '99', 'all'].includes(initialUrlPlan)) {
-      return initialUrlPlan as any;
+    if (initialUrlPlan) {
+      const p = initialUrlPlan.toLowerCase();
+      if (p === '15' || p === 'basic') return '15';
+      if (p === '49' || p === 'pro') return '49';
+      if (p === '99' || p === 'elite' || p === 'premium') return '99';
+    }
+    if (settings?.subscriptionPlan) {
+      const p = settings.subscriptionPlan.toLowerCase();
+      if (p === 'basic') return '15';
+      if (p === 'pro') return '49';
+      if (p === 'elite') return '99';
     }
     return 'all';
   });
+
+  useEffect(() => {
+    if (settings?.subscriptionPlan) {
+      const p = settings.subscriptionPlan.toLowerCase();
+      if (p === 'basic') setSelectedPlan('15');
+      else if (p === 'pro') setSelectedPlan('49');
+      else if (p === 'elite') setSelectedPlan('99');
+    }
+  }, [settings?.subscriptionPlan]);
+
   const [selectedThemeFilter, setSelectedThemeFilter] = useState<string>('all');
   const [successToast, setSuccessToast] = useState<string | null>(null);
 
@@ -667,9 +686,7 @@ export default function ThemeStoreManager({
     const planLabel = targetPlan === 'basic' ? '$15 Starter' : targetPlan === 'pro' ? '$49 Pro' : '$99 Elite';
 
     setSuccessToast(
-      lang === 'bn' 
-        ? `"${preset.name}" থিমটি সক্রিয় হয়েছে! নতুন ট্যাবে থিমটি ওপেন হচ্ছে...` 
-        : `Theme "${preset.name}" deployed! Opening in new tab...`
+      `Theme "${preset.name}" deployed! Opening in new tab...`
     );
 
     try {
@@ -693,9 +710,7 @@ export default function ThemeStoreManager({
       });
       const planLabel = planId === '15' ? '$15 Starter (10 Themes)' : planId === '49' ? '$49 Pro (25 Themes)' : '$99 Elite (50 Themes)';
       setSuccessToast(
-        lang === 'bn' 
-          ? `অটোমেটিক ${planLabel} প্ল্যানে আপডেট করা হয়েছে!` 
-          : `Subscription automatically synced to ${planLabel}!`
+        `Subscription automatically synced to ${planLabel}!`
       );
       setTimeout(() => setSuccessToast(null), 3500);
     }
@@ -749,25 +764,7 @@ export default function ThemeStoreManager({
     if (!rawQuery) return selectedThemeFilter === 'all' || t.id === selectedThemeFilter;
 
     // Bangla to English keyword mapping dictionary
-    const banglaSynonyms: Record<string, string[]> = {
-      'কফি': ['coffee', 'cafe', 'espresso', 'bakery', 'pastry', 'latte', 'cappuccino', 'breakfast', 'tea', 'bistro'],
-      'কফিশপ': ['coffee', 'cafe', 'espresso', 'bakery', 'pastry'],
-      'ক্যাফে': ['cafe', 'coffee', 'bistro', 'bakery', 'lounge'],
-      'ফাইভ স্টার': ['5 star', 'five star', 'michelin', 'fine dining', 'luxury', 'elite', 'palatial', 'vip', 'royale', 'exclusive'],
-      'ফাইভস্টার': ['5 star', 'five star', 'michelin', 'fine dining', 'luxury', 'elite'],
-      'লাইব্রেরি': ['library', 'cellar', 'wine', 'heritage', 'vintage', 'reserve', 'chateau', 'atelier'],
-      'লাইব্রেরী': ['library', 'cellar', 'wine', 'heritage', 'vintage', 'reserve'],
-      'অ্যাসোসিয়েশন': ['association', 'club', 'supper club', 'monarch', 'guild', 'society', 'sovereign', 'house'],
-      'এসোসিয়েশন': ['association', 'club', 'supper club', 'monarch', 'guild'],
-      'রেস্তোরাঁ': ['restaurant', 'dining', 'gastronomy', 'bistro', 'house', 'table'],
-      'রেস্টুরেন্ট': ['restaurant', 'dining', 'gastronomy', 'bistro', 'house'],
-      'পিজ্জা': ['pizza', 'bistro', 'wood-fired', 'trattoria', 'italian'],
-      'বার্গার': ['burger', 'steak', 'grill', 'barbecue', 'robata'],
-      'স্টেক': ['steak', 'wagyu', 'prime', 'chops', 'ribeye', 'grill'],
-      'সীফুড': ['seafood', 'fish', 'sea bass', 'lobster', 'scallops', 'coastal', 'raw bar'],
-      'এশিয়ান': ['asian', 'japanese', 'sushi', 'robata', 'zen', 'izakaya', 'spice'],
-      'ডেজার্ট': ['dessert', 'bakery', 'pastry', 'cheesecake', 'high tea', 'sweet']
-    };
+    const banglaSynonyms: Record<string, string[]> = {};
 
     // Build expandable search terms (original words + mapped English terms)
     let searchTerms: string[] = [rawQuery];
@@ -845,12 +842,10 @@ export default function ThemeStoreManager({
             </div>
             <div>
               <h1 className={`text-2xl sm:text-3xl font-display font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                {lang === 'bn' ? '৫০টি লাক্সারি থিম গ্যালারি (#১ - #৫০)' : '50 Luxury Restaurant Themes (#01 - #50)'}
+                {'50 Luxury Restaurant Themes (#01 - #50)'}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                {lang === 'bn'
-                  ? 'প্ল্যান অনুযায়ী: $১৫ প্ল্যানে ১০টি, $৪৯ প্ল্যানে ২৫টি এবং $৯৯ প্ল্যানে ৫০টি থিম।'
-                  : 'Subscription breakdown: 10 themes in $15 plan, 25 themes in $49 plan, and 50 themes in $99 plan.'}
+                Subscription breakdown: 10 themes in $15 plan, 25 themes in $49 plan, and 50 themes in $99 plan.
               </p>
             </div>
           </div>
@@ -895,16 +890,14 @@ export default function ThemeStoreManager({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-amber-400 font-mono">
-                  {lang === 'bn' ? 'অটোমেটিক প্ল্যান সিঙ্ক:' : 'Auto-Sync Subscription Plan:'}
+                  `Auto-Sync Subscription Plan:`
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   Live Active: {((settings as any).subscriptionPlan || 'basic').toUpperCase()}
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-medium mt-0.5">
-                {lang === 'bn'
-                  ? 'যেকোনো প্ল্যান ফিল্টার বা থিম নির্বাচন করলে তা স্বয়ংক্রিয়ভাবে প্ল্যানে আপডেট হয়ে যাবে।'
-                  : 'Selecting or deploying any theme automatically updates & unlocks features in your active plan.'}
+                {'Selecting or deploying any theme automatically updates & unlocks features in your active plan.'}
               </p>
             </div>
           </div>
@@ -1332,8 +1325,9 @@ export default function ThemeStoreManager({
                   <button
                     onClick={() => {
                       saveCustomThemeEdits();
-                      handleActivateTheme(previewTheme);
+                      const themeToApply = previewTheme;
                       handleOpenPreviewTheme(null);
+                      setSelectedPlanModalTheme(themeToApply);
                     }}
                     className="px-5 py-2 rounded-xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
@@ -1380,7 +1374,7 @@ export default function ThemeStoreManager({
                     <div className="flex items-center justify-between">
                       {(() => {
                         const displayBrand = (!previewBrandName || previewBrandName.toLowerCase() === 'sahinsh') 
-                          ? ((!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName)
+                          ? ((!brandName || brandName.toLowerCase() === 'sahinsh') ? 'Avernao' : brandName)
                           : previewBrandName;
                         const initials = displayBrand.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'MR';
                         return (
@@ -1466,7 +1460,7 @@ export default function ThemeStoreManager({
                                   type="text"
                                   value={previewSearchText}
                                   onChange={(e) => setPreviewSearchText(e.target.value)}
-                                  placeholder={lang === 'bn' ? "খাবারের নাম বা পাসওয়ার্ড..." : "Search foods or password..."}
+                                  placeholder={"Search foods or password..."}
                                   autoFocus
                                   className="w-[220px] pl-8 pr-7 py-1.5 rounded-full bg-slate-100 border border-cyan-500 text-xs text-slate-900 focus:ring-2 focus:ring-cyan-500 outline-none shadow-sm font-medium"
                                 />
@@ -1497,7 +1491,7 @@ export default function ThemeStoreManager({
                         <button 
                           onClick={() => {
                             setPreviewWaiterCalled(true);
-                            setSuccessToast(lang === 'bn' ? 'ওয়েটারকে খবর দেওয়া হয়েছে! (টেবিল #১)' : 'Waiter notified! Staff will arrive shortly.');
+                            setSuccessToast('Waiter notified! Staff will arrive shortly.');
                             setTimeout(() => {
                               setSuccessToast(null);
                               setPreviewWaiterCalled(false);
@@ -1586,7 +1580,7 @@ export default function ThemeStoreManager({
                               <div className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse"></span>
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 font-display">
-                                  {lang === 'bn' ? 'ALL CATEGORIES & FOOD CATALOG' : 'ALL CATEGORIES & FOOD CATALOG'}
+                                  {'ALL CATEGORIES & FOOD CATALOG'}
                                 </h3>
                               </div>
                             </div>
@@ -1607,7 +1601,7 @@ export default function ThemeStoreManager({
                                     type="button"
                                     className="px-6 py-2.5 bg-cyan-500 group-hover:bg-cyan-600 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md active:scale-95 transition-all inline-flex items-center gap-2 cursor-pointer"
                                   >
-                                    <span>{lang === 'bn' ? 'ক্যাটাগরি এবং খাবার অপশনে যান (Category Options)' : 'Go to Category Options & Add Foods'}</span>
+                                    <span>{'Go to Category Options & Add Foods'}</span>
                                   </button>
                                 </div>
                               </div>
@@ -1669,7 +1663,7 @@ export default function ThemeStoreManager({
                                           }}
                                           className="text-left text-[11px] font-bold text-cyan-600 hover:text-cyan-700 uppercase mt-1 cursor-pointer"
                                         >
-                                          {lang === 'bn' ? `VIEW ALL ${catName} →` : `VIEW ALL ${catName} →`}
+                                          {`VIEW ALL ${catName} →`}
                                         </button>
                                       </div>
                                     </div>
@@ -1686,7 +1680,7 @@ export default function ThemeStoreManager({
 
                   {previewTheme.id === 'lunavere' ? (
                     <LunavereTheme 
-                      brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
+                      brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'Avernao'))}
                       tagline={previewTagline || previewTheme.tagline}
                       dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
                       deviceView={previewDeviceView}
@@ -1708,7 +1702,7 @@ export default function ThemeStoreManager({
                     />
                   ) : (
                     <VelmoraDiningTheme 
-                      brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
+                      brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'Avernao'))}
                       tagline={previewTagline || previewTheme.tagline}
                       dishes={modalDishes && modalDishes.length > 0 ? modalDishes : DEFAULT_STORE_DISHES}
                       onOrderDish={(dish) => {
@@ -1747,7 +1741,7 @@ export default function ThemeStoreManager({
                     {/* Render Dual Coffee Animated Header (Cover Banner from Top & Floating Coffee Beans Beats) */}
                     <div className="w-full max-w-5xl">
                       <CoffeeHeaderHero 
-                        brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'My Restaurant'))}
+                        brandName={resolveSafeBrand(previewBrandName, resolveSafeBrand(brandName, 'Avernao'))}
                         tagline={previewTagline || previewTheme.tagline}
                         themeStyle={{
                           ...previewTheme,
@@ -1914,10 +1908,10 @@ export default function ThemeStoreManager({
                       <div className="p-10 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 text-center space-y-2 bg-zinc-50 dark:bg-zinc-900/50">
                         <Utensils className="w-8 h-8 text-zinc-400 mx-auto" />
                         <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                          {lang === 'bn' ? 'কোনো খাবার তালিকাভুক্ত নেই' : 'No Menu Items Listed'}
+                          {'No Menu Items Listed'}
                         </p>
                         <p className="text-xs text-zinc-500">
-                          {lang === 'bn' ? 'এডমিন প্যানেল থেকে খাবার যোগ করলে এখানে এবং থিমে সেগুলো ভেসে উঠবে।' : 'Items added from the admin menu manager will appear here and inside the live theme.'}
+                          {'Items added from the admin menu manager will appear here and inside the live theme.'}
                         </p>
                       </div>
                     )}
@@ -1980,7 +1974,7 @@ export default function ThemeStoreManager({
                         </h3>
 
                         <p className="text-xs sm:text-sm opacity-80 leading-relaxed">
-                          At {(!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName}, every recipe is a celebration of authentic flavors, master culinary techniques, and hand-selected organic ingredients sourced directly from artisanal farms.
+                          At {(!brandName || brandName.toLowerCase() === 'sahinsh') ? 'Avernao' : brandName}, every recipe is a celebration of authentic flavors, master culinary techniques, and hand-selected organic ingredients sourced directly from artisanal farms.
                         </p>
 
                         <div className="grid grid-cols-3 gap-4 pt-2">
@@ -2226,7 +2220,7 @@ export default function ThemeStoreManager({
                       {/* Column 1: Brand Logo & Socials */}
                       <div className="space-y-4">
                         {(() => {
-                          const footerBrand = (!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName;
+                          const footerBrand = (!brandName || brandName.toLowerCase() === 'sahinsh') ? 'Avernao' : brandName;
                           const initials = footerBrand.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'MR';
                           return (
                             <>
@@ -2374,7 +2368,7 @@ export default function ThemeStoreManager({
                         <div className="flex items-center gap-2">
                           <ShoppingCart className="w-5 h-5 text-cyan-400" />
                           <h3 className="text-base font-black uppercase tracking-wider font-display">
-                            {lang === 'bn' ? 'আপনার ফুড কার্ট' : 'Your Food Cart'}
+                            {'Your Food Cart'}
                           </h3>
                         </div>
                         <button
@@ -2390,10 +2384,10 @@ export default function ThemeStoreManager({
                           <div className="py-16 text-center space-y-3">
                             <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto" />
                             <p className="text-sm font-bold text-slate-500">
-                              {lang === 'bn' ? 'আপনার কার্ট এখন খালি।' : 'Your cart is currently empty.'}
+                              {'Your cart is currently empty.'}
                             </p>
                             <p className="text-xs text-slate-400">
-                              {lang === 'bn' ? 'মেনু থেকে খাবার সিলেক্ট করুন' : 'Select items from the menu to add to cart.'}
+                              {'Select items from the menu to add to cart.'}
                             </p>
                           </div>
                         ) : (
@@ -2443,21 +2437,21 @@ export default function ThemeStoreManager({
                       {previewCartItems.length > 0 && (
                         <div className="p-6 border-t border-slate-200 bg-slate-50 space-y-3">
                           <div className="flex justify-between items-center font-bold text-sm">
-                            <span className="text-slate-600">{lang === 'bn' ? 'মোট মূল্য:' : 'Subtotal:'}</span>
+                            <span className="text-slate-600">`Subtotal:`</span>
                             <span className="text-slate-900 font-mono text-base font-black">
                               ${previewCartItems.reduce((acc, curr) => acc + (curr.dish.price * curr.count), 0).toFixed(2)}
                             </span>
                           </div>
                           <button
                             onClick={() => {
-                              setSuccessToast(lang === 'bn' ? 'অর্ডার সফলভাবে সাবমিট করা হয়েছে!' : 'Order submitted successfully!');
+                              setSuccessToast('Order submitted successfully!');
                               setPreviewCartItems([]);
                               setIsPreviewCartOpen(false);
                               setTimeout(() => setSuccessToast(null), 3000);
                             }}
                             className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer"
                           >
-                            {lang === 'bn' ? 'অর্ডার কনফার্ম করুন' : 'Confirm & Checkout Order'}
+                            {'Confirm & Checkout Order'}
                           </button>
                         </div>
                       )}
@@ -2516,10 +2510,16 @@ export default function ThemeStoreManager({
               </div>
 
               {/* Plan Details & Features */}
-              <div className="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Subscription Tier:</span>
-                  <span className="text-sm font-black text-slate-900 dark:text-white">
+              <div className="space-y-3 bg-[#f0fdf4] dark:bg-slate-800/80 p-4 rounded-2xl border border-emerald-300/80 dark:border-emerald-700/60 shadow-inner">
+                <div className="flex items-center justify-between pb-2 border-b border-emerald-200/80 dark:border-slate-700">
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">প্যাকেজ সাবস্ক্রিপশন মূল্য (Plan Amount):</span>
+                  <span className="text-base font-black text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-3 py-1 rounded-xl">
+                    ${selectedPlanModalTheme.planPrice} USD / মাস
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  <span>সাবস্ক্রিপশন টায়ার:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">
                     {selectedPlanModalTheme.planPrice === 15 ? '$15 Starter Plan (Themes #01 - #10)' : selectedPlanModalTheme.planPrice === 49 ? '$49 Pro Plan (Themes #11 - #25)' : '$99 Elite Plan (Themes #26 - #50)'}
                   </span>
                 </div>

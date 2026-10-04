@@ -76,29 +76,6 @@ export function HeroSlider({
 
   const getLocalizedHero = (index: number) => {
     const slide = activeSlides[index] || activeSlides[0];
-    if (lang === 'bn') {
-      const bnSlides = [
-        { 
-          title: brandName ? `${brandName}-এ স্বাগতম` : 'সেরা স্বাদের অভিজাত খাবার', 
-          highlight: 'WebAR 3D রিয়ালিটিতে', 
-          subtitle: 'অর্ডার করার আগে আপনার টেবিলের উপর সরাসরি ব্রাউজার থেকে আমাদের থ্রিডি ফুড মডেলগুলো দেখুন।', 
-          tag: slide.tag || '3D WebAR ডাইনিং অভিজ্ঞতা' 
-        },
-        { 
-          title: 'আর্টিসান উড-ফায়ার্ড পিজ্জা ও বার্গার', 
-          highlight: 'শেফের সেরা মাস্টারপিস কালেকশন', 
-          subtitle: 'সেরা অর্গানিক উপাদান দিয়ে আমাদের দক্ষ শেফদের হাতে প্রতিদিন তৈরি করা হয় টাটকা খাবার।', 
-          tag: slide.tag || 'প্রতিদিন টাটকা তৈরি ও গ্রিল করা' 
-        },
-        { 
-          title: 'অসাধারণ রিফ্রেশিং ককটেল', 
-          highlight: 'ও মুখরোচক ডেজার্ট', 
-          subtitle: 'আপনার ডাইনিং অভিজ্ঞতাকে আরও আনন্দদায়ক করতে উপভোগ করুন আমাদের স্পেশাল মকটেল ও ইউরোপীয় পেস্ট্রি।', 
-          tag: slide.tag || 'সিগনেচার বেভারেজ ও ডেজার্ট' 
-        }
-      ];
-      return bnSlides[index] || slide;
-    }
     if (lang === 'ar') {
       const arSlides = [
         { title: 'تذوق المأكولات الفاخرة', highlight: 'بتقنية الواقع المعزز WebAR', subtitle: 'استكشف نماذج طعام ثلاثية الأبعاد معتمدة داخل مساحة طاولتك مباشرة من متصفحك قبل الطلب.', tag: slide.tag || 'تجربة تناول طعام ثلاثية الأبعاد' },
@@ -108,12 +85,7 @@ export function HeroSlider({
       return arSlides[index] || slide;
     }
     // Default English
-    return {
-      title: slide.title,
-      highlight: slide.highlight,
-      subtitle: slide.subtitle,
-      tag: slide.tag
-    };
+    return slide;
   };
 
   // Calm Auto-slide effect every 6.5 seconds (6500ms)

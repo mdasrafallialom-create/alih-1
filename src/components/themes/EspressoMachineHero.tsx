@@ -70,9 +70,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
 
           {/* Subtitle */}
           <p className="text-white/85 font-normal leading-relaxed text-xs sm:text-sm">
-            {lang === 'bn' 
-              ? 'অথেনটিক কমার্শিয়াল প্রেশারে তাজা অ্যারাবিকা কফি বিনের বিশুদ্ধ এক্সট্র্যাকশন। ধীরস্থির প্যারিসিয়ান সন্ধ্যার জন্য পোরসেলিনের কাপে নেমে আসে ঘন চেস্টনাট ক্রেমার ধারা।'
-              : 'freshly-ground single-origin Arabica beans extracted under majestic commercial pressure into warm white porcelain cups for slow Parisian evenings.'
+            {'freshly-ground single-origin Arabica beans extracted under majestic commercial pressure into warm white porcelain cups for slow Parisian evenings.'
             }
           </p>
 
@@ -80,7 +78,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
           <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-[#C9A86A] pt-0.5">
             <Coffee className="w-3.5 h-3.5 text-[#C9A86A] shrink-0" />
             <span className="font-semibold uppercase tracking-[0.14em] text-[11px]">
-              {lang === 'bn' ? 'সিঙ্গেল-অরিজিন রোস্ট • ফ্রেশ এক্সট্র্যাকশন' : 'SINGLE-ORIGIN ROAST • EXTRACTED FRESH'}
+              {'SINGLE-ORIGIN ROAST • EXTRACTED FRESH'}
             </span>
           </div>
 
@@ -92,7 +90,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
               className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#C9A86A] hover:bg-[#b59556] text-[#15162B] font-black uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 cursor-pointer"
             >
               <Coffee className="w-4 h-4 text-[#15162B]" />
-              <span>{lang === 'bn' ? 'সিগনেচার মেনু দেখুন' : 'EXPLORE SIGNATURE MENU'}</span>
+              <span>{'EXPLORE SIGNATURE MENU'}</span>
             </button>
 
             <button
@@ -100,7 +98,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
               onClick={onReserveClick}
               className="w-full sm:w-auto px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/25 text-white font-bold uppercase tracking-wider text-xs flex items-center justify-center shadow-sm active:scale-95 cursor-pointer"
             >
-              <span>{lang === 'bn' ? 'টেবিল রিজার্ভেশন' : 'RESERVE EVENING TABLE'}</span>
+              <span>{'RESERVE EVENING TABLE'}</span>
             </button>
           </div>
         </div>
@@ -164,7 +162,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C9A86A]"></span>
               </span>
               <span className="font-mono text-[10px] font-bold tracking-wider text-[#C9A86A] uppercase">
-                {lang === 'bn' ? '৯.২ বার • লাইভ' : '9.2 BAR • LIVE'}
+                {'9.2 BAR • LIVE'}
               </span>
             </div>
           </motion.div>
@@ -211,9 +209,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
 
             {/* Subtitle */}
             <p className="text-white/80 font-normal leading-relaxed text-xs sm:text-sm">
-              {lang === 'bn' 
-                ? 'অথেনটিক কমার্শিয়াল প্রেশারে তাজা অ্যারাবিকা কফি বিনের বিশুদ্ধ এক্সট্র্যাকশন। ধীরস্থির প্যারিসিয়ান সন্ধ্যার জন্য পোরসেলিনের সাদা কাপে নেমে আসে ঘন চেস্টনাট ক্রেমার সোনালী ধারা।'
-                : 'freshly-ground single-origin Arabica beans extracted under majestic commercial pressure. Watch the rich, velvet chestnut crema pour directly into warm porcelain cups.'
+              {'freshly-ground single-origin Arabica beans extracted under majestic commercial pressure. Watch the rich, velvet chestnut crema pour directly into warm porcelain cups.'
               }
             </p>
 
@@ -221,7 +217,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
             <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-[#C9A86A] pt-0.5">
               <Coffee className="w-4 h-4 text-[#C9A86A] shrink-0" />
               <span className="font-semibold uppercase tracking-[0.16em]">
-                {lang === 'bn' ? 'সিঙ্গেল-অরিজিন রোস্ট • ফ্রেশ এক্সট্র্যাকশন' : 'SINGLE-ORIGIN ROAST • EXTRACTED FRESH'}
+                {'SINGLE-ORIGIN ROAST • EXTRACTED FRESH'}
               </span>
             </div>
 
@@ -233,7 +229,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
                 className="px-6 py-3 rounded-full bg-[#C9A86A] hover:bg-[#b59556] text-[#15162B] font-black uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-xl hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               >
                 <Coffee className="w-4 h-4 text-[#15162B]" />
-                <span>{lang === 'bn' ? 'সিগনেচার মেনু' : 'SIGNATURE MENU'}</span>
+                <span>{'SIGNATURE MENU'}</span>
               </button>
 
               <button
@@ -241,7 +237,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
                 onClick={onReserveClick}
                 className="px-6 py-3 rounded-full bg-transparent hover:bg-white/5 border border-white/25 text-white font-bold uppercase tracking-wider text-xs flex items-center justify-center shadow-sm hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               >
-                <span>{lang === 'bn' ? 'টেবিল রিজার্ভেশন' : 'RESERVE TABLE'}</span>
+                <span>{'RESERVE TABLE'}</span>
               </button>
             </div>
           </div>
@@ -292,7 +288,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C9A86A]"></span>
                 </span>
                 <span className="font-mono text-[11px] font-bold tracking-wider text-[#C9A86A] uppercase">
-                  {lang === 'bn' ? '৯.২ বার • লাইভ' : '9.2 BAR • LIVE EXTRACTION'}
+                  {'9.2 BAR • LIVE EXTRACTION'}
                 </span>
               </div>
 
@@ -370,7 +366,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C9A86A]"></span>
             </span>
             <span className="font-mono text-[11px] font-bold tracking-wider text-[#C9A86A] uppercase">
-              {lang === 'bn' ? '৯.২ বার • লাইভ এক্সট্র্যাকশন' : '9.2 BAR • LIVE EXTRACTION'}
+              {'9.2 BAR • LIVE EXTRACTION'}
             </span>
           </motion.div>
 
@@ -407,9 +403,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
 
           {/* Subtitle Paragraph */}
           <p className="text-white/80 font-normal leading-relaxed text-sm sm:text-base md:text-lg max-w-xl">
-            {lang === 'bn' 
-              ? 'অথেনটিক কমার্শিয়াল প্রেশারে তাজা অ্যারাবিকা কফি বিনের বিশুদ্ধ এক্সট্র্যাকশন। ধীরস্থির প্যারিসিয়ান সন্ধ্যার জন্য পোরসেলিনের সাদা কাপে নেমে আসে ঘন চেস্টনাট ক্রেমার সোনালী ধারা।'
-              : 'freshly-ground single-origin Arabica beans extracted under majestic commercial pressure. Watch the rich, velvet chestnut crema pour directly into your warm white porcelain cup for unforgettable slow Parisian evenings.'
+            {'freshly-ground single-origin Arabica beans extracted under majestic commercial pressure. Watch the rich, velvet chestnut crema pour directly into your warm white porcelain cup for unforgettable slow Parisian evenings.'
             }
           </p>
 
@@ -417,7 +411,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
           <div className="flex items-center gap-2 text-xs sm:text-sm font-mono tracking-wider text-[#C9A86A] pt-0.5">
             <Coffee className="w-4 h-4 text-[#C9A86A] shrink-0" />
             <span className="font-semibold uppercase tracking-[0.16em]">
-              {lang === 'bn' ? 'সিঙ্গেল-অরিজিন রোস্ট • ফ্রেশ এক্সট্র্যাকশন' : 'SINGLE-ORIGIN ROAST • EXTRACTED FRESH TO ORDER'}
+              {'SINGLE-ORIGIN ROAST • EXTRACTED FRESH TO ORDER'}
             </span>
           </div>
 
@@ -430,7 +424,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
               className="rounded-full bg-[#C9A86A] hover:bg-[#b59556] text-[#15162B] font-black uppercase tracking-wider transition-all shadow-xl hover:shadow-[#C9A86A]/20 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm"
             >
               <Coffee className="w-4 h-4 text-[#15162B]" />
-              <span>{lang === 'bn' ? 'সিগনেচার মেনু দেখুন' : 'EXPLORE SIGNATURE MENU'}</span>
+              <span>{'EXPLORE SIGNATURE MENU'}</span>
             </button>
 
             {/* Reserve Evening Table (Outlined White Button) */}
@@ -439,7 +433,7 @@ export const EspressoMachineHero: React.FC<EspressoMachineHeroProps> = ({
               onClick={onReserveClick}
               className="rounded-full bg-transparent hover:bg-white/5 border border-white/20 text-white font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 shadow-sm cursor-pointer flex items-center justify-center px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm"
             >
-              <span>{lang === 'bn' ? 'টেবিল রিজার্ভেশন' : 'RESERVE EVENING TABLE'}</span>
+              <span>{'RESERVE EVENING TABLE'}</span>
             </button>
           </div>
 

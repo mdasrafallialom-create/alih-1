@@ -100,18 +100,16 @@ export default function ChefSection({
         <div className="text-center max-w-2xl mx-auto space-y-3 mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A86A]/10 border border-[#C9A86A]/30 text-[#C9A86A] text-[10px] font-bold tracking-[0.25em] uppercase">
             <ChefHat className="w-3.5 h-3.5 text-[#C9A86A]" />
-            <span>{lang === 'bn' ? 'আমাদের প্রধান শেফ' : lang === 'ar' ? 'طاقم الطهاة التنفيذيين' : 'OUR EXECUTIVE CHEFS'}</span>
+            <span>{lang === 'ar' ? 'طاقم الطهاة التنفيذيين' : 'OUR EXECUTIVE CHEFS'}</span>
           </div>
           <h2 
             className="text-3xl sm:text-5xl font-normal text-[#F4E7D3] tracking-tight"
             style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', 'Playfair Display', serif" }}
           >
-            {lang === 'bn' ? 'স্বাদ ও শিল্পকলার মেলবন্ধন' : lang === 'ar' ? 'إبداع الطهي والخبرة العالمية' : 'Culinary Mastery & Passion'}
+            {lang === 'ar' ? 'إبداع الطهي والخبرة العالمية' : 'Culinary Mastery & Passion'}
           </h2>
           <p className="text-xs sm:text-sm text-[#F4E7D3]/75 font-light leading-relaxed">
-            {lang === 'bn' 
-              ? 'প্রতিটি পদ প্রস্তুত করা হয় পরম যত্ন, নিখুঁত অভিজ্ঞতা ও সর্বোচ্চ আন্তর্জাতিক মান বজায় রেখে।' 
-              : lang === 'ar'
+            {lang === 'ar'
                 ? 'يتم إعداد كل طبق بأعلى درجات العناية والخبرة لتقديم تجربة طعام استثنائية.'
                 : 'Every recipe is an artistic balance of heritage gastronomy, precision culinary craftsmanship and soul.'}
           </p>
@@ -235,7 +233,7 @@ export default function ChefSection({
                     className="w-full py-2 px-3 rounded-xl bg-[#C9A86A]/15 hover:bg-[#C9A86A] border border-[#C9A86A]/40 text-[#C9A86A] hover:text-[#15162B] font-bold text-xs tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Utensils className="w-3.5 h-3.5" />
-                    <span>{lang === 'bn' ? 'শেফের স্পেশাল মেনু দেখুন' : lang === 'ar' ? 'عرض القائمة الخاصة' : "View Chef's Specials"}</span>
+                    <span>{lang === 'ar' ? 'عرض القائمة الخاصة' : "View Chef's Specials"}</span>
                   </button>
                 </div>
               </div>

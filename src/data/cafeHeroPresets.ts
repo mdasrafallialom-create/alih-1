@@ -1,6 +1,7 @@
 import opaluneNitroImg from '../assets/images/opalune_nitro_cold_brew_1791021529686.jpg';
 import opaluneTonicImg from '../assets/images/opalune_espresso_tonic_1791021544254.jpg';
 import opaluneKyotoImg from '../assets/images/opalune_kyoto_cold_drip_1791021557503.jpg';
+import roundArtisanPizzaImg from '../assets/images/round_artisan_pizza_1790689153501.jpg';
 
 export interface CafeHeroSlide {
   id: number;
@@ -46,7 +47,8 @@ export const CAFE_HERO_PRESETS: Record<string, CafeHeroSlide[]> = {
       description: 'Slow-fermented sourdough crust fired at 900°F, molten buffalo mozzarella, rich San Marzano pomodoro, and aromatic shaved winter truffles.',
       primaryBtn: 'Order Pizza Now',
       secondaryBtn: 'Explore Gourmet Menu',
-      img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1600&auto=format&fit=crop',
+      img: roundArtisanPizzaImg,
+      cupImg: roundArtisanPizzaImg,
       actionTarget: 'menu',
       cupName: 'Artisanal Round Truffle Pizza',
       price: 'Chef Signature',

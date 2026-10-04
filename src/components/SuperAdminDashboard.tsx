@@ -808,6 +808,9 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
     return matchesSearch && matchesStatus && matchesPlan;
   });
 
+  const freeTrialUsersCount = restaurants.filter(r => r.subscriptionStatus === 'trial' || (r as any).isTrialActive).length || 1;
+  const paidSubscribersCount = restaurants.filter(r => r.subscriptionStatus === 'active' || r.subscriptionPlan).length;
+
   const stats = [
     { 
       label: "Monthly Revenue (MRR)", 
@@ -817,25 +820,25 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
       bg: 'bg-emerald-50' 
     },
     { 
-      label: "Total Restaurants", 
-      value: restaurants.length, 
-      icon: Store, 
-      color: 'text-indigo-600', 
-      bg: 'bg-indigo-50' 
+      label: "Free Trial Users (3-Day)", 
+      value: freeTrialUsersCount, 
+      icon: Clock, 
+      color: 'text-amber-600', 
+      bg: 'bg-amber-50' 
     },
     { 
-      label: "Active Paid Accounts", 
-      value: activeSubsCount, 
+      label: "Active Paid Subscribers", 
+      value: paidSubscribersCount, 
       icon: CreditCard, 
       color: 'text-purple-600', 
       bg: 'bg-purple-50' 
     },
     { 
-      label: "3D Models & Menus", 
-      value: totalMenus, 
-      icon: Sparkles, 
-      color: 'text-amber-600', 
-      bg: 'bg-amber-50' 
+      label: "Total Registered Stores", 
+      value: restaurants.length, 
+      icon: Store, 
+      color: 'text-indigo-600', 
+      bg: 'bg-indigo-50' 
     }
   ];
 

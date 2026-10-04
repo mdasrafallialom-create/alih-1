@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Sparkles, 
@@ -23,7 +23,8 @@ import {
   MessageCircle,
   Eye,
   Percent,
-  Layers
+  Layers,
+  Globe
 } from 'lucide-react';
 import { PricingPlan, SubscriptionPlan, BillingCycle } from '../types';
 import PaymentModal from './PaymentModal';
@@ -93,8 +94,70 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
 }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<PricingPlan | null>(null);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
-  const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [selectedPlanForDetail, setSelectedPlanForDetail] = useState<SubscriptionPlan>('pro');
+
+  // Initialize modal state directly from URL parameter ?plan=
+  const [detailModalOpen, setDetailModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get('plan')?.toLowerCase();
+      return p === '15' || p === '49' || p === '99' || p === 'basic' || p === 'pro' || p === 'elite';
+    }
+    return false;
+  });
+
+  const [selectedPlanForDetail, setSelectedPlanForDetail] = useState<SubscriptionPlan>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get('plan')?.toLowerCase();
+      if (p === '15' || p === 'basic') return 'basic';
+      if (p === '49' || p === 'pro' || p === '39') return 'pro';
+      if (p === '99' || p === 'elite') return 'elite';
+    }
+    return 'pro';
+  });
+
+  // Listen for open-plan-modal event or browser navigation
+  useEffect(() => {
+    const handleUrlOrEvent = () => {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const p = params.get('plan')?.toLowerCase();
+        if (p === '15' || p === 'basic') {
+          setSelectedPlanForDetail('basic');
+          setDetailModalOpen(true);
+        } else if (p === '49' || p === 'pro' || p === '39') {
+          setSelectedPlanForDetail('pro');
+          setDetailModalOpen(true);
+        } else if (p === '99' || p === 'elite') {
+          setSelectedPlanForDetail('elite');
+          setDetailModalOpen(true);
+        }
+      }
+    };
+
+    const handleCustomPlanOpen = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const p = String(customEvent.detail || '').toLowerCase();
+      if (p === '15' || p === 'basic') {
+        setSelectedPlanForDetail('basic');
+        setDetailModalOpen(true);
+      } else if (p === '49' || p === 'pro' || p === '39') {
+        setSelectedPlanForDetail('pro');
+        setDetailModalOpen(true);
+      } else if (p === '99' || p === 'elite') {
+        setSelectedPlanForDetail('elite');
+        setDetailModalOpen(true);
+      }
+    };
+
+    window.addEventListener('popstate', handleUrlOrEvent);
+    window.addEventListener('open-plan-modal', handleCustomPlanOpen);
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlOrEvent);
+      window.removeEventListener('open-plan-modal', handleCustomPlanOpen);
+    };
+  }, []);
 
   const t = (en: string, bn: string, ar: string) => {
     if (lang === 'ar') return ar;
@@ -183,7 +246,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
     {
       id: 'pro',
       name: 'PROFESSIONAL',
-      price: 39,
+      price: 49,
       period: 'MONTH',
       color: 'orange',
       isPopular: true,
@@ -283,27 +346,19 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
   const featureItems = [
     { 
       icon: Smartphone, 
-      text: lang === 'bn' 
-        ? 'ইমারসিভ এআর মেনু: অর্ডার করার পূর্বে খাবার ত্রিমাত্রিক ৩ডি আকারে দেখুন।' 
-        : 'Immersive AR Menu: Visualize dishes in stunning 3D before ordering.' 
+      text: 'Immersive AR Menu: Visualize dishes in stunning 3D before ordering.' 
     },
     { 
       icon: QrCode, 
-      text: lang === 'bn' 
-        ? 'স্মার্ট কিউআর ইন্টিগ্রেশন: যেকোনো টেবিল থেকে সরাসরি স্ক্যান, অর্ডার ও পে করুন।' 
-        : 'Seamless QR Integration: Scan, order, and pay instantly from any table.' 
+      text: 'Seamless QR Integration: Scan, order, and pay instantly from any table.' 
     },
     { 
       icon: Video, 
-      text: lang === 'bn' 
-        ? 'সিনেমাটিক এক্সপেরিয়েন্স: সিগনেচার খাবারের আকর্ষণীয় আল্ট্রা-এইচডি ভিডিও শোকেস।' 
-        : 'Cinematic Experience: High-quality video showcases of your signature dishes.' 
+      text: 'Cinematic Experience: High-quality video showcases of your signature dishes.' 
     },
     { 
       icon: ShieldCheck, 
-      text: lang === 'bn' 
-        ? 'অ্যাডভান্সড কিচেন পাইপলাইন: কোনো প্রকার বিলম্ব ছাড়াই দ্রুত খাবার প্রস্তুতি ও পরিবেশন।' 
-        : 'Advanced Pipeline: Optimized kitchen management for zero delays.' 
+      text: 'Advanced Pipeline: Optimized kitchen management for zero delays.' 
     }
   ];
 
@@ -378,13 +433,13 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-amber-500/20">
               <Sparkles className="w-4 h-4" />
-              {aboutUsSubtitle || (lang === 'bn' ? 'রেস্টুরেন্ট এক্সিলেন্স' : 'Restaurant Excellence')}
+              {aboutUsSubtitle || ('Restaurant Excellence')}
             </div>
             <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-display font-black mb-8 leading-tight ${textColor}`}>
               {aboutUsTitle ? (
                 <span>{aboutUsTitle}</span>
               ) : lang === 'bn' ? (
-                <>বিশ্বের সর্বাধুনিক <span style={{ color: accentColor }}>লাক্সারি</span> <br/>ডিজিটাল ডাইনিং প্ল্যাটফর্ম</>
+                <>The World's Most Advanced <span style={{ color: accentColor }}>Luxury</span> <br/>Digital Dining Platform</>
               ) : (
                 <>The World's Most <span style={{ color: accentColor }}>Luxurious</span> <br/> Digital Dining System</>
               )}
@@ -434,10 +489,10 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
                 </div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 text-amber-300">
-                    {aboutUsSubtitle || (lang === 'bn' ? 'ফিচার্ড স্টোরি' : 'Featured Story')}
+                    {aboutUsSubtitle || ('Featured Story')}
                   </p>
                   <p className="text-xl font-bold">
-                    {aboutUsTitle || (lang === 'bn' ? 'ভবিষ্যতের ডাইনিং অভিজ্ঞতা' : 'Experience the Future')}
+                    {aboutUsTitle || ('Experience the Future')}
                   </p>
                 </div>
               </div>
@@ -447,7 +502,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
 
         {/* Pricing Section: Always displayed on the landing page when hidePricing is false */}
         {!hidePricing && (
-          <div>
+          <div id="pricing-section">
             <div className="text-center mb-10 relative">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-wider mb-4 border border-indigo-100">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -599,11 +654,22 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
       {detailModalOpen && (
         <PlanDetailModal
           isOpen={detailModalOpen}
-          onClose={() => setDetailModalOpen(false)}
+          onClose={() => {
+            setDetailModalOpen(false);
+            if (typeof window !== 'undefined') {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('plan');
+              window.history.replaceState({}, '', url.toString());
+            }
+          }}
           initialPlanId={selectedPlanForDetail}
           initialBillingCycle={billingCycle}
           lang={lang}
           isDark={isDark}
+          onOpenDemoTrial={(plan) => {
+            setDetailModalOpen(false);
+            if (onStartTrial) onStartTrial(plan);
+          }}
           onSelectPlan={(planId, cycle) => {
             if (onPlanSelected) onPlanSelected(planId);
             setBillingCycle(cycle);

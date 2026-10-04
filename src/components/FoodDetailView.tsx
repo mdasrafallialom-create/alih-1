@@ -38,8 +38,8 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
   lang,
   plan
 }) => {
-  const t = (key: keyof typeof translations['bn']) => {
-    return translations[lang][key] || translations['bn'][key];
+  const t = (key: keyof typeof translations['en']) => {
+    return translations[lang][key] || translations['en'][key];
   };
 
   const isElite = plan === 'elite';
@@ -70,7 +70,7 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h2 className={`font-display font-bold ${textColor}`}>{t('food_details' as any) || (lang === 'bn' ? 'খাবারের বিস্তারিত' : 'Food Details')}</h2>
+        <h2 className={`font-display font-bold ${textColor}`}>{t('food_details' as any) || ('Food Details')}</h2>
         <div className="w-10" />
       </header>
 
@@ -137,13 +137,13 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
             <div className={`${cardBg} rounded-3xl p-6 border ${isElite ? 'border-white/10' : 'border-amber-900/5'} shadow-sm mb-8`}>
               <h3 className={`font-display font-bold ${textColor} mb-4 flex items-center gap-2`}>
                 <Info className={`w-4 h-4 ${isElite ? 'text-amber-500' : 'text-cyan-500'}`} />
-                {lang === 'bn' ? 'কেন এই খাবারটি স্পেশাল?' : 'Why is this dish special?'}
+                {'Why is this dish special?'}
               </h3>
               <ul className="space-y-3">
                 {[
-                  (lang === 'bn' ? 'তাজা উপকরণ দিয়ে তৈরি' : 'Made with fresh ingredients'),
-                  (lang === 'bn' ? 'সেরা স্বাদের নিশ্চয়তা' : 'Best taste guaranteed'),
-                  (lang === 'bn' ? 'স্বাস্থ্যসম্মত উপায়ে পরিবেশন' : 'Hygienically served')
+                  ('Made with fresh ingredients'),
+                  ('Best taste guaranteed'),
+                  ('Hygienically served')
                 ].map((benefit, i) => (
                   <li key={i} className={`flex items-center gap-3 ${isElite ? 'text-slate-300' : 'text-slate-600'} text-sm`}>
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -158,7 +158,7 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
               <div className={`${cardBg} rounded-3xl p-6 border ${isElite ? 'border-white/10' : 'border-amber-900/5'} shadow-sm mb-8`}>
                 <h3 className={`font-display font-bold ${textColor} mb-6 flex items-center gap-2`}>
                   <MessageCircle className={`w-4 h-4 ${isElite ? 'text-amber-500' : 'text-blue-500'}`} />
-                  {lang === 'bn' ? 'কাস্টমার রিভিউ' : 'Customer Reviews'}
+                  {'Customer Reviews'}
                 </h3>
                 <div className="space-y-6">
                   {item.reviews.map(review => (
@@ -181,7 +181,7 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
                   ))}
                 </div>
                 <button className={`w-full mt-6 py-2 rounded-xl border ${isElite ? 'border-white/10 text-amber-500 hover:bg-white/5' : 'border-slate-200 text-slate-600 hover:bg-slate-50'} text-[10px] font-black uppercase tracking-widest transition-all`}>
-                  {lang === 'bn' ? 'সব রিভিউ দেখুন' : 'View all reviews'}
+                  {'View all reviews'}
                 </button>
               </div>
             )}
@@ -202,12 +202,12 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
                   className={`flex items-center justify-center gap-2 ${isElite ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30' : 'bg-purple-50 text-purple-700 border border-purple-100'} py-4 rounded-2xl font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}
                 >
                   <QrCode className="w-5 h-5" />
-                  {lang === 'bn' ? 'থ্রিডিতে দেখুন' : 'View in 3D AR'}
+                  {'View in 3D AR'}
                 </button>
                 
                 <div className={`flex items-center justify-center gap-2 ${isElite ? 'bg-slate-800 text-white border border-white/10' : 'bg-slate-100 text-slate-600 border border-slate-200'} py-4 rounded-2xl font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>
                   <QrCode className="w-5 h-5" />
-                  {lang === 'bn' ? 'কিউআর কোড' : 'QR Menu'}
+                  {'QR Menu'}
                 </div>
               </div>
             </div>
@@ -218,7 +218,7 @@ const FoodDetailView: React.FC<FoodDetailViewProps> = ({
         <div className="mt-12 px-4">
           <div className="flex items-center justify-between mb-6">
             <h2 className={`text-xl font-display font-bold ${textColor}`}>
-              {lang === 'bn' ? 'আরও সুস্বাদু খাবার' : 'More Delicious Food'}
+              {'More Delicious Food'}
             </h2>
             <div className={`h-px flex-grow mx-4 ${isElite ? 'bg-white/10' : 'bg-slate-200'}`} />
           </div>

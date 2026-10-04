@@ -748,7 +748,7 @@ export const LUXURY_THEMES: ThemePreset[] = [
     fontDisplay: 'DM Serif Display, serif',
     fontBody: 'Lora, serif',
     features: ['Barista Latte Art', 'Steamed Velvet Micro-Foam', 'Morning Bakery Showcase'],
-    keywords: ['coffee', 'coffee shop', 'কফি', 'কফি শপ', 'ক্যাফে', 'cafe', 'latte', 'barista', 'bakery', 'espresso', 'pastry']
+    keywords: ['coffee', 'coffee shop', 'cafe', 'latte', 'barista', 'bakery', 'espresso', 'pastry']
   },
   {
     id: 'amberelle',
@@ -767,7 +767,7 @@ export const LUXURY_THEMES: ThemePreset[] = [
     fontDisplay: 'Cormorant Garamond, serif',
     fontBody: 'Plus Jakarta Sans, sans-serif',
     features: ['Caramel Macchiato Drizzle', 'Sunset Acoustic Mood', 'Artisanal Blend'],
-    keywords: ['coffee', 'coffee shop', 'কফি', 'কফি শপ', 'cafe', 'macchiato', 'sunset', 'amberelle']
+    keywords: ['coffee', 'coffee shop', 'cafe', 'macchiato', 'sunset', 'amberelle']
   },
   {
     id: 'rosavere',
@@ -862,7 +862,7 @@ export const LUXURY_THEMES: ThemePreset[] = [
     fontDisplay: 'Playfair Display, serif',
     fontBody: 'Plus Jakarta Sans, sans-serif',
     features: ['Rosette Blush Palette', 'Pastry Showcase Grid', 'High Tea Badging'],
-    keywords: ['coffee', 'coffee shop', 'কফি', 'কফি শপ', 'cafe', 'tea', 'high tea', 'pastry', 'bakery', '5 star', 'rosette']
+    keywords: ['coffee', 'coffee shop', 'cafe', 'tea', 'high tea', 'pastry', 'bakery', '5 star', 'rosette']
   },
   {
     id: 'maison-virelle',
@@ -881,7 +881,7 @@ export const LUXURY_THEMES: ThemePreset[] = [
     fontDisplay: 'Cormorant Garamond, serif',
     fontBody: 'Lora, serif',
     features: ['Golden Wheat Accents', 'Sourdough Artisan Tags', 'Stone Hearth Layout'],
-    keywords: ['coffee', 'coffee shop', 'কফি', 'কফি শপ', 'cafe', 'bakery', 'bread', 'organic', 'wheat']
+    keywords: ['coffee', 'coffee shop', 'cafe', 'bakery', 'bread', 'organic', 'wheat']
   },
   {
     id: 'nobravie',
@@ -957,6 +957,6 @@ export const LUXURY_THEMES: ThemePreset[] = [
     fontDisplay: 'DM Serif Display, serif',
     fontBody: 'Lora, serif',
     features: ['Alpine Fireplace Glow', 'Timber Cabin Vibes', 'Raclette & Fondue Cards'],
-    keywords: ['coffee', 'coffee shop', 'কফি', 'কফি শপ', 'cafe', 'alpine', 'chalet', 'fireplace', 'timber']
+    keywords: ['coffee', 'coffee shop', 'cafe', 'alpine', 'chalet', 'fireplace', 'timber']
   }
 ];

@@ -45,7 +45,7 @@ interface KoppeeFooterSectionProps {
 }
 
 export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   brandLogoUrl,
   brandDescription,
   brandLocation,
@@ -239,7 +239,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 }`}
               >
                 <Navigation className="w-4 h-4" />
-                <span>{lang === 'bn' ? 'গুগল ম্যাপে ডিরেকশন' : 'Get Directions'}</span>
+                <span>{'Get Directions'}</span>
               </a>
             </div>
           </div>
@@ -335,7 +335,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                   </a>
                 ) : (
                   <span className={isAurelisse ? 'text-[#2a3e26]/60' : isPalatiora ? 'text-stone-400' : 'text-white/60'}>
-                    {lang === 'bn' ? 'হোয়াটসঅ্যাপ: যুক্ত করা হয়নি' : '+1 (XXX) XXX-XXXX (WhatsApp)'}
+                    <span>+1 (XXX) XXX-XXXX (WhatsApp)</span>
                   </span>
                 )}
               </div>
@@ -438,7 +438,7 @@ export const KoppeeFooterSection: React.FC<KoppeeFooterSectionProps> = ({
                 type="button"
                 onClick={onOpenAdmin}
                 className={`inline-flex items-center ${isAurelisse ? 'text-[#2e7d32]/50 hover:text-[#2e7d32]' : isPalatiora ? 'text-stone-400 hover:text-[#F97316]' : 'text-white/30 hover:text-[#DA9F93]'} transition-colors p-1 rounded hover:bg-white/5 cursor-pointer ml-1`}
-                title={lang === 'bn' ? 'স্টাফ / এডমিন এক্সেস (PIN: 8520)' : 'Staff / Admin Portal Access (PIN: 8520)'}
+                title="Staff / Admin Portal Access (PIN: 8520)"
               >
                 <Lock className="w-3 h-3" />
               </button>

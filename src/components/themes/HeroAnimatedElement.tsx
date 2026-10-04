@@ -109,8 +109,8 @@ export const HeroAnimatedElement: React.FC<HeroAnimatedElementProps> = ({
     return (
       <InteractivePizzaVisual
         accentColor={accentColor}
-        cupName={cupName}
-        customImg={cupImg || roundArtisanPizzaImg}
+        cupName={cupName || 'Artisanal Round Truffle Pizza'}
+        customImg={cupImg && !cupImg.includes('photo-1513104890138') && !cupImg.includes('photo-1544025162') ? cupImg : roundArtisanPizzaImg}
       />
     );
   }

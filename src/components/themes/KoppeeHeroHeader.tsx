@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall, Edit3, ArrowUpRight, Star, Flame } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, ChevronDown, Calendar, Search, ShieldCheck, ArrowLeft, Utensils, Sparkles, MoreVertical, MoreHorizontal, PhoneCall, Edit3, ArrowUpRight, Star, Flame, Home } from 'lucide-react';
 import { TornPaperEdge } from './TornPaperEdge';
 import { OrivelleGeometricDivider } from './OrivelleGeometricDivider';
 import roastedCoffeeBeansBg from '../../assets/images/roasted_coffee_beans_bg_1789749808453.jpg';
@@ -1195,7 +1195,7 @@ export function buildTierSlides(
 }
 
 export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   heroBackgroundImage,
   heroSlides,
   onOrderClick,
@@ -1453,14 +1453,14 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 onClick={() => scrollToSection('hero')}
                 className={`${navHomeClass} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'হোম' : 'Home'}
+                {'Home'}
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('about')}
                 className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'সম্পর্কে' : 'About'}
+                {'About'}
               </button>
 
               {/* Admin Button (visible only when showAdminButton is true) */}
@@ -1496,7 +1496,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       type="button"
                       onClick={() => setTabletSearchOpen(true)}
                       className="p-1.5 sm:p-2 text-white/90 hover:text-white rounded-full bg-black/60 hover:bg-black/80 border border-white/20 shadow-sm transition-all cursor-pointer flex items-center justify-center active:scale-95"
-                      title={lang === 'bn' ? 'সার্চ করুন' : 'Search'}
+                      title={'Search'}
                     >
                       <Search className={`w-4 h-4 ${cfg.accentTextClass}`} />
                     </motion.button>
@@ -1520,7 +1520,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                           setSearchTerm(val);
                           checkAdminPin(val);
                         }}
-                        placeholder={lang === 'bn' ? 'খাবার বা পাসওয়ার্ড...' : 'Search foods or password...'}
+                        placeholder={'Search foods or password...'}
                         className={`w-full pl-8 pr-7 py-1 text-xs rounded-full bg-black/85 border ${cfg.accentBorderClass} text-white placeholder-white/50 focus:outline-none ${cfg.searchFocusClass} shadow-lg`}
                       />
                       <button
@@ -1568,7 +1568,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Sparkles className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>{lang === 'bn' ? 'সেবা' : 'Service'}</span>
+                        <span>{'Service'}</span>
                       </button>
                       <button
                         type="button"
@@ -1581,7 +1581,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Utensils className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>{lang === 'bn' ? 'মেনু' : 'Menu'}</span>
+                        <span>{'Menu'}</span>
                       </button>
                       <button
                         type="button"
@@ -1593,7 +1593,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Calendar className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>{lang === 'bn' ? 'রিজার্ভেশন' : 'Reservation'}</span>
+                        <span>{'Reservation'}</span>
                       </button>
                       <button
                         type="button"
@@ -1604,7 +1604,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Sparkles className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>{lang === 'bn' ? 'রিভিউ' : 'Testimonials'}</span>
+                        <span>{'Testimonials'}</span>
                       </button>
                       <button
                         type="button"
@@ -1615,7 +1615,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <Utensils className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>{lang === 'bn' ? 'স্পেশাল খাবার' : "Chef's Specials"}</span>
+                        <span>{"Chef's Specials"}</span>
                       </button>
                       <button
                         type="button"
@@ -1626,7 +1626,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         className={`w-full text-left px-3.5 py-2 text-xs font-semibold text-white/90 hover:bg-white/10 ${cfg.navHoverClass} transition-colors flex items-center gap-2.5`}
                       >
                         <PhoneCall className="w-4 h-4 shrink-0" style={{ color: activeAccentColor }} />
-                        <span>{lang === 'bn' ? 'যোগাযোগ' : 'Contact'}</span>
+                        <span>{'Contact'}</span>
                       </button>
                     </motion.div>
                   )}
@@ -1645,21 +1645,21 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 onClick={() => scrollToSection('hero')}
                 className={`${navHomeClass} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'হোম' : 'Home'}
+                {'Home'}
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('about')}
                 className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'সম্পর্কে' : 'About'}
+                {'About'}
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('services')}
                 className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'সেবা' : 'Service'}
+                {'Service'}
               </button>
               <button
                 type="button"
@@ -1670,7 +1670,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 }}
                 className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'মেনু' : 'Menu'}
+                {'Menu'}
               </button>
  
               {/* Dropdown Menu for Pages */}
@@ -1680,7 +1680,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   onClick={() => setPagesDropdownOpen(!pagesDropdownOpen)}
                   className={`flex items-center gap-1 ${navTextColor} transition-colors cursor-pointer py-1 focus:outline-none`}
                 >
-                  <span>{lang === 'bn' ? 'পেজসমূহ' : 'Pages'}</span>
+                  <span>{'Pages'}</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${pagesDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
  
@@ -1702,7 +1702,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-4 py-2 text-xs ${isEmberion ? 'text-[#0f2942] hover:bg-red-50 hover:text-[#b91c1c] font-bold' : isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
-                        {lang === 'bn' ? 'রিজার্ভেশন' : 'Reservation'}
+                        {'Reservation'}
                       </button>
                       <button
                         type="button"
@@ -1712,7 +1712,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-4 py-2 text-xs ${isEmberion ? 'text-[#0f2942] hover:bg-red-50 hover:text-[#b91c1c] font-bold' : isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
-                        {lang === 'bn' ? 'রিভিউ' : 'Testimonials'}
+                        {'Testimonials'}
                       </button>
                       <button
                         type="button"
@@ -1722,7 +1722,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                         }}
                         className={`w-full text-left px-4 py-2 text-xs ${isEmberion ? 'text-[#0f2942] hover:bg-red-50 hover:text-[#b91c1c] font-bold' : isLightAurelisse ? 'text-[#182915] hover:bg-emerald-50' : isAshPalatiora ? 'text-slate-800 hover:bg-slate-100' : 'text-white/90 hover:bg-white/10'} ${cfg.navHoverClass} transition-colors`}
                       >
-                        {lang === 'bn' ? 'স্পেশাল খাবার' : "Chef's Specials"}
+                        {"Chef's Specials"}
                       </button>
                     </motion.div>
                   )}
@@ -1734,7 +1734,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 onClick={() => scrollToSection('contact')}
                 className={`${navTextColor} transition-colors cursor-pointer py-1`}
               >
-                {lang === 'bn' ? 'যোগাযোগ' : 'Contact'}
+                {'Contact'}
               </button>
             </nav>
 
@@ -1763,7 +1763,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                       setSearchTerm(val);
                       checkAdminPin(val);
                     }}
-                    placeholder={lang === 'bn' ? 'খাবার বা পিন...' : 'Search menu or PIN...'}
+                    placeholder={'Search menu or PIN...'}
                     className={`w-28 sm:w-32 lg:w-40 pl-8 pr-7 py-1.5 text-[11px] rounded-full ${isEmberion ? 'bg-white border-2 border-[#0f2942]/20 text-[#0f2942] placeholder-[#0f2942]/60 shadow-sm' : isLightAurelisse ? 'bg-white/90 border border-[#2e7d32]/30 text-[#142412] placeholder-stone-500' : isSavorellePalatiora ? 'bg-white/10 border border-white/20 text-white placeholder-stone-400' : 'bg-black/90 border ' + cfg.accentBorderClass + ' text-white placeholder-white/50'} focus:outline-none ${cfg.searchFocusClass} focus:ring-1 transition-all duration-300 shadow-inner shrink-0 truncate z-50`}
                   />
                   {searchTerm && (
@@ -1777,6 +1777,19 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   )}
                 </div>
               </form>
+
+              {/* Return to Main Website & Pricing Plans Button */}
+              {onReturnToPortal && (
+                <button
+                  type="button"
+                  onClick={onReturnToPortal}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow-xl border border-cyan-400/80 cursor-pointer shrink-0 active:scale-95 select-none relative z-50 transition-all"
+                  title={'Return to Main Website'}
+                >
+                  <Home className="w-3.5 h-3.5 text-cyan-200" />
+                  <span>{'Main Website'}</span>
+                </button>
+              )}
 
               {/* Opaque Isolated Header Admin Button */}
               {showAdminButton === true && (
@@ -1857,7 +1870,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   setSearchTerm(val);
                   checkAdminPin(val);
                 }}
-                placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা পাসওয়ার্ড...' : 'Search menu or password...'}
+                placeholder={'Search menu or password...'}
                 className={`w-full pl-9 pr-10 py-2 text-sm rounded-xl bg-black/70 text-white placeholder-white/40 focus:outline-none border ${
                   isLightAurelisse 
                     ? 'border-[#2e7d32]/30 focus:border-[#2e7d32]' 
@@ -1925,7 +1938,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   setSearchTerm(val);
                   checkAdminPin(val);
                 }}
-                placeholder={lang === 'bn' ? 'খাবার খুঁজুন বা পাসওয়ার্ড...' : 'Search menu or password...'}
+                placeholder={'Search menu or password...'}
                 className={`w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-black/70 text-white placeholder-white/40 focus:outline-none border ${
                   isLightAurelisse
                     ? 'border-[#2e7d32]/30 focus:border-[#2e7d32]'
@@ -1950,7 +1963,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                   : 'text-[#DA9F93] border-[#DA9F93]/20'
               }`}
             >
-              {lang === 'bn' ? 'হোম' : 'Home'}
+              {'Home'}
             </button>
             <button
               type="button"
@@ -1960,7 +1973,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              {lang === 'bn' ? 'সম্পর্কে' : 'About'}
+              {'About'}
             </button>
             <button
               type="button"
@@ -1970,7 +1983,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              {lang === 'bn' ? 'সেবা' : 'Service'}
+              {'Service'}
             </button>
             <button
               type="button"
@@ -1982,7 +1995,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              {lang === 'bn' ? 'মেনু' : 'Menu'}
+              {'Menu'}
             </button>
             <button
               type="button"
@@ -1993,7 +2006,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              {lang === 'bn' ? 'রিজার্ভেশন' : 'Reservation'}
+              {'Reservation'}
             </button>
             <button
               type="button"
@@ -2003,8 +2016,22 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               }}
               className="text-white py-2.5 text-sm font-semibold hover:bg-white/5 rounded-xl transition-colors border border-white/5"
             >
-              {lang === 'bn' ? 'যোগাযোগ' : 'Contact'}
+              {'Contact'}
             </button>
+
+            {onReturnToPortal && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onReturnToPortal();
+                }}
+                className="py-3 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-95 mt-1 border border-cyan-400/50"
+              >
+                <Home className="w-4 h-4 text-cyan-200" />
+                <span>{'🏠 Main Website & Plans'}</span>
+              </button>
+            )}
 
             {showAdminButton === true && (
               <button
@@ -2022,7 +2049,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" style={{ color: activeAccentColor }} />
-                <span>{lang === 'bn' ? 'এডমিন প্যানেল' : 'Admin Panel'}</span>
+                <span>{'Admin Panel'}</span>
               </button>
             )}
           </motion.div>

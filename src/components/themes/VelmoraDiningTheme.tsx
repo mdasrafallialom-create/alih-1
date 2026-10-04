@@ -826,7 +826,7 @@ const SILVARENNE_TITANIUM_DISHES: FoodItem[] = [
 ];
 
 export default function VelmoraDiningTheme({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   tagline = 'Palatial Gastronomy & Fine Dining',
   dishes = [],
   fontDisplay,
@@ -1032,38 +1032,32 @@ export default function VelmoraDiningTheme({
   const AURELISSE_CHEF_PROFILES: ChefProfile[] = [
     {
       id: 'aur-chef-1',
-      name: lang === 'bn' ? 'পিটমাস্টার মার্কাস ভ্যান্স' : 'Pitmaster Marcus Vance',
-      role: lang === 'bn' ? 'হেড বার্গার আর্কিটেক্ট' : 'Head Burger Architect',
+      name: 'Pitmaster Marcus Vance',
+      role: 'Head Burger Architect',
       rating: 4.9,
-      bio: lang === 'bn' 
-        ? '১২ বছরেরও বেশি সময় ধরে জ্বলন্ত ওক কাঠের কয়লার আগুনে অথেনটিক স্মোকি ওয়াগিউ বার্গার তৈরির কারিগর।'
-        : 'Over 12 years of specialized wood-fire craftsmanship, perfecting the signature oak-smokey Wagyu patty.',
+      bio: 'Over 12 years of specialized wood-fire craftsmanship, perfecting the signature oak-smokey Wagyu patty.',
       image: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=400&auto=format&fit=crop',
-      speciality: lang === 'bn' ? 'ফ্লেম-গ্রিলড ওয়াগিউ সিয়ারিং' : 'Flame-Grilled Wagyu Searing',
+      speciality: 'Flame-Grilled Wagyu Searing',
       experienceYears: 12
     },
     {
       id: 'aur-chef-2',
-      name: lang === 'bn' ? 'প্যাটি কারিগর এলেনা রোস্তোভা' : 'Patty Artisan Elena Rostova',
-      role: lang === 'bn' ? 'হেড প্যাটি ডিজাইনার' : 'Head Patty Craftsman',
+      name: 'Patty Artisan Elena Rostova',
+      role: 'Head Patty Craftsman',
       rating: 4.8,
-      bio: lang === 'bn'
-        ? 'জাপানি এ৫ ওয়াগিউ ব্লেন্ড তৈরি এবং গোল্ড-ডাস্টেড ব্রিওশ বানের সাথে নিখুঁত স্বাদের সমন্বয়কারী।'
-        : 'Expert in customized A5 Wagyu blends and artisanal gold-dusted sesame brioche bun architecture.',
+      bio: 'Expert in customized A5 Wagyu blends and artisanal gold-dusted sesame brioche bun architecture.',
       image: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=400&auto=format&fit=crop',
-      speciality: lang === 'bn' ? 'ওয়াগিউ মিট ব্লেন্ডিং' : 'Wagyu Meat Blending & Texture',
+      speciality: 'Wagyu Meat Blending & Texture',
       experienceYears: 9
     },
     {
       id: 'aur-chef-3',
-      name: lang === 'bn' ? 'সসিয়ার হিরোশি তানাকা' : 'Saucier Hiroshi Tanaka',
-      role: lang === 'bn' ? 'মাস্টার অফ সিক্রেট সসেস' : 'Master of Secret Sauces',
+      name: 'Saucier Hiroshi Tanaka',
+      role: 'Master of Secret Sauces',
       rating: 4.9,
-      bio: lang === 'bn'
-        ? 'ব্ল্যাক ট্রাফেল চিজ ইনফিউশন এবং অরেলিস স্পেশাল উমামি সসের উদ্ভাবক।'
-        : 'The creator of our signature black truffle cheese infusions and house umami secret sauces.',
+      bio: 'The creator of our signature black truffle cheese infusions and house umami secret sauces.',
       image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400&auto=format&fit=crop',
-      speciality: lang === 'bn' ? 'সিগনেচার উমামি সস ইনফিউশন' : 'Signature Umami Sauce Infusion',
+      speciality: 'Signature Umami Sauce Infusion',
       experienceYears: 14
     }
   ];
@@ -1206,19 +1200,19 @@ export default function VelmoraDiningTheme({
     { id: 'chicken', label: 'Crispy Chicken' },
     { id: 'sides', label: 'Loaded Sides & Shakes' }
   ] : activePresetId === 'palatiora' ? [
-    { id: 'all', label: lang === 'bn' ? 'সব মেনু' : 'All Dishes' },
-    { id: 'main', label: lang === 'bn' ? 'মেইন কোর্স' : 'Main Course' },
-    { id: 'specials', label: lang === 'bn' ? 'টেরিয়াকি ও স্পেশালস' : 'Wings & Specials' },
-    { id: 'desserts', label: lang === 'bn' ? 'স্বাদে মিষ্টি ডেজার্ট' : 'Desserts' }
+    { id: 'all', label: 'All Dishes' },
+    { id: 'main', label: 'Main Course' },
+    { id: 'specials', label: 'Wings & Specials' },
+    { id: 'desserts', label: 'Desserts' }
   ] : activePresetId === 'opalune' ? [
     { id: 'all', label: 'Nitro Cold Brews' },
     { id: 'coffee', label: 'Cascade Nitro' },
     { id: 'desserts', label: 'Affogato Gelato' }
   ] : activePresetId === 'emberion' ? [
-    { id: 'all', label: lang === 'bn' ? 'সব হট ব্যাগেল ও ক্যাফে' : 'All Hot Bagels & Cafe' },
-    { id: 'bagels', label: lang === 'bn' ? 'সিগনেচার স্যান্ডউইচ' : 'Signature Bagels' },
-    { id: 'spreads', label: lang === 'bn' ? 'ক্রিম চিজ ও মেল্টস' : 'Whipped Schmears' },
-    { id: 'beverages', label: lang === 'bn' ? 'কোল্ড ব্রু ও ড্রিংকস' : 'Cold Brews & Coffee' }
+    { id: 'all', label: 'All Hot Bagels & Cafe' },
+    { id: 'bagels', label: 'Signature Bagels' },
+    { id: 'spreads', label: 'Whipped Schmears' },
+    { id: 'beverages', label: 'Cold Brews & Coffee' }
   ] : activePresetId === 'couravelle' ? [
     { id: 'all', label: 'Tuscan Garden' },
     { id: 'starters', label: 'Pesto Burrata' },
@@ -1251,13 +1245,13 @@ export default function VelmoraDiningTheme({
   const defaultMenuTitle = activePresetId === 'orivelle-house'
     ? 'Orivelle Haute Gastronomy & Private Cellar'
     : activePresetId === 'palatiora'
-    ? (lang === 'bn' ? 'আমাদের বিশেষ সিগনেচার মেনু' : 'Indulge in Culinary Artistry')
+    ? ('Indulge in Culinary Artistry')
     : 'Haute Cuisine & Tasting Courses';
 
   const defaultMenuSubtitle = activePresetId === 'orivelle-house'
     ? 'An exclusive repertoire of haute gastronomy, 24k gold leaf infusions, and private cellar reserves.'
     : activePresetId === 'palatiora'
-    ? (lang === 'bn' ? 'প্রতিটি খাবারে নিখুঁত স্বাদ, সেরা ফ্রেশ উপাদান এবং অনন্য রন্ধনশিল্প।' : 'Experience gourmet dining crafted with passion, fresh ingredients, and unforgettable flavors.')
+    ? ('Experience gourmet dining crafted with passion, fresh ingredients, and unforgettable flavors.')
     : 'Every dish is an architectural composition of rare seasonal provenance, wild herbs, and culinary precision.';
 
   // Priority sorting: Popular items come first!
@@ -1373,7 +1367,7 @@ export default function VelmoraDiningTheme({
 
   const openAboutUsEditor = () => {
     setEditingAboutUsSubtitle(themeEdits?.aboutUsSubtitle || settings?.themeSettings?.[activePresetId]?.aboutUsSubtitle || settings?.aboutUsSubtitle || 'ABOUT US');
-    setEditingAboutUsTitle(themeEdits?.aboutUsTitle || settings?.themeSettings?.[activePresetId]?.aboutUsTitle || settings?.aboutUsTitle || (lang === 'bn' ? 'কেন আমাদের কাছে খাবেন?' : 'Why Dine With Us?'));
+    setEditingAboutUsTitle(themeEdits?.aboutUsTitle || settings?.themeSettings?.[activePresetId]?.aboutUsTitle || settings?.aboutUsTitle || ('Why Dine With Us?'));
     setEditingAboutUsText(themeEdits?.aboutUsText || settings?.themeSettings?.[activePresetId]?.aboutUsText || settings?.aboutUsText || defaultAboutStory);
     setEditingAboutUsImage(activeAboutUsImage);
     const existingFeatures = themeEdits?.aboutUsFeatures || settings?.themeSettings?.[activePresetId]?.aboutUsFeatures || settings?.aboutUsFeatures;
@@ -1414,7 +1408,7 @@ export default function VelmoraDiningTheme({
     }
     setThemeEditsState(payload);
     setIsAboutUsEditorOpen(false);
-    setToastMsg(lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" সেকশনটি সফলভাবে আপডেট হয়েছে!' : '"Why Dine With Us?" section updated successfully!');
+    setToastMsg('"Why Dine With Us?" section updated successfully!');
     setTimeout(() => setToastMsg(null), 3000);
   };
 
@@ -1470,7 +1464,7 @@ export default function VelmoraDiningTheme({
 
     setThemeEditsState(payload);
     setIsHeroEditorOpen(false);
-    setToastMsg(lang === 'bn' ? 'হিরো স্লাইডার সেকশনটি সফলভাবে আপডেট হয়েছে!' : 'Hero slider section updated successfully!');
+    setToastMsg('Hero slider section updated successfully!');
     setTimeout(() => setToastMsg(null), 3000);
   };
 
@@ -1618,12 +1612,12 @@ export default function VelmoraDiningTheme({
                 ? 'bg-[#18181C] hover:bg-[#202026] border border-[#F97316]/40 text-[#F97316]'
                 : 'bg-amber-500/20 hover:bg-amber-500/30 border-2 border-amber-400/80 text-amber-300'
             } text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-2 shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95`}
-            title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section Headings & Menu Items'}
+            title={'Edit Section Headings & Menu Items'}
           >
             <Sliders className={`w-3.5 h-3.5 ${
               activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-amber-400'
             }`} />
-            <span className="text-xs">{lang === 'bn' ? 'সেকশন এডিট' : 'EDIT SECTION'}</span>
+            <span className="text-xs">{'EDIT SECTION'}</span>
           </button>
         </div>
 
@@ -1637,7 +1631,7 @@ export default function VelmoraDiningTheme({
               type="text"
               value={menuSearchQuery}
               onChange={(e) => setMenuSearchQuery(e.target.value)}
-              placeholder={lang === 'bn' ? "খাবারের নাম লিখে সরাসরি মেনু কার্ড খুঁজুন..." : "Search menu cards by food name..."}
+              placeholder={"Search menu cards by food name..."}
               className={`w-full pl-11 pr-10 py-3 rounded-full ${
                 activePresetId === 'aurelisse'
                   ? 'bg-[#EDF7E7] border-2 border-[#2e7d32]/40 text-xs sm:text-sm text-[#142412] placeholder-[#2a3e26]/60 focus:outline-none focus:border-[#2e7d32] focus:ring-2 focus:ring-[#2e7d32]/30 shadow-md'
@@ -1800,7 +1794,7 @@ export default function VelmoraDiningTheme({
                       setEditingSingleDish(dish);
                     }}
                     className="absolute top-4 left-4 z-30 w-8 h-8 rounded-full bg-black/70 hover:bg-[#F97316] text-[#F97316] hover:text-white flex items-center justify-center backdrop-blur-md transition-all active:scale-90 border border-white/10"
-                    title={lang === 'bn' ? 'খাবার এডিট করুন' : 'Edit Dish Card'}
+                    title={'Edit Dish Card'}
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                   </button>
@@ -1811,12 +1805,12 @@ export default function VelmoraDiningTheme({
                   {dish.isChefSpecial && (
                     <span className="px-2.5 py-1 rounded-full bg-[#F97316] text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
-                      <span>{lang === 'bn' ? 'শেফ স্পেশাল' : 'Special'}</span>
+                      <span>{'Special'}</span>
                     </span>
                   )}
                   {dish.isPopular && (
                     <span className="px-2.5 py-1 rounded-full bg-stone-900/90 border border-white/15 text-[#F97316] text-[10px] font-bold uppercase tracking-wider shadow-md">
-                      ★ {lang === 'bn' ? 'সিগনেচার' : 'Signature'}
+                      ★ {'Signature'}
                     </span>
                   )}
                 </div>
@@ -1871,7 +1865,7 @@ export default function VelmoraDiningTheme({
                   <div className="pt-3 flex items-center justify-between gap-2 border-t border-white/10">
                     <div className="flex flex-col">
                       <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">
-                        {lang === 'bn' ? 'মূল্য' : 'Price'}
+                        {'Price'}
                       </span>
                       <span className="text-xl sm:text-2xl font-black text-[#F97316] tracking-tight">
                         {formatPrice(dish.price)}
@@ -1889,7 +1883,7 @@ export default function VelmoraDiningTheme({
                         }}
                         className="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md transition-all active:scale-95 cursor-pointer"
                       >
-                        {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                        {'Details'}
                       </button>
                       <button
                         type="button"
@@ -1902,7 +1896,7 @@ export default function VelmoraDiningTheme({
                         className="px-3.5 sm:px-4 py-2 rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-orange-600/30 active:scale-95 transition-all cursor-pointer"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
+                        <span>{'Order'}</span>
                       </button>
                     </div>
                   </div>
@@ -1971,7 +1965,7 @@ export default function VelmoraDiningTheme({
                         : 'bg-stone-950/80 text-amber-300 border border-amber-400/40 shadow-xl backdrop-blur-md'
                     } text-[10px] font-black uppercase tracking-widest flex items-center gap-1`}>
                       <Crown className={`w-3 h-3 ${activePresetId === 'palatiora' ? 'text-slate-300' : 'text-amber-300'}`} />
-                      <span>{dish.isChefSpecial ? (lang === 'bn' ? 'শেফ স্পেশাল' : 'Michelin Special') : (activePresetId === 'aurelisse' ? 'Aurelisse Reserve' : activePresetId === 'palatiora' ? 'Cellar Reserve' : '24K Haute Reserve')}</span>
+                      <span>{dish.isChefSpecial ? ('Michelin Special') : (activePresetId === 'aurelisse' ? 'Aurelisse Reserve' : activePresetId === 'palatiora' ? 'Cellar Reserve' : '24K Haute Reserve')}</span>
                     </span>
                     {dish.isPopular && (
                       <span className={`px-2.5 py-1 rounded-full ${
@@ -1981,7 +1975,7 @@ export default function VelmoraDiningTheme({
                           ? 'bg-slate-700 text-white font-black shadow-md'
                           : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-600 text-stone-950'
                       } text-[10px] font-black uppercase tracking-widest shadow-lg`}>
-                        ★ {lang === 'bn' ? 'সিগনেচার' : 'Signature'}
+                        ★ {'Signature'}
                       </span>
                     )}
                   </div>
@@ -2027,9 +2021,9 @@ export default function VelmoraDiningTheme({
                     }`}>
                       <span>{
                         activePresetId === 'aurelisse' 
-                          ? (lang === 'bn' ? '★ গুরমে ফ্লেম-গ্রিলড ওয়াগিউ ★' : '★ 5-STAR GOURMET WAGYU & BURGERS ★') 
+                          ? ('★ 5-STAR GOURMET WAGYU & BURGERS ★') 
                           : activePresetId === 'palatiora'
-                          ? (lang === 'bn' ? '★ স্মোকি অ্যাশ সেলার ও ড্রাই-এজড স্টেক ★' : '★ SMOKEY ASH CELLAR & DRY-AGED STEAKS ★')
+                          ? ('★ SMOKEY ASH CELLAR & DRY-AGED STEAKS ★')
                           : '★ 5-STAR MICHELIN GASTRONOMY ★'
                       }</span>
                     </div>
@@ -2073,7 +2067,7 @@ export default function VelmoraDiningTheme({
                           : 'bg-stone-950/80 hover:bg-stone-900 border border-amber-400/40 text-amber-200 font-bold'
                       } text-[11px] uppercase tracking-wider backdrop-blur-md transition-all text-center cursor-pointer active:scale-95 shadow-xs`}
                     >
-                      {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                      {'Details'}
                     </button>
                     <button 
                       type="button"
@@ -2092,7 +2086,7 @@ export default function VelmoraDiningTheme({
                       } text-[11px] uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer`}
                     >
                       <ShoppingBag className={`w-3.5 h-3.5 ${activePresetId === 'aurelisse' || activePresetId === 'palatiora' ? 'text-white' : 'text-stone-950'}`} />
-                      <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
+                      <span>{'Order'}</span>
                     </button>
                   </div>
                 </div>
@@ -2129,10 +2123,10 @@ export default function VelmoraDiningTheme({
                       setEditingSingleDish(dish);
                     }}
                     className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 border border-white/60 transition-transform hover:scale-105 active:scale-95 cursor-pointer z-20"
-                    title={lang === 'bn' ? 'খাবার এডিট ও ছবি আপলোড করুন' : 'Edit food item & upload photo'}
+                    title={'Edit food item & upload photo'}
                   >
                     <Edit3 className="w-3.5 h-3.5 text-slate-950" />
-                    <span>{lang === 'bn' ? 'এডিট' : 'EDIT'}</span>
+                    <span>{'EDIT'}</span>
                   </button>
 
                   {dish.calories && (
@@ -2172,7 +2166,7 @@ export default function VelmoraDiningTheme({
                       }}
                       className="py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0f2942] text-xs font-black uppercase tracking-wider text-center transition-all cursor-pointer active:scale-95"
                     >
-                      {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                      {'Details'}
                     </button>
                     <button
                       type="button"
@@ -2184,7 +2178,7 @@ export default function VelmoraDiningTheme({
                       className="py-2.5 rounded-2xl bg-[#0f2942] hover:bg-[#b91c1c] text-[#fdf4e7] text-xs font-black uppercase tracking-wider text-center flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
                     >
                       <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
-                      <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
+                      <span>{'Order'}</span>
                     </button>
                   </div>
                 </div>
@@ -2220,10 +2214,10 @@ export default function VelmoraDiningTheme({
                       setEditingSingleDish(dish);
                     }}
                     className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1 border border-white/60 transition-transform hover:scale-105 active:scale-95 cursor-pointer z-20"
-                    title={lang === 'bn' ? 'খাবার এডিট করুন' : 'Edit Dish'}
+                    title={'Edit Dish'}
                   >
                     <Edit3 className="w-3 h-3 text-slate-950" />
-                    <span>{lang === 'bn' ? 'এডিট' : 'EDIT'}</span>
+                    <span>{'EDIT'}</span>
                   </button>
 
                   {dish.calories && (
@@ -2268,7 +2262,7 @@ export default function VelmoraDiningTheme({
                           : 'bg-black/40 border border-white/20 text-[#FBF8EE] hover:border-white/50'
                       } text-[11px] font-bold uppercase tracking-wider transition-colors text-center`}
                     >
-                      {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                      {'Details'}
                     </button>
                     <button
                       onClick={() => {
@@ -2279,7 +2273,7 @@ export default function VelmoraDiningTheme({
                       className={`py-2 rounded-xl ${pageCfg.accentGradient} text-[11px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-1`}
                     >
                       <ShoppingBag className="w-3 h-3" />
-                      <span>{lang === 'bn' ? 'অর্ডার' : 'Order'}</span>
+                      <span>{'Order'}</span>
                     </button>
                   </div>
                 </div>
@@ -2324,14 +2318,12 @@ export default function VelmoraDiningTheme({
                       className="text-4xl sm:text-5xl md:text-6xl font-normal text-white tracking-tight leading-tight"
                       style={{ fontFamily: "'Playfair Display', 'DM Serif Display', serif" }}
                     >
-                      {lang === 'bn' ? 'আমাদের সেরা রাঁধুনি' : 'Crafted by Experts'}
+                      {'Crafted by Experts'}
                     </h2>
                   </div>
                   <div className="md:col-span-5 text-left md:text-right">
                     <p className="text-stone-400 text-xs sm:text-sm max-w-md font-light leading-relaxed md:ml-auto">
-                      {lang === 'bn'
-                        ? 'প্রতিটি খাবারের পেছনে রয়েছে আমাদের দক্ষ রন্ধনশিল্পীদের ভালোবাসা, অভিজ্ঞতা এবং নিখুঁত শিল্পের ছোঁয়া।'
-                        : 'Each dish begins with vision, skill, and passion. Get to know the culinary artists who turn fresh ingredients into works of art.'}
+                      {'Each dish begins with vision, skill, and passion. Get to know the culinary artists who turn fresh ingredients into works of art.'}
                     </p>
                   </div>
                 </div>
@@ -2429,7 +2421,7 @@ export default function VelmoraDiningTheme({
                     activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'
                   }`}>
                     <ChefHat className={`w-4 h-4 ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'orivelle-house' ? 'text-amber-400' : 'text-[#B8860B]'}`} />
-                    {lang === 'bn' ? '— রাজকীয় রন্ধনশিল্পী ও মাস্টার শেফ —' : '— MAESTROS OF THE PALACE —'}
+                    {'— MAESTROS OF THE PALACE —'}
                   </span>
                   <h2 
                     className={`text-3xl sm:text-4xl md:text-5xl font-black ${
@@ -2441,14 +2433,12 @@ export default function VelmoraDiningTheme({
                     }`}
                     style={{ fontFamily: activePresetId === 'orivelle-house' ? "'Cinzel', serif" : (fontDisplay || "'Playfair Display', serif") }}
                   >
-                    {lang === 'bn' ? 'এক্সিকিউটিভ শেফ ও কালিনারি মাস্টার্স' : 'Executive Chefs & Master Sommeliers'}
+                    {'Executive Chefs & Master Sommeliers'}
                   </h2>
                   <p className={`text-xs sm:text-sm max-w-xl mx-auto font-medium ${
                     activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : activePresetId === 'orivelle-house' ? 'text-stone-300/80 font-light' : 'text-[#5C4033]/80'
                   }`}>
-                    {lang === 'bn'
-                      ? 'আন্তর্জাতিক রন্ধনশিল্পের অনন্য স্বাদ ও রাজকীয় পরিবেশনার পেছনের কারিগরগণ।'
-                      : 'Where culinary mastery meets regal grandeur curated by world-renowned gastronomy masters.'}
+                    {'Where culinary mastery meets regal grandeur curated by world-renowned gastronomy masters.'}
                   </p>
                 </div>
 
@@ -2551,7 +2541,7 @@ export default function VelmoraDiningTheme({
                             <span className={`text-[10px] shrink-0 font-mono ml-2 ${
                               activePresetId === 'aurelisse' ? 'text-[#2a3e26]' : !isCoffeeTheme || activePresetId === 'orivelle-house' ? 'text-stone-400' : 'text-slate-500'
                             }`}>
-                              {chef.experienceYears}+ {lang === 'bn' ? 'বছরের অভিজ্ঞতা' : 'Yrs Exp'}
+                              {chef.experienceYears}+ {'Yrs Exp'}
                             </span>
                           )}
                         </div>
@@ -2840,10 +2830,10 @@ export default function VelmoraDiningTheme({
                     type="button"
                     onClick={() => setSelectedDishDetail(null)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs border shadow-2xs transition-all cursor-pointer active:scale-95 ${activePresetId === 'aurelisse' ? 'bg-[#dcedd5] hover:bg-[#cee6c5] text-[#142412] border-[#2e7d32]/30' : activePresetId === 'palatiora' ? 'bg-white/10 hover:bg-white/20 text-white border-white/10' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200'}`}
-                    title={lang === 'bn' ? 'মেনু পেজে ফিরে যান' : 'Back to menu'}
+                    title={'Back to menu'}
                   >
                     <ArrowLeft className={`w-4 h-4 ${activePresetId === 'aurelisse' ? 'text-[#142412]' : activePresetId === 'palatiora' ? 'text-white' : 'text-slate-700'}`} />
-                    <span className="font-extrabold">{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                    <span className="font-extrabold">{'Back'}</span>
                   </button>
                 </div>
 
@@ -2854,7 +2844,7 @@ export default function VelmoraDiningTheme({
                     <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${activePresetId === 'aurelisse' ? 'text-[#2e7d32]' : activePresetId === 'palatiora' ? 'text-[#F97316]' : 'text-slate-400'}`} />
                     <input
                       type="text"
-                      placeholder={lang === 'bn' ? "খাবার খুঁজুন..." : "Find dish..."}
+                      placeholder={"Find dish..."}
                       value={modalSearchTerm}
                       onChange={(e) => {
                         const q = e.target.value;
@@ -3346,7 +3336,7 @@ export default function VelmoraDiningTheme({
                     }
                     setSavedDishIds(prev => new Set(prev).add(editingSingleDish.id));
                     setEditingSingleDish(null);
-                    setToastMsg(lang === 'bn' ? '✅ সেভ হয়েছে (Saved successfully)!' : '✅ Saved successfully!');
+                    setToastMsg('✅ Saved successfully!');
                     setTimeout(() => setToastMsg(null), 3000);
                   }}
                   className="px-8 py-2.5 rounded-xl bg-amber-500 border-2 border-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider shadow-md hover:bg-amber-600 hover:border-amber-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
@@ -3385,7 +3375,7 @@ export default function VelmoraDiningTheme({
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#FBF8EE]">
-                      {lang === 'bn' ? 'মেন্যু কার্ড ও খাবার এডিটর' : 'Food Menu Studio Editor'}
+                      {'Food Menu Studio Editor'}
                     </h3>
                     <p className="text-xs text-[#FBF8EE]/60 font-light">
                       Customize dishes, titles, prices, images & badges for "{activePresetId}"
@@ -3479,7 +3469,7 @@ export default function VelmoraDiningTheme({
                     <div className="space-y-3 pt-3 border-t border-[#D4AF37]/20">
                       <div className="flex items-center justify-between">
                         <label className="text-[#D4AF37] font-bold uppercase tracking-wider block">
-                          {lang === 'bn' ? 'ক্যাটাগরি পিল বাটন সমূহ (Category Tabs)' : 'Category Filter Buttons'}
+                          {'Category Filter Buttons'}
                         </label>
                         <span className="text-[10px] text-stone-400 font-mono">
                           {editingCategories.length} tabs
@@ -3508,7 +3498,7 @@ export default function VelmoraDiningTheme({
 
                     {/* Quick Heading Presets */}
                     <div className="space-y-2 pt-2 border-t border-[#D4AF37]/20">
-                      <span className="text-[10px] font-bold text-stone-400 block">{lang === 'bn' ? 'তাত্ক্ষণিক প্রিসেট সমূহ:' : 'Quick Heading Presets:'}</span>
+                      <span className="text-[10px] font-bold text-stone-400 block">Quick Heading Presets:</span>
                       <div className="flex items-center gap-2 flex-wrap">
                         {[
                           {
@@ -3764,7 +3754,7 @@ export default function VelmoraDiningTheme({
                     }
                     setThemeEditsState(payload);
                     setIsMenuEditorOpen(false);
-                    setToastMsg(lang === 'bn' ? '✅ মেনু সেকশন ও শিরোনাম সফলভাবে আপডেট হয়েছে!' : '✅ Menu section & headings updated successfully!');
+                    setToastMsg('✅ Menu section & headings updated successfully!');
                     setTimeout(() => setToastMsg(null), 3000);
                   }}
                   className="px-7 py-2.5 rounded-xl bg-transparent border border-white/30 text-white font-bold text-xs uppercase tracking-wider shadow-lg cursor-pointer hover:bg-[#D4AF37] hover:text-stone-950 hover:border-[#D4AF37] transition-all duration-300 flex items-center gap-2"
@@ -3805,10 +3795,10 @@ export default function VelmoraDiningTheme({
                   </div>
                   <div>
                     <h3 className="font-black text-sm text-[#FBF8EE] uppercase tracking-wider">
-                      {lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" সেকশন এডিটর' : 'Edit "Why Dine With Us?" (About Us) Section'}
+                      {'Edit "Why Dine With Us?" (About Us) Section'}
                     </h3>
                     <p className="text-[11px] text-[#FBF8EE]/60 font-light">
-                      {lang === 'bn' ? 'শিরোনাম, বিবরণ, ছবি ও ৪টি মূল ফিচার পরিবর্তন করুন' : 'Edit badge, title, story, image & 4 feature bullet points'}
+                      {'Edit badge, title, story, image & 4 feature bullet points'}
                     </p>
                   </div>
                 </div>
@@ -3827,7 +3817,7 @@ export default function VelmoraDiningTheme({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'টপ সাবটাইটেল ব্যাজ (Badge)' : 'Top Subtitle Badge'}
+                      {'Top Subtitle Badge'}
                     </label>
                     <input
                       type="text"
@@ -3840,7 +3830,7 @@ export default function VelmoraDiningTheme({
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'প্রধান শিরোনাম (Main Title)' : 'Main Title Heading'}
+                      {'Main Title Heading'}
                     </label>
                     <input
                       type="text"
@@ -3855,7 +3845,7 @@ export default function VelmoraDiningTheme({
                 {/* 2. Story / Description */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                    {lang === 'bn' ? 'পরিচিতি বিবরণ / গল্প (Story Description)' : 'Story Description'}
+                    {'Story Description'}
                   </label>
                   <textarea
                     rows={3}
@@ -3869,7 +3859,7 @@ export default function VelmoraDiningTheme({
                 {/* 3. Section Image */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                    {lang === 'bn' ? 'সেকশনের ছবি (Section Image)' : 'Section Image URL'}
+                    {'Section Image URL'}
                   </label>
                   <div className="flex flex-col sm:flex-row gap-3 items-center">
                     <div className="w-20 h-20 rounded-2xl overflow-hidden bg-black border border-[#D4AF37]/40 shrink-0 shadow-md">
@@ -3888,7 +3878,7 @@ export default function VelmoraDiningTheme({
                         className="w-full bg-[#090805] border border-[#D4AF37]/40 rounded-xl px-4 py-2.5 text-xs text-[#FBF8EE] outline-none focus:border-[#D4AF37] font-mono"
                       />
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] text-stone-400 font-bold">{lang === 'bn' ? 'প্রিসেট ছবি:' : 'Presets:'}</span>
+                        <span className="text-[10px] text-stone-400 font-bold">Presets:</span>
                         {[
                           { label: '☕ Coffee Barista', url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&auto=format&fit=crop' },
                           { label: '🍽️ Luxury Dining', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000&auto=format&fit=crop' },
@@ -3912,7 +3902,7 @@ export default function VelmoraDiningTheme({
                 {/* 4. 4 Feature Bullet Points */}
                 <div className="space-y-3 pt-3 border-t border-[#D4AF37]/20">
                   <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest flex items-center justify-between">
-                    <span>{lang === 'bn' ? '৪টি মূল বৈশিষ্ট্য (4 Features Checklist)' : '4 Key Feature Bullet Points'}</span>
+                    <span>{'4 Key Feature Bullet Points'}</span>
                     <span className="text-[10px] font-normal text-amber-300">4 Points</span>
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3961,7 +3951,7 @@ export default function VelmoraDiningTheme({
                   className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#b58f27] hover:brightness-110 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-2 active:scale-95"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{lang === 'bn' ? 'সংরক্ষণ করুন (Save)' : 'Save Changes'}</span>
+                  <span>{'Save Changes'}</span>
                 </button>
               </div>
             </motion.div>
@@ -3996,10 +3986,10 @@ export default function VelmoraDiningTheme({
                   </div>
                   <div>
                     <h3 className="font-black text-sm text-[#FBF8EE] uppercase tracking-wider">
-                      {lang === 'bn' ? `হিরো স্লাইডার এডিটর (স্লাইড #${editingSlideIndex + 1})` : `Edit Hero Slider (Slide #${editingSlideIndex + 1})`}
+                      {`Edit Hero Slider (Slide #${editingSlideIndex + 1})`}
                     </h3>
                     <p className="text-[11px] text-[#FBF8EE]/60 font-light">
-                      {lang === 'bn' ? 'এই স্লাইডের শিরোনাম, ট্যাগলাইন, বিবরণ ও বাটনের লেখাগুলো পরিবর্তন করুন' : 'Change titles, descriptions, tags, and button texts for this slide'}
+                      {'Change titles, descriptions, tags, and button texts for this slide'}
                     </p>
                   </div>
                 </div>
@@ -4018,7 +4008,7 @@ export default function VelmoraDiningTheme({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'সাবটাইটেল / আইব্রো (Subtitle)' : 'Subtitle / Eyebrow'}
+                      {'Subtitle / Eyebrow'}
                     </label>
                     <input
                       type="text"
@@ -4031,7 +4021,7 @@ export default function VelmoraDiningTheme({
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'প্রধান শিরোনাম (Main Title)' : 'Main Title'}
+                      {'Main Title'}
                     </label>
                     <input
                       type="text"
@@ -4046,7 +4036,7 @@ export default function VelmoraDiningTheme({
                 {/* 2. Description */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                    {lang === 'bn' ? 'সংক্ষিপ্ত বিবরণ (Description)' : 'Slide Description / Story'}
+                    {'Slide Description / Story'}
                   </label>
                   <textarea
                     rows={3}
@@ -4061,7 +4051,7 @@ export default function VelmoraDiningTheme({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'সেকেন্ডারি ব্যাজ নাম (Secondary Badge)' : 'Secondary Badge Text (Dish/Item)'}
+                      {'Secondary Badge Text (Dish/Item)'}
                     </label>
                     <input
                       type="text"
@@ -4074,7 +4064,7 @@ export default function VelmoraDiningTheme({
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'মূল্য বা স্পেশাল লেবেল (Price/Label)' : 'Price or Special Label'}
+                      {'Price or Special Label'}
                     </label>
                     <input
                       type="text"
@@ -4090,7 +4080,7 @@ export default function VelmoraDiningTheme({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'অর্ডার বাটনের লেখা (Primary CTA Button)' : 'Primary Button Text'}
+                      {'Primary Button Text'}
                     </label>
                     <input
                       type="text"
@@ -4103,7 +4093,7 @@ export default function VelmoraDiningTheme({
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
-                      {lang === 'bn' ? 'বুকিং বাটনের লেখা (Secondary CTA Button)' : 'Secondary Button Text'}
+                      {'Secondary Button Text'}
                     </label>
                     <input
                       type="text"
@@ -4131,7 +4121,7 @@ export default function VelmoraDiningTheme({
                   className="px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#b58f27] hover:brightness-110 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-2 active:scale-95"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{lang === 'bn' ? 'সংরক্ষণ করুন (Save)' : 'Save Changes'}</span>
+                  <span>{'Save Changes'}</span>
                 </button>
               </div>
             </motion.div>
@@ -4186,7 +4176,7 @@ export default function VelmoraDiningTheme({
                 ? "w-8 h-8 bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06] flex items-center justify-center rounded-full transition-transform active:scale-90 cursor-pointer shadow-lg border border-white/30 pointer-events-auto"
                 : "w-11 h-11 bg-[#DA9F93] hover:bg-[#c88d81] text-[#120a06] flex items-center justify-center rounded-xl transition-transform active:scale-90 cursor-pointer shadow-2xl border border-white/20 pointer-events-auto"
             }
-            title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+            title={'Scroll to top'}
             aria-label="Scroll to top"
           >
             <ChevronUp className={isMobile ? "w-4 h-4 stroke-[2.5]" : "w-6 h-6 stroke-[2.5]"} />

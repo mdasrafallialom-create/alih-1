@@ -1185,7 +1185,7 @@ export default function QrCodeManager({
             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <Grid className="w-4 h-4 text-amber-500" />
-                Select Frame & Shape Geometry (শেপ ও ফ্রেম স্টাইল)
+                Select Frame & Shape Geometry 
               </h3>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">

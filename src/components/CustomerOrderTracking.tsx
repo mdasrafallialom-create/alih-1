@@ -27,10 +27,10 @@ export default function CustomerOrderTracking({ orders, tableNumber, lang }: Cus
   if (myActiveOrders.length === 0) return null;
 
   const statuses = [
-    { id: 'Pending', label: lang === 'en' ? 'Order Received' : lang === 'ar' ? 'تم استلام الطلب' : 'অর্ডার গ্রহণ করা হয়েছে', icon: Clock, desc: lang === 'en' ? 'At Manager\'s Computer' : lang === 'ar' ? 'عند جهاز المدير' : 'ম্যানেজারের কম্পিউটারে আছে' },
-    { id: 'Confirmed', label: lang === 'en' ? 'Confirmed' : lang === 'ar' ? 'تم التأكيد' : 'অর্ডার কনফার্মড', icon: Info, desc: lang === 'en' ? 'Order Confirmed' : lang === 'ar' ? 'تم تأكيد طلبك' : 'অর্ডার কনফার্মড' },
-    { id: 'Kitchen', label: lang === 'en' ? 'Kitchen' : lang === 'ar' ? 'في المطبخ' : 'কিচেন', icon: Flame, desc: lang === 'en' ? 'Cooking in Kitchen' : lang === 'ar' ? 'يتم الطهي الآن' : 'কিচেনে রান্না হচ্ছে' },
-    { id: 'Serving', label: lang === 'en' ? 'Serving' : lang === 'ar' ? 'جاري التقديم' : 'সার্ভিং', icon: Send, desc: lang === 'en' ? 'Bringing Food' : lang === 'ar' ? 'يتم إحضار الطعام' : 'খাবার আনা হচ্ছে' }
+    { id: 'Pending', label: lang === 'ar' ? 'تم استلام الطلب' : 'Order Received', icon: Clock, desc: lang === 'ar' ? 'عند جهاز المدير' : 'At Manager\'s Computer' },
+    { id: 'Confirmed', label: lang === 'ar' ? 'تم التأكيد' : 'Confirmed', icon: Info, desc: lang === 'ar' ? 'تم تأكيد طلبك' : 'Order Confirmed' },
+    { id: 'Kitchen', label: lang === 'ar' ? 'في المطبخ' : 'Kitchen', icon: Flame, desc: lang === 'ar' ? 'يتم الطهي الآن' : 'Cooking in Kitchen' },
+    { id: 'Serving', label: lang === 'ar' ? 'جاري التقديم' : 'Serving', icon: Send, desc: lang === 'ar' ? 'يتم إحضار الطعام' : 'Bringing Food' }
   ];
 
   const getStatusIndex = (status: string) => {
@@ -46,15 +46,15 @@ export default function CustomerOrderTracking({ orders, tableNumber, lang }: Cus
           </div>
           <div>
             <h2 className="text-xl font-display font-extrabold text-slate-900">
-              {lang === 'en' ? 'Your Active Orders' : lang === 'ar' ? 'طلباتক النشطة' : 'আপনার বর্তমান অর্ডারসমূহ'}
+              {lang === 'ar' ? 'طلباتك النشطة' : 'Your Active Orders'}
             </h2>
             <p className="text-xs text-slate-500 font-mono">
-              {lang === 'en' ? 'Real-time status of your meal' : lang === 'ar' ? 'حالة وجبتك في الوقت الفعلي' : 'আপনার খাবারের লাইভ আপডেট'}
+              {lang === 'ar' ? 'حالة وجبتك في الوقت الفعلي' : 'Real-time status of your meal'}
             </p>
           </div>
         </div>
         <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-mono text-[10px] font-bold uppercase tracking-wider border border-slate-200">
-          {lang === 'en' ? 'Table' : lang === 'ar' ? 'طاولة' : 'টেবিল'} {tableNumber}
+          {lang === 'ar' ? 'طاولة' : 'Table'} {tableNumber}
         </span>
       </div>
 

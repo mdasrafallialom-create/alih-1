@@ -22,6 +22,8 @@ import FoodDetailView from './components/FoodDetailView';
 import AboutAndPricing from './components/AboutAndPricing';
 import ChefSection from './components/ChefSection';
 import WebAROSPortalLanding from './components/WebAROSPortalLanding';
+import { TrialTimerBanner } from './components/TrialTimerBanner';
+import { DemoTrialModal, TrialSessionData } from './components/DemoTrialModal';
 import { LUXURY_THEMES } from './data/luxuryThemes';
 
 // High-speed lightweight spinner fallback
@@ -160,14 +162,7 @@ export default function App() {
     return 'edit';
   });
 
-  const [showTopPlanPopup, setShowTopPlanPopup] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const plan = params.get('plan')?.toLowerCase();
-      return Boolean(plan === '15' || plan === '49' || plan === '99' || plan === 'basic' || plan === 'pro' || plan === 'elite');
-    }
-    return false;
-  });
+  const [showTopPlanPopup, setShowTopPlanPopup] = useState<boolean>(false);
 
   const handleSwitchSection = useCallback((section: 'edit' | 'plan1' | 'plan2' | 'plan3') => {
     setActiveWorkSection(section);
@@ -192,13 +187,13 @@ export default function App() {
       }, 100);
     } else if (section === 'plan1') {
       setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: 'basic' }) : prev);
-      setShowTopPlanPopup(true);
+      setShowTopPlanPopup(false);
     } else if (section === 'plan2') {
       setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: 'pro' }) : prev);
-      setShowTopPlanPopup(true);
+      setShowTopPlanPopup(false);
     } else if (section === 'plan3') {
       setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: 'elite' }) : prev);
-      setShowTopPlanPopup(true);
+      setShowTopPlanPopup(false);
     }
   }, []);
 
@@ -523,11 +518,12 @@ export default function App() {
   const [showTracking, setShowTracking] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  // 1.5 Language & RTL Management
+  // 1.5 Language & RTL Management (English & Arabic only)
   const [lang, setLang] = useState<Language>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('webar_preferred_lang') || localStorage.getItem('laura_preferred_lang');
-      return (saved as Language) || 'en';
+      const resolved = (saved as Language) || 'en';
+      return resolved;
     }
     return 'en';
   });
@@ -650,7 +646,7 @@ export default function App() {
         restaurantId: activeRestaurantId,
         type: 'General'
       });
-      alert(lang === 'bn' ? 'ওয়েটারকে খবর দেওয়া হয়েছে। দয়া করে অপেক্ষা করুন।' : 'Waiter has been requested. Please wait.');
+      alert('Waiter has been requested. Please wait.');
     } catch (error) {
       console.error("Error requesting waiter:", error);
     }
@@ -879,6 +875,17 @@ export default function App() {
       else if (planParam === '49' || planParam === 'pro') enforcedPlan = 'pro';
       else if (planParam === '99' || planParam === 'elite' || planParam === 'premium') enforcedPlan = 'elite';
 
+      // Check for active demo trial session and force matches!
+      try {
+        const savedTrial = localStorage.getItem('webar_trial_session');
+        if (savedTrial) {
+          const parsedTrial = JSON.parse(savedTrial);
+          if (parsedTrial && parsedTrial.planId) {
+            enforcedPlan = parsedTrial.planId;
+          }
+        }
+      } catch (e) {}
+
       const savedSettings = localStorage.getItem('webar_admin_settings');
       if (savedSettings) {
         try {
@@ -895,10 +902,10 @@ export default function App() {
             return lower === 'sahinsh' || lower === 'askul' || lower === 'koppee' || lower === 'velmora dining' || lower === 'velmora' || lower === 'lunavere' || lower === "l'aura webar restaurant" || lower === 'the golden fork';
           };
           if (isDemoBrand(parsed.brandName)) {
-            parsed.brandName = 'My Restaurant';
+            parsed.brandName = 'Avernao';
           }
           if (isDemoBrand(parsed.restaurantName)) {
-            parsed.restaurantName = 'My Restaurant';
+            parsed.restaurantName = 'Avernao';
           }
           if (parsed.brandLocation) {
             parsed.brandLocation = parsed.brandLocation
@@ -922,8 +929,8 @@ export default function App() {
       if (enforcedPlan) {
         return {
           id: 'demo-restaurant',
-          restaurantName: "My Restaurant",
-          brandName: "My Restaurant",
+          restaurantName: "FR NOW",
+          brandName: "FR NOW",
           brandLocation: "",
           subscriptionPlan: enforcedPlan,
           subscriptionStatus: 'active',
@@ -972,18 +979,37 @@ export default function App() {
     }
   };
 
-  // Handle exiting a theme view (returns to Main Website Starting Portal)
+  // Handle exiting a theme view (returns to Main Website Starting Portal at that exact plan)
   const handleExitThemeView = () => {
     setIsExitingTheme(true);
     setActiveThemeId(null);
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('webar_active_theme_id');
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPlan = urlParams.get('plan');
+        const planCode = urlPlan === '15' || urlPlan === 'basic' || effectiveThemeId === 'koppee' ? '15' :
+                         urlPlan === '99' || urlPlan === 'elite' || effectiveThemeId === 'lunavere' ? '99' : '49';
+        
         const url = new URL(window.location.href);
         url.searchParams.delete('theme');
         url.searchParams.delete('standalone');
         url.searchParams.delete('preview');
-        window.history.replaceState({}, '', url.pathname);
+        url.searchParams.delete('demo');
+        url.searchParams.delete('trial');
+        url.searchParams.delete('onboarding');
+        url.searchParams.delete('demo_onboarding');
+        url.searchParams.set('plan', planCode);
+        window.history.replaceState({}, '', url.toString());
+
+        // Immediately trigger opening the corresponding plan modal ($15, $49, or $99)
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('open-plan-modal', { detail: planCode }));
+          const pricingEl = document.getElementById('pricing-section') || document.getElementById('pricing');
+          if (pricingEl) {
+            pricingEl.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 120);
       } catch (e) {}
     }
   };
@@ -1038,6 +1064,7 @@ export default function App() {
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = urlParams?.get('theme');
   const isStandaloneMode = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
+  const isDemoInstance = urlParams?.get('demo') === 'true' || urlParams?.get('trial') === 'active';
   const effectiveThemeId = urlTheme || activeThemeId || adminSettings?.activeThemeId || 'velmora-dining';
   
   // Custom theme is active in client view ONLY if explicitly requested via URL query params (?theme=...) or standalone/preview mode
@@ -1095,9 +1122,10 @@ export default function App() {
           planParam === '99' || planParam === 'elite' || planParam === 'premium' ? 'elite' :
           planParam === '49' || planParam === 'pro' ? 'pro' : 'basic';
         
+        setInitialPlan(targetPlan);
         setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: targetPlan }) : {
-          restaurantName: "My Restaurant",
-          brandName: "My Restaurant",
+          restaurantName: "Avernao",
+          brandName: "Avernao",
           brandLocation: "",
           subscriptionPlan: targetPlan,
           subscriptionStatus: 'active',
@@ -1176,6 +1204,82 @@ export default function App() {
   const [adminTab, setAdminTab] = useState<'orders' | 'history' | 'qrcodes' | 'settings'>('orders');
   const [trialDismissed, setTrialDismissed] = useState<boolean>(false);
 
+  // 3-Day Free Demo Trial Onboarding Modal State
+  const [showDemoTrialModal, setShowDemoTrialModal] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      // In demo theme mode, never auto-block with modal
+      if (params.get('demo') === 'true' || params.get('theme')) return false;
+      return params.get('onboarding') === 'true' || params.get('demo_onboarding') === 'true';
+    }
+    return false;
+  });
+
+  const handleOpenDemoRegistration = (planId: SubscriptionPlan) => {
+    setInitialPlan(planId);
+    setShowDemoTrialModal(true);
+  };
+
+  useEffect(() => {
+    const handleOpenDemoModal = (e?: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent?.detail) {
+        const p = String(customEvent.detail).toLowerCase();
+        const targetPlan: SubscriptionPlan = 
+          p === '15' || p === 'basic' ? 'basic' :
+          p === '99' || p === 'elite' ? 'elite' : 'pro';
+        setInitialPlan(targetPlan);
+      }
+      setShowDemoTrialModal(true);
+    };
+    window.addEventListener('open-demo-trial-modal', handleOpenDemoModal);
+    return () => window.removeEventListener('open-demo-trial-modal', handleOpenDemoModal);
+  }, []);
+
+  // 3-Day Free Demo Trial Session State
+  const [trialSession, setTrialSession] = useState<TrialSessionData | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('webar_trial_session');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return null;
+  });
+
+  const handleStartDemoTrial = (planId: SubscriptionPlan) => {
+    const now = Date.now();
+    const newTrialSession: TrialSessionData = {
+      fullName: 'Demo Guest',
+      role: 'Manager',
+      restaurantName: (adminSettings as any)?.restaurantName || (adminSettings as any)?.brandName || 'Avernao',
+      restaurantLocation: 'Dhaka, Bangladesh',
+      country: 'Bangladesh',
+      category: 'finedining',
+      email: 'demo@restaurant.com',
+      phone: '+1234567890',
+      zipCode: '10001',
+      planId: planId,
+      billingCycle: 'monthly',
+      themePresetId: activeThemeId || 'velmora',
+      startTime: now,
+      expiresAt: now + (3 * 24 * 60 * 60 * 1000)
+    };
+    setTrialSession(newTrialSession);
+    try {
+      localStorage.setItem('webar_trial_active', 'true');
+      localStorage.setItem('webar_trial_session', JSON.stringify(newTrialSession));
+    } catch (e) {}
+
+    if (planId === 'basic') {
+      setActiveThemeId('koppee');
+    } else if (planId === 'pro') {
+      setActiveThemeId('velmora');
+    } else if (planId === 'elite') {
+      setActiveThemeId('lunavere');
+    }
+  };
+
   useEffect(() => {
     if (!activeRestaurantId) return;
     
@@ -1191,6 +1295,12 @@ export default function App() {
         } else if (planParam === '99' || planParam === 'elite' || planParam === 'premium') {
           data.subscriptionPlan = 'elite';
         }
+        
+        // Ensure that if a demo trial is active, the subscription plan matches the trial session planId exactly!
+        if (trialSession && trialSession.planId) {
+          data.subscriptionPlan = trialSession.planId;
+        }
+
         if (data.brandLocation) {
           data.brandLocation = data.brandLocation
             .replace(/Hyderabad,?\s*Sindh,?\s*Pakistan,?\s*/gi, '')
@@ -1212,6 +1322,38 @@ export default function App() {
     });
     return () => unsubscribe();
   }, [activeRestaurantId]);
+
+  // Synchronize registered trialSession brand details directly into adminSettings
+  useEffect(() => {
+    if (trialSession) {
+      setAdminSettings(prev => {
+        const base = prev || {
+          restaurantName: "Avernao",
+          brandName: "Avernao",
+          brandLocation: "Dhaka, Bangladesh",
+          subscriptionPlan: trialSession.planId || "pro",
+          subscriptionStatus: "active",
+          theme: "light",
+          audioEnabled: true,
+          autoAcceptOrders: false,
+          securityPinRequired: true,
+          whatsappNumber: "",
+          currency: "USD",
+          taxRate: 5,
+          customDomain: ""
+        };
+        return {
+          ...base,
+          restaurantName: trialSession.restaurantName || "Avernao",
+          brandName: trialSession.restaurantName || "Avernao",
+          brandLocation: trialSession.restaurantLocation || "Dhaka, Bangladesh",
+          subscriptionPlan: trialSession.planId || "pro",
+          subscriptionStatus: "trial",
+          activeThemeId: trialSession.themePresetId || base.activeThemeId
+        };
+      });
+    }
+  }, [trialSession]);
 
   const [isMasterAdminUnlocked, setIsMasterAdminUnlocked] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -1342,11 +1484,11 @@ export default function App() {
   };
 
   const getLogoInitials = (name: string) => {
-    if (!name || isDemoBrandHelper(name)) return ["M", "R"];
+    if (!name || isDemoBrandHelper(name)) return ["A", "V"];
     
     // Remove non-alphanumeric characters except spaces
     const cleanName = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    if (!cleanName || isDemoBrandHelper(cleanName)) return ["M", "R"];
+    if (!cleanName || isDemoBrandHelper(cleanName)) return ["A", "V"];
     
     const parts = cleanName.split(/\s+/);
     if (parts.length >= 2 && parts[0] && parts[1]) {
@@ -1357,12 +1499,12 @@ export default function App() {
       return [cleanName[0].toUpperCase(), cleanName[1].toUpperCase()];
     }
     
-    return ["M", "R"];
+    return ["A", "V"];
   };
 
   // Helper to render a high-end designer SVG monogram logo
   const renderMonogramLogo = (brandName: string, isLight: boolean = false, size: 'sm' | 'md' | 'lg' = 'md') => {
-    const safeBrand = isDemoBrandHelper(brandName) ? 'My Restaurant' : brandName.trim();
+    const safeBrand = isDemoBrandHelper(brandName) ? 'Avernao' : brandName.trim();
     const [c1, c2] = getLogoInitials(safeBrand);
     const style = adminSettings?.logoStyle || 'crest';
     const primaryColor = adminSettings?.logoColorPrimary || '#f59e0b';
@@ -1714,11 +1856,9 @@ export default function App() {
     const plan = adminSettings?.subscriptionPlan || 'basic';
     const limit = plan === 'basic' ? 10 : plan === 'pro' ? 25 : 999;
     const itemIndex = menuItems.findIndex(i => i.id === item.id);
-    if (itemIndex >= limit) {
+        if (itemIndex >= limit) {
       alert(
-        lang === 'bn' 
-          ? `আপনার বর্তমান ${plan === 'basic' ? 'Starter ($15)' : plan === 'pro' ? 'Professional ($49)' : 'Enterprise ($99)'} প্ল্যানে প্রথম ${limit}টি খাবারের জন্য WebAR 3D কার্ড নির্ধারিত রয়েছে। পরবর্তী খাবারগুলোর ৩ডি ফিচার আনলক করতে প্ল্যান আপগ্রেড করুন।` 
-          : `Your current ${plan === 'basic' ? 'Starter ($15)' : plan === 'pro' ? 'Professional ($49)' : 'Enterprise ($99)'} plan includes WebAR 3D Cards for the first ${limit} items. Upgrade your subscription to unlock AR for more items!`
+        `Your current plan includes WebAR 3D Cards for the first ${limit} items. Upgrade your subscription to unlock AR for more items!`
       );
       return;
     }
@@ -1761,7 +1901,7 @@ export default function App() {
     if (adminSettings?.subscriptionPlan === 'basic') {
       const activeOrdersCount = orders.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
       if (activeOrdersCount >= 5) {
-        alert(lang === 'bn' ? 'বেসিক প্ল্যানে এক সাথে ৫টির বেশি অর্ডার নেওয়া সম্ভব নয়।' : 'Basic plan is limited to 5 active orders at a time.');
+        alert('Basic plan is limited to 5 active orders at a time.');
         return;
       }
     }
@@ -1825,7 +1965,7 @@ export default function App() {
       
     } catch (error) {
       console.error("Error initiating order: ", error);
-      alert("অর্ডার দিতে সমস্যা হয়েছে। (Error initiating order)");
+      alert("Error initiating order. Please try again.");
       setIsPlacingOrder(false);
     }
   };
@@ -2131,14 +2271,13 @@ export default function App() {
           
           <div className="max-w-md space-y-4">
             <span className="px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-black uppercase tracking-widest">
-              {lang === 'bn' ? 'লাইভ সিস্টেম আপডেট' : lang === 'ar' ? 'تحديث النظام المباشر' : 'Live System Update'}
+              {lang === 'ar' ? 'تحديث النظام المباشر' : 'Live System Update'}
             </span>
             <h2 className="text-2xl font-black text-white leading-tight">
-              {lang === 'bn' ? 'ওয়েবসাইট স্বয়ংক্রিয়ভাবে আপডেট হচ্ছে' : lang === 'ar' ? 'يتم تحديث الموقع تلقائياً' : 'Website Updating Automatically'}
+              {lang === 'ar' ? 'يتم تحديث الموقع تلقائياً' : 'Website Updating Automatically'}
             </h2>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm mx-auto">
-              {lang === 'bn' ? 'সিস্টেমটি নতুন ফিচার ও সুরক্ষার সাথে সফলভাবে সিঙ্ক হচ্ছে। ২ সেকেন্ডের মধ্যে রিলোড হবে।' : 
-               lang === 'ar' ? 'يتزامن النظام بنجاح مع الميزات الجديدة والأمان. سيتم إعادة التحميل خلال ثوانٍ.' : 
+              {lang === 'ar' ? 'يتزامن النظام بنجاح مع الميزات الجديدة والأمان. سيتم إعادة التحميل خلال ثوانٍ.' : 
                'The system is successfully syncing with the latest features and security updates. Reloading in a few seconds.'}
             </p>
             
@@ -2146,11 +2285,8 @@ export default function App() {
               <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                 <span className="text-white font-mono text-sm font-bold">
-                  {lang === 'bn' ? `রিলোড হচ্ছে: ${autoUpdateCountdown} সেকেন্ড` : 
-                   lang === 'ar' ? `إعادة التحميل: ${autoUpdateCountdown} ثانية` : 
-                   `Reloading in: ${autoUpdateCountdown}s`}
-                </span>
-              </div>
+                  {`Reloading in: ${autoUpdateCountdown}s`}
+                </span></div>
             </div>
           </div>
         </div>
@@ -2220,14 +2356,14 @@ export default function App() {
               <div className="flex items-center justify-between mb-4">
                 <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-600 text-white shadow-xs">
                   <ShieldCheck className="w-4 h-4" />
-                  <span>{lang === 'bn' ? 'বর্তমান সক্রিয় প্ল্যান' : 'CURRENT ACTIVE PLAN'}</span>
+                  <span>{'CURRENT ACTIVE PLAN'}</span>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setShowTopPlanPopup(false)}
                   className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
-                  title={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}
+                  title={'Close'}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2239,60 +2375,54 @@ export default function App() {
                   ${activePlanPrice}
                 </span>
                 <span className="text-sm sm:text-base font-bold uppercase tracking-widest text-slate-400">
-                  / {lang === 'bn' ? 'প্রতি মাস' : 'MONTH'}
+                  / {'MONTH'}
                 </span>
               </div>
 
               {/* Plan Title */}
               <h3 className="text-xl sm:text-2xl font-display font-black text-slate-900 uppercase tracking-tight mb-2">
                 {activePlanPrice === 99
-                  ? (lang === 'bn' ? 'এলিট লাক্সারি প্ল্যান ($৯৯/মাস)' : 'Elite Luxury Plan ($99/mo)')
+                  ? ('Elite Luxury Plan ($99/mo)')
                   : activePlanPrice === 49
-                  ? (lang === 'bn' ? 'প্রফেশনাল প্ল্যান ($৪৯/মাস)' : 'Professional Plan ($49/mo)')
-                  : (lang === 'bn' ? 'স্টার্টার প্ল্যান ($১৫/মাস)' : 'Starter Plan ($15/mo)')}
+                  ? ('Professional Plan ($49/mo)')
+                  : ('Starter Plan ($15/mo)')}
               </h3>
 
               <p className="text-xs sm:text-sm font-medium text-slate-600 mb-5 leading-relaxed">
                 {activePlanPrice === 99
-                  ? (lang === 'bn'
-                      ? '৫০টি প্রিমিয়াম থিম, ১০০০+ মেনু কার্ড স্টুডিও ডিজাইন ও বিশ্বমানের রেস্টুরেন্টের জন্য বিশেষ আয়োজন।'
-                      : '50 Premium Themes & 1000+ Menu Card Studio Designs for world-class brands.')
+                  ? ('50 Premium Themes & 1000+ Menu Card Studio Designs for world-class brands.')
                   : activePlanPrice === 49
-                  ? (lang === 'bn'
-                      ? '২৫টি প্রিমিয়াম থিম ও ৩০০+ মেনু কার্ড ডিজাইন সহ ক্রমবর্ধমান রেস্তোরাঁ ও ক্যাফের জন্য আদর্শ।'
-                      : '25 Premium Themes & 300+ Menu Card Designs for growing dining establishments.')
-                  : (lang === 'bn'
-                      ? '১০টি প্রিমিয়াম থিম ও ১০০+ মেনু কার্ড ডিজাইন সহ একক ক্যাফে ও ছোট রেস্টুরেন্টের জন্য অন্তর্ভুক্ত।'
-                      : '10 Premium Themes & 100+ Menu Card Designs included for single cafes and small restaurants.')}
+                  ? ('25 Premium Themes & 300+ Menu Card Designs for growing dining establishments.')
+                  : ('10 Premium Themes & 100+ Menu Card Designs included for single cafes and small restaurants.')}
               </p>
 
               {/* Features List (Exact 2-column layout matching plan card) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
                 {(activePlanPrice === 99
                   ? [
-                      lang === 'bn' ? '৫০টি প্রিমিয়াম থিম ও ডিজাইন' : '50 Premium Themes & Designs',
-                      lang === 'bn' ? '১০০০+ মেনু কার্ড স্টুডিও' : '1000+ Menu Card Studio Access',
-                      lang === 'bn' ? 'সব ৫০+ ৩ডি WebAR ফুড কার্ড' : '50+ 3D WebAR Food Cards',
-                      lang === 'bn' ? 'কিউআর কোড মেনু ম্যানেজমেন্ট' : 'QR Code Menu Management',
-                      lang === 'bn' ? 'ফাইন্যান্সিয়াল ও কিচেন কন্ট্রোল' : 'Financial & Kitchen Control',
-                      lang === 'bn' ? '২৪/৭ ডেডিকেটেড ভিআইপি সাপোর্ট' : '24/7 Priority VIP Concierge'
+                      '50 Premium Themes & Designs',
+                      '1000+ Menu Card Studio Access',
+                      '50+ 3D WebAR Food Cards',
+                      'QR Code Menu Management',
+                      'Financial & Kitchen Control',
+                      '24/7 Priority VIP Concierge'
                     ]
                   : activePlanPrice === 49
                   ? [
-                      lang === 'bn' ? '২৫টি প্রিমিয়াম থিম ও ডিজাইন' : '25 Premium Themes & Designs',
-                      lang === 'bn' ? '৩০০+ মেনু কার্ড ডিজাইন' : '300+ Menu Card Designs',
-                      lang === 'bn' ? '২৫টি ৩ডি WebAR ফুড কার্ড' : '25 3D WebAR Food Cards',
-                      lang === 'bn' ? 'হোয়াটসঅ্যাপ ও সরাসরি কিউআর অর্ডার' : 'WhatsApp & QR Fast Ordering',
-                      lang === 'bn' ? 'অ্যানালিটিক্স ও সেলস রিপোর্টস' : 'Analytics & Sales Engine',
-                      lang === 'bn' ? 'অগ্রাধিকার গ্রাহক সহায়তা' : 'Priority Customer Support'
+                      '25 Premium Themes & Designs',
+                      '300+ Menu Card Designs',
+                      '25 3D WebAR Food Cards',
+                      'WhatsApp & QR Fast Ordering',
+                      'Analytics & Sales Engine',
+                      'Priority Customer Support'
                     ]
                   : [
-                      lang === 'bn' ? '১০টি প্রিমিয়াম থিম ও ডিজাইন' : '10 Premium Themes & Designs',
-                      lang === 'bn' ? '১০০+ মেনু কার্ড ডিজাইন' : '100+ Menu Card Designs',
-                      lang === 'bn' ? 'অ্যাক্টিভ ড্যাশবোর্ড' : 'Active Dashboard',
-                      lang === 'bn' ? 'অর্ডার হিস্ট্রি (৭ দিন)' : 'Order History (7 Days)',
-                      lang === 'bn' ? 'মেনু ক্যাটাগরি ম্যানেজমেন্ট' : 'Menu Categories',
-                      lang === 'bn' ? 'ইমেইল সাপোর্ট' : 'Email Support'
+                      '10 Premium Themes & Designs',
+                      '100+ Menu Card Designs',
+                      'Active Dashboard',
+                      'Order History (7 Days)',
+                      'Menu Categories',
+                      'Email Support'
                     ]
                 ).map((item, i) => (
                   <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-800">
@@ -2321,12 +2451,23 @@ export default function App() {
                     : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-blue-500/20'
                 }`}
               >
-                <span>{lang === 'bn' ? '✓ ঠিক আছে (মেনু দেখুন)' : '✓ GOT IT (CONTINUE TO MENU)'}</span>
+                <span>{'✓ GOT IT (CONTINUE TO MENU)'}</span>
               </button>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* 3-Day Free Trial Live Status & Countdown Banner (Only shown in Demo Trial Instances opened in New Tab) */}
+      {isDemoInstance && trialSession && (
+        <TrialTimerBanner
+          trialSession={trialSession}
+          onOpenAdmin={enterAdminPanel}
+          onOpenCheckout={() => setShowTopPlanPopup(true)}
+          onUpdateTrialSession={(updated) => setTrialSession(updated)}
+          lang={lang}
+        />
+      )}
 
       {/* =======================================================================
           TOP BAR: BRANDING & QUICK ACCESS
@@ -2356,10 +2497,10 @@ export default function App() {
                       ? 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700 shadow-md' 
                       : 'bg-white hover:bg-slate-50 text-slate-900 border-slate-200 shadow-sm'
                   }`}
-                  title={lang === 'bn' ? 'পিছনে যান (ব্যাক)' : 'Back'}
+                  title={'Back'}
                 >
                   <ArrowLeft className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-                  <span className="font-extrabold">{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                  <span className="font-extrabold">{'Back'}</span>
                 </motion.button>
               </div>
             )}
@@ -2372,11 +2513,11 @@ export default function App() {
                   className="flex items-center gap-3 cursor-pointer group shrink-0" 
                   onClick={() => setLogoClickCount(prev => prev + 1)}
                 >
-                  {renderMonogramLogo(adminSettings?.brandName || 'My Restaurant')}
+                  {renderMonogramLogo(adminSettings?.brandName || 'Avernao')}
                   <div className="flex flex-col items-start leading-none">
                     <div className="flex items-center gap-2">
                       <h1 className="text-base font-bold text-slate-900 tracking-tight leading-none group-hover:text-cyan-600 transition-colors">
-                        {(!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? "My Restaurant" : adminSettings.brandName}
+                        {(!adminSettings?.brandName || adminSettings.brandName.toLowerCase() === 'sahinsh') ? "Avernao" : adminSettings.brandName}
                       </h1>
                     </div>
                     {adminSettings?.brandLocation && (
@@ -2395,7 +2536,7 @@ export default function App() {
                       ? 'bg-slate-900 text-white border-slate-900' 
                       : 'bg-white hover:bg-slate-100 border-slate-200'
                   }`}
-                  title={lang === 'bn' ? 'অর্ডার ট্র্যাক করুন' : 'Track Orders'}
+                  title={'Track Orders'}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -2413,34 +2554,32 @@ export default function App() {
                   </button>
                 )}
 
+
+
                 {/* WebAR OS Portal Pill Button */}
-                {activeWorkSection === 'edit' && (
-                  <button
-                    onClick={() => setShowWebARPortal(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95 select-none"
-                    title="WebAR OS Portal"
-                  >
-                    <Globe className="w-4 h-4 text-white" />
-                    <span>WebAR OS Portal</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowWebARPortal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95 select-none"
+                  title="WebAR OS Portal"
+                >
+                  <Globe className="w-4 h-4 text-white" />
+                  <span>WebAR OS Portal</span>
+                </button>
 
                 {/* Theme Workshop Pill Button */}
-                {activeWorkSection === 'edit' && (
-                  <button
-                    onClick={() => {
-                      setViewMode('admin');
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('admin-switch-tab', { detail: 'theme_store' }));
-                      }, 50);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95 select-none"
-                    title="Theme Workshop"
-                  >
-                    <Palette className="w-4 h-4 text-white" />
-                    <span>Theme Workshop</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    setViewMode('admin');
+                    setTimeout(() => {
+                      window.dispatchEvent(new CustomEvent('admin-switch-tab', { detail: 'theme_store' }));
+                    }, 50);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95 select-none"
+                  title="Theme Workshop"
+                >
+                  <Palette className="w-4 h-4 text-white" />
+                  <span>Theme Workshop</span>
+                </button>
               </div>
             )}
           </div>
@@ -2459,26 +2598,15 @@ export default function App() {
             {/* Restaurant Branding (Admin Mode Only) */}
             {viewMode === 'admin' && (
               <div className="flex items-center gap-3 select-none group cursor-pointer" onClick={() => setLogoClickCount(prev => prev + 1)}>
-                {renderMonogramLogo(adminSettings?.restaurantName || adminSettings?.brandName || 'My Restaurant')}
+                {renderMonogramLogo(adminSettings?.restaurantName || adminSettings?.brandName || 'Avernao')}
                 <div className="flex flex-col items-start leading-none">
                   <div className="flex items-center gap-2">
                     <h1 className="text-sm font-display font-black tracking-tight text-inherit group-hover:text-cyan-600 transition-colors leading-none">
                       {adminSettings?.ownerName || user?.displayName || managerSession?.name || "Md asraful"}
                     </h1>
-                    {adminSettings?.subscriptionPlan && (
-                      <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-[0.2em] shadow-sm ${
-                        adminSettings?.subscriptionPlan === 'elite' 
-                          ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-900 shadow-amber-500/20' 
-                          : adminSettings?.subscriptionPlan === 'pro'
-                          ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-orange-500/20'
-                          : 'bg-blue-600 text-white'
-                      }`}>
-                        {adminSettings?.subscriptionPlan === 'elite' ? 'Elite ($99)' : adminSettings?.subscriptionPlan === 'pro' ? 'Pro ($49)' : 'Starter ($15)'}
-                      </div>
-                    )}
                   </div>
                   <span className="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 tracking-wider uppercase leading-none mt-1">
-                    {adminSettings?.restaurantName || adminSettings?.brandName || "My Restaurant"}
+                    {adminSettings?.restaurantName || adminSettings?.brandName || "Avernao"}
                     {adminSettings?.brandLocation ? ` • ${adminSettings.brandLocation}` : ''}
                   </span>
                 </div>
@@ -2579,7 +2707,7 @@ export default function App() {
                             setIsSearchExpanded(false);
                           }
                         }}
-                        placeholder={lang === 'bn' ? "খাবার বা পাসওয়ার্ড..." : "Search foods or password..."}
+                        placeholder={"Search foods or password..."}
                         autoFocus
                         className="w-[170px] pl-8 pr-7 py-1.5 rounded-full bg-slate-100 border border-cyan-500/50 text-xs text-slate-900 focus:ring-1 focus:ring-cyan-500 outline-none focus:bg-white shadow-sm"
                       />
@@ -2747,7 +2875,7 @@ export default function App() {
                                   }}
                                   className="text-left text-[10px] font-bold text-cyan-600 uppercase hover:text-cyan-500 mt-1 cursor-pointer"
                                 >
-                                  {lang === 'bn' ? `সব ${cat.name} দেখুন →` : `View All ${cat.name} →`}
+                                  {`View All ${cat.name} →`}
                                 </button>
                               </div>
                             </div>
@@ -2791,7 +2919,7 @@ export default function App() {
                 }`}
               >
                 <ShoppingBag className="w-5 h-5" />
-                <span className="text-xs font-bold">{lang === 'en' ? 'Dishes' : lang === 'ar' ? 'أطباق' : 'খাবার'}</span>
+                <span className="text-xs font-bold">{lang === 'ar' ? 'أطباق' : 'Dishes'}</span>
               </button>
 
               {/* Cart Action */}
@@ -2807,7 +2935,7 @@ export default function App() {
                     </span>
                   )}
                 </div>
-                <span className="text-xs">{lang === 'en' ? 'Cart' : lang === 'ar' ? 'سلة' : 'কার্ট'}</span>
+                <span className="text-xs">{lang === 'ar' ? 'سلة' : 'Cart'}</span>
               </button>
             </div>
           </div>
@@ -2825,6 +2953,18 @@ export default function App() {
         {viewMode === 'client' && (
           isCustomThemeActive ? (
             <>
+              {/* Persistent Floating Return-to-Main-Website Bar */}
+              <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white backdrop-blur-xl border border-cyan-400/60 shadow-2xl transition-all hover:scale-105 active:scale-95 no-print">
+                <button
+                  type="button"
+                  onClick={handleExitThemeView}
+                  className="flex items-center gap-2 text-xs font-black text-cyan-200 hover:text-white transition-colors cursor-pointer"
+                  title={'Return to Main Website'}
+                >
+                  <Home className="w-4 h-4 text-cyan-300" />
+                  <span>{'🏠 Return to Main Website & Plans'}</span>
+                </button>
+              </div>
 
 
               {effectiveThemeId === 'lunavere' ? (
@@ -2875,7 +3015,7 @@ export default function App() {
                     {lang === 'ar' ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                   </button>
                   <h2 className="text-xs font-display font-black text-slate-900 uppercase tracking-tight">
-                    {lang === 'en' ? 'Orders' : lang === 'ar' ? 'طلباتك' : 'অর্ডারসমূহ'}
+                    {lang === 'ar' ? 'طلباتك' : 'Orders'}
                   </h2>
                 </div>
                 <Suspense fallback={<LazyFallback />}>
@@ -2912,7 +3052,7 @@ export default function App() {
                                     {(translations[lang] as any)[`cat_${categoryName.toLowerCase().replace(' ', '_')}`] || categoryName}
                                   </h2>
                                   <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-0.5">
-                                    {items.length} {lang === 'en' ? 'Items Available' : 'খাবার আছে'}
+                                    {items.length} {lang === 'ar' ? 'صنف متوفر' : 'Items Available'}
                                   </p>
                                 </div>
                               </div>
@@ -2923,7 +3063,7 @@ export default function App() {
                                 }}
                                 className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
                               >
-                                {lang === 'en' ? 'View All' : 'সব দেখুন'}
+                                {lang === 'ar' ? 'عرض الكل' : 'View All'}
                               </button>
                             </div>
 
@@ -2949,13 +3089,13 @@ export default function App() {
                         </div>
                         <h3 className="text-xl font-display font-black text-slate-900 leading-tight">
                           {searchTerm.trim() || onlyChefSpecial || onlyVegetarian || onlyPopular || onlyNew
-                            ? (lang === 'en' ? 'No items match your criteria' : lang === 'ar' ? 'لا توجد أصناف تطابق بحثক' : 'আপনার অনুসন্ধানের সাথে মিলছে এমন কিছু পাওয়া যায়নি')
+                            ? (lang === 'ar' ? 'لا توجد أصناف تطابق بحثك' : 'No items match your criteria')
                             : ""
                           }
                         </h3>
 
                         <p className="text-slate-500 font-medium mt-6 mb-8 max-w-xs mx-auto text-sm">
-                          {lang === 'en' ? 'Try resetting search query or filter settings' : lang === 'ar' ? 'حاول إعادة ضبط البحث أو الفلاتر' : 'অনুগ্রহ করে ফিল্টার পরিবর্তন করে চেষ্টা করুন'}
+                          {lang === 'ar' ? 'حاول إعادة ضبط البحث أو الفلاتر' : 'Try resetting search query or filter settings'}
                         </p>
                         <button 
                           onClick={() => {
@@ -2968,7 +3108,7 @@ export default function App() {
                           }}
                           className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95"
                         >
-                          {lang === 'en' ? 'Reset All Filters' : lang === 'ar' ? 'إعادة ضبط كافة الفلاتر' : 'সব ফিল্টার রিসেট করুন'}
+                          {lang === 'ar' ? 'إعادة ضبط كافة الفلاتر' : 'Reset All Filters'}
                         </button>
                       </div>
                     ) : (
@@ -2992,7 +3132,7 @@ export default function App() {
                               onClick={() => setVisibleItemCount(prev => prev + 24)}
                               className="px-6 py-3 rounded-2xl bg-white border border-slate-200 hover:border-cyan-500/50 text-slate-800 font-display font-bold text-xs shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-2"
                             >
-                              <span>{lang === 'en' ? 'Load More Foods' : lang === 'ar' ? 'تحميل المزيد من الأطباق' : 'আরও খাবার দেখুন'}</span>
+                              <span>{lang === 'ar' ? 'تحميل المزيد من الأطباق' : 'Load More Foods'}</span>
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono font-bold">
                                 +{filteredMenuItems.length - visibleItemCount}
                               </span>
@@ -3066,7 +3206,7 @@ export default function App() {
                   ...(adminSettings || {
                     id: activeRestaurantId || '',
                     ownerId: user?.uid || 'manager-owner',
-                    brandName: "My Restaurant",
+                    brandName: "Avernao",
                     brandLocation: "",
                     subscriptionPlan: 'basic',
                     subscriptionStatus: 'trial',
@@ -3166,10 +3306,10 @@ export default function App() {
                   <div className="text-center py-20 text-slate-400">
                     <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-sm font-medium text-slate-600">
-                      {lang === 'en' ? 'Your order is empty' : lang === 'ar' ? 'طلبك فارغ' : 'আপনার অর্ডার খালি'}
+                      {lang === 'ar' ? 'طلبك فارغ' : 'Your order is empty'}
                     </p>
                     <p className="text-xs text-slate-400 mt-1">
-                      {lang === 'en' ? 'Add items from the menu to start' : lang === 'ar' ? 'أضف أصنافًا من القائمة للبدء' : 'মেনু থেকে আইটেম যোগ করুন'}
+                      {lang === 'ar' ? 'أضف أصنافًا من القائمة للبدء' : 'Add items from the menu to start'}
                     </p>
                   </div>
                 ) : (
@@ -3217,7 +3357,7 @@ export default function App() {
                           type="text"
                           value={item.notes}
                           onChange={(e) => handleUpdateItemNotes(item.menuItem.id, e.target.value)}
-                          placeholder={lang === 'en' ? 'e.g. No cheese, extra spicy' : lang === 'ar' ? 'مثلاً: بدون جبن، حار جداً' : 'যেমন: পনির ছাড়া, বেশি ঝাল'}
+                          placeholder={lang === 'ar' ? 'مثلاً: بدون جبن، حار جداً' : 'e.g. No cheese, extra spicy'}
                           className="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
                         />
                       </div>
@@ -3298,10 +3438,10 @@ export default function App() {
                 Welcome to Avernao WebAR
               </span>
               <h3 className="text-2xl font-display font-extrabold text-slate-900 tracking-tight">
-                {lang === 'en' ? 'Select Your Dining Table' : lang === 'ar' ? 'حدد طاولة الطعام الخاصة بك' : 'আপনার ডাইনিং টেবিল নির্বাচন করুন'}
+                {lang === 'ar' ? 'حدد طاولة الطعام الخاصة بك' : 'Select Your Dining Table'}
               </h3>
               <p className="text-slate-600 text-xs max-w-sm mx-auto">
-                {lang === 'en' ? 'Please select your table number from the list below' : lang === 'ar' ? 'يرجى اختيار رقم طاولتك من القائمة أدناه' : 'নিচের তালিকা থেকে আপনার টেবিল নম্বর নির্বাচন করুন'}
+                {lang === 'ar' ? 'يرجى اختيار رقم طاولتك من القائمة أدناه' : 'Please select your table number from the list below'}
               </p>
             </div>
 
@@ -3314,7 +3454,7 @@ export default function App() {
                   className="py-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-cyan-500 text-slate-800 font-mono font-bold text-sm tracking-wide transition-all hover:scale-105 active:scale-95 cursor-pointer flex flex-col items-center justify-center gap-0.5"
                 >
                   <span className="text-[9px] font-normal text-slate-500 tracking-wider">
-                    {lang === 'en' ? 'TABLE' : lang === 'ar' ? 'طاولة' : 'টেবিল'}
+                    {lang === 'ar' ? 'طاولة' : 'TABLE'}
                   </span>
                   <span className="text-base text-cyan-700">{tNum}</span>
                 </button>
@@ -3376,14 +3516,14 @@ export default function App() {
                 className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-yellow-300" />
-                <span>Unlock Unlimited Access (আনলিমিটেড অ্যাক্সেস)</span>
+                <span>Unlock Unlimited Access</span>
               </button>
 
               <button 
                 onClick={handleBypassTrial}
                 className="w-full bg-slate-100 text-slate-700 hover:bg-slate-200 py-3 rounded-2xl font-bold text-xs transition-all active:scale-95 cursor-pointer"
               >
-                Close & Continue Editing (বন্ধ করুন)
+                Close & Continue Editing
               </button>
             </div>
           </motion.div>
@@ -3411,7 +3551,7 @@ export default function App() {
       {/* =======================================================================
           FOOTER, CHEFS & GOOGLE MAPS LOCATION SECTION (Customer view only - Default Portal View only)
           ======================================================================= */}
-      {viewMode === 'client' && !isCustomThemeActive && (
+      {viewMode === 'client' && !isCustomThemeActive && !isDemoInstance && (
         <div className="w-full">
           <Suspense fallback={<LazyFallback />}>
             <AboutAndPricing 
@@ -3436,6 +3576,7 @@ export default function App() {
                 setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: newPlan }) : prev);
                 setShowTopPlanPopup(true);
               }}
+              onStartTrial={handleOpenDemoRegistration}
             />
           </Suspense>
 
@@ -3524,8 +3665,8 @@ export default function App() {
                     planId === '99' || planId === 'elite' || planId === 'premium' ? 'elite' :
                     planId === '49' || planId === 'pro' ? 'pro' : 'basic';
                   setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: targetPlan }) : {
-                    restaurantName: "My Restaurant",
-                    brandName: "My Restaurant",
+                    restaurantName: "Avernao",
+                    brandName: "Avernao",
                     brandLocation: "",
                     subscriptionPlan: targetPlan,
                     subscriptionStatus: 'active',
@@ -3549,6 +3690,38 @@ export default function App() {
       {/* ========================================================= */}
       {/* GLOBAL FLOATING SCROLL TO TOP BUTTON REMOVED (THEMES RENDER THEIR OWN TO PREVENT DUPLICATES) */}
       {/* ========================================================= */}
+
+      {/* DEMO TRIAL ONBOARDING MODAL */}
+      <DemoTrialModal
+        isOpen={showDemoTrialModal}
+        onClose={() => {
+          setShowDemoTrialModal(false);
+          if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('onboarding');
+            url.searchParams.delete('demo_onboarding');
+            const planParam = url.searchParams.get('plan') || (initialPlan === 'basic' ? '15' : initialPlan === 'elite' ? '99' : '49');
+            const planCode = planParam === '15' || planParam === 'basic' ? '15' :
+                             planParam === '99' || planParam === 'elite' ? '99' : '49';
+            url.searchParams.set('plan', planCode);
+            window.history.replaceState({}, '', url.toString());
+
+            // Open that exact plan modal ($15, $49, or $99)
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('open-plan-modal', { detail: planCode }));
+              const pricingEl = document.getElementById('pricing-section') || document.getElementById('pricing');
+              if (pricingEl) {
+                pricingEl.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }
+        }}
+        planId={initialPlan || 'basic'}
+        lang={lang}
+        onStartTrialSuccess={(data) => {
+          setTrialSession(data);
+        }}
+      />
 
     </div>
   );

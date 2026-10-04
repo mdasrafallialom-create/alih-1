@@ -97,7 +97,7 @@ const resolveDishImage = (name: string, category?: string, fallbackUrl?: string)
 };
 
 export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   onOpenSales,
   onVisitStorefront,
   orders = [],

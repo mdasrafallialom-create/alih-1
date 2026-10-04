@@ -159,7 +159,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
         const updated = [...cardImages];
         updated[activeEditingIndex] = result;
         saveImages(updated);
-        showToast(lang === 'bn' ? 'ছবি সফলভাবে আপলোড হয়েছে!' : 'Photo uploaded successfully!');
+        showToast('Photo uploaded successfully!');
       }
     };
     reader.readAsDataURL(file);
@@ -171,7 +171,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
     const updated = [...cardImages];
     updated[activeEditingIndex] = urlInput.trim();
     saveImages(updated);
-    showToast(lang === 'bn' ? 'ছবির লিংক সেভ করা হয়েছে!' : 'Image URL applied successfully!');
+    showToast('Image URL applied successfully!');
   };
 
   const handlePickPreset = (presetUrl: string) => {
@@ -179,12 +179,12 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
     const updated = [...cardImages];
     updated[activeEditingIndex] = presetUrl;
     saveImages(updated);
-    showToast(lang === 'bn' ? 'নতুন ছবি সেট করা হয়েছে!' : 'Preset image selected!');
+    showToast('Preset image selected!');
   };
 
   const handleResetCards = () => {
     saveImages(DEFAULT_BAGEL_IMAGES);
-    showToast(lang === 'bn' ? 'ডিফল্ট ছবিগুলোতে ফিরে যাওয়া হয়েছে' : 'Reset to default photos');
+    showToast('Reset to default photos');
   };
 
   return (
@@ -270,18 +270,18 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                 type="button"
                 onClick={(e) => handleOpenEdit(index, e)}
                 className="absolute top-2.5 right-2.5 z-30 px-2 sm:px-2.5 py-1 rounded-full bg-black/60 hover:bg-[#b91c1c] text-white font-extrabold text-[8px] sm:text-[9px] uppercase tracking-wider shadow-md flex items-center gap-1 border border-white/35 backdrop-blur-sm transition-all hover:scale-105 active:scale-95 group/btn"
-                title={lang === 'bn' ? 'ছবি পরিবর্তন বা আপলোড করুন' : 'Upload Photo'}
+                title={'Upload Photo'}
               >
                 <Upload className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300 group-hover/btn:scale-110" />
                 <span className="hidden min-[380px]:inline font-extrabold">
-                  {lang === 'bn' ? 'আপলোড' : 'Upload'}
+                  {'Upload'}
                 </span>
               </button>
 
               {/* Bottom Card Title */}
               <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 pointer-events-none">
                 <p className="text-[10px] sm:text-xs font-black text-white leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
-                  {lang === 'bn' ? card.bn : card.en}
+                  {card.en}
                 </p>
               </div>
             </motion.div>
@@ -311,15 +311,13 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                 </div>
                 <div>
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-wide flex items-center gap-2">
-                    <span>{lang === 'bn' ? 'আপলোড ছবি' : 'Upload Image'}</span>
+                    <span>{'Upload Image'}</span>
                     <span className="text-xs sm:text-sm font-mono font-normal px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
                       Card #{activeEditingIndex + 1}
                     </span>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300 font-medium">
-                    {lang === 'bn' 
-                      ? 'কার্ডটি বড় করে দেখা যাচ্ছে — নিচের অপশন থেকে আপনার ছবি আপলোড করুন' 
-                      : 'Card enlarged for upload — choose from device or select a preset'}
+                    {'Card enlarged for upload — choose from device or select a preset'}
                   </p>
                 </div>
               </div>
@@ -331,14 +329,14 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                   className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all cursor-pointer border border-white/20"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>{lang === 'bn' ? 'ফিরে যান' : 'Back'}</span>
+                  <span>{'Back'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleCloseEdit}
                   className="p-2 sm:p-2.5 rounded-full bg-white/10 hover:bg-red-600 text-white transition-all cursor-pointer border border-white/20"
-                  title={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}
+                  title={'Close'}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -355,7 +353,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                 <div 
                   onClick={() => fileInputRef.current?.click()}
                   className="group/big relative w-[250px] sm:w-[290px] md:w-[320px] aspect-[9/13.5] rounded-[2.5rem] overflow-hidden border-4 border-white/90 shadow-[0_30px_70px_rgba(0,0,0,0.7)] bg-[#0f2942] cursor-pointer transition-all hover:scale-[1.02]"
-                  title={lang === 'bn' ? 'ছবি পরিবর্তন করতে এখানে ক্লিক করুন' : 'Click to change photo'}
+                  title={'Click to change photo'}
                 >
                   <img
                     src={cardImages[activeEditingIndex]}
@@ -377,20 +375,20 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                       <Camera className="w-7 h-7" />
                     </div>
                     <span className="text-xs font-black uppercase tracking-wider text-white bg-black/60 px-3 py-1 rounded-full border border-white/30 backdrop-blur-sm shadow-md">
-                      {lang === 'bn' ? 'ছবি পরিবর্তন করতে ক্লিক করুন' : 'Tap to Upload Photo'}
+                      {'Tap to Upload Photo'}
                     </span>
                   </div>
 
                   {/* Bottom Title */}
                   <div className="absolute bottom-5 left-5 right-5 z-10 pointer-events-none">
                     <p className="text-lg sm:text-xl font-black text-white leading-tight drop-shadow-lg">
-                      {lang === 'bn' ? CARD_DATA[activeEditingIndex]?.bn : CARD_DATA[activeEditingIndex]?.en}
+                      {CARD_DATA[activeEditingIndex]?.en}
                     </p>
                   </div>
                 </div>
 
                 <p className="text-xs text-slate-400 mt-3 font-medium text-center">
-                  {lang === 'bn' ? 'কার্ডের ছবির উপরে ক্লিক করেও সরাসরি ফাইল আপলোড করা যাবে' : 'Click directly on the photo above to upload from device'}
+                  {'Click directly on the photo above to upload from device'}
                 </p>
               </div>
 
@@ -398,10 +396,10 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
               <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20 text-[#0f2942] space-y-6">
                 <div>
                   <h3 className="text-base sm:text-lg font-extrabold text-[#0f2942]">
-                    {lang === 'bn' ? 'ছবি পরিবর্তনের উপায়সমূহ' : 'Photo Upload Options'}
+                    {'Photo Upload Options'}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    {lang === 'bn' ? 'আপনার কম্পিউটার বা মোবাইল থেকে ছবি দিন অথবা তালিকা থেকে বেছে নিন' : 'Choose one of the methods below to update this card photo'}
+                    {'Choose one of the methods below to update this card photo'}
                   </p>
                 </div>
 
@@ -410,7 +408,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                   <div className="flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-[#b91c1c] text-white text-xs font-black flex items-center justify-center">১</span>
                     <label className="text-xs sm:text-sm font-extrabold text-[#0f2942] uppercase tracking-wide">
-                      {lang === 'bn' ? 'কম্পিউটার বা মোবাইল থেকে আপলোড' : 'Direct Device File Upload'}
+                      {'Direct Device File Upload'}
                     </label>
                   </div>
                   <button
@@ -419,10 +417,10 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                     className="w-full py-3.5 px-5 rounded-xl bg-[#0f2942] hover:bg-[#1a3d60] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-xl transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
                   >
                     <Upload className="w-4 h-4 text-amber-400" />
-                    <span>{lang === 'bn' ? 'ফাইল বাছাই করে আপলোড করুন' : 'Browse & Upload Photo'}</span>
+                    <span>{'Browse & Upload Photo'}</span>
                   </button>
                   <p className="text-[11px] text-slate-500 text-center">
-                    {lang === 'bn' ? 'সমর্থিত ফরম্যাট: JPG, PNG, WEBP ইত্যাদি' : 'Supports JPG, PNG, WEBP images'}
+                    <span>Supports JPG, PNG, WEBP images</span>
                   </p>
                 </div>
 
@@ -431,7 +429,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                   <div className="flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-slate-700 text-white text-xs font-black flex items-center justify-center">২</span>
                     <label className="text-xs sm:text-sm font-extrabold text-[#0f2942] uppercase tracking-wide">
-                      {lang === 'bn' ? 'ছবির সরাসরি ইন্টারনেট লিংক (URL)' : 'Paste Image Web Link (URL)'}
+                      {'Paste Image Web Link (URL)'}
                     </label>
                   </div>
                   <div className="flex gap-2">
@@ -447,7 +445,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                       onClick={handleApplyUrl}
                       className="px-4 py-2.5 rounded-xl bg-[#b91c1c] hover:bg-[#991b1b] text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
                     >
-                      {lang === 'bn' ? 'সেভ' : 'Apply'}
+                      {'Apply'}
                     </button>
                   </div>
                 </div>
@@ -459,7 +457,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                       <span className="w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-black flex items-center justify-center">৩</span>
                       <label className="text-xs sm:text-sm font-extrabold text-[#0f2942] uppercase tracking-wide flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                        <span>{lang === 'bn' ? 'রেডিমেড প্রিমিয়াম ছবি গ্যালারি' : 'Pick From Preset Gallery'}</span>
+                        <span>{'Pick From Preset Gallery'}</span>
                       </label>
                     </div>
                     <button
@@ -468,7 +466,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                       className="text-xs font-bold text-slate-500 hover:text-[#b91c1c] transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <RefreshCw className="w-3 h-3" />
-                      <span>{lang === 'bn' ? 'রিসেট' : 'Reset All'}</span>
+                      <span>{'Reset All'}</span>
                     </button>
                   </div>
 
@@ -498,7 +496,7 @@ export const InteractiveDiagonalTiltedCardsVisual: React.FC<InteractiveDiagonalT
                     className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4" />
-                    <span>{lang === 'bn' ? 'আপলোড সম্পন্ন / সমাপ্ত' : 'Save & Finish'}</span>
+                    <span>{'Save & Finish'}</span>
                   </button>
                 </div>
               </div>

@@ -26,7 +26,7 @@ interface KoppeeAboutSectionProps {
 }
 
 export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   brandLogoUrl,
   brandDescription,
   aboutUsTitle,
@@ -55,37 +55,29 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   const cfg = (themePresetId && THEME_HERO_CONFIGS[themePresetId]) || THEME_HERO_CONFIGS['lumivelle'];
   
   const displayTitle = isEmberion
-    ? (lang === 'bn' ? 'কেন আমাদের ঐতিহ্যবাহী হট ব্যাগেল ও ক্যাফে সেরা?' : 'Why Feast at Our Artisan Bagel Bakery & Cafe?')
+    ? ('Why Feast at Our Artisan Bagel Bakery & Cafe?')
     : isAurelisse
-    ? (lang === 'bn' ? 'কেন অরেলিস গুরমে বার্গার লাউঞ্জে খাবেন?' : 'Why Feast at Aurelisse Gourmet Burger Lounge?')
+    ? ('Why Feast at Aurelisse Gourmet Burger Lounge?')
     : isPalatiora
-    ? (lang === 'bn' ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : `Why Dine at ${effectiveBrandName}?`)
-    : (aboutUsTitle || (lang === 'bn' ? (isLuxuryTheme ? `কেন ${effectiveBrandName}-এ ডাইন করবেন?` : 'কেন আমাদের কাছে খাবেন?') : (isLuxuryTheme ? `Why Dine at ${effectiveBrandName}?` : 'Why Dine With Us?')));
+    ? (`Why Dine at ${effectiveBrandName}?`)
+    : (aboutUsTitle || (isLuxuryTheme ? `Why Dine at ${effectiveBrandName}?` : 'Why Dine With Us?'));
   
   const displaySubtitle = isEmberion
-    ? (lang === 'bn' ? '✦ দ্য কেটল-বয়েল্ড ও হার্থ-বেকড ব্যাগেল ট্র্যাডিশন ✦' : '✦ THE ARTISAN KETTLE-BOILED TRADITION ✦')
+    ? ('✦ THE ARTISAN KETTLE-BOILED TRADITION ✦')
     : isAurelisse
-    ? (lang === 'bn' ? '✦ দ্য ফ্লেম-গ্রিলড লেজেন্ড ✦' : '✦ THE FLAME-GRILLED LEGEND ✦')
+    ? ('✦ THE FLAME-GRILLED LEGEND ✦')
     : isPalatiora
-    ? (lang === 'bn' ? '✦ দ্য স্যাভোরেল এক্সপেরিয়েন্স ✦' : '✦ THE SAVORELLE EXPERIENCE ✦')
+    ? ('✦ THE SAVORELLE EXPERIENCE ✦')
     : aboutUsSubtitle;
 
   const defaultStory = isEmberion
-    ? (lang === 'bn'
-        ? `আমরা সাধারণ কোনো পাউরুটি পরিবেশন করি না। আমাদের ক্যাফেতে প্রতিটি ব্যাগেল তৈরি হয় ৩৬ ঘণ্টার প্রাকৃতিক কোল্ড-ফার্মেন্টেড ডো দিয়ে। মল্ট ওয়াটার কেটলে বয়েল্ড করে ভেজা সিডার তক্তার ওপর হট স্টোন ওভেনে বেক করা হয়। যার ফলে বাইরে পাবেন সোনালী ক্রিস্পি ক্রাঞ্চ এবং ভেতরে অসাধারণ সফট ও চিউই টেক্সচার। সাথে রয়েছে হোমমেড হুইপড ক্রিম চিজ এবং সেরা হট ও কোল্ড ব্রু কফি।`
-        : `We do not bake ordinary bagels. At our bakery & cafe, every single batch begins with 36-hour cold-fermented heirloom dough, traditionally kettle-boiled in barley malt water, and blistered on wet cedar planks inside hot stone hearths. This delivers that coveted crisp, crackly golden exterior with an irresistibly tender, dense, chewy interior — paired with whipped artisanal schmears and micro-batch coffees.`)
+    ? (`We do not bake ordinary bagels. At our bakery & cafe, every single batch begins with 36-hour cold-fermented heirloom dough, traditionally kettle-boiled in barley malt water, and blistered on wet cedar planks inside hot stone hearths. This delivers that coveted crisp, crackly golden exterior with an irresistibly tender, dense, chewy interior — paired with whipped artisanal schmears and micro-batch coffees.`)
     : isAurelisse
-    ? (lang === 'bn'
-        ? `আমরা সাধারণ কোনো ফাস্ট ফুড পরিবেশন করি না। অরেলিস লাউঞ্জে আমরা তৈরি করি পৃথিবীর সবচেয়ে বিলাসবহুল ও জুসি ওয়াগিউ বার্গার। প্রতিটি প্রিমিয়াম প্যাট্রি প্রতিদিন ফ্রেশ ১০০% জাপানি এ৫ ওয়াগিউ বিফ থেকে আমাদের অভিজ্ঞ পিটমাস্টারদের তত্ত্বাবধানে পিষে তৈরি করা হয় এবং ওক কাঠের জ্বলন্ত আগুনে নিখুঁতভাবে স্মোকি করে সেঁকা হয়।`
-        : `We do not serve ordinary fast food. At Aurelisse, we craft the world's most luxurious, oak-charcoal seared Wagyu burgers. Each premium patty is freshly ground daily from 100% Japanese A5 Wagyu beef and seared over natural wood fires for a perfect, smokey crunch.`)
+    ? (`We do not serve ordinary fast food. At Aurelisse, we craft the world's most luxurious, oak-charcoal seared Wagyu burgers. Each premium patty is freshly ground daily from 100% Japanese A5 Wagyu beef and seared over natural wood fires for a perfect, smokey crunch.`)
     : isPalatiora
-    ? (lang === 'bn'
-        ? `${effectiveBrandName}-এ প্রতিটি খাবারে রয়েছে নিখুঁত শিল্প ও অনুভূতির ছোঁয়া। আমাদের অভিজ্ঞ মাস্টার শেফরা প্রতিদিন তাজা উপাদান ও নিজস্ব সিক্রেট সসের সংমিশ্রণে তৈরি করেন অবিস্মরণীয় সব গুরমে ডিশ।`
-        : `At ${effectiveBrandName}, dining is an elevated art of flavor and passion. Our culinary team hand-selects daily fresh ingredients, blending artisanal sauces and wood-fire techniques to craft unforgettable taste sensations.`)
+    ? (`At ${effectiveBrandName}, dining is an elevated art of flavor and passion. Our culinary team hand-selects daily fresh ingredients, blending artisanal sauces and wood-fire techniques to craft unforgettable taste sensations.`)
     : (brandDescription || (isLuxuryTheme
-        ? (lang === 'bn'
-            ? `মিশেলিন ৩-স্টার মাস্টার শেফদের নেতৃত্বে এক অনন্য গুরমে ডাইনিং অভিজ্ঞতা। ${effectiveBrandName}-এ উপভোগ করুন ২৪ ক্যারেট ভোজ্য গোল্ড লিফ, গ্র্যান্ড রিজার্ভ অসিয়াত্রা ক্যাভিয়ার, মিয়াজাকি এ৫ ওয়াগিউ এবং এক্সক্লুসিভ থ্রিডি ইন্টারেক্টিভ ওয়েব-এআর প্রিভিউ।`
-            : `Redefining haute cuisine and 5-star Michelin luxury. Discover our exclusive master chef-curated tasting courses, 24k gold leaf infusions, and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared grand reserve meals crafted with precision and passion.`)
+        ? (`Redefining haute cuisine and 5-star Michelin luxury. Discover our exclusive master chef-curated tasting courses, 24k gold leaf infusions, and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared grand reserve meals crafted with precision and passion.`)
         : `Redefining luxury dining experiences. Discover our exclusive chef-curated gourmet menu and 3D interactive WebAR food previews. At ${effectiveBrandName}, we take pride in serving hand-selected, freshly prepared meals crafted with precision and passion.`));
   
   const storyText = aboutUsText || defaultStory;
@@ -126,10 +118,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
 
   const aurelisseFeatures = lang === 'bn'
     ? [
-        '১০০% জাপানি এ৫ ওয়াগিউ বিফ (প্রতিদিন ফ্রেশ)',
-        'স্বর্ণ-ধূলিকণাযুক্ত ব্রিওশ বানের কারিগরী',
-        '১২ ঘণ্টার ওক-চারকোল স্মোকি ফ্লেম সিয়ার',
-        'শেফের সিগনেচার ট্রাফেল চিজ ইনফিউশন'
+        '100% Japanese A5 Wagyu Beef (Fresh Daily)',
+        'Artisan Gold-Dusted Brioche Buns',
+        '12-Hour Oak-Charcoal Flame Sear',
+        'Chef\'s Signature Truffle Cheese Infusion'
       ]
     : [
         '100% Authentic Japanese A5 Wagyu Beef',
@@ -140,10 +132,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
 
   const palatioraFeatures = lang === 'bn'
     ? [
-        'সিগনেচার ক্রিস্পি টেরিয়াকি উইংস ও প্রিমিয়াম স্টেক',
-        'প্রতিদিন শতভাগ তাজা অর্গানিক উপাদান ও সিক্রেট সস',
-        'মাস্টার শেফদের দক্ষতায় লাইভ ফ্রন্ট-রো কালিনারি আর্ট',
-        'ইনস্ট্যান্ট কিউআর টেবিল অর্ডারিং ও ফাস্ট এক্সপ্রেস ডেলিভারি'
+        'Signature Crispy Teriyaki Wings & Premium Steak',
+        '100% Fresh Organic Ingredients & Secret House Sauces',
+        'Live Front-Row Culinary Artistry by Master Chefs',
+        'Instant QR Table Ordering & Fast Express Delivery'
       ]
     : [
         'Signature Crispy Teriyaki Wings & Flame-Seared Steaks',
@@ -161,10 +153,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
     : (isOrivelle
         ? (lang === 'bn'
             ? [
-                '২৪ ক্যারেট গোল্ড ক্যাভিয়ার ও আলবা ট্রাফেল',
-                '৩-স্টার মিশেলিন শেফ-কিউরেটেড মেনু',
-                '৩ডি ইন্টারেক্টিভ ওয়েব-এআর হলোগ্রাম',
-                'প্রাইভেট ভিআইপি সেলন ও সোমেলিয়ার ওয়াইন'
+                '24K Gold Caviar & Alba Truffles',
+                '3-Star Michelin Chef-Curated Menu',
+                '3D Interactive WebAR Hologram Previews',
+                'Private VIP Dining Salon & Sommelier Cellar'
               ]
             : [
                 '24K Gold Caviar & White Alba Truffle',
@@ -174,10 +166,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
               ])
         : (lang === 'bn' 
             ? [
-                '১০০% তাজা অর্গানিক উপাদান',
-                'শেফ-কিউরেটেড গুরমে মেনু',
-                '৩ডি ইন্টারেক্টিভ ওয়েব-এআর ফুড প্রিভিউ',
-                'দ্রুত হোম ডেলিভারি ও টেবিল অর্ডারিং'
+                '100% Fresh Organic Ingredients',
+                'Chef-Curated Gourmet Menu',
+                '3D Interactive WebAR Food Preview',
+                'Fast Express Delivery & QR Table Ordering'
               ]
             : [
                 '100% Fresh Organic Ingredients',
@@ -247,16 +239,16 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
           <div className="flex items-center justify-between pb-3.5 mb-6 sm:mb-8 border-b border-[#2c1e13]/10">
             <div className="flex items-center gap-2 text-xs font-bold text-[#8c6d53] uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span>{lang === 'bn' ? 'স্টোরি ও পরিচিতি সেকশন' : 'About & Story Section'}</span>
+              <span>{'About & Story Section'}</span>
             </div>
             <button
               type="button"
               onClick={onEditClick || onOpenAdmin}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm hover:shadow-md active:scale-95 group"
-              title={lang === 'bn' ? '"কেন আমাদের কাছে খাবেন?" সেকশনটি এডিট করুন' : 'Edit "Why Dine With Us?" Section'}
+              title={'Edit "Why Dine With Us?" Section'}
             >
               <Edit3 className="w-3.5 h-3.5 text-slate-950 group-hover:rotate-12 transition-transform" />
-              <span>{lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section'}</span>
+              <span>{'Edit Section'}</span>
             </button>
           </div>
         )}
@@ -287,10 +279,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[9px] font-mono tracking-widest text-emerald-400 uppercase block truncate font-bold">
-                        {lang === 'bn' ? '✦ অরেলিস শেফ রিজার্ভ ✦' : '✦ AURELISSE CHEF RESERVE ✦'}
+                        {'✦ AURELISSE CHEF RESERVE ✦'}
                       </span>
                       <p className="text-xs font-bold text-white leading-tight line-clamp-1">
-                        {lang === 'bn' ? '১০০% ফ্লেম-গ্রিলড এ৫ ওয়াগিউ' : '100% Flame-Grilled A5 Wagyu'}
+                        {'100% Flame-Grilled A5 Wagyu'}
                       </p>
                     </div>
                   </div>
@@ -316,10 +308,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[9px] font-mono tracking-widest text-[#F97316] uppercase block truncate font-bold">
-                        {lang === 'bn' ? '✦ স্যাভোরেল এক্সক্লুসিভ ✦' : '✦ SAVORELLE EXCLUSIVE ✦'}
+                        {'✦ SAVORELLE EXCLUSIVE ✦'}
                       </span>
                       <p className="text-xs font-bold text-white leading-tight line-clamp-1">
-                        {lang === 'bn' ? 'গুরমে ফ্লেভার ও নিখুঁত স্বাদ' : 'Gourmet Flavors & Artisanal Craft'}
+                        {'Gourmet Flavors & Artisanal Craft'}
                       </p>
                     </div>
                   </div>
@@ -345,10 +337,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[9px] font-mono tracking-widest text-[#b91c1c] uppercase block truncate font-bold">
-                        {lang === 'bn' ? '✦ কেটল-বয়েল্ড ট্র্যাডিশন ✦' : '✦ KETTLE-BOILED TRADITION ✦'}
+                        {'✦ KETTLE-BOILED TRADITION ✦'}
                       </span>
                       <p className="text-xs font-bold text-[#0f2942] leading-tight line-clamp-1">
-                        {lang === 'bn' ? 'হাতে তৈরি খাঁটি ব্যাগেল' : 'Locally World Famous Bagels'}
+                        {'Locally World Famous Bagels'}
                       </p>
                     </div>
                   </div>
@@ -382,10 +374,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                       </div>
                       <div className="min-w-0">
                         <span className="text-[9px] font-mono tracking-widest text-amber-300 uppercase block truncate">
-                          {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                          {'✦ ORIVELLE RESERVE ✦'}
                         </span>
                         <p className="text-xs font-bold text-amber-100 leading-tight line-clamp-1" style={{ fontFamily: "'Cinzel', serif" }}>
-                          {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                          {'3-Star Michelin Haute Gastronomy'}
                         </p>
                       </div>
                     </div>
@@ -402,10 +394,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                           className="text-[9px] font-extrabold uppercase tracking-wider block truncate"
                           style={{ color: cfg.accentColor }}
                         >
-                          {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                          {'ARTISANAL QUALITY'}
                         </span>
                         <p className="text-xs font-bold text-white leading-tight line-clamp-1">
-                          {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                          {'Fresh & Organic Gourmet Recipes'}
                         </p>
                       </div>
                     </div>
@@ -492,12 +484,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   <h4 className={`text-xs font-black uppercase tracking-wider ${
                     isEmberion ? 'text-[#b91c1c]' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-700'
                   }`}>
-                    ★ {lang === 'bn' ? 'স্পেশাল নোট ও প্রতিশ্রুতি' : "CHEF'S SPECIAL NOTE & PROMISE"}
+                    ★ {"CHEF'S SPECIAL NOTE & PROMISE"}
                   </h4>
                   <p className="text-[11px] sm:text-xs leading-relaxed opacity-90 line-clamp-2">
-                    {lang === 'bn' 
-                      ? 'প্রতিটি খাবার ১০০% প্রিজারভেটিভমুক্ত ও স্বাস্থ্যকর এবং প্রতিদিন ভোরে তাজা প্রস্তুত করা হয়।'
-                      : '100% natural heritage ingredients, zero preservatives, kettle-boiled fresh every morning.'}
+                    {'100% natural heritage ingredients, zero preservatives, kettle-boiled fresh every morning.'}
                   </p>
                 </div>
               </div>
@@ -514,7 +504,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     : `px-5 py-2.5 ${cfg.primaryBtnClass} text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer rounded-xl`
                   }
                 >
-                  <span>{lang === 'bn' ? 'টেবিল বুক করুন' : 'BOOK A TABLE'}</span>
+                  <span>{'BOOK A TABLE'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
@@ -528,7 +518,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     : `px-5 py-2.5 ${cfg.secondaryBtnClass} text-xs font-bold transition-all cursor-pointer rounded-xl`
                   }
                 >
-                  <span>{lang === 'bn' ? 'মেনু দেখুন' : 'EXPLORE MENU'}</span>
+                  <span>{'EXPLORE MENU'}</span>
                 </button>
 
                 {(onEditClick || onOpenAdmin) && (
@@ -536,10 +526,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     type="button"
                     onClick={onEditClick || onOpenAdmin}
                     className={`px-3.5 py-2.5 rounded-xl ${isPalatiora ? 'bg-white/10 hover:bg-white/20 text-[#F97316] border border-white/20' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40'} text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95`}
-                    title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section'}
+                    title={'Edit Section'}
                   >
                     <Edit3 className={`w-3.5 h-3.5 ${isPalatiora ? 'text-[#F97316]' : 'text-amber-400'}`} />
-                    <span>{lang === 'bn' ? 'এডিট' : 'Edit'}</span>
+                    <span>{'Edit'}</span>
                   </button>
                 )}
               </div>
@@ -569,10 +559,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[8px] font-mono tracking-widest text-emerald-400 uppercase block truncate font-bold">
-                        {lang === 'bn' ? '✦ অরেলিস শেফ রিজার্ভ ✦' : '✦ AURELISSE CHEF RESERVE ✦'}
+                        {'✦ AURELISSE CHEF RESERVE ✦'}
                       </span>
                       <p className="text-[11px] font-bold text-white leading-tight line-clamp-1">
-                        {lang === 'bn' ? '১০০% ফ্লেম-গ্রিলড এ৫ ওয়াগিউ' : '100% Flame-Grilled A5 Wagyu'}
+                        {'100% Flame-Grilled A5 Wagyu'}
                       </p>
                     </div>
                   </div>
@@ -595,10 +585,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[8px] font-mono tracking-widest text-[#F97316] uppercase block truncate font-bold">
-                        {lang === 'bn' ? '✦ স্যাভোরেল এক্সক্লুসিভ ✦' : '✦ SAVORELLE EXCLUSIVE ✦'}
+                        {'✦ SAVORELLE EXCLUSIVE ✦'}
                       </span>
                       <p className="text-[11px] font-bold text-white leading-tight line-clamp-1">
-                        {lang === 'bn' ? 'গুরমে ফ্লেভার ও নিখুঁত স্বাদ' : 'Gourmet Flavors & Artisanal Craft'}
+                        {'Gourmet Flavors & Artisanal Craft'}
                       </p>
                     </div>
                   </div>
@@ -622,10 +612,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[8px] font-mono tracking-widest text-[#b91c1c] uppercase block truncate font-bold">
-                        {lang === 'bn' ? '✦ কেটল-বয়েল্ড ট্র্যাডিশন ✦' : '✦ KETTLE-BOILED TRADITION ✦'}
+                        {'✦ KETTLE-BOILED TRADITION ✦'}
                       </span>
                       <p className="text-[11px] font-bold text-[#0f2942] leading-tight line-clamp-1">
-                        {lang === 'bn' ? 'হাতে তৈরি খাঁটি ব্যাগেল' : 'Locally World Famous Bagels'}
+                        {'Locally World Famous Bagels'}
                       </p>
                     </div>
                   </div>
@@ -657,10 +647,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                       </div>
                       <div className="min-w-0">
                         <span className="text-[8px] font-mono tracking-widest text-amber-300 uppercase block truncate">
-                          {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                          {'✦ ORIVELLE RESERVE ✦'}
                         </span>
                         <p className="text-[11px] font-bold text-amber-100 leading-tight truncate" style={{ fontFamily: "'Cinzel', serif" }}>
-                          {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                          {'3-Star Michelin Haute Gastronomy'}
                         </p>
                       </div>
                     </div>
@@ -677,10 +667,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                           className="text-[8px] font-extrabold uppercase tracking-wider block truncate"
                           style={{ color: cfg.accentColor }}
                         >
-                          {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                          {'ARTISANAL QUALITY'}
                         </span>
                         <p className="text-[11px] font-bold text-white leading-tight truncate">
-                          {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                          {'Fresh & Organic Gourmet Recipes'}
                         </p>
                       </div>
                     </div>
@@ -761,12 +751,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   <h4 className={`text-[11px] font-black uppercase tracking-wider ${
                     isEmberion ? 'text-[#b91c1c]' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-700'
                   }`}>
-                    ★ {lang === 'bn' ? 'স্পেশাল নোট ও প্রতিশ্রুতি' : "CHEF'S SPECIAL NOTE"}
+                    ★ {"CHEF'S SPECIAL NOTE"}
                   </h4>
                   <p className="text-[11px] leading-relaxed opacity-90 line-clamp-2">
-                    {lang === 'bn' 
-                      ? 'প্রতিটি খাবার ১০০% প্রিজারভেটিভমুক্ত ও স্বাস্থ্যকর এবং প্রতিদিন ভোরে তাজা প্রস্তুত করা হয়।'
-                      : '100% natural heritage ingredients, zero preservatives, kettle-boiled fresh every morning.'}
+                    {'100% natural heritage ingredients, zero preservatives, kettle-boiled fresh every morning.'}
                   </p>
                 </div>
               </div>
@@ -782,7 +770,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     : `px-5 py-2.5 ${cfg.primaryBtnClass} text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer rounded-xl`
                   }
                 >
-                  <span>{lang === 'bn' ? 'টেবিল বুক করুন' : 'BOOK A TABLE'}</span>
+                  <span>{'BOOK A TABLE'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
@@ -796,7 +784,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     : `px-5 py-2.5 ${cfg.secondaryBtnClass} text-xs font-bold transition-all cursor-pointer rounded-xl`
                   }
                 >
-                  <span>{lang === 'bn' ? 'মেনু দেখুন' : 'EXPLORE MENU'}</span>
+                  <span>{'EXPLORE MENU'}</span>
                 </button>
 
                 {(onEditClick || onOpenAdmin) && (
@@ -804,10 +792,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     type="button"
                     onClick={onEditClick || onOpenAdmin}
                     className={`px-3.5 py-2.5 rounded-xl ${isPalatiora ? 'bg-white/10 hover:bg-white/20 text-[#F97316] border border-white/20' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40'} text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95`}
-                    title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section'}
+                    title={'Edit Section'}
                   >
                     <Edit3 className={`w-3.5 h-3.5 ${isPalatiora ? 'text-[#F97316]' : 'text-amber-400'}`} />
-                    <span>{lang === 'bn' ? 'এডিট' : 'Edit'}</span>
+                    <span>{'Edit'}</span>
                   </button>
                 )}
               </div>
@@ -843,10 +831,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase block font-extrabold">
-                        {lang === 'bn' ? '✦ অরেলিস শেফ রিজার্ভ ✦' : '✦ AURELISSE CHEF RESERVE ✦'}
+                        {'✦ AURELISSE CHEF RESERVE ✦'}
                       </span>
                       <p className="text-sm font-black text-white leading-tight">
-                        {lang === 'bn' ? '১০০% ওক-স্মোকড এ৫ ওয়াগিউ বার্গার' : '100% Oak-Smoked A5 Wagyu Burger'}
+                        {'100% Oak-Smoked A5 Wagyu Burger'}
                       </p>
                     </div>
                   </div>
@@ -872,10 +860,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] font-mono tracking-widest text-[#F97316] uppercase block font-extrabold">
-                        {lang === 'bn' ? '✦ স্যাভোরেল এক্সক্লুসিভ ✦' : '✦ SAVORELLE EXCLUSIVE ✦'}
+                        {'✦ SAVORELLE EXCLUSIVE ✦'}
                       </span>
                       <p className="text-sm font-black text-white leading-tight">
-                        {lang === 'bn' ? 'গুরমে ফ্লেভার ও অনন্য রন্ধনশিল্প' : 'Gourmet Flavors & Unmatched Culinary Art'}
+                        {'Gourmet Flavors & Unmatched Culinary Art'}
                       </p>
                     </div>
                   </div>
@@ -901,10 +889,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] font-mono tracking-widest text-[#b91c1c] uppercase block font-extrabold">
-                        {lang === 'bn' ? '✦ কেটল-বয়েল্ড ট্র্যাডিশন ✦' : '✦ KETTLE-BOILED TRADITION ✦'}
+                        {'✦ KETTLE-BOILED TRADITION ✦'}
                       </span>
                       <p className="text-sm font-black text-[#0f2942] leading-tight">
-                        {lang === 'bn' ? 'প্রতিদিন ভোরে ওভেন থেকে গরম ফ্রেশ বেকিং' : 'Locally World Famous Hand-Rolled Bagels'}
+                        {'Locally World Famous Hand-Rolled Bagels'}
                       </p>
                     </div>
                   </div>
@@ -938,10 +926,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                       </div>
                       <div>
                         <span className="text-[10px] font-mono tracking-widest text-amber-300 uppercase block font-extrabold">
-                          {lang === 'bn' ? '✦ ওরিভেল রিজার্ভ ✦' : '✦ ORIVELLE RESERVE ✦'}
+                          {'✦ ORIVELLE RESERVE ✦'}
                         </span>
                         <p className="text-sm font-black text-amber-100 leading-tight" style={{ fontFamily: "'Cinzel', serif" }}>
-                          {lang === 'bn' ? '৩-স্টার মিশেলিন রাজকীয় স্বাদ' : '3-Star Michelin Haute Gastronomy'}
+                          {'3-Star Michelin Haute Gastronomy'}
                         </p>
                       </div>
                     </div>
@@ -958,10 +946,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                           className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest block"
                           style={{ color: cfg.accentColor }}
                         >
-                          {lang === 'bn' ? 'আর্টিসানাল কোয়ালিটি' : 'ARTISANAL QUALITY'}
+                          {'ARTISANAL QUALITY'}
                         </span>
                         <p className="text-xs sm:text-sm font-black text-white leading-tight">
-                          {lang === 'bn' ? 'তাজা ও অর্গানিক গুরমে রেসিপি' : 'Fresh & Organic Gourmet Recipes'}
+                          {'Fresh & Organic Gourmet Recipes'}
                         </p>
                       </div>
                     </div>
@@ -1076,14 +1064,12 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                   <h4 className={`text-sm sm:text-base font-black uppercase tracking-wider flex items-center gap-2 ${
                     isEmberion ? 'text-[#b91c1c]' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : isOrivelle ? 'text-amber-300' : 'text-amber-700'
                   }`}>
-                    <span>★ {lang === 'bn' ? 'স্পেশাল নোট ও কোয়ালিটি প্রতিশ্রুতি' : "CHEF'S SPECIAL NOTE & BAKERY PROMISE"}</span>
+                    <span>★ {"CHEF'S SPECIAL NOTE & BAKERY PROMISE"}</span>
                   </h4>
                   <p className={`text-xs sm:text-sm md:text-base leading-relaxed ${
                     isEmberion ? 'text-[#334155] font-medium' : isPalatiora ? 'text-stone-300' : isOrivelle ? 'text-stone-300' : 'text-stone-700'
                   }`}>
-                    {lang === 'bn' 
-                      ? 'আমাদের প্রতিটি খাবার ১০০% প্রিজারভেটিভমুক্ত এবং নিখুঁত স্বাস্থ্যবিধি মেনে প্রতিদিন ভোরে খাঁটি অর্গানিক উপাদান দিয়ে প্রস্তুত করা হয়। প্রতিটি কামড়ে পাবেন ঐতিহ্যবাহী স্বাদের আসল নিশ্চয়তা।' 
-                      : 'Zero preservatives, zero artificial additives. Hand-crafted daily from scratch using authentic heritage techniques to preserve maximum freshness and genuine crackly, chewy texture.'}
+                    {'Zero preservatives, zero artificial additives. Hand-crafted daily from scratch using authentic heritage techniques to preserve maximum freshness and genuine crackly, chewy texture.'}
                   </p>
                 </div>
               </div>
@@ -1104,7 +1090,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                       : `px-6 sm:px-8 py-3 sm:py-4 ${cfg.primaryBtnClass} text-xs sm:text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer rounded-xl`
                   }
                 >
-                  <span>{lang === 'bn' ? 'টেবিল বুক করুন' : 'BOOK A TABLE'}</span>
+                  <span>{'BOOK A TABLE'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -1122,7 +1108,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     : `px-6 sm:px-8 py-3 sm:py-4 ${cfg.secondaryBtnClass} text-xs sm:text-sm transition-all hover:-translate-y-0.5 cursor-pointer rounded-xl`
                   }
                 >
-                  <span>{lang === 'bn' ? 'মেনু দেখুন' : 'EXPLORE MENU'}</span>
+                  <span>{'EXPLORE MENU'}</span>
                 </button>
 
                 {(onEditClick || onOpenAdmin) && (
@@ -1130,10 +1116,10 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
                     type="button"
                     onClick={onEditClick || onOpenAdmin}
                     className={`px-5 sm:px-6 py-3 sm:py-4 rounded-2xl ${isEmberion ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 border border-white/60 shadow-md' : isAurelisse ? 'bg-[#2e7d32]/10 hover:bg-[#2e7d32]/20 text-[#2e7d32] border border-[#2e7d32]/30' : isPalatiora ? 'bg-white/10 hover:bg-white/20 text-[#F97316] border border-white/20' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40'} text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 hover:-translate-y-0.5`}
-                    title={lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit "Why Dine With Us?" Section'}
+                    title={'Edit "Why Dine With Us?" Section'}
                   >
                     <Edit3 className={`w-4 h-4 ${isEmberion ? 'text-slate-950' : isAurelisse ? 'text-[#2e7d32]' : isPalatiora ? 'text-[#F97316]' : 'text-amber-400'}`} />
-                    <span>{lang === 'bn' ? 'এই সেকশনটি এডিট করুন' : 'Edit Section'}</span>
+                    <span>{'Edit Section'}</span>
                   </button>
                 )}
               </div>

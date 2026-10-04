@@ -19,14 +19,14 @@ interface CoffeeHeaderHeroProps {
 }
 
 export function CoffeeHeaderHero({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   tagline = 'Warm hearth fires, exposed brick and vintage bronze for artisan coffee houses & bakeries.',
   themeStyle,
   activeHeaderOption: externalOption,
   onHeaderOptionChange,
   lang = 'bn'
 }: CoffeeHeaderHeroProps) {
-  const effectiveBrandName = (!brandName || brandName.toLowerCase() === 'sahinsh') ? 'My Restaurant' : brandName;
+  const effectiveBrandName = (!brandName || brandName.toLowerCase() === 'sahinsh') ? 'Avernao' : brandName;
   const [internalHeaderOption, setInternalHeaderOption] = useState<'cover' | 'beans' | 'both'>('both');
   
   const currentOption = externalOption || internalHeaderOption;
@@ -62,10 +62,10 @@ export function CoffeeHeaderHero({
           </div>
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider text-amber-400">
-              {lang === 'bn' ? 'হেডার সেকশন অ্যানিমেশন মোড' : 'Header Animation Style'}
+              {'Header Animation Style'}
             </h4>
             <p className="text-[10px] text-slate-400 font-medium">
-              {lang === 'bn' ? 'কভার স্লাইডার ও বিট পার্টিকেল অ্যানিমেশন সুইচার' : 'Switch between Coffee Cover Slide & Floating Bean Particles'}
+              {'Switch between Coffee Cover Slide & Floating Bean Particles'}
             </p>
           </div>
         </div>
@@ -81,7 +81,7 @@ export function CoffeeHeaderHero({
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>{lang === 'bn' ? 'কফি কাভার (Cover)' : 'Coffee Cover'}</span>
+            <span>{'Coffee Cover'}</span>
           </button>
 
           <button
@@ -94,7 +94,7 @@ export function CoffeeHeaderHero({
             }`}
           >
             <Coffee className="w-3.5 h-3.5" />
-            <span>{lang === 'bn' ? 'কফি বিট (Beans)' : 'Coffee Beans'}</span>
+            <span>{'Coffee Beans'}</span>
           </button>
 
           <button
@@ -107,7 +107,7 @@ export function CoffeeHeaderHero({
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
-            <span>{lang === 'bn' ? 'উভয় হেডার (Both Dual)' : 'Dual Headers'}</span>
+            <span>{'Dual Headers'}</span>
           </button>
         </div>
       </div>
@@ -168,7 +168,7 @@ export function CoffeeHeaderHero({
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <span className="px-3.5 py-1.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5 fill-current" />
-                  <span>{lang === 'bn' ? 'উষ্ণ ফায়ারস্পেস অ্যান্ড বেকারি' : 'Warm Hearth & Bakery'}</span>
+                  <span>{'Warm Hearth & Bakery'}</span>
                 </span>
                 <span className="px-3.5 py-1.5 rounded-full bg-black/60 border border-amber-500/30 text-amber-300 font-mono text-xs">
                   ☕ 100% Single-Origin Arabica
@@ -232,13 +232,11 @@ export function CoffeeHeaderHero({
               className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight"
               style={{ fontFamily: fontDisplay }}
             >
-              {lang === 'bn' ? 'আর্টিসান রোস্টেড কফি অ্যান্ড এক্সপ্রেসো বার' : 'Artisan Roasted Coffee & Espresso Bar'}
+              {'Artisan Roasted Coffee & Espresso Bar'}
             </h3>
 
             <p className="text-xs sm:text-sm text-amber-200/80 font-medium max-w-lg mx-auto leading-relaxed">
-              {lang === 'bn' 
-                ? 'টাটকা ভাজা কফি বিনের সুবাস ও উড-ফায়ার্ড ওভেনের উষ্ণতায় তৈরি হয় আমাদের প্রতিদিনের সিগনেচার পানীয়।' 
-                : 'Immerse yourself in freshly roasted coffee aromas, wood-fired hearth warmth, and hand-crafted espresso.'}
+              {'Immerse yourself in freshly roasted coffee aromas, wood-fired hearth warmth, and hand-crafted espresso.'}
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-2 pt-1">

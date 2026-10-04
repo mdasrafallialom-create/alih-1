@@ -141,7 +141,7 @@ export const isCustomRestaurantName = (name?: string): boolean => {
   return (
     lower !== '' &&
     lower !== 'my restaurant' &&
-    lower !== 'আমার রেস্টুরেন্ট' &&
+    lower !== 'avernao' &&
     lower !== 'demo restaurant' &&
     lower !== 'sahinsh' &&
     lower !== 'askul' &&

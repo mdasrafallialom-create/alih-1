@@ -17,7 +17,8 @@ import {
   QrCode,
   Smartphone,
   BarChart3,
-  HelpCircle
+  HelpCircle,
+  Globe
 } from 'lucide-react';
 import { PricingPlan, SubscriptionPlan, BillingCycle } from '../types';
 
@@ -28,6 +29,7 @@ interface PlanDetailModalProps {
   initialBillingCycle?: BillingCycle;
   onSelectPlan: (plan: SubscriptionPlan, cycle: BillingCycle) => void;
   onOpenPayment: (plan: PricingPlan, cycle: BillingCycle) => void;
+  onOpenDemoTrial?: (plan: SubscriptionPlan) => void;
   lang?: string;
   isDark?: boolean;
 }
@@ -111,11 +113,11 @@ export const PLAN_DATA: Record<SubscriptionPlan, {
     name: 'PROFESSIONAL PRO',
     badge: 'Most Popular ⭐',
     tagline: 'Best for busy restaurants, fine dining & growing brands wanting custom domains and full theme access.',
-    monthly: 39,
-    biannual: 33, // $198 for 6 mo (~15% off)
-    annual: 29,   // $348 for 1 yr (~26% off)
-    biannualTotal: 198,
-    annualTotal: 348,
+    monthly: 49,
+    biannual: 41, // $246 for 6 mo (~16% off)
+    annual: 35,   // $420 for 1 yr (~28% off)
+    biannualTotal: 246,
+    annualTotal: 420,
     color: 'from-amber-500 to-orange-600',
     accentBg: 'bg-orange-50 text-orange-700',
     borderColor: 'border-orange-300',
@@ -230,6 +232,7 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
   initialBillingCycle = 'monthly',
   onSelectPlan,
   onOpenPayment,
+  onOpenDemoTrial,
   lang = 'en',
   isDark = false
 }) => {
@@ -269,6 +272,21 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
     };
   }, []);
 
+  const handleOpenWebsiteDemoInNewTab = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const planIdKey: SubscriptionPlan = (initialPlanId as SubscriptionPlan) || 'pro';
+    const planCode = planIdKey === 'basic' ? '15' : planIdKey === 'elite' ? '99' : '49';
+    
+    // First open the Website Demo Registration modal so user inputs their restaurant info
+    if (onOpenDemoTrial) {
+      onOpenDemoTrial(planIdKey);
+    } else {
+      onClose();
+      window.dispatchEvent(new CustomEvent('open-demo-trial-modal', { detail: planCode }));
+    }
+  };
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[150] flex items-center justify-center p-0 overflow-hidden bg-slate-950">
@@ -281,27 +299,29 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
           className="relative w-full h-full max-w-full max-h-screen bg-white overflow-hidden flex flex-col"
         >
           {/* Top Header */}
-          <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between gap-4 shrink-0 border-b border-white/10">
+          <div className={`p-6 sm:p-8 text-white flex flex-col lg:flex-row lg:items-center justify-between gap-6 shrink-0 border-b border-white/20 shadow-xl ${
+            isStarter 
+              ? 'bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-700' 
+              : isPro 
+              ? 'bg-gradient-to-r from-orange-600 via-amber-600 to-red-600' 
+              : 'bg-gradient-to-r from-purple-800 via-indigo-800 to-pink-800'
+          }`}>
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
-                isStarter ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' :
-                isPro ? 'bg-orange-500/20 text-orange-400 border border-orange-400/30' :
-                'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                isStarter ? 'bg-white/20 text-white border border-white/40' :
+                isPro ? 'bg-white/20 text-white border border-white/40' :
+                'bg-white/20 text-white border border-white/40'
               }`}>
-                {isStarter && <Zap className="w-7 h-7 text-blue-400" />}
-                {isPro && <Star className="w-7 h-7 text-orange-400" />}
-                {isElite && <Crown className="w-7 h-7 text-amber-300" />}
+                {isStarter && <Zap className="w-7 h-7 text-white" />}
+                {isPro && <Star className="w-7 h-7 text-white" />}
+                {isElite && <Crown className="w-7 h-7 text-white" />}
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                    isStarter ? 'bg-blue-400/20 text-blue-300 border border-blue-400/30' :
-                    isPro ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30' :
-                    'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                  }`}>
+                  <span className="px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-white border border-white/30">
                     {currentPlanData.badge}
                   </span>
-                  <span className="text-xs font-bold text-slate-300">
+                  <span className="text-xs font-bold text-white/80">
                     Avernao WebAR Ecosystem
                   </span>
                 </div>
@@ -311,13 +331,48 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
               </div>
             </div>
 
-            <button 
-              onClick={onClose}
-              className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0"
-              title="Close Page"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              {/* WEBSITE DEMO (NEW TAB) BUTTON AT THE TOP */}
+              <button
+                type="button"
+                onClick={handleOpenWebsiteDemoInNewTab}
+                className="px-5 py-3 bg-gradient-to-r from-teal-400 via-cyan-400 to-emerald-400 hover:from-teal-500 hover:to-emerald-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-wider shadow-md hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 select-none shrink-0"
+              >
+                <Globe className="w-4 h-4 text-slate-950 animate-pulse" />
+                <span>{'EXPLORE WEBSITE DEMO'}</span>
+              </button>
+
+              {/* SUBSCRIBE & CHECKOUT BUTTON AT THE TOP */}
+              <button
+                type="button"
+                onClick={() => {
+                  const planIdKey: SubscriptionPlan = (initialPlanId as SubscriptionPlan) || 'pro';
+                  const pricingObj: PricingPlan = {
+                    id: planIdKey,
+                    name: currentPlanData.name,
+                    price: getTotalBill(),
+                    period: billingCycle === 'annual' ? 'YEAR' : billingCycle === 'biannual' ? '6 MONTHS' : 'MONTH',
+                    color: planIdKey === 'basic' ? 'blue' : planIdKey === 'pro' ? 'orange' : 'slate',
+                    description: currentPlanData.tagline,
+                    features: currentPlanData.highlights
+                  };
+                  onSelectPlan(planIdKey, billingCycle);
+                  onOpenPayment(pricingObj, billingCycle);
+                }}
+                className="px-5 py-3 bg-white text-slate-900 hover:bg-slate-100 rounded-2xl font-black text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 select-none shrink-0"
+              >
+                <CreditCard className="w-4 h-4 text-slate-950" />
+                <span>{'SUBSCRIBE & CHECKOUT'}</span>
+              </button>
+
+              <button 
+                onClick={onClose}
+                className="w-11 h-11 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0 border border-white/30"
+                title="Close Page"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
 
           {/* Billing Cycle Switcher: Monthly vs 6 Months vs 1 Year */}
@@ -509,43 +564,6 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Bottom Action Bar */}
-          <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
-            <div className="text-center sm:text-left">
-              <span className="text-xs font-bold text-slate-500 block">
-                Selected Package & Term:
-              </span>
-              <span className="text-lg sm:text-xl font-black text-slate-900">
-                {currentPlanData.name} ({billingCycle === 'annual' ? '1 Year' : billingCycle === 'biannual' ? '6 Months' : '1 Month'}) — ${getTotalBill()}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  const planIdKey: SubscriptionPlan = (initialPlanId as SubscriptionPlan) || 'pro';
-                  const pricingObj: PricingPlan = {
-                    id: planIdKey,
-                    name: currentPlanData.name,
-                    price: getTotalBill(),
-                    period: billingCycle === 'annual' ? 'YEAR' : billingCycle === 'biannual' ? '6 MONTHS' : 'MONTH',
-                    color: planIdKey === 'basic' ? 'blue' : planIdKey === 'pro' ? 'orange' : 'slate',
-                    description: currentPlanData.tagline,
-                    features: currentPlanData.highlights
-                  };
-                  onSelectPlan(planIdKey, billingCycle);
-                  onOpenPayment(pricingObj, billingCycle);
-                }}
-                className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 select-none"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>SUBSCRIBE & CHECKOUT (${getTotalBill()})</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </motion.div>

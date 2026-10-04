@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, ChevronUp, Play, Pause, ShoppingBag, ArrowUpRight, 
   Menu, X, Heart, Shield, QrCode, Check, Compass, Volume2, Search, Bell,
   Award, ChefHat, Utensils, Instagram, Facebook, Mail, ArrowRight, ArrowLeft,
-  Youtube, Linkedin, Edit3, Save, ImageIcon, ShoppingCart, Plus, Minus, Trash2, CheckCircle2, Eye, Sliders, Receipt
+  Youtube, Linkedin, Edit3, Save, ImageIcon, ShoppingCart, Plus, Minus, Trash2, CheckCircle2, Eye, Sliders, Receipt, Home
 } from 'lucide-react';
 import { DEFAULT_CHEF_PROFILES, ChefProfile } from '../../types';
 import portafilterTrioImg from '../../assets/images/portafilter_trio_story_1789909656642.jpg';
@@ -113,7 +113,7 @@ const DEFAULT_LUNAVERE_DISHES: FoodItem[] = [
 ];
 
 export default function LunavereTheme({
-  brandName = 'My Restaurant',
+  brandName = 'Avernao',
   tagline = 'Parisian Starlight Cafe',
   dishes = [],
   fontDisplay,
@@ -391,7 +391,7 @@ export default function LunavereTheme({
       setSelectedDishDetail(editingSingleDish);
     }
     setEditingSingleDish(null);
-    setToastMsg(lang === 'bn' ? '✅ সেভ হয়েছে (Saved successfully)!' : '✅ Saved successfully!');
+    setToastMsg('✅ Saved successfully!');
     setTimeout(() => setToastMsg(null), 3000);
   };
 
@@ -410,7 +410,7 @@ export default function LunavereTheme({
         onOrderDish(dish);
       }
     }
-    setToastMsg(lang === 'bn' ? `অর্ডারে ${qty}x "${dish.title}" যুক্ত হয়েছে!` : `Added ${qty}x "${dish.title}" to Table Order!`);
+    setToastMsg(`Added ${qty}x "${dish.title}" to Table Order!`);
     setTimeout(() => setToastMsg(null), 3000);
   };
 
@@ -437,7 +437,7 @@ export default function LunavereTheme({
     const newOrder = {
       id: orderId,
       table: orderTableNumber,
-      customerName: orderCustomerName || (lang === 'bn' ? 'টেবিল গেস্ট' : 'Table Guest'),
+      customerName: orderCustomerName || ('Table Guest'),
       customerPhone: orderCustomerPhone,
       items: [...orderCart],
       totalAmount,
@@ -520,24 +520,24 @@ export default function LunavereTheme({
           {!isMobile && !isTablet && (
             <nav className="hidden xl:flex items-center gap-6 2xl:gap-8 text-xs font-semibold tracking-widest uppercase text-[#171522]/80">
               <button onClick={() => scrollToSection('menu')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                {lang === 'bn' ? 'মেনু' : 'Menu'}
+                {'Menu'}
               </button>
               <button onClick={() => scrollToSection('story')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                {lang === 'bn' ? 'গল্প' : 'Story'}
+                {'Story'}
               </button>
               <button onClick={() => scrollToSection('desserts')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                {lang === 'bn' ? 'প্যাটিসারি' : 'Pâtisserie'}
+                {'Pâtisserie'}
               </button>
               {isChefSectionVisible && (
                 <button onClick={() => scrollToSection('chefs')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                  {lang === 'bn' ? 'মাস্টার শেফ' : 'Sommeliers'}
+                  {'Sommeliers'}
                 </button>
               )}
               <button onClick={() => scrollToSection('timeline')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                {lang === 'bn' ? 'অভিজ্ঞতা' : 'Ritual'}
+                {'Ritual'}
               </button>
               <button onClick={() => scrollToSection('visit')} className="hover:text-[#96722d] transition-colors cursor-pointer">
-                {lang === 'bn' ? 'যোগাযোগ' : 'Visit'}
+                {'Visit'}
               </button>
             </nav>
           )}
@@ -561,7 +561,7 @@ export default function LunavereTheme({
                         }
                       }
                     }}
-                    placeholder={lang === 'bn' ? 'খুঁজুন...' : 'Search...'}
+                    placeholder={'Search...'}
                     className="pl-8 pr-6 py-2 rounded-full bg-white hover:bg-white/95 border border-[#C9A86A]/50 focus:border-[#96722d] focus:ring-1 focus:ring-[#96722d]/40 text-xs text-[#171522] placeholder-[#171522]/50 shadow-sm focus:outline-none transition-all w-44 md:w-56"
                   />
                   {searchQuery && (
@@ -586,11 +586,11 @@ export default function LunavereTheme({
               type="button"
               onClick={() => setIsOrderDrawerOpen(true)}
               className="relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-[#171522] hover:bg-[#2e2a42] text-white border border-[#C9A86A]/50 flex items-center gap-1.5 sm:gap-2 shadow-md transition-all cursor-pointer active:scale-95 shrink-0"
-              title={lang === 'bn' ? 'টেবিল অর্ডার ও কার্ট দেখুন' : 'View Table Order & Cart'}
+              title={'View Table Order & Cart'}
             >
               <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C9A86A]" />
               <span className="text-[11px] sm:text-xs font-bold font-mono">
-                {lang === 'bn' ? 'অর্ডার' : 'Cart'}
+                {'Cart'}
               </span>
               {orderCart.length > 0 && (
                 <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 text-[10px] font-black flex items-center justify-center shadow-md animate-pulse">
@@ -599,6 +599,19 @@ export default function LunavereTheme({
               )}
             </button>
 
+            {/* Return to Main Website Button */}
+            {onReturnToPortal && (
+              <button
+                type="button"
+                onClick={onReturnToPortal}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer shrink-0 transition-all active:scale-95 border border-cyan-400/60"
+                title={'Return to Main Website'}
+              >
+                <Home className="w-3.5 h-3.5 text-cyan-200" />
+                <span>{'Main Website'}</span>
+              </button>
+            )}
+
             {/* Reserve Button (Visible on desktop & tablet, compact on mobile) */}
             <button 
               onClick={() => setReservationModalOpen(true)}
@@ -606,7 +619,7 @@ export default function LunavereTheme({
                 isMobile ? 'hidden sm:inline-flex px-3 py-1.5 text-[11px]' : 'px-4 sm:px-5 py-2 text-xs'
               }`}
             >
-              {lang === 'bn' ? 'টেবিল বুকিং' : 'Reserve'}
+              {'Reserve'}
             </button>
 
             {/* Mobile & Tablet Dropdown Menu Trigger Button */}
@@ -626,7 +639,7 @@ export default function LunavereTheme({
                   <Menu className="w-4 h-4 text-[#96722d]" />
                 )}
                 <span className="text-xs font-bold uppercase tracking-wider font-mono">
-                  {mobileMenuOpen ? (lang === 'bn' ? 'বন্ধ' : 'Close') : (lang === 'bn' ? 'মেনু' : 'Menu')}
+                  {mobileMenuOpen ? 'Close' : 'Menu'}
                 </span>
               </button>
             )}
@@ -659,7 +672,7 @@ export default function LunavereTheme({
                         }
                       }
                     }}
-                    placeholder={lang === 'bn' ? 'মেনু, কফি বা খাবার খুঁজুন...' : 'Search menu, coffee, pâtisserie...'}
+                    placeholder={'Search menu, coffee, pâtisserie...'}
                     className="w-full pl-10 pr-9 py-2.5 rounded-full bg-white border border-[#C9A86A]/50 focus:border-[#96722d] focus:ring-1 focus:ring-[#96722d]/40 text-xs text-[#171522] placeholder-[#171522]/50 shadow-sm focus:outline-none"
                   />
                   {searchQuery && (
@@ -685,10 +698,10 @@ export default function LunavereTheme({
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
-                        {lang === 'bn' ? 'মেনু' : 'Menu'}
+                        {'Menu'}
                       </span>
                       <span className="text-[11px] text-[#171522]/65 truncate block">
-                        {lang === 'bn' ? 'সিগনেচার কফি ও ড্রিংকস' : 'Signature Parisian Coffees'}
+                        {'Signature Parisian Coffees'}
                       </span>
                     </div>
                   </button>
@@ -703,10 +716,10 @@ export default function LunavereTheme({
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
-                        {lang === 'bn' ? 'গল্প' : 'Story'}
+                        {'Story'}
                       </span>
                       <span className="text-[11px] text-[#171522]/65 truncate block">
-                        {lang === 'bn' ? 'আমাদের দর্শন ও গল্প' : 'Philosophy & Rue de l\'Étoile'}
+                        {'Philosophy & Rue de l\'Étoile'}
                       </span>
                     </div>
                   </button>
@@ -721,10 +734,10 @@ export default function LunavereTheme({
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
-                        {lang === 'bn' ? 'প্যাটিসারি' : 'Pâtisserie'}
+                        {'Pâtisserie'}
                       </span>
                       <span className="text-[11px] text-[#171522]/65 truncate block">
-                        {lang === 'bn' ? 'ফ্রেঞ্চ পেস্ট্রি ও ডেজার্ট' : 'Artisan Pastries & Desserts'}
+                        {'Artisan Pastries & Desserts'}
                       </span>
                     </div>
                   </button>
@@ -740,10 +753,10 @@ export default function LunavereTheme({
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
-                          {lang === 'bn' ? 'মাস্টার শেফ' : 'Sommeliers'}
+                          {'Sommeliers'}
                         </span>
                         <span className="text-[11px] text-[#171522]/65 truncate block">
-                          {lang === 'bn' ? 'সোমেলিয়ার ও মাস্টার বারিস্তা' : 'Artisanal Masters & Roasters'}
+                          {'Artisanal Masters & Roasters'}
                         </span>
                       </div>
                     </button>
@@ -759,10 +772,10 @@ export default function LunavereTheme({
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
-                        {lang === 'bn' ? 'অভিজ্ঞতা' : 'Ritual'}
+                        {'Ritual'}
                       </span>
                       <span className="text-[11px] text-[#171522]/65 truncate block">
-                        {lang === 'bn' ? 'সান্ধ্যকালীন রিচুয়াল (৫-৯ PM)' : 'Evening Starlight Ritual'}
+                        {'Evening Starlight Ritual'}
                       </span>
                     </div>
                   </button>
@@ -777,10 +790,10 @@ export default function LunavereTheme({
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold uppercase tracking-wider text-[#171522] group-hover:text-[#96722d] block transition-colors">
-                        {lang === 'bn' ? 'যোগাযোগ' : 'Visit'}
+                        {'Visit'}
                       </span>
                       <span className="text-[11px] text-[#171522]/65 truncate block">
-                        {lang === 'bn' ? 'ঠিকানা ও সময়' : 'Hours, Location & Enquiries'}
+                        {'Hours, Location & Enquiries'}
                       </span>
                     </div>
                   </button>
@@ -796,7 +809,7 @@ export default function LunavereTheme({
                     className="flex-1 py-3 rounded-xl bg-[#171522] hover:bg-[#2e2a42] text-white font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-[#C9A86A]" />
-                    <span>{lang === 'bn' ? 'টেবিল রিজার্ভেশন করুন' : 'Reserve Evening Table'}</span>
+                    <span>{'Reserve Evening Table'}</span>
                   </button>
 
                   <button 
@@ -807,7 +820,7 @@ export default function LunavereTheme({
                     className="flex-1 py-3 rounded-xl bg-white hover:bg-white/90 border border-[#C9A86A]/50 text-[#171522] font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all cursor-pointer"
                   >
                     <QrCode className="w-3.5 h-3.5 text-[#96722d]" />
-                    <span>{lang === 'bn' ? 'ডিজিটাল কিউআর মেনু' : 'Digital QR Menu Card'}</span>
+                    <span>{'Digital QR Menu Card'}</span>
                   </button>
                 </div>
               </div>
@@ -993,16 +1006,7 @@ export default function LunavereTheme({
                       : 'bg-white text-[#171522]/85 hover:text-[#171522] hover:bg-white/95 border border-[#C9A86A]/40 shadow-sm'
                   }`}
                 >
-                  {lang === 'bn' ? (
-                    cat === 'all' ? 'সবগুলো' :
-                    cat === 'coffee' ? 'কফি' :
-                    cat === 'pastries' ? 'পেস্ট্রি' :
-                    cat === 'brunch' ? 'ব্রাঞ্চ' :
-                    cat === 'desserts' ? 'ডেজার্ট' :
-                    cat === 'tea' ? 'চা' : cat
-                  ) : (
-                    cat.charAt(0).toUpperCase() + cat.slice(1)
-                  )}
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </button>
               ))}
             </div>
@@ -1049,7 +1053,7 @@ export default function LunavereTheme({
                             setEditingSingleDish(item);
                           }}
                           className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
-                          title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
+                          title={'Click to edit this food item'}
                         >
                           <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
                           <span>EDIT</span>
@@ -1107,10 +1111,10 @@ export default function LunavereTheme({
             <div className="text-center py-16 px-4 bg-white/80 rounded-2xl border border-[#C9A86A]/30 space-y-3 max-w-lg mx-auto shadow-sm">
               <Utensils className="w-10 h-10 text-[#96722d] mx-auto opacity-60" />
               <p className="text-sm font-bold text-[#171522]">
-                {lang === 'bn' ? 'কোনো খাবার যুক্ত করা হয়নি' : 'No Menu Items Added Yet'}
+                {'No Menu Items Added Yet'}
               </p>
               <p className="text-xs text-[#171522]/70 leading-relaxed">
-                {lang === 'bn' ? 'এডমিন প্যানেল থেকে মেনু বা খাবার যুক্ত করলে এখানে সুন্দরভাবে পরিবেশন হবে।' : 'Add dishes from the Admin Menu Manager to display them in this section.'}
+                {'Add dishes from the Admin Menu Manager to display them in this section.'}
               </p>
             </div>
           )}
@@ -1170,7 +1174,7 @@ export default function LunavereTheme({
                           setEditingSingleDish(dessert);
                         }}
                         className="px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 text-xs font-black uppercase tracking-wider shadow-2xl flex items-center gap-1.5 border border-white/50 cursor-pointer backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
-                        title={lang === 'bn' ? 'খাবারটি এডিট করুন' : 'Click to edit this food item'}
+                        title={'Click to edit this food item'}
                       >
                         <Edit3 className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
                         <span>EDIT</span>
@@ -1233,18 +1237,16 @@ export default function LunavereTheme({
             <div className="text-center max-w-2xl mx-auto space-y-3">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#96722d] flex items-center justify-center gap-2">
                 <ChefHat className="w-4 h-4 text-[#96722d]" />
-                {lang === 'bn' ? 'মাস্টার শেফ ও সোমেলিয়ার' : 'ARTISANAL MASTERS & SOMMELIERS'}
+                {'ARTISANAL MASTERS & SOMMELIERS'}
               </span>
               <h2 
                 className="text-3xl sm:text-4xl md:text-5xl font-normal text-[#171522] tracking-tight"
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
-                {lang === 'bn' ? 'রন্ধন ও কফি শিল্পের মাস্টারগণ' : 'Behind Every Pour & Pastry'}
+                {'Behind Every Pour & Pastry'}
               </h2>
               <p className="text-sm text-[#171522]/75 font-light leading-relaxed">
-                {lang === 'bn' 
-                  ? 'বিশ্বমানের দক্ষ শেফ ও বারিস্তাদের নিখুঁত পরিবেশনা, যা আপনার প্রতিটি সন্ধ্যাকে করে তোলে অনন্য।'
-                  : 'Meet our world-class pastry chefs, roasters, and culinary artisans crafting evocative evenings.'}
+                {'Meet our world-class pastry chefs, roasters, and culinary artisans crafting evocative evenings.'}
               </p>
             </div>
           </div>
@@ -1312,7 +1314,7 @@ export default function LunavereTheme({
                     </span>
                     {chef.experienceYears && (
                       <span className="text-[#171522]/60 text-[10px] shrink-0 font-mono ml-2">
-                        {chef.experienceYears}+ {lang === 'bn' ? 'বছরের অভিজ্ঞতা' : 'Yrs Exp'}
+                        {chef.experienceYears}+ {'Yrs Exp'}
                       </span>
                     )}
                   </div>
@@ -1593,13 +1595,13 @@ export default function LunavereTheme({
                   onClick={() => setReservationModalOpen(true)}
                   className="w-full py-3 rounded-full bg-white hover:bg-white/90 text-[#0f101d] text-xs font-black uppercase tracking-wider transition-all shadow-lg hover:shadow-white/10 active:scale-95 cursor-pointer"
                 >
-                  {settings?.lunavereReserveBtnText || (lang === 'bn' ? 'টেবিল রিজার্ভ করুন' : 'RESERVE A TABLE')}
+                  {settings?.lunavereReserveBtnText || ('RESERVE A TABLE')}
                 </button>
                 <button
                   onClick={() => setShowQrMenuModal(true)}
                   className="w-full py-2.5 rounded-full border border-white/60 hover:border-white text-white hover:bg-white/10 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                 >
-                  {settings?.lunavereQrBtnText || (lang === 'bn' ? 'ডিজিটাল কিউআর মেনু' : 'OPEN QR DIGITAL MENU')}
+                  {settings?.lunavereQrBtnText || ('OPEN QR DIGITAL MENU')}
                 </button>
               </div>
             </div>
@@ -1835,7 +1837,7 @@ export default function LunavereTheme({
                 className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>{lang === 'bn' ? 'ব্যাক' : 'Back'}</span>
+                <span>{'Back'}</span>
               </button>
 
               <div className="flex items-center gap-2 sm:gap-3">
@@ -1844,7 +1846,7 @@ export default function LunavereTheme({
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   <input
                     type="text"
-                    placeholder={lang === 'bn' ? "খাবার খুঁজুন..." : "Find dish..."}
+                    placeholder={"Find dish..."}
                     value={modalSearchTerm}
                     onChange={(e) => {
                       const q = e.target.value;
@@ -2289,7 +2291,7 @@ export default function LunavereTheme({
                   </span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C9A86A] shrink-0" />
                   <span className="text-xs font-bold text-[#F4E7D3] truncate">
-                    {orderCart.reduce((sum, i) => sum + i.qty, 0)} {lang === 'bn' ? 'টি আইটেম' : 'items'}
+                    {orderCart.reduce((sum, i) => sum + i.qty, 0)} {'items'}
                   </span>
                 </div>
                 <span className="text-sm font-black font-mono text-white block">
@@ -2303,7 +2305,7 @@ export default function LunavereTheme({
               onClick={() => setIsOrderDrawerOpen(true)}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
             >
-              <span>{lang === 'bn' ? 'বিল ও অর্ডার' : 'View Order'}</span>
+              <span>{'View Order'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </motion.div>
@@ -2338,7 +2340,7 @@ export default function LunavereTheme({
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-[#F4E7D3] uppercase tracking-wider font-serif">
-                      {lang === 'bn' ? 'টেবিল অর্ডার ও বিল' : 'Table Order & Checkout'}
+                      {'Table Order & Checkout'}
                     </h3>
                     <p className="text-[11px] text-white/60 font-mono">
                       Lunavere Starlight Table Service
@@ -2359,7 +2361,7 @@ export default function LunavereTheme({
                 {/* Table & Guest Selector */}
                 <div className="p-4 rounded-2xl bg-white/5 border border-[#C9A86A]/30 space-y-3">
                   <label className="text-[11px] font-bold text-[#C9A86A] uppercase tracking-widest block">
-                    {lang === 'bn' ? 'টেবিল নম্বর সিলেক্ট করুন' : 'SELECT TABLE / LOCATION'}
+                    {'SELECT TABLE / LOCATION'}
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <select
@@ -2379,7 +2381,7 @@ export default function LunavereTheme({
                       type="text"
                       value={orderCustomerName}
                       onChange={(e) => setOrderCustomerName(e.target.value)}
-                      placeholder={lang === 'bn' ? 'গেস্ট এর নাম...' : 'Guest Name (Optional)'}
+                      placeholder={'Guest Name (Optional)'}
                       className="bg-[#15162B] text-white text-xs rounded-xl px-3 py-2.5 border border-[#C9A86A]/30 outline-none focus:border-[#C9A86A]"
                     />
                   </div>
@@ -2390,16 +2392,16 @@ export default function LunavereTheme({
                   <div className="py-16 text-center space-y-3 bg-white/5 rounded-2xl border border-dashed border-[#C9A86A]/20">
                     <ShoppingBag className="w-12 h-12 text-[#C9A86A]/50 mx-auto" />
                     <p className="text-sm font-bold text-[#F4E7D3]">
-                      {lang === 'bn' ? 'অর্ডারে কোনো খাবার যুক্ত করা হয়নি' : 'Your order tray is currently empty'}
+                      {'Your order tray is currently empty'}
                     </p>
                     <p className="text-xs text-white/50">
-                      {lang === 'bn' ? 'মেনু থেকে খাবারের "Order" বাটনে ক্লিক করুন' : 'Click "Order" on menu cards to add items.'}
+                      {'Click "Order" on menu cards to add items.'}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider block">
-                      {lang === 'bn' ? 'অর্ডারকৃত আইটেমসমূহ:' : 'ORDERED ITEMS'}
+                      ORDERED ITEMS
                     </span>
                     {orderCart.map((item) => (
                       <div key={item.dish.id} className="p-3.5 rounded-2xl bg-white/5 border border-[#C9A86A]/30 flex items-center justify-between gap-3">
@@ -2442,13 +2444,13 @@ export default function LunavereTheme({
                     {/* Special Instructions Input */}
                     <div className="pt-2">
                       <label className="text-[11px] font-bold text-[#C9A86A] uppercase tracking-wider block mb-1">
-                        {lang === 'bn' ? 'বিশেষ বার্তা / রিকোয়েস্ট' : 'SPECIAL INSTRUCTIONS'}
+                        {'SPECIAL INSTRUCTIONS'}
                       </label>
                       <input
                         type="text"
                         value={orderSpecialNotes}
                         onChange={(e) => setOrderSpecialNotes(e.target.value)}
-                        placeholder={lang === 'bn' ? 'যেমন: চিনি কম, এক্সট্রা হট...' : 'e.g. Less sugar, extra hot, oat milk...'}
+                        placeholder="e.g. Less sugar, extra hot, oat milk..."
                         className="w-full bg-white/5 border border-[#C9A86A]/30 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-[#C9A86A]"
                       />
                     </div>
@@ -2460,14 +2462,14 @@ export default function LunavereTheme({
               {orderCart.length > 0 && (
                 <div className="p-5 border-t border-[#C9A86A]/30 bg-[#111222] space-y-3">
                   <div className="flex justify-between items-center text-xs text-white/70">
-                    <span>{lang === 'bn' ? 'আইটেম মোট:' : 'Subtotal:'}</span>
+                    <span>Subtotal:</span>
                     <span className="font-mono font-bold text-[#F4E7D3]">
                       {formatPrice(orderCart.reduce((sum, item) => sum + (item.dish.price * item.qty), 0))}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm font-bold text-white pt-1 border-t border-white/10">
-                    <span>{lang === 'bn' ? 'সর্বমোট প্রদেয় বিল:' : 'Total Payable:'}</span>
+                    <span>Total Payable:</span>
                     <span className="font-mono text-lg text-[#C9A86A] font-black">
                       {formatPrice(orderCart.reduce((sum, item) => sum + (item.dish.price * item.qty), 0))}
                     </span>
@@ -2479,7 +2481,7 @@ export default function LunavereTheme({
                     className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider shadow-xl active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
                     <CheckCircle2 className="w-4 h-4 text-stone-950" />
-                    <span>{lang === 'bn' ? 'অর্ডার কনফার্ম করুন' : 'Confirm & Send Order to Kitchen'}</span>
+                    <span>{'Confirm & Send Order to Kitchen'}</span>
                   </button>
                 </div>
               )}
@@ -2516,10 +2518,10 @@ export default function LunavereTheme({
                   ORDER CONFIRMED • {latestPlacedOrder.id}
                 </span>
                 <h3 className="text-2xl font-bold text-[#F4E7D3] font-serif">
-                  {lang === 'bn' ? 'অর্ডার সফলভাবে গ্রহন করা হয়েছে!' : 'Order Sent to Kitchen!'}
+                  {'Order Sent to Kitchen!'}
                 </h3>
                 <p className="text-xs text-white/70 font-light">
-                  {lang === 'bn' ? 'আপনার টেবিলে বারিস্তা খাবার পরিবেশন করবে।' : `Thank you! Your order for ${latestPlacedOrder.table} is being prepared.`}
+                  {`Thank you! Your order for ${latestPlacedOrder.table} is being prepared.`}
                 </p>
               </div>
 
@@ -2562,7 +2564,7 @@ export default function LunavereTheme({
                 onClick={() => setOrderSuccessModalOpen(false)}
                 className="w-full py-3 rounded-xl bg-[#C9A86A] hover:bg-[#b89557] text-[#15162B] font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer"
               >
-                {lang === 'bn' ? 'ঠিক আছে (মেনুতে ফিরুন)' : 'Back to Menu'}
+                {'Back to Menu'}
               </button>
             </motion.div>
           </motion.div>
@@ -2608,7 +2610,7 @@ export default function LunavereTheme({
                   : "w-12 h-12 rounded-2xl bg-[#DE9E93] hover:bg-[#d68f83] text-[#171522] flex items-center justify-center shadow-2xl hover:-translate-y-1 active:scale-95 transition-all cursor-pointer border border-[#DE9E93]/40 pointer-events-auto"
               }
               aria-label="Scroll to top"
-              title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
+              title={'Scroll to top'}
             >
               <ChevronUp className={isMobile ? "w-4 h-4 stroke-[2.5]" : "w-6 h-6 stroke-[2.5]"} />
             </motion.button>

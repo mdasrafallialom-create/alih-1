@@ -77,7 +77,7 @@ export default function DomainsManager({
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
-    showToast(lang === 'bn' ? 'ক্লিপবোর্ডে কপি করা হয়েছে!' : 'Copied to clipboard!');
+    showToast('Copied to clipboard!');
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
@@ -93,7 +93,7 @@ export default function DomainsManager({
       onUpdateSettings({ customDomain: cleaned });
       setShowAddModal(false);
       setNewDomainInput('');
-      showToast(lang === 'bn' ? 'ডোমেইন সফলভাবে যুক্ত হয়েছে!' : `Domain ${cleaned} connected successfully!`);
+      showToast(`Domain ${cleaned} connected successfully!`);
     }, 1000);
   };
 
@@ -103,7 +103,7 @@ export default function DomainsManager({
     setConnectedDomain(full);
     onUpdateSettings({ customDomain: full });
     setShowBuyModal(false);
-    showToast(lang === 'bn' ? `ডোমেইন ${full} সফলভাবে নিবন্ধিত হয়েছে!` : `Domain ${full} registered & connected (${price})!`);
+    showToast(`Domain ${full} registered & connected (${price})!`);
   };
 
   const supportedExtensions = [

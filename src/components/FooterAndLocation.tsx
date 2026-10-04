@@ -273,7 +273,7 @@ export default function FooterAndLocation({
                         href={whatsappChatUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        title={lang === 'bn' ? 'হোয়াটসঅ্যাপে মেসেজ পাঠান' : 'Click to chat on WhatsApp'}
+                        title={'Click to chat on WhatsApp'}
                         className="text-slate-700 hover:text-emerald-600 font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors group cursor-pointer"
                       >
                         <span className="group-hover:underline">{whatsappNumber}</span>
@@ -298,7 +298,7 @@ export default function FooterAndLocation({
                         href={gmailComposeUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        title={lang === 'bn' ? 'জিমেইলে সরাসরি মেসেজ পাঠান' : 'Click to send message via Gmail'}
+                        title={'Click to send message via Gmail'}
                         className="text-slate-700 hover:text-purple-600 font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors group cursor-pointer"
                       >
                         <span className="group-hover:underline">{emailAddress}</span>
@@ -492,7 +492,7 @@ export default function FooterAndLocation({
                 <li 
                   onClick={onAdminAccess}
                   className="hover:text-cyan-400 text-slate-500 transition-colors cursor-pointer flex items-center gap-1.5 pt-1"
-                  title={lang === 'bn' ? 'স্টাফ / এডমিন এক্সেস (PIN: 8520)' : 'Staff Admin Access (PIN: 8520)'}
+                  title="Staff Admin Access (PIN: 8520)"
                 >
                   <Lock className="w-3.5 h-3.5 text-slate-500" />
                   <span>Staff Portal</span>
@@ -531,7 +531,7 @@ export default function FooterAndLocation({
                       href={whatsappChatUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      title={lang === 'bn' ? 'হোয়াটসঅ্যাপে সরাসরি মেসেজ পাঠান' : 'Chat on WhatsApp'}
+                      title={'Chat on WhatsApp'}
                       className="hover:text-emerald-300 transition-colors inline-flex items-center gap-1.5 hover:underline cursor-pointer"
                     >
                       <span>{whatsappNumber}</span>
@@ -547,7 +547,7 @@ export default function FooterAndLocation({
                       href={gmailComposeUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      title={lang === 'bn' ? 'জিমেইলে সরাসরি মেসেজ পাঠান' : 'Click to send message via Gmail'}
+                      title={'Click to send message via Gmail'}
                       className="hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 hover:underline cursor-pointer"
                     >
                       <span>{emailAddress}</span>

@@ -10,6 +10,7 @@ import DomainsManager from './RestaurantAdmin/DomainsManager';
 import ThemeStoreManager from './RestaurantAdmin/ThemeStoreManager';
 import RestaurantOnboardingGate from './RestaurantAdmin/RestaurantOnboardingGate';
 import AIAnalyticsDashboard from './AIAnalyticsDashboard';
+import { TrialTimerCard } from './TrialTimerBanner';
 import financialImage from '../assets/images/financial_control_full_dashboard_1786529698199.jpg';
 import analyticsWatermark from '../assets/images/analytics_watermark_1786531181027.jpg';
 import { GEO_COUNTRIES } from '../data/geoData';
@@ -940,8 +941,8 @@ export default function OrderManagementAdmin({
     setAdminConfirmPasswordError('');
     
     const msg = targetAdminBtnVisibility
-      ? (lang === 'bn' ? `"${activeThemeId}" থিমে এডমিন বাটন অন (দৃশ্যমান) করা হয়েছে!` : `Header Admin button is now ON for "${activeThemeId}"!`)
-      : (lang === 'bn' ? `"${activeThemeId}" থিমে এডমিন বাটন অফ (লুকানো) করা হয়েছে! পিন বা পাসওয়ার্ড টাইপ করে প্যানেলে ঢোকা যাবে।` : `Header Admin button is now OFF for "${activeThemeId}"! Password required to enter.`);
+      ? (`Header Admin button is now ON for "${activeThemeId}"!`)
+      : (`Header Admin button is now OFF for "${activeThemeId}"! Password required to enter.`);
 
     setAdminToggleSuccessMsg(msg);
     setTimeout(() => setAdminToggleSuccessMsg(null), 5000);
@@ -1042,9 +1043,7 @@ export default function OrderManagementAdmin({
       heroImages: slides.map(s => s.image)
     }));
     setSlideNotificationMsg(
-      lang === 'bn' 
-        ? `${targetCountry} লাক্সারি রেস্টুরেন্ট ছবি স্লাইডারে যুক্ত হয়েছে!` 
-        : `Applied ${targetCountry} luxury restaurant images!`
+      `Applied ${targetCountry} luxury restaurant images!`
     );
     setTimeout(() => setSlideNotificationMsg(null), 4000);
   };
@@ -1091,9 +1090,7 @@ export default function OrderManagementAdmin({
       if (dataUrl) {
         handleUpdateSlideImage(index, dataUrl);
         setSlideNotificationMsg(
-          lang === 'bn' 
-            ? `স্লাইড #${index + 1} সফলভাবে আপডেট হয়েছে!` 
-            : `Slide #${index + 1} image updated!`
+          `Slide #${index + 1} image updated!`
         );
         setTimeout(() => setSlideNotificationMsg(null), 4000);
       }
@@ -1277,7 +1274,7 @@ export default function OrderManagementAdmin({
 
   const handleSaveBrandSettings = () => {
     setIsSaving(true);
-    const finalBrand = localBrandSettings.brandName || localBrandSettings.restaurantName || "My Restaurant";
+    const finalBrand = localBrandSettings.brandName || localBrandSettings.restaurantName || "Avernao";
     const finalOwner = localBrandSettings.ownerName || "Md asraful";
 
     if (typeof window !== 'undefined') {
@@ -1516,7 +1513,32 @@ export default function OrderManagementAdmin({
               ))}
             </nav>
 
-             {/* Sidebar Footer with Logout */}
+            {/* Admin Trial Timer Sidebar Widget (Placed right under System Settings) */}
+            <div className="mx-3 my-3 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-amber-400/40 shadow-xl text-white space-y-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-xs">
+                  ⏳ 3-Day Demo Active
+                </span>
+                <span className="font-mono text-amber-300 font-bold text-xs">
+                  71h : 58m
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-200 font-semibold leading-snug">
+                Day 1 in Progress (72h Remaining)
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('admin-open-checkout'));
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[11px] uppercase tracking-wider shadow cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Subscribe & Checkout</span>
+              </button>
+            </div>
+
+            {/* Sidebar Footer with Logout */}
             <div className={`p-4 border-t ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'}`}>
               <button 
                 onClick={onLogout}
@@ -2108,7 +2130,7 @@ export default function OrderManagementAdmin({
               <div className="space-y-6 animate-fade-in bg-white text-slate-900 rounded-2xl">
                 <AIAnalyticsDashboard
                   theme="light"
-                  brandName={settings.brandName || "My Restaurant"}
+                  brandName={settings.brandName || "Avernao"}
                   onOpenSales={() => setActiveNavTab('financial')}
                   onVisitStorefront={onExitAdmin}
                   orders={orders}
@@ -2434,6 +2456,38 @@ export default function OrderManagementAdmin({
                           );
                         })}
                       </div>
+
+                      {/* 3-Day Free Trial Timer Card (Visible under Settings Navigation) */}
+                      <TrialTimerCard
+                        trialSession={(() => {
+                          if (typeof window !== 'undefined') {
+                            const saved = localStorage.getItem('webar_trial_session');
+                            if (saved) {
+                              try { return JSON.parse(saved); } catch (e) {}
+                            }
+                          }
+                          return {
+                            fullName: settings?.ownerName || 'Demo Manager',
+                            role: 'Manager',
+                            restaurantName: settings?.brandName || settings?.restaurantName || 'Demo Restaurant',
+                            email: settings?.contactEmail || 'demo.manager@gmail.com',
+                            phone: settings?.contactPhone || '+880 1700-000000',
+                            country: 'Bangladesh',
+                            zipCode: '1212',
+                            planId: (settings?.subscriptionPlan as any) || 'basic',
+                            billingCycle: 'monthly',
+                            themePresetId: settings?.activeThemeId || 'lunavere',
+                            startTime: Date.now() - 3600000,
+                            expiresAt: Date.now() + 3 * 24 * 3600000 - 3600000
+                          };
+                        })()}
+                        onOpenCheckout={() => {
+                          const event = new CustomEvent('open-checkout-modal');
+                          window.dispatchEvent(event);
+                        }}
+                        lang={lang}
+                        theme={theme}
+                      />
                     </div>
                   </div>
                 )}
@@ -2455,7 +2509,7 @@ export default function OrderManagementAdmin({
                           <div className="flex items-center gap-2">
                             <h2 className="text-lg font-black text-slate-900 dark:text-white">'Restaurant Brand, Logo & Contact'</h2>
                             <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                              {localBrandSettings.brandName || 'My Restaurant'}
+                              {localBrandSettings.brandName || 'Avernao'}
                             </span>
                           </div>
                           <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -3094,7 +3148,7 @@ export default function OrderManagementAdmin({
                                 return (
                                   <>
                                     <span className={`text-xs font-black uppercase tracking-wider ${isVisible ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                      {isVisible ? (lang === 'bn' ? `অন (${activeThemeId})` : `ON (${activeThemeId})`) : (lang === 'bn' ? `অফ (${activeThemeId})` : `OFF (${activeThemeId})`)}
+                                      {isVisible ? (`ON (${activeThemeId})`) : (lang === 'bn' ? `অফ (${activeThemeId})` : `OFF (${activeThemeId})`)}
                                     </span>
                                     <button
                                       type="button"
@@ -3363,7 +3417,7 @@ export default function OrderManagementAdmin({
                                   ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                                   : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
                               }`}>
-                                {localBrandSettings.themeShowChefSection !== false ? (lang === 'bn' ? `${activeChefCount} শেফ অ্যাক্টিভ` : `${activeChefCount} Chefs Active`) : ('Disabled')}
+                                {localBrandSettings.themeShowChefSection !== false ? (`${activeChefCount} Chefs Active`) : ('Disabled')}
                               </span>
                             </div>
                             <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -3390,7 +3444,7 @@ export default function OrderManagementAdmin({
                                   : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
                               }`}>
                                 {localBrandSettings.themeShowChefSection !== false 
-                                  ? (lang === 'bn' ? `${activeChefCount} শেফ অ্যাক্টিভ` : `${activeChefCount} Chefs Active`) 
+                                  ? (`${activeChefCount} Chefs Active`) 
                                   : ('Chef Disabled')}
                               </span>
                             </div>
@@ -3474,7 +3528,7 @@ export default function OrderManagementAdmin({
                               </div>
                               <span className="text-xs font-bold text-amber-500 font-mono flex items-center gap-1.5 self-start sm:self-auto">
                                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                {lang === 'bn' ? `শেফ #${selectedChefIndex + 1} নির্বাচিত` : `Chef #${selectedChefIndex + 1} Active`}
+                                {`Chef #${selectedChefIndex + 1} Active`}
                               </span>
                             </div>
 
@@ -3600,7 +3654,7 @@ export default function OrderManagementAdmin({
                               </div>
                               <div>
                                 <h3 className={`text-sm font-black flex items-center gap-2 ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>
-                                  <span>{lang === 'bn' ? `শেফ #${selectedChefIndex + 1} এডিট করছেন:` : `Editing Chef #${selectedChefIndex + 1}:`}</span>
+                                  <span>{`Editing Chef #${selectedChefIndex + 1}:`}</span>
                                   <span className="text-amber-600 dark:text-amber-400 font-black">{activeChef.name}</span>
                                 </h3>
                                 <p className={`text-[11px] font-semibold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-700'}`}>
@@ -3958,7 +4012,7 @@ export default function OrderManagementAdmin({
                                       <span>Hero Animated Shapes ({localBrandSettings.activeShapeCount || 6} Shapes)</span>
                                     </h4>
                                     <p className="text-xs text-slate-600 font-medium">
-                                      কার্ডের ওপরের ডানদিকের গোল আইকনে চাপ দিয়ে প্রতিটি শেপ অন/অফ করুন
+                                      Use the toggle icon on top right to enable/disable each shape
                                     </p>
                                   </div>
                                 </div>
@@ -3988,7 +4042,7 @@ export default function OrderManagementAdmin({
                                     className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer active:scale-95 shrink-0"
                                   >
                                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                                    <span>{lang === 'bn' ? `অটো-সিঙ্ক (${selectedCountry || 'Global'})` : `Auto-Sync (${selectedCountry || 'Global'})`}</span>
+                                    <span>{`Auto-Sync (${selectedCountry || 'Global'})`}</span>
                                   </button>
                                 </div>
                               </div>
@@ -4069,7 +4123,7 @@ export default function OrderManagementAdmin({
                                                 ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
                                                 : 'bg-rose-500/15 text-rose-700 border-rose-500/30'
                                             }`}>
-                                              {isShapeActive ? 'ON (চালু)' : 'OFF (বন্ধ)'}
+                                              {isShapeActive ? 'ON' : 'OFF'}
                                             </span>
                                           </div>
                                         </div>
@@ -4085,7 +4139,7 @@ export default function OrderManagementAdmin({
                                           {!isShapeActive && (
                                             <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px] flex items-center justify-center p-2">
                                               <span className="px-3 py-1.5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md border border-rose-400/30">
-                                                OFF (নিষ্ক্রিয়)
+                                                OFF
                                               </span>
                                             </div>
                                           )}

@@ -452,7 +452,7 @@ export default function CategoryManager({ restaurantId, theme = 'light' }: Categ
                     className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all active:scale-95 text-xs font-bold"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>Back / পিছনে</span>
+                    <span>Back</span>
                   </button>
                   <div className="h-5 w-px bg-slate-200 dark:bg-slate-800" />
                   <h3 className={`text-lg font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>

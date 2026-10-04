@@ -79,7 +79,7 @@ export default function ManagerAuthModal({
       });
       if (onClose) onClose();
     } else {
-      setErrorMsg('ভুল এডমিন পাসওয়ার্ড! সঠিক পাসওয়ার্ড লিখুন। (Incorrect Admin Password)');
+      setErrorMsg('Incorrect Admin Password! Please enter valid password.');
     }
   };
 
@@ -271,7 +271,7 @@ export default function ManagerAuthModal({
                     className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Unlock Admin Panel (এডমিন প্যানেলে ঢুকুন)</span>
+                    <span>Unlock Admin Panel </span>
                   </button>
                 </form>
               ) : (
