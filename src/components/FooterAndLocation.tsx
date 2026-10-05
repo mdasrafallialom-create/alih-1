@@ -1,4 +1,5 @@
 import React from 'react';
+import { AvernaoLogo } from './AvernaoLogo';
 import { 
   MapPin, 
   Clock, 
@@ -111,6 +112,10 @@ export default function FooterAndLocation({
   };
 
   const renderMonogramLogo = (isLight: boolean = false, size: 'sm' | 'md' | 'lg' = 'md') => {
+    if (!brandName || brandName.toLowerCase() === 'avernao' || brandName.toLowerCase() === 'sahinsh') {
+      const pxSize = size === 'sm' ? 40 : size === 'lg' ? 80 : 56;
+      return <AvernaoLogo size={pxSize} className="hover:scale-105 transition-transform shrink-0" />;
+    }
     const [c1, c2] = getLogoInitials(brandName || '');
     const style = logoStyle || 'crest';
     const primaryColor = logoColorPrimary || (isLight ? '#475569' : '#94a3b8');

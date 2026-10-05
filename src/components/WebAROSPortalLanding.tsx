@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AvernaoLogo } from './AvernaoLogo';
 import { 
   Sparkles, 
   Globe, 
@@ -226,69 +227,9 @@ const WebAROSPortalLanding: React.FC<WebAROSPortalLandingProps> = ({
           {/* Logo & Platform Name with Premium Luxury Squircle Design and Orange Status Dot */}
           <div className="flex items-center gap-3">
             <div className="relative shrink-0 select-none">
-              {/* Outer Golden Squircle Container */}
-              <div className="w-14 h-14 rounded-2xl p-0.5 bg-gradient-to-tr from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] shadow-md flex items-center justify-center">
-                {/* Inner White Container */}
-                <div className="w-full h-full bg-white rounded-[13px] flex flex-col items-center justify-center p-1 border border-amber-100">
-                  {/* Elegant Golden Line-Art Chef Hat SVG */}
-                  <svg viewBox="0 0 100 100" className="w-full h-full text-[#aa7c11]" fill="currentColor">
-                    {/* Delicate background crest or stars */}
-                    <circle cx="50" cy="40" r="30" fill="none" stroke="#d4af37" strokeWidth="0.5" strokeDasharray="2,2" opacity="0.4" />
-                    
-                    {/* Stars on Left & Right */}
-                    <path d="M 12,38 L 14,43 L 19,43 L 15,46 L 16,51 L 12,48 L 8,51 L 9,46 L 5,43 L 10,43 Z" fill="#d4af37" opacity="0.3" />
-                    <path d="M 88,38 L 90,43 L 95,43 L 91,46 L 92,51 L 88,48 L 84,51 L 85,46 L 81,43 L 86,43 Z" fill="#d4af37" opacity="0.3" />
-
-                    {/* Detailed Golden Line-Art Chef Hat */}
-                    <g fill="none" stroke="#aa7c11" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      {/* Main puff */}
-                      <path d="M 32,48 C 24,48 24,35 34,35 C 32,22 45,18 50,24 C 55,18 68,22 66,35 C 76,35 76,48 68,48 Z" />
-                      {/* Base bands */}
-                      <path d="M 34,48 L 66,48 L 64,56 L 36,56 Z" fill="#aa7c11" opacity="0.1" />
-                      <path d="M 34,48 L 66,48 M 36,56 L 64,56" />
-                      {/* Folds line details inside hat */}
-                      <path d="M 42,48 C 42,38 45,34 45,34" strokeWidth="1.8" />
-                      <path d="M 50,48 L 50,30" strokeWidth="1.8" />
-                      <path d="M 58,48 C 58,38 55,34 55,34" strokeWidth="1.8" />
-                    </g>
-
-                    {/* Elegant Serif Text "AVERNAO" */}
-                    <text 
-                      x="50" 
-                      y="74" 
-                      textAnchor="middle" 
-                      fill="#aa7c11" 
-                      style={{
-                        fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif", 
-                        fontSize: "11px", 
-                        fontWeight: "900",
-                        letterSpacing: "1px"
-                      }}
-                    >
-                      AVERNAO
-                    </text>
-
-                    {/* Small Subtitle */}
-                    <text 
-                      x="50" 
-                      y="84" 
-                      textAnchor="middle" 
-                      fill="#c59b27" 
-                      style={{
-                        fontFamily: "'Inter', sans-serif", 
-                        fontSize: "4.5px", 
-                        fontWeight: "bold",
-                        letterSpacing: "0.2px"
-                      }}
-                    >
-                      PREMIUM WEBAR OS
-                    </text>
-                  </svg>
-                </div>
-              </div>
-              
+              <AvernaoLogo className="w-14 h-14 shadow-lg" />
               {/* Pulsing Orange Dot at bottom right */}
-              <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-[#ff9800] border-2 border-white shadow-md" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#ff9800] border-2 border-white shadow-md" />
             </div>
 
             <div>

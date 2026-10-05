@@ -37,6 +37,8 @@ export const TrialTimerBanner: React.FC<TrialTimerBannerProps> = ({
   onUpdateTrialSession,
   lang = 'en'
 }) => {
+  if (trialSession?.isPaid) return null;
+
   const [isMinimized, setIsMinimized] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
   
@@ -328,6 +330,8 @@ export const TrialTimerCard: React.FC<{
   lang = 'en',
   theme = 'light'
 }) => {
+  if (trialSession?.isPaid) return null;
+
   const simulatedOffsetMs = trialSession.simulatedDayOffsetMs || 0;
   const effectiveNow = Date.now() + simulatedOffsetMs;
   const timeRemainingMs = Math.max(0, trialSession.expiresAt - effectiveNow);

@@ -10,6 +10,7 @@ import {
   ShieldCheck, 
   CreditCard, 
   ArrowRight,
+  ArrowLeft,
   ExternalLink,
   Percent,
   Layers,
@@ -306,39 +307,60 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
               ? 'bg-gradient-to-r from-orange-600 via-amber-600 to-red-600' 
               : 'bg-gradient-to-r from-purple-800 via-indigo-800 to-pink-800'
           }`}>
-            <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
-                isStarter ? 'bg-white/20 text-white border border-white/40' :
-                isPro ? 'bg-white/20 text-white border border-white/40' :
-                'bg-white/20 text-white border border-white/40'
-              }`}>
-                {isStarter && <Zap className="w-7 h-7 text-white" />}
-                {isPro && <Star className="w-7 h-7 text-white" />}
-                {isElite && <Crown className="w-7 h-7 text-white" />}
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-white border border-white/30">
-                    {currentPlanData.badge}
-                  </span>
-                  <span className="text-xs font-bold text-white/80">
-                    Avernao WebAR Ecosystem
-                  </span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  {currentPlanData.name}
-                </h2>
-              </div>
+            <div className="flex items-center gap-6 lg:w-1/4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/30 transition-all cursor-pointer active:scale-95 group shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                <span className="text-xs font-black uppercase tracking-wider">Back</span>
+              </button>
+
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shrink-0 ${
+                  isStarter ? 'bg-white/20 text-white border border-white/40' :
+                  isPro ? 'bg-white/20 text-white border border-white/40' :
+                  'bg-white/20 text-white border border-white/40'
+                }`}
+              >
+                {isStarter && <Zap className="w-7 h-7 text-white fill-white/20" />}
+                {isPro && <Star className="w-7 h-7 text-white fill-white/20" />}
+                {isElite && <Crown className="w-7 h-7 text-white fill-white/20" />}
+              </motion.div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col items-center justify-center text-center lg:flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-white border border-white/30">
+                  {currentPlanData.badge}
+                </span>
+                <span className="text-xs font-bold text-white/80">
+                  Avernao WebAR Ecosystem
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                {currentPlanData.name}
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 lg:w-1/4">
               {/* WEBSITE DEMO (NEW TAB) BUTTON AT THE TOP */}
               <button
                 type="button"
                 onClick={handleOpenWebsiteDemoInNewTab}
                 className="px-5 py-3 bg-gradient-to-r from-teal-400 via-cyan-400 to-emerald-400 hover:from-teal-500 hover:to-emerald-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-wider shadow-md hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 select-none shrink-0"
               >
-                <Globe className="w-4 h-4 text-slate-950 animate-pulse" />
+                <ExternalLink className="w-4 h-4 text-slate-950 animate-pulse" />
                 <span>{'EXPLORE WEBSITE DEMO'}</span>
               </button>
 
@@ -363,14 +385,6 @@ const PlanDetailModal: React.FC<PlanDetailModalProps> = ({
               >
                 <CreditCard className="w-4 h-4 text-slate-950" />
                 <span>{'SUBSCRIBE & CHECKOUT'}</span>
-              </button>
-
-              <button 
-                onClick={onClose}
-                className="w-11 h-11 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0 border border-white/30"
-                title="Close Page"
-              >
-                <X className="w-6 h-6" />
               </button>
             </div>
           </div>

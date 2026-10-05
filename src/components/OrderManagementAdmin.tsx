@@ -1513,30 +1513,55 @@ export default function OrderManagementAdmin({
               ))}
             </nav>
 
-            {/* Admin Trial Timer Sidebar Widget (Placed right under System Settings) */}
-            <div className="mx-3 my-3 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-amber-400/40 shadow-xl text-white space-y-2.5">
-              <div className="flex items-center justify-between gap-1">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-xs">
-                  ⏳ 3-Day Demo Active
-                </span>
-                <span className="font-mono text-amber-300 font-bold text-xs">
-                  71h : 58m
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-200 font-semibold leading-snug">
-                Day 1 in Progress (72h Remaining)
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent('admin-open-checkout'));
-                }}
-                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[11px] uppercase tracking-wider shadow cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1.5"
-              >
-                <CreditCard className="w-3.5 h-3.5" />
-                <span>Subscribe & Checkout</span>
-              </button>
-            </div>
+            {/* Admin Trial Timer Sidebar Widget (Placed right under System Settings ONLY when in launched demo tab and unpaid) */}
+            {(() => {
+              if (typeof window === 'undefined') return null;
+
+              // MUST ONLY be visible when user opens a new demo trial tab via registration form (?demo=true or ?trial=active)
+              const isLaunchedDemoTab = window.location.search.includes('trial=active') || window.location.search.includes('demo=true');
+              if (!isLaunchedDemoTab) return null;
+
+              const saved = localStorage.getItem('webar_trial_session');
+              if (!saved) return null;
+
+              try {
+                const sessionData = JSON.parse(saved);
+                if (!sessionData) return null;
+
+                // Hide if user has completed payment or holds an active subscription
+                if (sessionData.isPaid || settings?.subscriptionStatus === 'active' || (settings as any)?.isPaidSubscriber) {
+                  return null;
+                }
+
+                return (
+                  <div className="mx-3 my-3 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-amber-400/40 shadow-xl text-white space-y-2.5">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-xs">
+                        ⏳ 3-Day Demo Active
+                      </span>
+                      <span className="font-mono text-amber-300 font-bold text-xs">
+                        71h : 58m
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-200 font-semibold leading-snug">
+                      Day 1 in Progress (72h Remaining)
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('admin-open-checkout'));
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-[11px] uppercase tracking-wider shadow cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      <span>Subscribe & Checkout</span>
+                    </button>
+                  </div>
+                );
+              } catch (e) {
+                return null;
+              }
+            })()}
 
             {/* Sidebar Footer with Logout */}
             <div className={`p-4 border-t ${isElite || isPro ? 'border-white/5' : theme === 'dark' ? 'border-slate-800' : 'border-slate-200'}`}>
@@ -2457,37 +2482,41 @@ export default function OrderManagementAdmin({
                         })}
                       </div>
 
-                      {/* 3-Day Free Trial Timer Card (Visible under Settings Navigation) */}
-                      <TrialTimerCard
-                        trialSession={(() => {
-                          if (typeof window !== 'undefined') {
-                            const saved = localStorage.getItem('webar_trial_session');
-                            if (saved) {
-                              try { return JSON.parse(saved); } catch (e) {}
-                            }
+                      {/* 3-Day Free Trial Timer Card (Visible under Settings Navigation ONLY when an active unpaid demo trial session exists in new demo tab) */}
+                      {(() => {
+                        if (typeof window === 'undefined') return null;
+
+                        // MUST ONLY be visible when user opens a new demo trial tab via registration form (?demo=true or ?trial=active)
+                        const isLaunchedDemoTab = window.location.search.includes('trial=active') || window.location.search.includes('demo=true');
+                        if (!isLaunchedDemoTab) return null;
+
+                        const saved = localStorage.getItem('webar_trial_session');
+                        if (!saved) return null;
+
+                        try {
+                          const sessionData = JSON.parse(saved);
+                          if (!sessionData) return null;
+
+                          // Hide if user has completed payment or holds an active subscription
+                          if (sessionData.isPaid || settings?.subscriptionStatus === 'active' || (settings as any)?.isPaidSubscriber) {
+                            return null;
                           }
-                          return {
-                            fullName: settings?.ownerName || 'Demo Manager',
-                            role: 'Manager',
-                            restaurantName: settings?.brandName || settings?.restaurantName || 'Demo Restaurant',
-                            email: settings?.contactEmail || 'demo.manager@gmail.com',
-                            phone: settings?.contactPhone || '+880 1700-000000',
-                            country: 'Bangladesh',
-                            zipCode: '1212',
-                            planId: (settings?.subscriptionPlan as any) || 'basic',
-                            billingCycle: 'monthly',
-                            themePresetId: settings?.activeThemeId || 'lunavere',
-                            startTime: Date.now() - 3600000,
-                            expiresAt: Date.now() + 3 * 24 * 3600000 - 3600000
-                          };
-                        })()}
-                        onOpenCheckout={() => {
-                          const event = new CustomEvent('open-checkout-modal');
-                          window.dispatchEvent(event);
-                        }}
-                        lang={lang}
-                        theme={theme}
-                      />
+
+                          return (
+                            <TrialTimerCard
+                              trialSession={sessionData}
+                              onOpenCheckout={() => {
+                                const event = new CustomEvent('open-checkout-modal');
+                                window.dispatchEvent(event);
+                              }}
+                              lang={lang}
+                              theme={theme}
+                            />
+                          );
+                        } catch (e) {
+                          return null;
+                        }
+                      })()}
                     </div>
                   </div>
                 )}
@@ -2542,7 +2571,7 @@ export default function OrderManagementAdmin({
                               value={localBrandSettings.ownerName} 
                               onChange={e => setLocalBrandSettings(prev => ({ ...prev, ownerName: e.target.value }))}
                               onKeyDown={handleKeyDownSave}
-                              placeholder='e.g. Md Asraful'
+                              placeholder=''
                               className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
                             />
                           </div>
@@ -2556,7 +2585,7 @@ export default function OrderManagementAdmin({
                               value={localBrandSettings.brandName} 
                               onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandName: e.target.value, restaurantName: e.target.value }))}
                               onKeyDown={handleKeyDownSave}
-                              placeholder='e.g. Velmora Dining'
+                              placeholder=''
                               className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
                             />
                           </div>
@@ -2570,7 +2599,7 @@ export default function OrderManagementAdmin({
                               value={localBrandSettings.brandLocation || ''} 
                               onChange={e => setLocalBrandSettings(prev => ({ ...prev, brandLocation: e.target.value }))}
                               onKeyDown={handleKeyDownSave}
-                              placeholder='e.g. 123 Culinary Boulevard, Downtown'
+                              placeholder=''
                               className={`w-full px-5 py-3 rounded-xl outline-none font-bold ${theme === 'dark' ? 'bg-[#2d2d2d] text-white border-slate-700' : 'bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400'} border focus:border-blue-500 transition-colors`}
                             />
                           </div>
@@ -2899,7 +2928,7 @@ export default function OrderManagementAdmin({
                             value={localBrandSettings.contactEmail || ''}
                             onChange={e => setLocalBrandSettings(prev => ({ ...prev, contactEmail: e.target.value }))}
                             onKeyDown={handleKeyDownSave}
-                            placeholder="contact@yourrestaurant.com"
+                            placeholder=""
                             className={`w-full px-4 py-2.5 rounded-lg outline-none font-bold text-xs ${
                               theme === 'dark' ? 'bg-[#2d2d2d] text-white border-transparent' : 'bg-white border-slate-200 text-slate-700'
                             } border focus:border-blue-500 transition-colors h-10`}

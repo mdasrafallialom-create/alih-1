@@ -24,6 +24,7 @@ import ChefSection from './components/ChefSection';
 import WebAROSPortalLanding from './components/WebAROSPortalLanding';
 import { TrialTimerBanner } from './components/TrialTimerBanner';
 import { DemoTrialModal, TrialSessionData } from './components/DemoTrialModal';
+import { AvernaoLogo } from './components/AvernaoLogo';
 import { LUXURY_THEMES } from './data/luxuryThemes';
 
 // High-speed lightweight spinner fallback
@@ -1088,16 +1089,14 @@ export default function App() {
       ? rawBrand.trim() 
       : getThemeDisplayName(effectiveThemeId, selectedThemePreset.name);
 
-    if (isCustomThemeActive || urlTheme) {
-      if (customDomain && customDomain.trim().length > 0) {
-        document.title = `${customDomain} | ${effectiveBrand}`;
-      } else if (effectiveBrand !== selectedThemePreset.name) {
-        document.title = `${effectiveBrand} — ${selectedThemePreset.name}`;
-      } else {
-        document.title = `${selectedThemePreset.name} — ${selectedThemePreset.tagline || 'Luxury Restaurant'}`;
-      }
+    const hasCustomDomain = customDomain && customDomain.trim().length > 0;
+    const isPaidSubscriber = (adminSettings as any)?.subscriptionStatus === 'active' || (adminSettings as any)?.isPaidSubscriber === true;
+
+    // Rule: Until a custom domain and paid subscription is purchased, browser tab title remains Avernao.com
+    if (hasCustomDomain && isPaidSubscriber) {
+      document.title = `${customDomain.trim()} | ${effectiveBrand}`;
     } else {
-      document.title = "Avernao — Luxury Restaurant Operating System";
+      document.title = "Avernao.com — Luxury Restaurant Operating System";
     }
   }, [effectiveThemeId, isCustomThemeActive, urlTheme, adminSettings, selectedThemePreset]);
 
@@ -1236,9 +1235,12 @@ export default function App() {
     return () => window.removeEventListener('open-demo-trial-modal', handleOpenDemoModal);
   }, []);
 
-  // 3-Day Free Demo Trial Session State
+  // 3-Day Free Demo Trial Session State (Only active if launched in new demo tab via registration)
   const [trialSession, setTrialSession] = useState<TrialSessionData | null>(() => {
     if (typeof window !== 'undefined') {
+      const isLaunchedDemoTab = window.location.search.includes('trial=active') || window.location.search.includes('demo=true');
+      if (!isLaunchedDemoTab) return null;
+
       try {
         const saved = localStorage.getItem('webar_trial_session');
         if (saved) return JSON.parse(saved);
@@ -1253,8 +1255,8 @@ export default function App() {
       fullName: 'Demo Guest',
       role: 'Manager',
       restaurantName: (adminSettings as any)?.restaurantName || (adminSettings as any)?.brandName || 'Avernao',
-      restaurantLocation: 'Dhaka, Bangladesh',
-      country: 'Bangladesh',
+      restaurantLocation: 'New York, United States',
+      country: 'United States',
       category: 'finedining',
       email: 'demo@restaurant.com',
       phone: '+1234567890',
@@ -1330,7 +1332,8 @@ export default function App() {
         const base = prev || {
           restaurantName: "Avernao",
           brandName: "Avernao",
-          brandLocation: "Dhaka, Bangladesh",
+          ownerName: trialSession.fullName || "Chef / Owner",
+          brandLocation: "New York, United States",
           subscriptionPlan: trialSession.planId || "pro",
           subscriptionStatus: "active",
           theme: "light",
@@ -1342,11 +1345,19 @@ export default function App() {
           taxRate: 5,
           customDomain: ""
         };
+        const locationWithZip = trialSession.zipCode 
+          ? `${trialSession.restaurantLocation || trialSession.country || 'New York, United States'}, ZIP: ${trialSession.zipCode}` 
+          : (trialSession.restaurantLocation || trialSession.country || 'New York, United States');
+
         return {
           ...base,
+          ownerName: trialSession.fullName || base.ownerName || "Chef / Owner",
           restaurantName: trialSession.restaurantName || "Avernao",
           brandName: trialSession.restaurantName || "Avernao",
-          brandLocation: trialSession.restaurantLocation || "Dhaka, Bangladesh",
+          brandLocation: locationWithZip,
+          contactEmail: trialSession.email || base.contactEmail,
+          contactPhone: trialSession.phone || base.contactPhone,
+          zipCode: trialSession.zipCode,
           subscriptionPlan: trialSession.planId || "pro",
           subscriptionStatus: "trial",
           activeThemeId: trialSession.themePresetId || base.activeThemeId
@@ -1505,6 +1516,10 @@ export default function App() {
   // Helper to render a high-end designer SVG monogram logo
   const renderMonogramLogo = (brandName: string, isLight: boolean = false, size: 'sm' | 'md' | 'lg' = 'md') => {
     const safeBrand = isDemoBrandHelper(brandName) ? 'Avernao' : brandName.trim();
+    if (!safeBrand || safeBrand.toLowerCase() === 'avernao') {
+      const pxSize = size === 'sm' ? 36 : size === 'lg' ? 64 : 44;
+      return <AvernaoLogo size={pxSize} className="hover:scale-105 transition-transform shrink-0" />;
+    }
     const [c1, c2] = getLogoInitials(safeBrand);
     const style = adminSettings?.logoStyle || 'crest';
     const primaryColor = adminSettings?.logoColorPrimary || '#f59e0b';
@@ -2458,8 +2473,8 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* 3-Day Free Trial Live Status & Countdown Banner (Only shown in Demo Trial Instances opened in New Tab) */}
-      {isDemoInstance && trialSession && (
+      {/* 3-Day Free Trial Live Status & Countdown Banner (Only shown in Demo Trial Instances opened in New Tab when unpaid) */}
+      {isDemoInstance && trialSession && !trialSession.isPaid && adminSettings?.subscriptionStatus !== 'active' && !(adminSettings as any)?.isPaidSubscriber && (
         <TrialTimerBanner
           trialSession={trialSession}
           onOpenAdmin={enterAdminPanel}
@@ -3692,6 +3707,9 @@ export default function App() {
       {/* ========================================================= */}
 
       {/* DEMO TRIAL ONBOARDING MODAL */}
+      {showDemoTrialModal && (
+        <div className="fixed inset-0 z-[1099] bg-white animate-fade-in" />
+      )}
       <DemoTrialModal
         isOpen={showDemoTrialModal}
         onClose={() => {

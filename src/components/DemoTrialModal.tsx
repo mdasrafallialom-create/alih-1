@@ -32,6 +32,7 @@ import {
 import { SubscriptionPlan, BillingCycle } from '../types';
 import { db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { AvernaoLogo } from './AvernaoLogo';
 
 interface DemoTrialModalProps {
   isOpen: boolean;
@@ -189,6 +190,14 @@ export const CountryFlag: React.FC<{ code: string; className?: string }> = ({ co
           <rect x="427" width="213" height="400" fill="#ce2b37" />
         </svg>
       );
+    case 'ES':
+      return (
+        <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
+          <rect width="640" height="100" fill="#ad1519" />
+          <rect y="100" width="640" height="200" fill="#fabd00" />
+          <rect y="300" width="640" height="100" fill="#ad1519" />
+        </svg>
+      );
     case 'QA':
       return (
         <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
@@ -205,6 +214,24 @@ export const CountryFlag: React.FC<{ code: string; className?: string }> = ({ co
           <polygon points="0,0 200,133 200,267 0,400" fill="#000000" />
         </svg>
       );
+    case 'OM':
+      return (
+        <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
+          <rect width="640" height="133" fill="#ffffff" />
+          <rect y="133" width="640" height="134" fill="#ff0000" />
+          <rect y="267" width="640" height="133" fill="#008000" />
+          <rect width="213" height="400" fill="#ff0000" />
+        </svg>
+      );
+    case 'PK':
+      return (
+        <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
+          <rect width="640" height="400" fill="#01411c" />
+          <rect width="160" height="400" fill="#ffffff" />
+          <circle cx="400" cy="200" r="100" fill="#ffffff" />
+          <circle cx="430" cy="180" r="100" fill="#01411c" />
+        </svg>
+      );
     case 'MY':
       return (
         <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
@@ -217,8 +244,21 @@ export const CountryFlag: React.FC<{ code: string; className?: string }> = ({ co
           <rect y="314" width="640" height="29" fill="#ffffff" />
           <rect y="371" width="640" height="29" fill="#ffffff" />
           <rect width="320" height="228" fill="#000066" />
-          <circle cx="160" cy="114" r="65" fill="#ffcc00" />
-          <circle cx="180" cy="114" r="55" fill="#000066" />
+        </svg>
+      );
+    case 'SG':
+      return (
+        <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
+          <rect width="640" height="200" fill="#ed2939" />
+          <rect y="200" width="640" height="200" fill="#ffffff" />
+        </svg>
+      );
+    case 'TR':
+      return (
+        <svg className={`${className} rounded-[3px] shadow-xs object-cover shrink-0 overflow-hidden inline-block border border-slate-200/60`} viewBox="0 0 640 400">
+          <rect width="640" height="400" fill="#e30a17" />
+          <circle cx="280" cy="200" r="100" fill="#ffffff" />
+          <circle cx="310" cy="200" r="80" fill="#e30a17" />
         </svg>
       );
     default:
@@ -229,7 +269,6 @@ export const CountryFlag: React.FC<{ code: string; className?: string }> = ({ co
 };
 
 const COUNTRIES_WITH_FLAGS = [
-  { id: 'BD', name: 'Bangladesh', code: '+880', flag: '🇧🇩' },
   { id: 'US', name: 'United States', code: '+1', flag: '🇺🇸' },
   { id: 'GB', name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
   { id: 'AE', name: 'United Arab Emirates', code: '+971', flag: '🇦🇪' },
@@ -237,12 +276,18 @@ const COUNTRIES_WITH_FLAGS = [
   { id: 'CA', name: 'Canada', code: '+1', flag: '🇨🇦' },
   { id: 'AU', name: 'Australia', code: '+61', flag: '🇦🇺' },
   { id: 'DE', name: 'Germany', code: '+49', flag: '🇩🇪' },
-  { id: 'IN', name: 'India', code: '+91', flag: '🇮🇳' },
   { id: 'FR', name: 'France', code: '+33', flag: '🇫🇷' },
   { id: 'IT', name: 'Italy', code: '+39', flag: '🇮🇹' },
+  { id: 'ES', name: 'Spain', code: '+34', flag: '🇪🇸' },
   { id: 'QA', name: 'Qatar', code: '+974', flag: '🇶🇦' },
   { id: 'KW', name: 'Kuwait', code: '+965', flag: '🇰🇼' },
-  { id: 'MY', name: 'Malaysia', code: '+60', flag: '🇲🇾' }
+  { id: 'OM', name: 'Oman', code: '+968', flag: '🇴🇲' },
+  { id: 'PK', name: 'Pakistan', code: '+92', flag: '🇵🇰' },
+  { id: 'MY', name: 'Malaysia', code: '+60', flag: '🇲🇾' },
+  { id: 'SG', name: 'Singapore', code: '+65', flag: '🇸🇬' },
+  { id: 'TR', name: 'Turkey', code: '+90', flag: '🇹🇷' },
+  { id: 'IN', name: 'India', code: '+91', flag: '🇮🇳' },
+  { id: 'BD', name: 'Bangladesh', code: '+880', flag: '🇧🇩' }
 ];
 
 export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
@@ -253,18 +298,33 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
   lang = 'en',
   onStartTrialSuccess
 }) => {
-  const [restaurantName, setRestaurantName] = useState('Avernao');
-  const [fullName, setFullName] = useState('Asif Ahmed');
+  const [restaurantName, setRestaurantName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'Owner' | 'Manager'>('Owner');
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES_WITH_FLAGS[0]);
   const [phoneDigits, setPhoneDigits] = useState('');
-  const [email, setEmail] = useState('mdasrafallialom@gmail.com');
-  const [zipCode, setZipCode] = useState('1212');
-  const [restaurantLocation, setRestaurantLocation] = useState('Dhaka, Bangladesh');
+  const [email, setEmail] = useState('');
+  const [zipCode, setZipCode] = useState('10001');
+  const [restaurantLocation, setRestaurantLocation] = useState('New York, USA');
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>(planId);
   const [selectedBilling, setSelectedBilling] = useState<BillingCycle>(billingCycle);
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [modalStep, setModalStep] = useState<'info' | 'verification'>('info');
+  const [emailHistory, setEmailHistory] = useState<string[]>([]);
+  const [isEmailDropdownOpen, setIsEmailDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    // Load email history from localStorage
+    const history = localStorage.getItem('demo_email_history');
+    if (history) {
+      try {
+        setEmailHistory(JSON.parse(history));
+      } catch (e) {
+        setEmailHistory([]);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (planId) setSelectedPlan(planId);
@@ -282,10 +342,56 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
   const [otpMessage, setOtpMessage] = useState('');
   
   const [errorMsg, setErrorMsg] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{
+    restaurantName?: string;
+    fullName?: string;
+    email?: string;
+    zipCode?: string;
+    phoneDigits?: string;
+  }>({});
   const [isCreating, setIsCreating] = useState(false);
 
+  // Lock background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // Auto-fill and auto-verify OTP simulation for smooth demo flow
+  useEffect(() => {
+    if (otpSent && generatedOtp && modalStep === 'verification' && !isOtpVerified) {
+      const timer = setTimeout(() => {
+        setUserOtpInput(generatedOtp);
+        // Small additional delay to show the "filling" happened before auto-submitting
+        setTimeout(() => {
+          setIsOtpVerified(true);
+          setOtpMessage('✓ Gmail successfully verified!');
+          
+          // Auto-trigger the launch after verification
+          setTimeout(() => {
+            const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+            handleLaunchTrial(fakeEvent);
+          }, 800);
+        }, 800);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [otpSent, generatedOtp, modalStep, isOtpVerified]);
+
   const handleBack = () => {
-    onClose();
+    if (modalStep === 'verification') {
+      setModalStep('info');
+      setOtpSent(false);
+      setUserOtpInput('');
+      setIsOtpVerified(false);
+      return;
+    }
     if (typeof window !== 'undefined') {
       const planCode = selectedPlan === 'basic' ? '15' : selectedPlan === 'elite' ? '99' : '49';
       const url = new URL(window.location.href);
@@ -294,13 +400,20 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
       url.searchParams.set('plan', planCode);
       window.history.replaceState({}, '', url.toString());
 
+      // Open the plan modal first so it's ready behind or on top
+      window.dispatchEvent(new CustomEvent('open-plan-modal', { detail: planCode }));
+      
+      const pricingEl = document.getElementById('pricing-section') || document.getElementById('pricing');
+      if (pricingEl) {
+        pricingEl.scrollIntoView({ behavior: 'auto' });
+      }
+
+      // Smooth handover: close this modal after a tiny delay so the transition is fluid
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('open-plan-modal', { detail: planCode }));
-        const pricingEl = document.getElementById('pricing-section') || document.getElementById('pricing');
-        if (pricingEl) {
-          pricingEl.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
+        onClose();
+      }, 50);
+    } else {
+      onClose();
     }
   };
 
@@ -334,40 +447,69 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
     const code = String(Math.floor(100000 + Math.random() * 900000));
     setGeneratedOtp(code);
     setOtpSent(true);
-    setOtpMessage(`OTP code sent to Gmail inbox for ${email}: ${code}`);
+    setUserOtpInput('');
+    setIsOtpVerified(false);
+    setOtpMessage(`Avernao Verification Code sent to ${email}: ${code}`);
+
+    // Auto-receive code into input after 800ms
+    setTimeout(() => {
+      setUserOtpInput(code);
+      setIsOtpVerified(true);
+      setErrorMsg('');
+    }, 800);
   };
 
   const handleVerifyOtp = () => {
-    if (userOtpInput.trim() === generatedOtp.trim() || userOtpInput.trim() === '123456' || userOtpInput.trim() === '583920') {
-      setIsOtpVerified(true);
-      setOtpMessage('✓ Gmail successfully verified and connected!');
-      setErrorMsg('');
-    } else {
-      setErrorMsg('Invalid verification code! Please enter the correct 6-digit code from your Gmail inbox.');
-    }
+    // Any code or typed 6 digits is accepted and verified seamlessly
+    setIsOtpVerified(true);
+    setOtpMessage('✓ Gmail successfully verified!');
+    setErrorMsg('');
   };
 
   const handleLaunchTrial = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!restaurantName.trim()) {
-      setErrorMsg('Please enter your restaurant name.');
-      return;
-    }
-    if (!fullName.trim()) {
-      setErrorMsg('Please enter your full name.');
-      return;
-    }
-    if (!email.trim() || !email.includes('@')) {
-      setErrorMsg('Please enter a valid Gmail address.');
-      return;
-    }
-    if (!isOtpVerified) {
-      setErrorMsg('Please verify your Gmail account with the OTP code sent to your inbox before launching.');
+
+    if (modalStep === 'info') {
+      const errs: typeof fieldErrors = {};
+      if (!restaurantName.trim()) {
+        errs.restaurantName = 'Please enter your restaurant brand name.';
+      }
+      if (!fullName.trim()) {
+        errs.fullName = 'Please enter the owner or manager name.';
+      }
+      if (!email.trim() || !email.includes('@')) {
+        errs.email = 'Please enter a valid Gmail address.';
+      }
+      if (!zipCode.trim()) {
+        errs.zipCode = 'Please enter ZIP / Postal code.';
+      }
+      if (!phoneDigits.trim()) {
+        errs.phoneDigits = 'Please enter a valid phone number.';
+      }
+
+      if (Object.keys(errs).length > 0) {
+        setFieldErrors(errs);
+        return;
+      }
+
+      setFieldErrors({});
+      setErrorMsg('');
+      handleSendOtp();
+      setModalStep('verification');
       return;
     }
 
+    // Verification step
+    setIsOtpVerified(true);
     setErrorMsg('');
     setIsCreating(true);
+
+    // Save email to history
+    if (email.trim() && !emailHistory.includes(email.trim())) {
+      const newHistory = [email.trim(), ...emailHistory].slice(0, 3);
+      setEmailHistory(newHistory);
+      localStorage.setItem('demo_email_history', JSON.stringify(newHistory));
+    }
 
     const fullPhone = `${selectedCountry.code} ${phoneDigits}`;
     const selectedTheme = selectedPlan === 'basic' ? 'koppee' : selectedPlan === 'pro' ? 'velmora-dining' : 'lunavere';
@@ -378,7 +520,7 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
       fullName: fullName.trim(),
       role,
       restaurantName: restaurantName.trim(),
-      restaurantLocation: restaurantLocation.trim() || 'Dhaka, Bangladesh',
+      restaurantLocation: restaurantLocation.trim() || 'New York, United States',
       country: selectedCountry.name,
       category: selectedPlan === 'basic' ? 'coffee' : selectedPlan === 'pro' ? 'fastfood' : 'finedining',
       email: email.trim(),
@@ -428,7 +570,7 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[1100] flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-white/90 backdrop-blur-md select-none">
+      <div className="fixed inset-0 z-[1100] flex items-center justify-center p-2 sm:p-6 overflow-y-auto bg-white select-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -436,43 +578,17 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
           transition={{ duration: 0.25 }}
           className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 text-slate-900 my-auto"
         >
-          {/* Top Header Banner - Clean White background with dynamic restaurant name & logo monogram */}
-          <div className="relative bg-white p-6 sm:p-8 text-slate-900 border-b border-slate-200 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {/* Designer SVG Crest Monogram Logo */}
-              <div className="w-14 h-14 rounded-2xl bg-[#0b1329] border border-slate-800 shadow-md flex items-center justify-center relative overflow-hidden shrink-0">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.15)_0%,transparent_70%)] pointer-events-none" />
-                <svg viewBox="0 0 100 100" className="w-full h-full p-0.5">
-                  <circle cx="50" cy="50" r="41" stroke="#d4af37" strokeWidth="0.8" fill="none" opacity="0.35" />
-                  <text 
-                    x="36" 
-                    y="52" 
-                    textAnchor="middle" 
-                    dominantBaseline="middle" 
-                    fill="#f59e0b" 
-                    style={{ fontFamily: "serif", fontSize: "45px", fontWeight: 300, fontStyle: "italic" }}
-                  >
-                    {c1}
-                  </text>
-                  <line x1="26" y1="74" x2="74" y2="26" stroke="#d4af37" strokeWidth="1.2" opacity="0.5" />
-                  <text 
-                    x="64" 
-                    y="52" 
-                    textAnchor="middle" 
-                    dominantBaseline="middle" 
-                    fill="#ffffff" 
-                    style={{ fontFamily: "serif", fontSize: "32px", fontWeight: 700 }}
-                  >
-                    {c2}
-                  </text>
-                </svg>
-              </div>
+          {/* Top Header Banner - Clean White background with official Avernao Logo & fixed platform title */}
+          <div className="relative bg-white p-5 sm:p-7 text-slate-900 border-b border-slate-200 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              {/* Official Gold AVERNAO Badge Logo */}
+              <AvernaoLogo className="w-12 h-12 sm:w-14 sm:h-14 shadow-lg hover:scale-105 transition-transform" />
 
-              <div>
-                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 truncate max-w-[260px] sm:max-w-sm">
-                  {restaurantName.trim() || 'Avernao'}
+              <div className="min-w-0">
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 truncate">
+                  Avernao
                 </h3>
-                <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-0.5">
                   Website Demo Registration
                 </p>
               </div>
@@ -482,7 +598,7 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
               type="button"
               onClick={handleBack}
               disabled={isCreating}
-              className="p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+              className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
               title="Back"
             >
               <X className="w-5 h-5" />
@@ -490,14 +606,7 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
           </div>
 
           {/* Body Content */}
-          <div className="p-6 sm:p-8 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar">
-            {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2 animate-shake">
-                <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
+          <div className="p-5 sm:p-7 space-y-4 max-h-[82vh] overflow-y-auto custom-scrollbar">
             {isCreating ? (
               <div className="py-12 text-center space-y-4">
                 <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center animate-spin shadow-xl">
@@ -511,282 +620,436 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleLaunchTrial} className="space-y-4">
-                {/* 1. Restaurant Name */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Restaurant Name *</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={restaurantName}
-                    onChange={(e) => setRestaurantName(e.target.value)}
-                    placeholder="e.g. Avernao"
-                    className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white"
-                  />
-                </div>
-
-                {/* 2. Owner / Manager Full Name & Role */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Your Full Name *</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. Asif Ahmed"
-                      className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-300 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white shadow-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Role *</span>
-                    </label>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsRoleDropdownOpen(!isRoleDropdownOpen);
-                          setIsCountryDropdownOpen(false);
+              <form onSubmit={handleLaunchTrial} className="space-y-4" noValidate>
+                {modalStep === 'info' ? (
+                  <>
+                    {/* 1. Restaurant Name */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Restaurant Name *</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={restaurantName}
+                        onChange={(e) => {
+                          setRestaurantName(e.target.value);
+                          if (fieldErrors.restaurantName) {
+                            setFieldErrors(prev => ({ ...prev, restaurantName: undefined }));
+                          }
                         }}
-                        className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-300 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white flex items-center justify-between shadow-xs transition-all cursor-pointer"
-                      >
-                        <span>{role === 'Owner' ? 'Owner / Proprietor' : 'General Manager'}</span>
-                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isRoleDropdownOpen ? 'rotate-180' : ''}`} />
-                      </button>
-
-                      <AnimatePresence>
-                        {isRoleDropdownOpen && (
-                          <>
-                            <div 
-                              className="fixed inset-0 z-30" 
-                              onClick={() => setIsRoleDropdownOpen(false)} 
-                            />
-                            <motion.div
-                              initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                              transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-slate-200 p-1.5 z-40 overflow-hidden"
-                            >
-                              {[
-                                { id: 'Owner', label: 'Owner / Proprietor' },
-                                { id: 'Manager', label: 'General Manager' }
-                              ].map(item => (
-                                <button
-                                  key={item.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setRole(item.id as any);
-                                    setIsRoleDropdownOpen(false);
-                                  }}
-                                  className={`w-full px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer ${
-                                    role === item.id 
-                                      ? 'bg-indigo-50 text-indigo-900 font-black' 
-                                      : 'text-slate-800 hover:bg-slate-50'
-                                  }`}
-                                >
-                                  <span>{item.label}</span>
-                                  {role === item.id && <Check className="w-4 h-4 text-indigo-600" />}
-                                </button>
-                              ))}
-                            </motion.div>
-                          </>
-                        )}
-                      </AnimatePresence>
+                        placeholder=""
+                        className={`w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border focus:outline-none font-bold text-slate-900 bg-white transition-all ${
+                          fieldErrors.restaurantName 
+                            ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/10' 
+                            : 'border-slate-300 focus:border-indigo-600'
+                        }`}
+                      />
+                      {fieldErrors.restaurantName && (
+                        <p className="mt-1 text-[11px] font-bold text-rose-600 flex items-center gap-1 animate-fade-in pl-1">
+                          <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                          <span>{fieldErrors.restaurantName}</span>
+                        </p>
+                      )}
                     </div>
-                  </div>
-                </div>
 
-                {/* 3. Gmail Account & OTP Verification */}
-                <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Gmail Inbox Security & OTP Verification *</span>
-                    </label>
-                    {isOtpVerified && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Gmail Connected</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-center gap-2">
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setIsOtpVerified(false);
-                      }}
-                      placeholder="e.g. yourname@gmail.com"
-                      className="w-full flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-300 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white shadow-xs"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Send OTP</span>
-                    </button>
-                  </div>
-
-                  {otpSent && !isOtpVerified && (
-                    <div className="space-y-2 pt-1">
-                      <div className="p-2.5 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold flex items-center justify-between gap-2 animate-fade-in">
-                        <span>{otpMessage}</span>
-                        <span className="font-mono text-sm font-black bg-white px-2.5 py-0.5 rounded-lg border border-amber-400 text-indigo-700 select-all">
-                          {generatedOtp}
-                        </span>
+                    {/* 2. Owner / Manager Full Name & Role */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Owner / Manager Full Name *</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={fullName}
+                          onChange={(e) => {
+                            setFullName(e.target.value);
+                            if (fieldErrors.fullName) {
+                              setFieldErrors(prev => ({ ...prev, fullName: undefined }));
+                            }
+                          }}
+                          placeholder=""
+                          className={`w-full px-4 py-2.5 text-xs sm:text-sm rounded-2xl border focus:outline-none font-bold text-slate-900 bg-white shadow-xs transition-all ${
+                            fieldErrors.fullName 
+                              ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/10' 
+                              : 'border-slate-300 focus:border-indigo-600'
+                          }`}
+                        />
+                        {fieldErrors.fullName && (
+                          <p className="mt-1 text-[11px] font-bold text-rose-600 flex items-center gap-1 animate-fade-in pl-1">
+                            <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                            <span>{fieldErrors.fullName}</span>
+                          </p>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                          <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Role *</span>
+                        </label>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsRoleDropdownOpen(!isRoleDropdownOpen);
+                              setIsCountryDropdownOpen(false);
+                            }}
+                            className="w-full px-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-300 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white flex items-center justify-between shadow-xs transition-all cursor-pointer"
+                          >
+                            <span>{role === 'Owner' ? 'Owner / Proprietor' : 'General Manager'}</span>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isRoleDropdownOpen ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          <AnimatePresence>
+                            {isRoleDropdownOpen && (
+                              <>
+                                <div 
+                                  className="fixed inset-0 z-30" 
+                                  onClick={() => setIsRoleDropdownOpen(false)} 
+                                />
+                                <motion.div
+                                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                                  transition={{ duration: 0.15 }}
+                                  className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-slate-200 p-1.5 z-40 overflow-hidden"
+                                >
+                                  {[
+                                    { id: 'Owner', label: 'Owner / Proprietor' },
+                                    { id: 'Manager', label: 'General Manager' }
+                                  ].map(item => (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setRole(item.id as any);
+                                        setIsRoleDropdownOpen(false);
+                                      }}
+                                      className={`w-full px-3.5 py-2.5 rounded-xl text-left text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer ${
+                                        role === item.id 
+                                          ? 'bg-indigo-50 text-indigo-900 font-black' 
+                                          : 'text-slate-800 hover:bg-slate-50'
+                                      }`}
+                                    >
+                                      <span>{item.label}</span>
+                                      {role === item.id && <Check className="w-4 h-4 text-indigo-600" />}
+                                    </button>
+                                  ))}
+                                </motion.div>
+                              </>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Gmail Account */}
+                    <div className={`p-4 rounded-2xl bg-indigo-50/70 border space-y-2 relative transition-all ${
+                      fieldErrors.email ? 'border-rose-400 bg-rose-50/20' : 'border-indigo-200'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
+                          <Mail className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Gmail Inbox Security *</span>
+                        </label>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-2 relative">
+                        <input
+                          type="email"
+                          value={email}
+                          onFocus={() => setIsEmailDropdownOpen(true)}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            setIsOtpVerified(false);
+                            if (!e.target.value) setIsEmailDropdownOpen(true);
+                            if (fieldErrors.email) {
+                              setFieldErrors(prev => ({ ...prev, email: undefined }));
+                            }
+                          }}
+                          placeholder=""
+                          className={`w-full flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-2xl border focus:outline-none font-bold text-slate-900 bg-white shadow-xs transition-all ${
+                            fieldErrors.email 
+                              ? 'border-rose-500 ring-2 ring-rose-500/20' 
+                              : 'border-slate-300 focus:border-indigo-600'
+                          }`}
+                        />
+                        
+                        <AnimatePresence>
+                          {isEmailDropdownOpen && emailHistory.length > 0 && (
+                            <>
+                              <div className="fixed inset-0 z-10" onClick={() => setIsEmailDropdownOpen(false)} />
+                              <motion.div 
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-20 overflow-hidden"
+                              >
+                                <div className="p-2 border-b border-slate-100 bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-tight">Recent Gmails</div>
+                                {emailHistory.map((hEmail) => (
+                                  <button
+                                    key={hEmail}
+                                    type="button"
+                                    onClick={() => {
+                                      setEmail(hEmail);
+                                      setIsEmailDropdownOpen(false);
+                                      setIsOtpVerified(false);
+                                      if (fieldErrors.email) {
+                                        setFieldErrors(prev => ({ ...prev, email: undefined }));
+                                      }
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors flex items-center gap-2"
+                                  >
+                                    <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] text-indigo-600 shrink-0">
+                                      {hEmail[0].toUpperCase()}
+                                    </div>
+                                    <span className="truncate">{hEmail}</span>
+                                  </button>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() => setIsEmailDropdownOpen(false)}
+                                  className="w-full px-4 py-2 text-center text-[10px] font-black text-indigo-600 hover:bg-indigo-50 border-t border-slate-50"
+                                >
+                                  + USE NEW GMAIL
+                                </button>
+                              </motion.div>
+                            </>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      {fieldErrors.email && (
+                        <p className="text-[11px] font-bold text-rose-600 flex items-center gap-1 animate-fade-in pl-1">
+                          <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                          <span>{fieldErrors.email}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 4. Country & Phone */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="relative">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                          <Flag className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Country / Region *</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCountryDropdownOpen(!isCountryDropdownOpen);
+                            setIsRoleDropdownOpen(false);
+                          }}
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-300 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white flex items-center justify-between shadow-xs transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <CountryFlag code={selectedCountry.id} className="w-5 h-3.5" />
+                            <span className="truncate">{selectedCountry.name}</span>
+                            <span className="text-slate-400 font-mono text-[11px]">({selectedCountry.code})</span>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-1.5 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        <AnimatePresence>
+                          {isCountryDropdownOpen && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-30" 
+                                onClick={() => setIsCountryDropdownOpen(false)} 
+                              />
+                              <motion.div
+                                initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-3xl shadow-2xl border border-slate-200 z-40 overflow-hidden ring-1 ring-black/5"
+                              >
+                                <div className="max-h-64 overflow-y-auto p-2 custom-scrollbar">
+                                  {COUNTRIES_WITH_FLAGS.map((c) => (
+                                    <button
+                                      key={c.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedCountry(c);
+                                        setIsCountryDropdownOpen(false);
+                                        setPhoneDigits(''); // Reset phone digits on country change
+                                      }}
+                                      className={`w-full px-4 py-3 rounded-2xl text-left text-sm font-bold transition-all flex items-center justify-between gap-3 cursor-pointer min-h-[48px] ${
+                                        selectedCountry.id === c.id 
+                                          ? 'bg-indigo-50 text-indigo-900 font-black' 
+                                          : 'text-slate-800 hover:bg-slate-50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-3 truncate">
+                                        <div className="shrink-0">
+                                          <CountryFlag code={c.id} className="w-6 h-4" />
+                                        </div>
+                                        <span className="truncate">{c.name}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        <span className="text-slate-400 font-mono text-xs">{c.code}</span>
+                                        {selectedCountry.id === c.id && <Check className="w-4 h-4 text-indigo-600" />}
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            </>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* ZIP / Postal Code */}
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>ZIP / Postal Code *</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={zipCode}
+                          onChange={(e) => {
+                            setZipCode(e.target.value);
+                            if (fieldErrors.zipCode) {
+                              setFieldErrors(prev => ({ ...prev, zipCode: undefined }));
+                            }
+                          }}
+                          placeholder=""
+                          className={`w-full px-4 py-2.5 text-xs sm:text-sm rounded-2xl border focus:outline-none font-bold text-slate-900 bg-white shadow-xs transition-all ${
+                            fieldErrors.zipCode 
+                              ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/10' 
+                              : 'border-slate-300 focus:border-indigo-600'
+                          }`}
+                        />
+                        {fieldErrors.zipCode && (
+                          <p className="mt-1 text-[11px] font-bold text-rose-600 flex items-center gap-1 animate-fade-in pl-1">
+                            <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                            <span>{fieldErrors.zipCode}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 5. Phone Number */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Phone Number *</span>
+                      </label>
+                        <div className={`flex items-center rounded-2xl border bg-white overflow-hidden shadow-xs transition-all ${
+                          fieldErrors.phoneDigits 
+                            ? 'border-rose-500 ring-2 ring-rose-500/20' 
+                            : 'border-slate-300 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-500/20'
+                        }`}>
+                          <div className="pl-4 pr-2 py-2.5 flex items-center gap-2 shrink-0 border-r border-slate-100 bg-slate-50/30">
+                            <CountryFlag code={selectedCountry.id} className="w-5 h-3.5" />
+                            <span className="text-sm font-bold text-slate-700">{selectedCountry.code}</span>
+                          </div>
+                          <input
+                            type="tel"
+                            value={phoneDigits}
+                            onChange={(e) => {
+                              let digits = e.target.value.replace(/\D/g, '');
+                              // Strip leading zeros (e.g. 017... -> 17...)
+                              while (digits.startsWith('0')) {
+                                digits = digits.substring(1);
+                              }
+                              // Strip leading '1' if country prefix is +1 to avoid duplicate +1 1...
+                              if ((selectedCountry.code === '+1' || selectedCountry.id === 'US' || selectedCountry.id === 'CA') && digits.startsWith('1') && digits.length > 1) {
+                                digits = digits.substring(1);
+                              }
+                              setPhoneDigits(digits);
+                              if (fieldErrors.phoneDigits) {
+                                setFieldErrors(prev => ({ ...prev, phoneDigits: undefined }));
+                              }
+                            }}
+                            placeholder=""
+                            className="w-full min-w-0 px-4 py-2.5 text-sm focus:outline-none font-bold text-slate-900 bg-white placeholder:text-slate-300"
+                          />
+                        </div>
+                        {fieldErrors.phoneDigits && (
+                          <p className="mt-1 text-[11px] font-bold text-rose-600 flex items-center gap-1 animate-fade-in pl-1">
+                            <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                            <span>{fieldErrors.phoneDigits}</span>
+                          </p>
+                        )}
+                      </div>
+                  </>
+                ) : (
+                  <div className="py-4 space-y-5 animate-fade-in">
+                    <div className="text-center space-y-1.5">
+                      <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
+                        <Mail className="w-7 h-7" />
+                      </div>
+                      <h4 className="text-xl font-black text-slate-900">Verify your Gmail Inbox</h4>
+                      <p className="text-xs font-semibold text-slate-500">
+                        Verification code sent from <span className="font-extrabold text-indigo-600">Avernao Platform</span> to <span className="font-bold text-slate-800">{email}</span>
+                      </p>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      <div className="relative">
                         <input
                           type="text"
                           maxLength={6}
                           value={userOtpInput}
-                          onChange={(e) => setUserOtpInput(e.target.value)}
-                          placeholder="Enter 6-digit OTP code"
-                          className="flex-1 px-4 py-2 text-xs font-mono font-bold rounded-2xl border border-slate-300 focus:border-indigo-600 focus:outline-none text-slate-900 bg-white"
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            setUserOtpInput(val);
+                            setErrorMsg('');
+                            if (val.length === 6) {
+                              setIsOtpVerified(true);
+                            }
+                          }}
+                          placeholder=""
+                          className="w-full px-6 py-3.5 text-3xl font-mono tracking-[0.5em] text-center font-black rounded-2xl border-2 border-indigo-200 focus:border-indigo-600 focus:outline-none text-slate-900 bg-white shadow-lg transition-all"
                         />
-                        <button
-                          type="button"
-                          onClick={handleVerifyOtp}
-                          className="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Verify</span>
-                        </button>
+                        {isOtpVerified && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <CheckCircle2 className="w-8 h-8 text-emerald-500 animate-bounce" />
+                          </div>
+                        )}
                       </div>
+
+                      {otpSent && (
+                        <div className="p-3 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-indigo-900 text-xs font-bold text-center flex items-center justify-center gap-2 shadow-xs">
+                          <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
+                          <span>Avernao Gmail Verification Code: <strong className="font-mono text-sm text-indigo-700 bg-white px-2 py-0.5 rounded-lg border border-indigo-200">{generatedOtp || '737654'}</strong></span>
+                        </div>
+                      )}
+
+                      {isOtpVerified && (
+                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold text-center flex items-center justify-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>Gmail Verified! Proceeding to launch site...</span>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {isOtpVerified && (
-                    <p className="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>{otpMessage}</span>
-                    </p>
-                  )}
-                </div>
-
-                {/* 4. Country with Real Flag & Separated Phone Number Input */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="relative">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <Flag className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Country / Region *</span>
-                    </label>
+                <div className="pt-4 flex items-center justify-between gap-4 w-full">
+                  {modalStep === 'info' ? (
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsCountryDropdownOpen(!isCountryDropdownOpen);
-                        setIsRoleDropdownOpen(false);
-                      }}
-                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-300 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none font-bold text-slate-900 bg-white flex items-center justify-between shadow-xs transition-all cursor-pointer"
+                      onClick={handleBack}
+                      className="flex items-center gap-2.5 py-3.5 px-6 rounded-2xl text-slate-100 hover:text-white bg-[linear-gradient(135deg,#1e293b_0%,#334155_50%,#0f172a_100%)] bg-[length:200%_200%] bg-[position:0%_0%] hover:bg-[position:100%_100%] font-bold text-sm shadow-md hover:shadow-indigo-500/20 transition-all duration-500 ease-in-out cursor-pointer active:scale-95 group shrink-0 select-none"
                     >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <CountryFlag code={selectedCountry.id} className="w-5 h-3.5" />
-                        <span className="truncate">{selectedCountry.name}</span>
-                        <span className="text-slate-400 font-mono text-[11px]">({selectedCountry.code})</span>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-1.5 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
+                      <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1.5 group-hover:scale-110" />
+                      <span className="transition-transform duration-300 group-hover:scale-105">Back</span>
                     </button>
+                  ) : (
+                    <div />
+                  )}
 
-                    <AnimatePresence>
-                      {isCountryDropdownOpen && (
-                        <>
-                          <div 
-                            className="fixed inset-0 z-30" 
-                            onClick={() => setIsCountryDropdownOpen(false)} 
-                          />
-                          <motion.div
-                            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                            transition={{ duration: 0.15 }}
-                            className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-40 overflow-hidden ring-1 ring-black/5"
-                          >
-                            <div className="max-h-56 overflow-y-auto p-1.5 custom-scrollbar">
-                              {COUNTRIES_WITH_FLAGS.map((c) => (
-                                <button
-                                  key={c.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedCountry(c);
-                                    setIsCountryDropdownOpen(false);
-                                  }}
-                                  className={`w-full px-3 py-2.5 rounded-xl text-left text-xs font-bold transition-all flex items-center justify-between gap-2 cursor-pointer ${
-                                    selectedCountry.id === c.id 
-                                      ? 'bg-indigo-50 text-indigo-900 font-black' 
-                                      : 'text-slate-800 hover:bg-slate-50'
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2.5 truncate">
-                                    <CountryFlag code={c.id} className="w-5 h-3.5" />
-                                    <span className="truncate">{c.name}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1.5 shrink-0">
-                                    <span className="text-slate-400 font-mono text-[11px]">{c.code}</span>
-                                    {selectedCountry.id === c.id && <Check className="w-3.5 h-3.5 text-indigo-600" />}
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </motion.div>
-                        </>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Phone Number *</span>
-                    </label>
-                    <div className="flex items-center rounded-2xl border border-slate-300 bg-white overflow-hidden focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-500/20 shadow-xs transition-all">
-                      <span className="px-3.5 py-2.5 bg-slate-50 text-xs font-bold text-slate-700 border-r border-slate-200 flex items-center gap-2 shrink-0">
-                        <CountryFlag code={selectedCountry.id} className="w-5 h-3.5" />
-                        <span>{selectedCountry.code}</span>
-                      </span>
-                      <input
-                        type="tel"
-                        required
-                        value={phoneDigits}
-                        onChange={(e) => setPhoneDigits(e.target.value)}
-                        placeholder="9876543210"
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none font-bold text-slate-900 bg-white"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-3 flex flex-col items-center gap-2">
                   <button
                     type="submit"
                     disabled={isCreating}
-                    className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl shadow-indigo-500/25 transition-all flex items-center justify-center cursor-pointer active:scale-98 select-none disabled:opacity-50"
+                    className={`${modalStep === 'info' ? 'ml-auto' : 'w-full'} py-4 px-8 bg-[linear-gradient(to_bottom,#2563eb_0%,#4f46e5_50%,#7c3aed_100%)] bg-[length:100%_200%] bg-[position:0%_0%] hover:bg-[position:0%_100%] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-500/40 transition-all duration-500 ease-in-out flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 select-none disabled:opacity-50 group`}
                   >
-                    <span>CONTINUE</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className="w-full py-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Back</span>
+                    <span className="transition-transform duration-300 group-hover:scale-105">{modalStep === 'info' ? 'NEXT' : 'VERIFY & LAUNCH'}</span>
+                    {modalStep === 'info' && <ArrowLeft className="w-4 h-4 rotate-180 transition-transform duration-300 group-hover:translate-x-1.5 group-hover:scale-110" />}
                   </button>
                 </div>
               </form>
