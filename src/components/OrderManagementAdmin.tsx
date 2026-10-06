@@ -2482,40 +2482,62 @@ export default function OrderManagementAdmin({
                         })}
                       </div>
 
-                      {/* 3-Day Free Trial Timer Card (Visible under Settings Navigation ONLY when an active unpaid demo trial session exists in new demo tab) */}
+                      {/* 3-Day Free Trial Timer Card (Visible under Settings Navigation when unpaid) */}
                       {(() => {
                         if (typeof window === 'undefined') return null;
 
-                        // MUST ONLY be visible when user opens a new demo trial tab via registration form (?demo=true or ?trial=active)
-                        const isLaunchedDemoTab = window.location.search.includes('trial=active') || window.location.search.includes('demo=true');
-                        if (!isLaunchedDemoTab) return null;
+                        // Hide if already paid subscriber
+                        if (settings?.subscriptionStatus === 'active' || (settings as any)?.isPaidSubscriber) {
+                          return null;
+                        }
 
-                        const saved = localStorage.getItem('webar_trial_session');
-                        if (!saved) return null;
-
+                        let sessionData: any = null;
                         try {
-                          const sessionData = JSON.parse(saved);
-                          if (!sessionData) return null;
-
-                          // Hide if user has completed payment or holds an active subscription
-                          if (sessionData.isPaid || settings?.subscriptionStatus === 'active' || (settings as any)?.isPaidSubscriber) {
-                            return null;
+                          const saved = localStorage.getItem('webar_trial_session');
+                          if (saved) {
+                            sessionData = JSON.parse(saved);
                           }
+                        } catch (e) {}
 
-                          return (
+                        if (!sessionData) {
+                          const now = Date.now();
+                          sessionData = {
+                            restaurantName: settings?.restaurantName || 'Avernao Dining',
+                            fullName: (settings as any)?.ownerName || 'Restaurant Owner',
+                            role: 'Owner',
+                            email: settings?.contactEmail || '',
+                            countryCode: '+1',
+                            phoneDigits: (settings as any)?.contactPhone || '',
+                            zipCode: '10001',
+                            restaurantLocation: 'USA',
+                            planId: settings?.subscriptionPlan || 'professional',
+                            billingCycle: 'monthly',
+                            startTime: now,
+                            expiresAt: now + 3 * 24 * 60 * 60 * 1000,
+                            isPaid: false,
+                            subscriptionStatus: 'trial'
+                          };
+                        }
+
+                        if (sessionData.isPaid) return null;
+
+                        return (
+                          <div className="pt-2">
                             <TrialTimerCard
                               trialSession={sessionData}
                               onOpenCheckout={() => {
-                                const event = new CustomEvent('open-checkout-modal');
-                                window.dispatchEvent(event);
+                                setSelectedPlanForPayment((settings?.subscriptionPlan as any) || 'professional');
+                              }}
+                              onUpdateTrialSession={(updated) => {
+                                try {
+                                  localStorage.setItem('webar_trial_session', JSON.stringify(updated));
+                                } catch (e) {}
                               }}
                               lang={lang}
                               theme={theme}
                             />
-                          );
-                        } catch (e) {
-                          return null;
-                        }
+                          </div>
+                        );
                       })()}
                     </div>
                   </div>
@@ -4407,8 +4429,22 @@ export default function OrderManagementAdmin({
           isOpen={!!selectedPlanForPayment}
           onClose={() => setSelectedPlanForPayment(null)}
           onSuccess={(planId) => {
-            onUpdateSettings({ subscriptionPlan: planId as SubscriptionPlan });
+            onUpdateSettings({ 
+              subscriptionPlan: planId as SubscriptionPlan,
+              subscriptionStatus: 'active',
+              isPaidSubscriber: true 
+            } as any);
+            try {
+              const saved = localStorage.getItem('webar_trial_session');
+              if (saved) {
+                const sess = JSON.parse(saved);
+                sess.isPaid = true;
+                sess.subscriptionStatus = 'active';
+                localStorage.setItem('webar_trial_session', JSON.stringify(sess));
+              }
+            } catch (e) {}
             setSelectedPlanForPayment(null);
+            window.dispatchEvent(new CustomEvent('subscription-paid-success', { detail: { planId } }));
           }}
           plan={selectedPlanForPayment}
           theme={theme}

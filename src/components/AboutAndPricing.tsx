@@ -329,13 +329,7 @@ const AboutAndPricing: React.FC<AboutAndPricingProps> = ({
       try {
         const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
         if (!win || win.closed || typeof win.closed === 'undefined') {
-          const link = document.createElement('a');
-          link.href = targetUrl;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+          window.location.href = targetUrl;
         }
       } catch (e) {
         window.location.href = targetUrl;

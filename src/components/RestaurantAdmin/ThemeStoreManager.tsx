@@ -692,9 +692,14 @@ export default function ThemeStoreManager({
     try {
       const planVal = (preset as any).planPrice || (targetPlan === 'basic' ? 15 : targetPlan === 'pro' ? 49 : 99);
       const themeUrl = `${window.location.origin}/?theme=${preset.id}&standalone=true&plan=${planVal}`;
-      window.open(themeUrl, '_blank');
+      const win = window.open(themeUrl, '_blank');
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        window.location.href = themeUrl;
+      }
     } catch (e) {
-      console.error('Window open failed:', e);
+      const planVal = (preset as any).planPrice || (targetPlan === 'basic' ? 15 : targetPlan === 'pro' ? 49 : 99);
+      const themeUrl = `${window.location.origin}/?theme=${preset.id}&standalone=true&plan=${planVal}`;
+      window.location.href = themeUrl;
     }
 
     setTimeout(() => setSuccessToast(null), 3500);
@@ -2544,7 +2549,14 @@ export default function ThemeStoreManager({
                   <button
                     onClick={() => {
                       const themeUrl = `/?theme=${selectedPlanModalTheme.id}&standalone=true&plan=${selectedPlanModalTheme.planPrice}`;
-                      window.open(themeUrl, '_blank');
+                      try {
+                        const win = window.open(themeUrl, '_blank');
+                        if (!win || win.closed || typeof win.closed === 'undefined') {
+                          window.location.href = themeUrl;
+                        }
+                      } catch (e) {
+                        window.location.href = themeUrl;
+                      }
                     }}
                     className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
@@ -2557,7 +2569,14 @@ export default function ThemeStoreManager({
                       saveCustomThemeEdits();
                       handleActivateTheme(selectedPlanModalTheme);
                       const themeUrl = `/?theme=${selectedPlanModalTheme.id}&standalone=true&plan=${selectedPlanModalTheme.planPrice}`;
-                      window.open(themeUrl, '_blank');
+                      try {
+                        const win = window.open(themeUrl, '_blank');
+                        if (!win || win.closed || typeof win.closed === 'undefined') {
+                          window.location.href = themeUrl;
+                        }
+                      } catch (e) {
+                        window.location.href = themeUrl;
+                      }
                       setSelectedPlanModalTheme(null);
                     }}
                     className="flex-1 py-3 px-4 rounded-2xl bg-[#ff5722] hover:bg-[#f4511e] text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"

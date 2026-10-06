@@ -91,29 +91,29 @@ export default function ChefSection({
   if (displayList.length === 0) return null;
 
   return (
-    <section id="chef-showcase" className="py-16 sm:py-20 bg-[#15162B] border-t border-b border-[#C9A86A]/20 text-[#F4E7D3] relative overflow-hidden w-full select-none">
-      {/* Subtle Ambient Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#C9A86A]/5 rounded-full blur-3xl pointer-events-none" />
+    <section id="chef-showcase" className="py-16 sm:py-24 bg-gradient-to-b from-[#FDFBF7] via-[#F8F4EC] to-[#EFE7D8] border-t border-b border-[#C9A86A]/40 text-[#1C1815] relative overflow-hidden w-full select-none">
+      {/* Warm Ambient Gold Radial Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Info */}
       <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10">
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C9A86A]/10 border border-[#C9A86A]/30 text-[#C9A86A] text-[10px] font-bold tracking-[0.25em] uppercase">
-            <ChefHat className="w-3.5 h-3.5 text-[#C9A86A]" />
+        <div className="text-center max-w-2xl mx-auto space-y-3.5 mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100/90 border border-amber-300 text-amber-900 text-[10px] font-black tracking-[0.25em] uppercase shadow-xs">
+            <ChefHat className="w-3.5 h-3.5 text-amber-700" />
             <span>{lang === 'ar' ? 'طاقم الطهاة التنفيذيين' : 'OUR EXECUTIVE CHEFS'}</span>
           </div>
           <h2 
-            className="text-3xl sm:text-5xl font-normal text-[#F4E7D3] tracking-tight"
+            className="text-3xl sm:text-5xl font-normal text-[#1C1815] tracking-tight"
             style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', 'Playfair Display', serif" }}
           >
             {lang === 'ar' ? 'إبداع الطهي والخبرة العالمية' : 'Culinary Mastery & Passion'}
           </h2>
-          <p className="text-xs sm:text-sm text-[#F4E7D3]/75 font-light leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#5C554E] font-medium leading-relaxed">
             {lang === 'ar'
                 ? 'يتم إعداد كل طبق بأعلى درجات العناية والخبرة لتقديم تجربة طعام استثنائية.'
                 : 'Every recipe is an artistic balance of heritage gastronomy, precision culinary craftsmanship and soul.'}
           </p>
-          <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#C9A86A] to-transparent mx-auto mt-2" />
+          <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#C9A86A] to-transparent mx-auto mt-2" />
         </div>
       </div>
 
@@ -127,7 +127,7 @@ export default function ChefSection({
       >
         <div
           ref={scrollRef}
-          className={`flex flex-row ${isCenteredGrid ? 'justify-center flex-wrap max-w-7xl mx-auto gap-6 sm:gap-8' : 'flex-nowrap overflow-x-auto gap-4 sm:gap-5 px-2'} select-none scroll-smooth py-3`}
+          className={`flex flex-row ${isCenteredGrid ? 'justify-center flex-wrap max-w-7xl mx-auto gap-6 sm:gap-8' : 'flex-nowrap overflow-x-auto gap-5 sm:gap-6 px-2'} select-none scroll-smooth py-4`}
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -141,50 +141,50 @@ export default function ChefSection({
             return (
               <div
                 key={idx}
-                className="w-[280px] sm:w-[310px] shrink-0 bg-[#1B1D36]/90 rounded-3xl p-4 sm:p-5 border border-[#C9A86A]/30 shadow-2xl backdrop-blur-sm flex flex-col justify-between hover:border-[#C9A86A] hover:shadow-[#C9A86A]/20 hover:-translate-y-1.5 transition-all duration-300 group relative"
+                className="w-[285px] sm:w-[320px] shrink-0 bg-white rounded-3xl p-5 border-2 border-[#E7DECD] shadow-[0_12px_36px_rgba(180,140,80,0.12)] hover:border-[#C9A86A] hover:shadow-[0_20px_45px_rgba(201,168,106,0.25)] hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group relative"
               >
                 {/* Decorative Corner Accents */}
-                <div className="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-2 border-l-2 border-[#C9A86A]/50 group-hover:border-[#C9A86A] rounded-tl-lg pointer-events-none transition-colors" />
-                <div className="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-2 border-r-2 border-[#C9A86A]/50 group-hover:border-[#C9A86A] rounded-br-lg pointer-events-none transition-colors" />
+                <div className="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-2 border-l-2 border-[#C9A86A]/70 group-hover:border-[#96722D] rounded-tl-lg pointer-events-none transition-colors" />
+                <div className="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-2 border-r-2 border-[#C9A86A]/70 group-hover:border-[#96722D] rounded-br-lg pointer-events-none transition-colors" />
 
                 {/* Top: Compact Chef Portrait */}
-                <div className="space-y-3">
-                  <div className="relative rounded-2xl overflow-hidden aspect-[4/4.6] w-full shadow-lg border-2 border-[#C9A86A]/30 bg-[#15162B]">
+                <div className="space-y-3.5">
+                  <div className="relative rounded-2xl overflow-hidden aspect-[4/4.6] w-full shadow-md border-2 border-[#E7DECD] group-hover:border-[#C9A86A]/60 bg-[#F8F4EC]">
                     <img 
                       src={chefItem.image || DEFAULT_CHEF_PROFILES[(slotNumber - 1) % DEFAULT_CHEF_PROFILES.length].image} 
                       alt={chefItem.name}
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#15162B]/90 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent pointer-events-none" />
 
                     {/* Slot Tag */}
-                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-xs border border-[#C9A86A]/40 text-xs font-mono font-bold text-[#C9A86A] flex items-center gap-1.5 shadow-md">
-                      <ChefHat className="w-3.5 h-3.5 text-[#C9A86A]" />
+                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-md border border-amber-300/90 text-xs font-mono font-black text-amber-900 flex items-center gap-1.5 shadow-md">
+                      <ChefHat className="w-3.5 h-3.5 text-amber-700" />
                       <span>Chef #{slotNumber}</span>
                     </div>
 
                     {/* Rating Badge */}
-                    <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-xs border border-amber-500/40 text-xs font-mono font-bold text-amber-300 flex items-center gap-1 shadow-md">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-md border border-amber-300/90 text-xs font-mono font-black text-amber-900 flex items-center gap-1 shadow-md">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                       <span>{(chefItem.rating || 4.9).toFixed(1)}</span>
                     </div>
 
                     {/* Floating Role on Image */}
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 p-2 rounded-xl bg-[#15162B]/90 backdrop-blur-md border border-[#C9A86A]/30 flex items-center justify-between">
-                      <span className="text-[10px] font-bold tracking-wider uppercase text-[#F4E7D3] truncate">
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5 p-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-amber-200 shadow-md flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold tracking-wider uppercase text-[#1C1815] truncate">
                         {chefItem.role || 'Artisan Gastronomy Chef'}
                       </span>
-                      <span className="text-[10px] font-mono text-[#C9A86A] font-bold shrink-0 ml-1.5">
+                      <span className="text-[10px] font-mono text-amber-800 font-black shrink-0 ml-1.5">
                         {chefItem.experienceYears || 15}+ Yrs
                       </span>
                     </div>
                   </div>
 
                   {/* Chef Name & Details */}
-                  <div className="space-y-1.5 pt-0.5">
+                  <div className="space-y-2 pt-0.5">
                     <div className="flex items-center justify-between gap-1.5">
                       <h3 
-                        className="text-xl sm:text-2xl font-normal text-[#F4E7D3] tracking-tight group-hover:text-[#C9A86A] transition-colors leading-tight truncate"
+                        className="text-xl sm:text-2xl font-normal text-[#1C1815] tracking-tight group-hover:text-amber-800 transition-colors leading-tight truncate"
                         style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif" }}
                       >
                         {chefItem.name}
@@ -193,12 +193,12 @@ export default function ChefSection({
                         {[1, 2, 3, 4, 5].map((s) => (
                           <Star 
                             key={s} 
-                            className={`w-3 h-3 ${
+                            className={`w-3.5 h-3.5 ${
                               s <= fullStars 
-                                ? 'fill-amber-400 text-amber-400' 
+                                ? 'fill-amber-400 text-amber-500' 
                                 : (s === fullStars + 1 && hasHalfStar)
-                                  ? 'fill-amber-400/50 text-amber-400' 
-                                  : 'text-slate-600'
+                                  ? 'fill-amber-400/50 text-amber-500' 
+                                  : 'text-stone-300'
                             }`} 
                           />
                         ))}
@@ -207,30 +207,30 @@ export default function ChefSection({
 
                     {/* Awards */}
                     {chefItem.awards && (
-                      <div className="flex items-center gap-1 text-[11px] text-[#C9A86A] font-medium">
-                        <Award className="w-3.5 h-3.5 text-[#C9A86A] shrink-0" />
+                      <div className="flex items-center gap-1 text-[11px] text-amber-900 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/80 w-fit max-w-full">
+                        <Award className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                         <span className="truncate">{chefItem.awards}</span>
                       </div>
                     )}
 
                     {/* Bio */}
-                    <p className="text-xs text-[#F4E7D3]/75 font-light leading-relaxed line-clamp-2 pt-0.5">
+                    <p className="text-xs text-[#5C554E] font-medium leading-relaxed line-clamp-2 pt-0.5">
                       {chefItem.bio || 'Crafting evocative flavors celebrating culinary heritage and fine artisanal gastronomy.'}
                     </p>
                   </div>
                 </div>
 
                 {/* Bottom Stats & Action */}
-                <div className="pt-3 mt-3 border-t border-[#C9A86A]/20 space-y-2.5">
-                  <div className="flex items-center justify-between text-[11px] bg-[#15162B]/80 px-2.5 py-1.5 rounded-xl border border-[#C9A86A]/15">
-                    <span className="font-mono text-[#C9A86A] text-[10px] uppercase truncate max-w-[130px]">{chefItem.speciality || 'Speciality'}</span>
-                    <span className="font-mono text-emerald-400 font-bold text-[10px]">{(chefItem.ratingCount || 1280).toLocaleString()}+ reviews</span>
+                <div className="pt-3.5 mt-3.5 border-t border-[#E7DECD] space-y-3">
+                  <div className="flex items-center justify-between text-[11px] bg-[#FAF7F2] px-3 py-2 rounded-xl border border-[#E7DECD]">
+                    <span className="font-mono text-amber-900 text-[10px] font-bold uppercase truncate max-w-[130px]">{chefItem.speciality || 'Speciality'}</span>
+                    <span className="font-mono text-emerald-700 font-black text-[10px]">{(chefItem.ratingCount || 1280).toLocaleString()}+ reviews</span>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleActionClick}
-                    className="w-full py-2 px-3 rounded-xl bg-[#C9A86A]/15 hover:bg-[#C9A86A] border border-[#C9A86A]/40 text-[#C9A86A] hover:text-[#15162B] font-bold text-xs tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-extrabold text-xs uppercase tracking-wider shadow-md hover:shadow-lg shadow-amber-500/25 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                   >
                     <Utensils className="w-3.5 h-3.5" />
                     <span>{lang === 'ar' ? 'عرض القائمة الخاصة' : "View Chef's Specials"}</span>

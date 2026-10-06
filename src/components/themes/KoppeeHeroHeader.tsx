@@ -1778,16 +1778,16 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 </div>
               </form>
 
-              {/* Return to Main Website & Pricing Plans Button */}
+              {/* Return to Restaurant Menu Button */}
               {onReturnToPortal && (
                 <button
                   type="button"
                   onClick={onReturnToPortal}
                   className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow-xl border border-cyan-400/80 cursor-pointer shrink-0 active:scale-95 select-none relative z-50 transition-all"
-                  title={'Return to Main Website'}
+                  title={'Return to Menu'}
                 >
                   <Home className="w-3.5 h-3.5 text-cyan-200" />
-                  <span>{'Main Website'}</span>
+                  <span>{'🍽️ Menu'}</span>
                 </button>
               )}
 

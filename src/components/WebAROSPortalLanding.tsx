@@ -211,7 +211,14 @@ const WebAROSPortalLanding: React.FC<WebAROSPortalLandingProps> = ({
       onSelectPlan(plan);
     } else {
       const url = `${window.location.origin}${window.location.pathname}?plan=${plan}`;
-      window.open(url, '_blank');
+      try {
+        const win = window.open(url, '_blank');
+        if (!win || win.closed || typeof win.closed === 'undefined') {
+          window.location.href = url;
+        }
+      } catch (e) {
+        window.location.href = url;
+      }
     }
   };
 

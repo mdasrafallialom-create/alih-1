@@ -343,34 +343,38 @@ export const TrialTimerCard: React.FC<{
     return () => clearInterval(timer);
   }, []);
 
-  const hours = Math.floor(timeRemainingMs / (1000 * 60 * 60));
+  const totalHours = Math.floor(timeRemainingMs / (1000 * 60 * 60));
   const minutes = Math.floor((timeRemainingMs % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((timeRemainingMs % (1000 * 60)) / 1000);
-  const formattedTime = `${String(hours).padStart(2, '0')}h : ${String(minutes).padStart(2, '0')}m : ${String(seconds).padStart(2, '0')}s`;
 
   const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-  let dayBadge = '';
-  let dayLabel = '';
+  let dayBadge = 'Day 1 Active';
+  let badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
   let currentDayNumber = 1;
+  let progressPercent = 33;
   let isExpired = timeRemainingMs <= 0 || msPassed >= 3 * ONE_DAY_MS;
 
   if (msPassed < ONE_DAY_MS) {
     currentDayNumber = 1;
-    dayBadge = 'Day 1 Active';
-    dayLabel = 'Day 1 in Progress (0 Days Passed, 2 Days Remaining)';
+    dayBadge = 'Day 1 of 3';
+    badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    progressPercent = Math.min(33, Math.max(10, Math.round((msPassed / ONE_DAY_MS) * 33)));
   } else if (msPassed >= ONE_DAY_MS && msPassed < 2 * ONE_DAY_MS) {
     currentDayNumber = 2;
-    dayBadge = 'Day 2 Active';
-    dayLabel = '1 Day Passed (Day 2 Active, 1 Day Remaining)';
+    dayBadge = 'Day 2 of 3';
+    badgeColor = 'bg-blue-500/20 text-cyan-300 border-blue-500/30';
+    progressPercent = Math.min(66, Math.max(34, 33 + Math.round(((msPassed - ONE_DAY_MS) / ONE_DAY_MS) * 33)));
   } else if (msPassed >= 2 * ONE_DAY_MS && msPassed < 3 * ONE_DAY_MS) {
     currentDayNumber = 3;
-    dayBadge = 'Day 3 Active';
-    dayLabel = '2 Days Passed (Day 3 Active - Trial Ending Soon)';
+    dayBadge = 'Day 3 (Ending Soon)';
+    badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse';
+    progressPercent = Math.min(99, Math.max(67, 66 + Math.round(((msPassed - 2 * ONE_DAY_MS) / ONE_DAY_MS) * 33)));
   } else {
     currentDayNumber = 4;
     isExpired = true;
-    dayBadge = 'Expired';
-    dayLabel = '3 Days Passed! Your 3-Day Free Demo Trial has expired.';
+    dayBadge = 'Trial Expired';
+    badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+    progressPercent = 100;
   }
 
   const handleSetSimulatedDay = (dayIndex: 1 | 2 | 3 | 4) => {
@@ -392,84 +396,152 @@ export const TrialTimerCard: React.FC<{
   };
 
   return (
-    <div className={`mt-6 p-5 rounded-3xl border shadow-xl transition-all ${
+    <div className={`mt-5 p-5 sm:p-6 rounded-3xl border shadow-2xl transition-all relative overflow-hidden backdrop-blur-xl ${
       isExpired
-        ? 'bg-gradient-to-r from-rose-900 to-red-950 text-white border-rose-500/50'
-        : 'bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-indigo-500/40'
+        ? 'bg-gradient-to-br from-rose-950/90 via-slate-900 to-red-950/90 border-rose-500/40 text-white shadow-rose-950/30'
+        : 'bg-gradient-to-br from-[#0b0f19] via-[#0f172a] to-[#020617] border-amber-500/30 text-white shadow-amber-500/10 ring-1 ring-amber-400/20'
     }`}>
-      <div className="flex flex-col gap-3">
-        {/* Top Header */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
-            <span className="text-xs font-black uppercase tracking-wider text-amber-300">
-              3-Day Free Demo Trial Status
-            </span>
+      {/* Decorative ambient glow */}
+      <div className="absolute -top-16 -right-16 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col gap-4">
+        {/* Header Badge & Title */}
+        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-xs">
+              <Clock className="w-4 h-4 animate-spin" style={{ animationDuration: '8s' }} />
+            </div>
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                <span>3-Day Demo Trial</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
+              </h4>
+              <p className="text-[10px] text-slate-400 font-medium">
+                Restaurant Sandbox Live Access
+              </p>
+            </div>
           </div>
 
-          <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider">
+          <span className={`px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-wider shadow-xs ${badgeColor}`}>
             {dayBadge}
           </span>
         </div>
 
-        <p className="text-xs font-medium text-slate-200">
-          {dayLabel}
-        </p>
-
-        {/* Progress Day Indicators */}
-        <div className="grid grid-cols-3 gap-2 py-1">
-          <div className={`p-2 rounded-xl text-center border text-[10px] font-bold ${
-            currentDayNumber === 1
-              ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md font-black'
-              : currentDayNumber > 1
-              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-              : 'bg-white/10 text-white/50 border-white/10'
-          }`}>
-            <span>Day 1</span>
+        {/* Big Luxury Digital Countdown Clock */}
+        <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 shadow-inner">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-2 flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3 h-3 text-amber-400" />
+            <span>Time Remaining In Free Trial</span>
           </div>
 
-          <div className={`p-2 rounded-xl text-center border text-[10px] font-bold ${
-            currentDayNumber === 2
-              ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md font-black'
-              : currentDayNumber > 2
-              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-              : 'bg-white/10 text-white/50 border-white/10'
-          }`}>
-            <span>Day 2</span>
-          </div>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 text-center">
+            {/* Hours */}
+            <div className="flex-1 bg-slate-900/80 border border-slate-700/60 rounded-xl p-2 shadow-xs">
+              <div className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
+                {String(totalHours).padStart(2, '0')}
+              </div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">
+                Hours
+              </div>
+            </div>
 
-          <div className={`p-2 rounded-xl text-center border text-[10px] font-bold ${
-            currentDayNumber === 3
-              ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md font-black'
-              : currentDayNumber >= 4
-              ? 'bg-rose-500 text-white border-rose-400'
-              : 'bg-white/10 text-white/50 border-white/10'
-          }`}>
-            <span>Day 3</span>
+            <span className="font-mono text-lg font-black text-amber-400/60 -mt-3">:</span>
+
+            {/* Minutes */}
+            <div className="flex-1 bg-slate-900/80 border border-slate-700/60 rounded-xl p-2 shadow-xs">
+              <div className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
+                {String(minutes).padStart(2, '0')}
+              </div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">
+                Mins
+              </div>
+            </div>
+
+            <span className="font-mono text-lg font-black text-amber-400/60 -mt-3">:</span>
+
+            {/* Seconds */}
+            <div className="flex-1 bg-slate-900/80 border border-slate-700/60 rounded-xl p-2 shadow-xs">
+              <div className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
+                {String(seconds).padStart(2, '0')}
+              </div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">
+                Secs
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Countdown Box */}
-        <div className="flex items-center justify-between p-3 rounded-2xl bg-black/40 border border-white/10">
-          <span className="text-[11px] font-bold text-slate-300">
-            Time Remaining:
-          </span>
-          <span className="font-mono text-sm font-black text-amber-300 tracking-wider">
-            {formattedTime}
-          </span>
+        {/* 3-Day Visual Progress Track */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[10px] font-bold">
+            <span className="text-slate-300">Trial Timeline</span>
+            <span className="text-amber-400 font-mono">{progressPercent}% Elapsed</span>
+          </div>
+
+          {/* Bar */}
+          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-white/5">
+            <div 
+              className={`h-full rounded-full transition-all duration-500 ${
+                isExpired 
+                  ? 'bg-rose-500' 
+                  : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500'
+              }`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          {/* 3 Steps */}
+          <div className="grid grid-cols-3 gap-1 pt-1 text-center">
+            <div className={`p-1.5 rounded-lg border text-[10px] font-extrabold transition-all ${
+              currentDayNumber === 1
+                ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 shadow-xs ring-1 ring-amber-400/30'
+                : currentDayNumber > 1
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                : 'bg-white/5 text-slate-500 border-white/5'
+            }`}>
+              <div>Day 1</div>
+              <div className="text-[8px] font-medium opacity-80">Full Access</div>
+            </div>
+
+            <div className={`p-1.5 rounded-lg border text-[10px] font-extrabold transition-all ${
+              currentDayNumber === 2
+                ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 shadow-xs ring-1 ring-amber-400/30'
+                : currentDayNumber > 2
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                : 'bg-white/5 text-slate-500 border-white/5'
+            }`}>
+              <div>Day 2</div>
+              <div className="text-[8px] font-medium opacity-80">Live Testing</div>
+            </div>
+
+            <div className={`p-1.5 rounded-lg border text-[10px] font-extrabold transition-all ${
+              currentDayNumber === 3
+                ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 shadow-xs ring-1 ring-amber-400/30'
+                : currentDayNumber >= 4
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                : 'bg-white/5 text-slate-500 border-white/5'
+            }`}>
+              <div>Day 3</div>
+              <div className="text-[8px] font-medium opacity-80">Final Day</div>
+            </div>
+          </div>
         </div>
 
-        {/* Simulator controls */}
-        <div className="space-y-1.5 pt-1">
-          <span className="text-[10px] font-bold text-amber-200 block">
-            🧪 Simulate Trial Day Progress:
-          </span>
+        {/* Day Simulator Pills (Easy testing) */}
+        <div className="space-y-1.5 pt-1 border-t border-white/5">
+          <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
+            <span>🧪 Simulate Day:</span>
+            <span className="text-[9px] text-amber-400/80 font-mono">Click to test day states</span>
+          </div>
           <div className="grid grid-cols-4 gap-1">
             <button
               type="button"
               onClick={() => handleSetSimulatedDay(1)}
-              className={`py-1 px-1.5 rounded-lg text-[9px] font-bold border cursor-pointer ${
-                currentDayNumber === 1 ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+              className={`py-1.5 px-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
+                currentDayNumber === 1
+                  ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-xs'
+                  : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
               }`}
             >
               Day 1
@@ -477,26 +549,32 @@ export const TrialTimerCard: React.FC<{
             <button
               type="button"
               onClick={() => handleSetSimulatedDay(2)}
-              className={`py-1 px-1.5 rounded-lg text-[9px] font-bold border cursor-pointer ${
-                currentDayNumber === 2 ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+              className={`py-1.5 px-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
+                currentDayNumber === 2
+                  ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-xs'
+                  : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
               }`}
             >
-              1 Day
+              Day 2
             </button>
             <button
               type="button"
               onClick={() => handleSetSimulatedDay(3)}
-              className={`py-1 px-1.5 rounded-lg text-[9px] font-bold border cursor-pointer ${
-                currentDayNumber === 3 ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+              className={`py-1.5 px-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
+                currentDayNumber === 3
+                  ? 'bg-amber-400 text-slate-950 border-amber-300 font-black shadow-xs'
+                  : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
               }`}
             >
-              2 Days
+              Day 3
             </button>
             <button
               type="button"
               onClick={() => handleSetSimulatedDay(4)}
-              className={`py-1 px-1.5 rounded-lg text-[9px] font-bold border cursor-pointer ${
-                currentDayNumber === 4 ? 'bg-rose-500 text-white border-rose-400' : 'bg-rose-950 text-rose-300 border-rose-800 hover:bg-rose-900'
+              className={`py-1.5 px-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ${
+                currentDayNumber === 4
+                  ? 'bg-rose-500 text-white border-rose-400 font-black shadow-xs'
+                  : 'bg-rose-950/40 text-rose-300 border-rose-800/40 hover:bg-rose-900/60'
               }`}
             >
               Expired
@@ -504,13 +582,13 @@ export const TrialTimerCard: React.FC<{
           </div>
         </div>
 
-        {/* Upgrade / Subscribe Button */}
+        {/* Upgrade & Payment Option CTA Button */}
         <button
           type="button"
           onClick={onOpenCheckout}
-          className="w-full mt-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg hover:from-amber-300 hover:to-yellow-300 transition-all cursor-pointer active:scale-98 flex items-center justify-center gap-2"
+          className="relative overflow-hidden w-full mt-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:via-yellow-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-amber-500/20 hover:shadow-2xl hover:shadow-amber-500/30 transition-all cursor-pointer active:scale-98 flex items-center justify-center gap-2 group ring-1 ring-white/30 before:absolute before:inset-0 before:-translate-x-full hover:before:translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent before:transition-transform before:duration-700"
         >
-          <CreditCard className="w-4 h-4 fill-slate-950" />
+          <CreditCard className="w-4 h-4 text-slate-950 shrink-0 group-hover:scale-110 transition-transform" />
           <span>Subscribe & Payment Option</span>
         </button>
       </div>

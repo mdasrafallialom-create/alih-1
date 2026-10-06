@@ -964,11 +964,25 @@ export default function App() {
     }
     return null;
   });
+  const [urlThemeState, setUrlThemeState] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('theme');
+    }
+    return null;
+  });
+
+  const [showThemeSelection, setShowThemeSelection] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('showThemeSelection') === 'true';
+    }
+    return false;
+  });
 
   // Handle entering a specific theme
   const handleEnterTheme = (themeId: string) => {
     setIsExitingTheme(false);
     setActiveThemeId(themeId);
+    setUrlThemeState(themeId);
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('webar_last_entered_from_theme', themeId);
@@ -980,38 +994,34 @@ export default function App() {
     }
   };
 
-  // Handle exiting a theme view (returns to Main Website Starting Portal at that exact plan)
+  // Handle exiting a theme view (returns to Restaurant Menu without exiting the website or triggering external popups)
   const handleExitThemeView = () => {
     setIsExitingTheme(true);
     setActiveThemeId(null);
+    setUrlThemeState(null);
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('webar_active_theme_id');
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlPlan = urlParams.get('plan');
-        const planCode = urlPlan === '15' || urlPlan === 'basic' || effectiveThemeId === 'koppee' ? '15' :
-                         urlPlan === '99' || urlPlan === 'elite' || effectiveThemeId === 'lunavere' ? '99' : '49';
-        
         const url = new URL(window.location.href);
         url.searchParams.delete('theme');
         url.searchParams.delete('standalone');
         url.searchParams.delete('preview');
-        url.searchParams.delete('demo');
-        url.searchParams.delete('trial');
-        url.searchParams.delete('onboarding');
-        url.searchParams.delete('demo_onboarding');
-        url.searchParams.set('plan', planCode);
+        // Prevent setting or leaving plan param so it doesn't kick user out into plan comparison modal
+        url.searchParams.delete('plan');
         window.history.replaceState({}, '', url.toString());
 
-        // Immediately trigger opening the corresponding plan modal ($15, $49, or $99)
+        setViewMode('client');
+        setIsExitingTheme(false);
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('open-plan-modal', { detail: planCode }));
-          const pricingEl = document.getElementById('pricing-section') || document.getElementById('pricing');
-          if (pricingEl) {
-            pricingEl.scrollIntoView({ behavior: 'smooth' });
+          const menuEl = document.getElementById('menu') || document.getElementById('menu-items') || document.getElementById('menu-section');
+          if (menuEl) {
+            menuEl.scrollIntoView({ behavior: 'smooth' });
           }
-        }, 120);
-      } catch (e) {}
+        }, 100);
+      } catch (e) {
+        setViewMode('client');
+        setIsExitingTheme(false);
+      }
     }
   };
 
@@ -1024,9 +1034,11 @@ export default function App() {
         if (themeFromUrl) {
           setIsExitingTheme(false);
           setActiveThemeId(themeFromUrl);
+          setUrlThemeState(themeFromUrl);
         } else {
-          setIsExitingTheme(true);
+          setIsExitingTheme(false);
           setActiveThemeId(null);
+          setUrlThemeState(null);
         }
       }
     };
@@ -1038,17 +1050,20 @@ export default function App() {
   useEffect(() => {
     const handleExitAdmin = () => {
       const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const urlTheme = urlParams?.get('theme');
-      if (urlTheme) {
+      const themeParam = urlParams?.get('theme') || urlThemeState;
+      if (themeParam) {
         setIsExitingTheme(false);
-        setActiveThemeId(urlTheme);
+        setActiveThemeId(themeParam);
+        setUrlThemeState(themeParam);
       } else {
         setIsExitingTheme(false);
         setActiveThemeId(null);
+        setUrlThemeState(null);
         if (typeof window !== 'undefined') {
           try {
             const url = new URL(window.location.href);
             url.searchParams.delete('admin');
+            url.searchParams.delete('theme');
             window.history.replaceState({}, '', url.toString());
           } catch (e) {}
         }
@@ -1059,17 +1074,17 @@ export default function App() {
     return () => {
       window.removeEventListener('exit-admin-panel', handleExitAdmin);
     };
-  }, [activeThemeId]);
+  }, [activeThemeId, urlThemeState]);
 
   // Standalone theme view is active ONLY if requested via URL with standalone/preview parameter
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const urlTheme = urlParams?.get('theme');
+  const urlTheme = urlThemeState;
   const isStandaloneMode = urlParams?.get('standalone') === 'true' || urlParams?.get('preview') === 'true';
   const isDemoInstance = urlParams?.get('demo') === 'true' || urlParams?.get('trial') === 'active';
   const effectiveThemeId = urlTheme || activeThemeId || adminSettings?.activeThemeId || 'velmora-dining';
   
-  // Custom theme is active in client view ONLY if explicitly requested via URL query params (?theme=...) or standalone/preview mode
-  const isCustomThemeActive = viewMode === 'client' && (isStandaloneMode || !!urlTheme);
+  // Custom theme is active in client view ONLY if explicitly requested via URL query params (?theme=...) or standalone/preview mode or showThemeSelection
+  const isCustomThemeActive = viewMode === 'client' && (isStandaloneMode || !!urlTheme || showThemeSelection);
 
   const selectedThemePreset = useMemo(() => {
     return LUXURY_THEMES.find(t => t.id === effectiveThemeId) || LUXURY_THEMES[0];
@@ -1214,6 +1229,30 @@ export default function App() {
     return false;
   });
 
+  // State for showing the high-fidelity 3-second bouncing ball loading screen on tab start
+  const [isTabPreparing, setIsTabPreparing] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('loading') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isTabPreparing) {
+      const timer = setTimeout(() => {
+        setIsTabPreparing(false);
+        if (typeof window !== 'undefined') {
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('loading');
+            window.history.replaceState({}, '', url.toString());
+          } catch (e) {}
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isTabPreparing]);
+
   const handleOpenDemoRegistration = (planId: SubscriptionPlan) => {
     setInitialPlan(planId);
     setShowDemoTrialModal(true);
@@ -1233,6 +1272,16 @@ export default function App() {
     };
     window.addEventListener('open-demo-trial-modal', handleOpenDemoModal);
     return () => window.removeEventListener('open-demo-trial-modal', handleOpenDemoModal);
+  }, []);
+
+  useEffect(() => {
+    const handlePaidSuccess = (e: any) => {
+      setAdminSettings(prev => prev ? ({ ...prev, subscriptionStatus: 'active', isPaidSubscriber: true }) : prev);
+      setTrialSession(prev => prev ? ({ ...prev, isPaid: true, subscriptionStatus: 'active' }) : null);
+      setShowTopPlanPopup(true);
+    };
+    window.addEventListener('subscription-paid-success', handlePaidSuccess);
+    return () => window.removeEventListener('subscription-paid-success', handlePaidSuccess);
   }, []);
 
   // 3-Day Free Demo Trial Session State (Only active if launched in new demo tab via registration)
@@ -2273,6 +2322,137 @@ export default function App() {
       }}
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
+      {/* Premium Bouncing Ball Loading Overlay */}
+      {isTabPreparing && (
+        <div className="fixed inset-0 z-[99999] bg-white flex flex-col items-center justify-center p-6 select-none text-slate-900 animate-fade-in">
+          <style>{`
+            @keyframes bounceAcross {
+              0% {
+                left: 5%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              7% {
+                left: 12%;
+                bottom: 48px;
+                animation-timing-function: ease-in;
+              }
+              14% {
+                left: 19%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              21% {
+                left: 26%;
+                bottom: 48px;
+                animation-timing-function: ease-in;
+              }
+              28% {
+                left: 33%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              35% {
+                left: 40%;
+                bottom: 48px;
+                animation-timing-function: ease-in;
+              }
+              42% {
+                left: 47%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              49% {
+                left: 54%;
+                bottom: 48px;
+                animation-timing-function: ease-in;
+              }
+              56% {
+                left: 61%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              63% {
+                left: 68%;
+                bottom: 48px;
+                animation-timing-function: ease-in;
+              }
+              70% {
+                left: 75%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              77% {
+                left: 82%;
+                bottom: 48px;
+                animation-timing-function: ease-in;
+              }
+              84% {
+                left: 89%;
+                bottom: 0px;
+                animation-timing-function: ease-out;
+              }
+              92% {
+                left: 95%;
+                bottom: 64px;
+                animation-timing-function: ease-in;
+              }
+              100% {
+                left: 5%;
+                bottom: 0px;
+              }
+            }
+
+            @keyframes letterSquish {
+              0%, 100% { transform: scaleY(1); }
+              5% { transform: scaleY(0.7) scaleX(1.2); }
+              15% { transform: scaleY(1.15) scaleX(0.9); }
+              25% { transform: scaleY(1); }
+            }
+
+            .animate-ball-bounce {
+              animation: bounceAcross 3s infinite linear;
+            }
+
+            .letter-a { animation: letterSquish 3s infinite ease-in-out; animation-delay: 0s; }
+            .letter-v { animation: letterSquish 3s infinite ease-in-out; animation-delay: 0.42s; }
+            .letter-e { animation: letterSquish 3s infinite ease-in-out; animation-delay: 0.84s; }
+            .letter-r { animation: letterSquish 3s infinite ease-in-out; animation-delay: 1.26s; }
+            .letter-n { animation: letterSquish 3s infinite ease-in-out; animation-delay: 1.68s; }
+            .letter-a2 { animation: letterSquish 3s infinite ease-in-out; animation-delay: 2.10s; }
+            .letter-o { animation: letterSquish 3s infinite ease-in-out; animation-delay: 2.52s; }
+          `}</style>
+
+          <div className="text-center space-y-12 max-w-sm">
+            {/* Beautiful hand-crafted ball bouncing across Avernao wordmark logo */}
+            <div className="relative w-80 h-32 mx-auto flex items-end justify-center pb-4 border-b border-slate-100">
+              {/* The Bouncing Ball */}
+              <div className="absolute w-5 h-5 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 shadow-lg shadow-orange-500/40 animate-ball-bounce" />
+
+              {/* The Letters with specific anim class names */}
+              <div className="flex justify-between w-full px-4 text-3xl font-black tracking-wider text-slate-900 uppercase font-sans">
+                <span className="inline-block letter-a origin-bottom">A</span>
+                <span className="inline-block letter-v origin-bottom">v</span>
+                <span className="inline-block letter-e origin-bottom">e</span>
+                <span className="inline-block letter-r origin-bottom">r</span>
+                <span className="inline-block letter-n origin-bottom">n</span>
+                <span className="inline-block letter-a2 origin-bottom">a</span>
+                <span className="inline-block letter-o origin-bottom">o</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                থিম লোড হচ্ছে... (Loading Theme...)
+              </h3>
+              <p className="text-xs font-bold text-slate-500 leading-relaxed">
+                আপনার ডেমো ওয়েবসাইট এবং অ্যাডমিন প্যানেলটি প্রস্তুত করা হচ্ছে। অনুগ্রহ করে ২-৩ সেকেন্ড অপেক্ষা করুন।
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Automatic System Update Overlay */}
       {isAutoUpdating && (
         <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-6 select-none animate-fade-in">
@@ -2340,9 +2520,10 @@ export default function App() {
 
       {/* =======================================================================
           TOP POPUP: SELECTED PLAN NOTIFICATION MODAL ($15, $49, or $99)
+          Only displayed when subscription is fully paid / cleared!
           ======================================================================= */}
       <AnimatePresence>
-        {showTopPlanPopup && activePlanPrice && (
+        {showTopPlanPopup && activePlanPrice && (adminSettings?.subscriptionStatus === 'active' || (adminSettings as any)?.isPaidSubscriber || trialSession?.isPaid) && (
           <div className="fixed inset-0 z-[120] flex items-start justify-center pt-5 sm:pt-8 px-4 pointer-events-none">
             {/* Backdrop */}
             <motion.div
@@ -2968,16 +3149,16 @@ export default function App() {
         {viewMode === 'client' && (
           isCustomThemeActive ? (
             <>
-              {/* Persistent Floating Return-to-Main-Website Bar */}
+              {/* Persistent Floating Return-to-Restaurant-Menu Bar */}
               <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white backdrop-blur-xl border border-cyan-400/60 shadow-2xl transition-all hover:scale-105 active:scale-95 no-print">
                 <button
                   type="button"
                   onClick={handleExitThemeView}
                   className="flex items-center gap-2 text-xs font-black text-cyan-200 hover:text-white transition-colors cursor-pointer"
-                  title={'Return to Main Website'}
+                  title={'Return to Menu'}
                 >
                   <Home className="w-4 h-4 text-cyan-300" />
-                  <span>{'🏠 Return to Main Website & Plans'}</span>
+                  <span>{'🍽️ Return to Restaurant Menu'}</span>
                 </button>
               </div>
 
@@ -3589,7 +3770,12 @@ export default function App() {
               logoColorSecondary={adminSettings?.logoColorSecondary}
               onPlanSelected={(newPlan) => {
                 setAdminSettings(prev => prev ? ({ ...prev, subscriptionPlan: newPlan }) : prev);
-                setShowTopPlanPopup(true);
+                const isPaid = adminSettings?.subscriptionStatus === 'active' || (adminSettings as any)?.isPaidSubscriber || trialSession?.isPaid;
+                if (isPaid) {
+                  setShowTopPlanPopup(true);
+                } else {
+                  handleOpenDemoRegistration(newPlan);
+                }
               }}
               onStartTrial={handleOpenDemoRegistration}
             />

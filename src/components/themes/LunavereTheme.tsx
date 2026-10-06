@@ -599,16 +599,16 @@ export default function LunavereTheme({
               )}
             </button>
 
-            {/* Return to Main Website Button */}
+            {/* Return to Restaurant Menu Button */}
             {onReturnToPortal && (
               <button
                 type="button"
                 onClick={onReturnToPortal}
                 className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer shrink-0 transition-all active:scale-95 border border-cyan-400/60"
-                title={'Return to Main Website'}
+                title={'Return to Menu'}
               >
                 <Home className="w-3.5 h-3.5 text-cyan-200" />
-                <span>{'Main Website'}</span>
+                <span>{'🍽️ Menu'}</span>
               </button>
             )}
 
