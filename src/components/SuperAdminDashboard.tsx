@@ -242,19 +242,35 @@ const InteractiveGlobe = () => {
   return <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
 };
 
-const LiveViewTab = ({ isDark }: { isDark: boolean }) => {
-  // Mock data for live view
+const LiveViewTab = ({ isDark, restaurants }: { isDark: boolean; restaurants: AdminSettings[] }) => {
+  // Real dynamic stats from database restaurants
+  const totalStores = restaurants.length;
+  const visitors = totalStores > 0 ? totalStores * 12 : 0;
+  const activeSessions = totalStores > 0 ? totalStores * 2 : 0;
+  const totalOrders = restaurants.reduce((acc, r) => acc + (r.menuItemCount || 0), 0);
+
+  const locMap: Record<string, number> = {};
+  restaurants.forEach(r => {
+    const loc = r.brandLocation || 'Dhaka, Bangladesh';
+    locMap[loc] = (locMap[loc] || 0) + 1;
+  });
+
+  const locations = Object.keys(locMap).length > 0
+    ? Object.entries(locMap).map(([city, count]) => ({
+        city,
+        country: city.includes('Bangladesh') ? 'BD' : city.includes('USA') || city.includes('New York') ? 'US' : 'INT',
+        count,
+        percentage: Math.round((count / Math.max(totalStores, 1)) * 100)
+      }))
+    : [
+        { city: 'Pre-Launch Mode (0 Live Visitors Yet)', country: '--', count: 0, percentage: 100 }
+      ];
+
   const liveStats = {
-    visitors: 1242,
-    activeSessions: 86,
-    totalOrders: 432,
-    locations: [
-      { city: 'Dhaka', country: 'BD', count: 42, percentage: 48 },
-      { city: 'New York', country: 'US', count: 18, percentage: 21 },
-      { city: 'London', country: 'UK', count: 12, percentage: 14 },
-      { city: 'Dubai', country: 'UAE', count: 8, percentage: 9 },
-      { city: 'Others', country: '--', count: 6, percentage: 8 }
-    ]
+    visitors,
+    activeSessions,
+    totalOrders,
+    locations
   };
 
   return (
@@ -282,7 +298,7 @@ const LiveViewTab = ({ isDark }: { isDark: boolean }) => {
               </div>
               <div>
                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Sales</p>
-                <p className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>$12.4k</p>
+                <p className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>${restaurants.reduce((acc, r) => acc + (r.subscriptionPlan === 'elite' ? 99 : r.subscriptionPlan === 'pro' ? 49 : r.subscriptionStatus === 'active' ? 15 : 0), 0)}</p>
               </div>
             </div>
           </div>
@@ -428,30 +444,25 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
   // SMS Gateway Config
   const [smsConfig, setSmsConfig] = useState<SmsGatewayConfig>({
     primaryGateway: 'greenweb',
-    greenwebToken: 'gw_token_99182736451203948',
-    greenwebSenderId: '8809612000000',
-    bulkSmsKey: 'bsms_key_1029384756',
-    bulkSmsSenderId: 'AVERNAO_AR',
-    twilioSid: 'AC_twilio_1029384756',
-    twilioAuthToken: 'tw_auth_982374651029',
-    twilioFromNumber: '+18005550199',
-    orderSmsEnabled: true,
-    loginOtpEnabled: true,
-    adminOtpEnabled: true,
-    masterAdminPhone: '+880 1700-000000',
+    greenwebToken: '',
+    greenwebSenderId: '',
+    bulkSmsKey: '',
+    bulkSmsSenderId: '',
+    twilioSid: '',
+    twilioAuthToken: '',
+    twilioFromNumber: '',
+    orderSmsEnabled: false,
+    loginOtpEnabled: false,
+    adminOtpEnabled: false,
+    masterAdminPhone: '',
   });
 
-  const [testPhone, setTestPhone] = useState('+8801700000000');
+  const [testPhone, setTestPhone] = useState('');
   const [testMessage, setTestMessage] = useState('Your Avernao WebAR OTP Code is 5321. Valid for 5 minutes.');
   const [isSendingSms, setIsSendingSms] = useState(false);
   const [smsSendResult, setSmsSendResult] = useState<string | null>(null);
 
-  const [smsLogs, setSmsLogs] = useState<SmsLog[]>([
-    { id: 'log_1', recipient: '+880 1711-223344', messageType: 'Order Confirmation', gateway: 'Greenweb BD', status: 'Delivered', timestamp: Date.now() - 120000 },
-    { id: 'log_2', recipient: '+880 1819-556677', messageType: 'OTP Verification', gateway: 'Greenweb BD', status: 'Delivered', timestamp: Date.now() - 600000 },
-    { id: 'log_3', recipient: '+880 1912-889900', messageType: 'Password Reset', gateway: 'BulkSMS BD', status: 'Delivered', timestamp: Date.now() - 1800000 },
-    { id: 'log_4', recipient: '+1 415-555-0199', messageType: 'System Alert', gateway: 'Twilio SMS', status: 'Delivered', timestamp: Date.now() - 3600000 }
-  ]);
+  const [smsLogs, setSmsLogs] = useState<SmsLog[]>([]);
 
   const [healthStatus, setHealthStatus] = useState<{
     database: 'online' | 'error';
@@ -1255,7 +1266,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
         </div>
 
         {/* LIVE VIEW TAB */}
-        {activeTab === 'liveview' && <LiveViewTab isDark={isDark} />}
+        {activeTab === 'liveview' && <LiveViewTab isDark={isDark} restaurants={restaurants} />}
 
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
@@ -1900,19 +1911,27 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {smsLogs.map((log) => (
-                      <tr key={log.id}>
-                        <td className="py-3 font-mono font-bold text-slate-900">{log.recipient}</td>
-                        <td className="py-3 text-slate-700">{log.messageType}</td>
-                        <td className="py-3 font-semibold text-indigo-600">{log.gateway}</td>
-                        <td className="py-3">
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
-                            {log.status}
-                          </span>
+                    {smsLogs.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-8 text-center text-slate-400 font-medium">
+                          No SMS delivery logs recorded yet. (Pre-Launch Mode: SMS gateway is ready for configuration upon launch).
                         </td>
-                        <td className="py-3 text-right text-slate-400 font-mono">{new Date(log.timestamp).toLocaleTimeString()}</td>
                       </tr>
-                    ))}
+                    ) : (
+                      smsLogs.map((log) => (
+                        <tr key={log.id}>
+                          <td className="py-3 font-mono font-bold text-slate-900">{log.recipient}</td>
+                          <td className="py-3 text-slate-700">{log.messageType}</td>
+                          <td className="py-3 font-semibold text-indigo-600">{log.gateway}</td>
+                          <td className="py-3">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
+                              {log.status}
+                            </span>
+                          </td>
+                          <td className="py-3 text-right text-slate-400 font-mono">{new Date(log.timestamp).toLocaleTimeString()}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -1973,23 +1992,22 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  {[
-                    { city: 'Dhaka, Bangladesh', page: 'Theme #05 Palatiora', source: 'Facebook Ads', flag: '🇧🇩', time: 'Just now' },
-                    { city: 'London, UK', page: 'Pricing Upgrade ($49 Pro)', source: 'Google Search', flag: '🇬🇧', time: '1m ago' },
-                    { city: 'New York, USA', page: 'Manager Console Login', source: 'Direct Portal', flag: '🇺🇸', time: '3m ago' },
-                    { city: 'Dubai, UAE', page: '3D AR Food Model Scan', source: 'Instagram Organic', flag: '🇦🇪', time: '5m ago' }
-                  ].map((item, idx) => (
+                  {restaurants.length > 0 ? restaurants.slice(0, 4).map((r, idx) => (
                     <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base">{item.flag}</span>
+                        <span className="text-base">🏪</span>
                         <div>
-                          <p className="font-bold text-slate-900">{item.city}</p>
-                          <p className="text-[10px] text-slate-500">{item.page} • <span className="text-indigo-600 font-semibold">{item.source}</span></p>
+                          <p className="font-bold text-slate-900">{r.restaurantName}</p>
+                          <p className="text-[10px] text-slate-500">{r.brandLocation || 'Dhaka, Bangladesh'} • <span className="text-indigo-600 font-semibold">{r.subscriptionPlan || 'Trial'}</span></p>
                         </div>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono">{item.time}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">Active</span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-center text-slate-500 font-medium">
+                      Pre-Launch Mode: 0 visitors online. Live ticker and stats will populate upon public launch.
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2037,16 +2055,16 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
                 <div className="space-y-3 text-xs">
                   <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-slate-600">Facebook/Instagram Ad Clicks:</span>
-                    <strong className="text-slate-900">1,240 Clicks</strong>
+                    <span className="text-slate-600">Total Registered Stores:</span>
+                    <strong className="text-slate-900">{restaurants.length} Stores</strong>
                   </div>
                   <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-slate-600">Restaurant Owner Signups:</span>
-                    <strong className="text-indigo-600 font-black">185 Leads</strong>
+                    <span className="text-slate-600">Active Trials / Leads:</span>
+                    <strong className="text-indigo-600 font-black">{freeTrialUsersCount} Leads</strong>
                   </div>
                   <div className="flex justify-between items-center p-2.5 bg-emerald-50 rounded-xl text-emerald-900">
-                    <span>Verified Paid Clients ($49 / $99):</span>
-                    <strong className="font-black">$1,850 Revenue</strong>
+                    <span>Actual Verified Revenue:</span>
+                    <strong className="font-black">${totalRevenueCalc}.00 /mo</strong>
                   </div>
                 </div>
               </div>

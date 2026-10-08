@@ -335,51 +335,36 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
   const [lastTrialData, setLastTrialData] = useState<TrialSessionData | null>(null);
 
   // Device-private saved profile and accounts
-  const [savedAccountDetected, setSavedAccountDetected] = useState<SavedOwnerAccount | null>(null);
   const [savedAccountsList, setSavedAccountsList] = useState<SavedOwnerAccount[]>([]);
+  const [isRestaurantDropdownOpen, setIsRestaurantDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
-    // Load device-private saved accounts and pre-fill previous registration details
-    try {
-      const savedLast = localStorage.getItem('avernao_last_active_account');
-      const savedList = localStorage.getItem('avernao_saved_owner_accounts');
-      
-      let accounts: SavedOwnerAccount[] = [];
-      if (savedList) {
-        accounts = JSON.parse(savedList);
-        setSavedAccountsList(accounts);
-      }
+    // Ensure form starts completely clean and empty (no auto-fill of previous account)
+    setRestaurantName('');
+    setFullName('');
+    setRole('Owner');
+    setEmail('');
+    setPhoneDigits('');
+    setUserEmailOtpInput('');
+    setUserPhoneOtpInput('');
+    setIsEmailVerified(false);
+    setIsPhoneVerified(false);
+    setErrorMsg('');
+    setFieldErrors({});
+    setModalStep('info');
 
-      if (savedLast) {
-        const lastAccount: SavedOwnerAccount = JSON.parse(savedLast);
-        if (lastAccount) {
-          setSavedAccountDetected(lastAccount);
-          if (lastAccount.restaurantName) setRestaurantName(lastAccount.restaurantName);
-          if (lastAccount.fullName) setFullName(lastAccount.fullName);
-          if (lastAccount.role) setRole(lastAccount.role);
-          if (lastAccount.email) setEmail(lastAccount.email);
-          if (lastAccount.phoneDigits) setPhoneDigits(lastAccount.phoneDigits);
-          if (lastAccount.countryId) {
-            const foundCountry = COUNTRIES_WITH_FLAGS.find(c => c.id === lastAccount.countryId);
-            if (foundCountry) setSelectedCountry(foundCountry);
-          }
-        }
-      } else if (accounts.length > 0) {
-        const first = accounts[0];
-        setSavedAccountDetected(first);
-        if (first.restaurantName) setRestaurantName(first.restaurantName);
-        if (first.fullName) setFullName(first.fullName);
-        if (first.role) setRole(first.role);
-        if (first.email) setEmail(first.email);
-        if (first.phoneDigits) setPhoneDigits(first.phoneDigits);
-        if (first.countryId) {
-          const foundCountry = COUNTRIES_WITH_FLAGS.find(c => c.id === first.countryId);
-          if (foundCountry) setSelectedCountry(foundCountry);
-        }
+    try {
+      const savedList = localStorage.getItem('avernao_saved_owner_accounts');
+      if (savedList) {
+        setSavedAccountsList(JSON.parse(savedList));
       }
     } catch (e) {}
   }, [isOpen]);
+
+  const matchingRestaurants = savedAccountsList.filter(acc => 
+    restaurantName.trim() && acc.restaurantName.toLowerCase().includes(restaurantName.trim().toLowerCase())
+  );
 
   const handleClearForNewAccount = () => {
     setRestaurantName('');
@@ -390,7 +375,6 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
     setUserPhoneOtpInput('');
     setIsEmailVerified(false);
     setIsPhoneVerified(false);
-    setSavedAccountDetected(null);
   };
 
   const handleSelectPreviousAccount = (acc: SavedOwnerAccount) => {
@@ -403,7 +387,6 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
       const foundCountry = COUNTRIES_WITH_FLAGS.find(c => c.id === acc.countryId);
       if (foundCountry) setSelectedCountry(foundCountry);
     }
-    setSavedAccountDetected(acc);
     setIsEmailDropdownOpen(false);
   };
 
@@ -906,10 +889,10 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
 
                 <div className="space-y-1.5 pt-2">
                   <h4 className="text-lg font-black text-slate-900">
-                    থিম লোড হচ্ছে... (Loading Theme...)
+                    Loading Theme...
                   </h4>
                   <p className="text-xs font-bold text-slate-500 max-w-xs mx-auto leading-relaxed">
-                    আপনার ট্রায়াল ওয়েবসাইটটি সরাসরি নতুন ট্যাবে প্রস্তুত করা হচ্ছে।
+                    Your trial website is being prepared in a new tab.
                   </p>
                 </div>
               </div>
@@ -921,7 +904,7 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
                     <Crown className="w-6 h-6" />
                   </div>
                   <h4 className="text-xl font-black text-slate-900 tracking-tight">
-                    সিলেক্ট করুন আপনার থিম নেম (Select Your Theme)
+                    Select Your Theme
                   </h4>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     Choose one theme to launch directly in a new tab
@@ -1005,45 +988,8 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
               <form onSubmit={handleLaunchTrial} className="space-y-4" noValidate>
                 {modalStep === 'info' ? (
                   <>
-                    {/* Welcome Back / Previous Session Detected Banner */}
-                    {savedAccountDetected && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-blue-50/80 to-indigo-50/90 border border-indigo-200/90 shadow-xs flex items-center justify-between gap-3 text-xs"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
-                            {fullName ? fullName.charAt(0).toUpperCase() : 'U'}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-extrabold text-indigo-950 truncate flex items-center gap-1.5">
-                              <span className="truncate">Welcome Back, {fullName || 'Owner'}!</span>
-                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 shrink-0">
-                                Auto-filled
-                              </span>
-                            </div>
-                            <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                              {email || 'Saved Profile'} {restaurantName ? `• ${restaurantName}` : ''}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <button
-                            type="button"
-                            onClick={handleClearForNewAccount}
-                            className="px-2.5 py-1.5 rounded-xl bg-white text-indigo-600 hover:text-indigo-800 font-black text-[11px] border border-indigo-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-center gap-1"
-                            title="Clear fields and enter a new registration"
-                          >
-                            <span>+ New Form</span>
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* 1. Restaurant Name */}
-                    <div>
+                    {/* 1. Restaurant Name with Typeahead Suggestion Dropdown */}
+                    <div className="relative">
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-indigo-600" />
                         <span>Restaurant Name *</span>
@@ -1051,19 +997,68 @@ export const DemoTrialModal: React.FC<DemoTrialModalProps> = ({
                       <input
                         type="text"
                         value={restaurantName}
+                        onFocus={() => {
+                          if (restaurantName.trim()) setIsRestaurantDropdownOpen(true);
+                        }}
                         onChange={(e) => {
-                          setRestaurantName(e.target.value);
+                          const val = e.target.value;
+                          setRestaurantName(val);
+                          setIsRestaurantDropdownOpen(val.trim().length > 0);
                           if (fieldErrors.restaurantName) {
                             setFieldErrors(prev => ({ ...prev, restaurantName: undefined }));
                           }
                         }}
-                        placeholder=""
+                        placeholder="e.g. Opalune Nitro Cold Brew"
                         className={`w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border focus:outline-none font-bold text-slate-900 bg-white transition-all ${
                           fieldErrors.restaurantName 
                             ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/10' 
                             : 'border-slate-300 focus:border-indigo-600'
                         }`}
                       />
+
+                      <AnimatePresence>
+                        {isRestaurantDropdownOpen && matchingRestaurants.length > 0 && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setIsRestaurantDropdownOpen(false)} />
+                            <motion.div
+                              initial={{ opacity: 0, y: -6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -6 }}
+                              className="absolute top-full left-0 right-0 mt-1 bg-white border border-indigo-200 rounded-2xl shadow-xl z-20 overflow-hidden"
+                            >
+                              <div className="p-2 border-b border-slate-100 bg-indigo-50 text-[10px] font-bold text-indigo-900 uppercase tracking-wider flex items-center justify-between px-3">
+                                <span>Existing Restaurant Matches</span>
+                                <span className="text-[9px] text-indigo-600 font-semibold">Already Registered</span>
+                              </div>
+                              <div className="max-h-40 overflow-y-auto custom-scrollbar">
+                                {matchingRestaurants.map((acc) => (
+                                  <button
+                                    key={acc.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setRestaurantName(acc.restaurantName);
+                                      if (acc.fullName) setFullName(acc.fullName);
+                                      if (acc.email) setEmail(acc.email);
+                                      if (acc.phoneDigits) setPhoneDigits(acc.phoneDigits);
+                                      setIsRestaurantDropdownOpen(false);
+                                    }}
+                                    className="w-full px-3.5 py-2 text-left text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-900 transition-colors flex items-center justify-between border-b border-slate-50 cursor-pointer"
+                                  >
+                                    <div>
+                                      <span className="font-black text-indigo-950">{acc.restaurantName}</span>
+                                      <span className="text-[10px] text-slate-400 block">{acc.email}</span>
+                                    </div>
+                                    <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md font-bold">
+                                      Select / Used
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+
                       {fieldErrors.restaurantName && (
                         <p className="mt-1 text-[11px] font-bold text-rose-600 flex items-center gap-1 animate-fade-in pl-1">
                           <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />

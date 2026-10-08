@@ -1778,18 +1778,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
                 </div>
               </form>
 
-              {/* Return to Restaurant Menu Button */}
-              {onReturnToPortal && (
-                <button
-                  type="button"
-                  onClick={onReturnToPortal}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs shadow-xl border border-cyan-400/80 cursor-pointer shrink-0 active:scale-95 select-none relative z-50 transition-all"
-                  title={'Return to Menu'}
-                >
-                  <Home className="w-3.5 h-3.5 text-cyan-200" />
-                  <span>{'🍽️ Menu'}</span>
-                </button>
-              )}
+
 
               {/* Opaque Isolated Header Admin Button */}
               {showAdminButton === true && (
@@ -2019,19 +2008,7 @@ export const KoppeeHeroHeader: React.FC<KoppeeHeroHeaderProps> = ({
               {'Contact'}
             </button>
 
-            {onReturnToPortal && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onReturnToPortal();
-                }}
-                className="py-3 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-95 mt-1 border border-cyan-400/50"
-              >
-                <Home className="w-4 h-4 text-cyan-200" />
-                <span>{'🏠 Main Website & Plans'}</span>
-              </button>
-            )}
+
 
             {showAdminButton === true && (
               <button

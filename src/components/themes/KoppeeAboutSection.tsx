@@ -102,14 +102,7 @@ export const KoppeeAboutSection: React.FC<KoppeeAboutSectionProps> = ({
   const isDesktop = previewDeviceView === 'desktop' || (!previewDeviceView && windowWidth >= 1024);
 
   // Default features with tick marks
-  const emberionFeatures = lang === 'bn'
-    ? [
-        '৩৬ ঘণ্টার স্লো কোল্ড-ফার্মেন্টেড খাঁটি মাস্টার ডো',
-        'মল্ট ওয়াটার কেটলে বয়েল্ড ও স্টোন হার্থ-বেকড কারিগরী',
-        'হোমমেড ক্রিম চিজ, প্রিমিয়াম নোভা স্যামন ও ক্রিস্পি বেকন',
-        'প্রতিদিন ভোরে ওভেন থেকে গরম গরম ফ্রেশ বেকিং নিশ্চয়তা'
-      ]
-    : [
+  const emberionFeatures = [
         '36-Hour Slow Cold-Fermented Heirloom Master Dough',
         'Traditional Barley Malt Kettle-Boiled & Stone Hearth-Baked',
         'Whipped Farm-Fresh Cream Cheeses, Nova Lox & Hardwood Bacon',

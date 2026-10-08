@@ -169,11 +169,8 @@ export const resolveThemeOrRestaurantBrand = (
   fallbackThemeName?: string
 ): string => {
   const customDomain = (settings?.customDomain || '').trim();
-  if (customDomain && isCustomRestaurantName(customDomain)) return customDomain;
-
-  const targetThemeId = themeId || settings?.activeThemeId || 'velmora-dining';
-  const themeCustomBrand = (settings?.themeSettings?.[targetThemeId]?.brandName || '').trim();
-  if (themeCustomBrand && isCustomRestaurantName(themeCustomBrand)) return themeCustomBrand;
+  const isPaid = settings?.subscriptionStatus === 'active' || settings?.isPaidSubscriber === true;
+  if (customDomain && isPaid && isCustomRestaurantName(customDomain)) return customDomain;
 
   const restName = (settings?.restaurantName || '').trim();
   if (restName && isCustomRestaurantName(restName)) return restName;
@@ -181,9 +178,13 @@ export const resolveThemeOrRestaurantBrand = (
   const brandName = (settings?.brandName || '').trim();
   if (brandName && isCustomRestaurantName(brandName)) return brandName;
 
+  const targetThemeId = themeId || settings?.activeThemeId || 'velmora-dining';
+  const themeCustomBrand = (settings?.themeSettings?.[targetThemeId]?.brandName || '').trim();
+  if (themeCustomBrand && isCustomRestaurantName(themeCustomBrand)) return themeCustomBrand;
+
   if (propBrandName && isCustomRestaurantName(propBrandName)) {
     return propBrandName.trim();
   }
 
-  return getThemeDisplayName(targetThemeId, fallbackThemeName || 'Velmora Dining');
+  return restName || getThemeDisplayName(targetThemeId, fallbackThemeName || 'Velmora Dining');
 };

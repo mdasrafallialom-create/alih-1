@@ -46,7 +46,7 @@ const PRESET_GALLERY = [
 const CARD_DATA = [
   {
     en: 'Smoked Salmon Lox',
-    bn: 'স্মোকড স্যামন লক্স',
+    bn: 'Smoked Salmon Lox',
     tag: '#1 Bestseller',
     leftClass: 'left-[0%]',
     bottomClass: 'bottom-[2%]',
@@ -54,7 +54,7 @@ const CARD_DATA = [
   },
   {
     en: 'Bacon & Egg Melt',
-    bn: 'বেকন ও এগ মেল্ট',
+    bn: 'Bacon & Egg Melt',
     tag: '#2 Signature',
     leftClass: 'left-[26%] sm:left-[27%]',
     bottomClass: 'bottom-[15%] sm:bottom-[16%]',
@@ -62,7 +62,7 @@ const CARD_DATA = [
   },
   {
     en: 'Toasted Pastrami',
-    bn: 'টোস্টেড পেস্ত্রামি',
+    bn: 'Toasted Pastrami',
     tag: '#3 Chef Cut',
     leftClass: 'left-[52%] sm:left-[54%]',
     bottomClass: 'bottom-[28%] sm:bottom-[30%]',
@@ -70,7 +70,7 @@ const CARD_DATA = [
   },
   {
     en: 'Artisan Sourdough',
-    bn: 'আর্টিসান সোরডো',
+    bn: 'Artisan Sourdough',
     tag: '#4 Hearth-Boiled',
     leftClass: 'left-[76%] sm:left-[80%]',
     bottomClass: 'bottom-[41%] sm:bottom-[44%]',

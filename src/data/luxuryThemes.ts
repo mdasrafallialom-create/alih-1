@@ -958,5 +958,43 @@ export const LUXURY_THEMES: ThemePreset[] = [
     fontBody: 'Lora, serif',
     features: ['Alpine Fireplace Glow', 'Timber Cabin Vibes', 'Raclette & Fondue Cards'],
     keywords: ['coffee', 'coffee shop', 'cafe', 'alpine', 'chalet', 'fireplace', 'timber']
+  },
+  {
+    id: 'celestia-palace',
+    name: 'Celestia Palace',
+    tagline: 'Ethereal moonlight silver and deep celestial obsidian for ultra-exclusive midnight VIP supper clubs.',
+    category: 'luxury',
+    categoryLabel: '5-Star Midnight VIP',
+    tier: 'pro',
+    tierLabel: 'Pro Exclusive',
+    bgPreview: 'from-[#0b0f19] via-[#111827] to-[#030712]',
+    primaryColor: '#38bdf8',
+    secondaryColor: '#1e293b',
+    accentColor: '#818cf8',
+    surfaceColor: '#0f172a',
+    textColor: '#f8fafc',
+    fontDisplay: 'Cinzel, serif',
+    fontBody: 'Plus Jakarta Sans, sans-serif',
+    features: ['Celestial Starlight Aura', 'Midnight VIP Lounge Grid', 'Obsidian Glass Cards'],
+    keywords: ['luxury', 'celestia', 'midnight', 'vip', 'supper', 'obsidian', 'silver']
+  },
+  {
+    id: 'verdant-oaks',
+    name: 'Verdant Oaks',
+    tagline: 'Botanic greenhouse glass roof ambiance with emerald foliage accents and organic farm-to-table cards.',
+    category: 'bistro',
+    categoryLabel: 'Botanic Greenery Cafe',
+    tier: 'pro',
+    tierLabel: 'Pro Exclusive',
+    bgPreview: 'from-[#022c22] via-[#064e3b] to-[#022c22]',
+    primaryColor: '#34d399',
+    secondaryColor: '#022c22',
+    accentColor: '#6ee7b7',
+    surfaceColor: '#064e3b',
+    textColor: '#ecfdf5',
+    fontDisplay: 'Playfair Display, serif',
+    fontBody: 'Plus Jakarta Sans, sans-serif',
+    features: ['Greenhouse Canopy Glow', 'Botanic Foliage Cards', 'Organic Farm-to-Table Badge'],
+    keywords: ['coffee', 'cafe', 'greenhouse', 'botanic', 'emerald', 'organic', 'farm']
   }
 ];

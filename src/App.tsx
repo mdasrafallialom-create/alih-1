@@ -2443,10 +2443,10 @@ export default function App() {
 
             <div className="space-y-2">
               <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                থিম লোড হচ্ছে... (Loading Theme...)
+                Loading Theme...
               </h3>
               <p className="text-xs font-bold text-slate-500 leading-relaxed">
-                আপনার ডেমো ওয়েবসাইট এবং অ্যাডমিন প্যানেলটি প্রস্তুত করা হচ্ছে। অনুগ্রহ করে ২-৩ সেকেন্ড অপেক্ষা করুন।
+                Your demo website and admin panel are being prepared. Please wait 2-3 seconds.
               </p>
             </div>
           </div>
@@ -3088,7 +3088,7 @@ export default function App() {
       {/* =======================================================================
           SMART MOBILE BOTTOM NAVIGATION (Dishes & Cart Only)
           ======================================================================= */}
-      {viewMode === 'client' && (
+      {viewMode === 'client' && !isCustomThemeActive && (
         <nav
           className={`fixed bottom-0 left-0 right-0 z-40 md:hidden bg-slate-900/95 backdrop-blur-2xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] no-print pb-safe transition-all duration-300 transform-gpu ${
             isNavVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
@@ -3149,20 +3149,6 @@ export default function App() {
         {viewMode === 'client' && (
           isCustomThemeActive ? (
             <>
-              {/* Persistent Floating Return-to-Restaurant-Menu Bar */}
-              <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white backdrop-blur-xl border border-cyan-400/60 shadow-2xl transition-all hover:scale-105 active:scale-95 no-print">
-                <button
-                  type="button"
-                  onClick={handleExitThemeView}
-                  className="flex items-center gap-2 text-xs font-black text-cyan-200 hover:text-white transition-colors cursor-pointer"
-                  title={'Return to Menu'}
-                >
-                  <Home className="w-4 h-4 text-cyan-300" />
-                  <span>{'🍽️ Return to Restaurant Menu'}</span>
-                </button>
-              </div>
-
-
               {effectiveThemeId === 'lunavere' ? (
                 <LunavereTheme 
                   brandName={
@@ -3910,7 +3896,6 @@ export default function App() {
             url.searchParams.set('plan', planCode);
             window.history.replaceState({}, '', url.toString());
 
-            // Open that exact plan modal ($15, $49, or $99)
             setTimeout(() => {
               window.dispatchEvent(new CustomEvent('open-plan-modal', { detail: planCode }));
               const pricingEl = document.getElementById('pricing-section') || document.getElementById('pricing');
@@ -3926,6 +3911,59 @@ export default function App() {
           setTrialSession(data);
         }}
       />
+
+      {/* 3-DAY TRIAL EXPIRED & ACCOUNT LOCKED MODAL */}
+      {(() => {
+        const isPaid = adminSettings?.subscriptionStatus === 'active' || (adminSettings as any)?.isPaidSubscriber || trialSession?.isPaid;
+        const trialStarted = adminSettings?.trialStartedAt || adminSettings?.createdAt || 0;
+        const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+        const isExpired = trialStarted > 0 && adminSettings?.subscriptionStatus === 'trial' && (Date.now() - trialStarted > threeDaysMs) && !isPaid;
+        if (!isExpired) return null;
+        return (
+          <div className="fixed inset-0 z-[1100] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-red-500/30 rounded-3xl max-w-md w-full p-8 text-center space-y-6 shadow-2xl">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-black text-white tracking-tight">
+                  3-Day Free Trial Expired
+                </h2>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Your 3-day trial period has ended without payment. The Gmail account ({user?.email || adminSettings?.contactEmail || 'your email'}) is now locked and deactivated. To continue, please subscribe to a paid plan or register with a new Gmail account.
+                </p>
+              </div>
+              <div className="space-y-3 pt-2">
+                <button
+                  onClick={() => {
+                    if (activeRestaurantId) {
+                      updateDoc(doc(db, "restaurants", activeRestaurantId), { subscriptionStatus: 'active', isPaidSubscriber: true });
+                    }
+                    setAdminSettings(prev => prev ? ({ ...prev, subscriptionStatus: 'active', isPaidSubscriber: true }) : null);
+                    if (trialSession) setTrialSession(prev => prev ? ({ ...prev, isPaid: true, subscriptionStatus: 'active' }) : null);
+                  }}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs shadow-lg shadow-emerald-500/25 hover:opacity-95 transition-all cursor-pointer"
+                >
+                  Activate Subscription & Unlock ($15/mo)
+                </button>
+                <button
+                  onClick={() => {
+                    setTrialSession(null);
+                    if (typeof window !== 'undefined') {
+                      localStorage.removeItem('webar_trial_session');
+                      localStorage.removeItem('webar_active_restaurant_id');
+                    }
+                    window.location.reload();
+                  }}
+                  className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition-all cursor-pointer"
+                >
+                  Register New Account (New Gmail)
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
